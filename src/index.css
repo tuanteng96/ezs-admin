@@ -1,0 +1,59 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+    --ezs-body-bg: #f5f8fa;
+    --ezs-body-color: #181C32;
+}
+
+html.dark {
+    --ezs-body-bg: #151521;
+    --ezs-body-color: #FFFFFF;
+}
+
+/* Import */
+@import url('/src/_ezs/assets/plugin/rc-tooltip/rc-tooltip.css');
+@import url('/src/_ezs/assets/plugin/react-datepicker/react-datepicker.css');
+@import url('/src/_ezs/assets/plugin/react-toastify/ReactToastify.css');
+
+/* Root */
+html {
+    text-size-adjust: 100%;
+}
+
+html,
+body {
+    height: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--ezs-body-color);
+    background: var(--ezs-body-bg);
+}
+
+#root {
+    height: 100%;
+}
+
+[tabindex],
+*:focus-visible {
+    outline: none;
+}
+
+/* Scrollbar */
+.scrollbar-min::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+.scrollbar-dark::-webkit-scrollbar {
+    width: 5px;
+}
+
+.scrollbar-dark::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    background: #323248;
+}
+
+.scrollbar-dark::-webkit-scrollbar-track {
+    border-radius: 10px;
+}
