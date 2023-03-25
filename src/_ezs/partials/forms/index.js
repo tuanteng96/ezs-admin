@@ -1,7 +1,6 @@
 import { Input } from './input/Input'
 import { InputSolid } from './input/InputSolid'
-//
-import { UploadFile } from '../files/UploadFile'
+import { InputTextarea } from './input/InputTextarea'
 
 // Input
-export { Input, InputSolid, UploadFile }
+export { Input, InputSolid, InputTextarea }

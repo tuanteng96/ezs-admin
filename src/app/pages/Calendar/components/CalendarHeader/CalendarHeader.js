@@ -16,9 +16,8 @@ import 'moment/locale/vi'
 moment.locale('vi')
 
 function CalendarHeader(props) {
+  const { pathname } = useLocation()
 
-  const { pathname } = useLocation();
-  
   return (
     <div className="relative flex justify-between bg-white shadow-lg border-t border-separator px-4 py-4 dark:bg-dark-aside dark:border-t dark:border-[#393945] dark:border-dashed">
       <div>
@@ -36,13 +35,13 @@ function CalendarHeader(props) {
           </button>
           <button
             type="button"
-            className="px-4 font-medium transition border-t border-b bg-light border-light h-11 dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
+            className="px-4 font-semibold transition border-t border-b bg-light border-light h-11 dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
           >
             Hôm nay
           </button>
           <button
             type="button"
-            className="px-4 font-medium transition bg-white border-t border-b border-l border-light h-11 dark:bg-transparent dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
+            className="px-4 font-semibold transition bg-white border-t border-b border-l border-light h-11 dark:bg-transparent dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
           >
             {moment().format('dd, D MMMM, YYYY')}
           </button>

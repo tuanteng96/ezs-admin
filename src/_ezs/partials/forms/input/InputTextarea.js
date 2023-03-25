@@ -2,14 +2,20 @@ import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
 import React from 'react'
 
-const Input = ({ errorMessage, errorMessageForce, ...props }) => {
+const InputTextarea = ({
+  className,
+  errorMessage,
+  errorMessageForce,
+  ...props
+}) => {
   return (
     <>
       <div className="relative">
-        <input
+        <textarea
           type="text"
           className={clsx(
             'w-full px-5 py-3 font-medium text-gray-700 transition bg-white border rounded outline-none dark:bg-site-aside disabled:bg-gray-200 disabled:border-gray-200 dark:disabled:bg-graydark-200 dark:text-graydark-700',
+            className && className,
             errorMessageForce
               ? 'border-danger'
               : 'border-gray-300 dark:border-graydark-400 focus:border-primary dark:focus:border-primary'
@@ -30,4 +36,4 @@ const Input = ({ errorMessage, errorMessageForce, ...props }) => {
   )
 }
 
-export { Input }
+export { InputTextarea }

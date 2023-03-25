@@ -1,7 +1,6 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 :root {
     --ezs-body-bg: #f5f8fa;
     --ezs-body-color: #181C32;
@@ -12,12 +11,16 @@ html.dark {
     --ezs-body-color: #FFFFFF;
 }
 
+
 /* Import */
+
 @import url('/src/_ezs/assets/plugin/rc-tooltip/rc-tooltip.css');
 @import url('/src/_ezs/assets/plugin/react-datepicker/react-datepicker.css');
 @import url('/src/_ezs/assets/plugin/react-toastify/ReactToastify.css');
+@import url('/src/_ezs/assets/plugin/react-select/react-select.css');
 
 /* Root */
+
 html {
     text-size-adjust: 100%;
 }
@@ -40,11 +43,14 @@ body {
     outline: none;
 }
 
+
 /* Scrollbar */
+
 .scrollbar-min::-webkit-scrollbar {
     width: 4px;
     height: 4px;
 }
+
 .scrollbar-dark::-webkit-scrollbar {
     width: 5px;
 }
@@ -56,4 +62,30 @@ body {
 
 .scrollbar-dark::-webkit-scrollbar-track {
     border-radius: 10px;
+}
+
+
+/* Checkbox */
+
+.checkbox .icon::after {
+    content: "";
+    border-color: transparent;
+    border-style: solid;
+    border-width: 0 2px 2px 0/*rtl:ignore*/
+    !important;
+    -webkit-transform: rotate(45deg);
+    /*rtl:ignore*/
+    transform: rotate(45deg);
+    /*rtl:ignore*/
+    width: 6px;
+    height: 12px;
+}
+
+.checkbox input:checked+.icon.checkbox-primary {
+    @apply bg-primary
+}
+
+.checkbox input:checked+.icon::after {
+    border-color: #ffffff;
+    display: block;
 }

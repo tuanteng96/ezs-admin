@@ -2,7 +2,7 @@ import React from 'react'
 import { toast } from 'react-toastify'
 import { Button } from 'src/_ezs/partials/button'
 import { Card } from 'src/_ezs/partials/card'
-import { InputSolid, UploadFile } from 'src/_ezs/partials/forms'
+import { InputSolid } from 'src/_ezs/partials/forms'
 import { Controller, useForm } from 'react-hook-form'
 import { useAuth } from 'src/_ezs/core/Auth'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -10,6 +10,7 @@ import * as yup from 'yup'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import UsersAPI from 'src/_ezs/api/users.api'
 import { ChangePassword } from './components/ChangePassword'
+import { UploadFile } from 'src/_ezs/partials/files'
 
 const schemaUpdateInfo = yup
   .object({

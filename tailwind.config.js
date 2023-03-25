@@ -1,95 +1,95 @@
 /** @type {import('tailwindcss').Config} */
-const withMT = require("@material-tailwind/react/utils/withMT");
+const withMT = require('@material-tailwind/react/utils/withMT')
 
 module.exports = withMT({
   darkMode: ['class'],
-  content: ["./src/**/*.{js,jsx,ts,tsx}"],
+  content: ['./src/**/*.{js,jsx,ts,tsx}'],
   theme: {
     container: {
-      center: true,
+      center: true
     },
     // fontSize: {
     //   // 'sm': '0.938rem'
     // },
     colors: {
       gray: {
-        100: "#f9f9f9",
-        200: "#F4F4F4",
-        400: "#B5B5C3",
-        500: "#A1A5B7",
-        600: "#7E8299",
-        700: "#5E6278",
-        800: "#3F4254"
+        100: '#f9f9f9',
+        200: '#F4F4F4',
+        400: '#B5B5C3',
+        500: '#A1A5B7',
+        600: '#7E8299',
+        700: '#5E6278',
+        800: '#3F4254'
       },
       graydark: {
-        100: "#1b1b29",
-        200: "#2B2B40",
-        400: "#323248",
-        500: "#565674",
-        600: "#6D6D80",
-        700: "#92929F",
-        800: "#CDCDDE",
+        100: '#1b1b29',
+        200: '#2B2B40',
+        400: '#323248',
+        500: '#565674',
+        600: '#6D6D80',
+        700: '#92929F',
+        800: '#CDCDDE'
       },
       site: {
-        'app': "#f5f8fa",
-        'aside': '#1e1e2d',
+        app: '#f5f8fa',
+        aside: '#1e1e2d',
         'aside-hover': '#2a2a3c',
-        'color': "#181C32",
-        'muted': "#b5b5c3",
+        color: '#181C32',
+        muted: '#b5b5c3'
       },
       dark: {
-        'app': "#151521",
-        'muted': "#92929F",
-        'light': "#2B2B40",
-        'primarylight': "#212e48",
-        'successlight': "#1c3238",  
-        'aside': "#1e1e2d",
-        'shadow': "rgba(0, 0, 0, 0.3)",
-        'gray': "#CDCDDE",
-        'danger': '#f1416c',
+        app: '#151521',
+        muted: '#92929F',
+        light: '#2B2B40',
+        primarylight: '#212e48',
+        successlight: '#1c3238',
+        aside: '#1e1e2d',
+        shadow: 'rgba(0, 0, 0, 0.3)',
+        gray: '#CDCDDE',
+        danger: '#f1416c'
       },
-      primary: "#3699ff",
-      primaryhv: "#187de4",
-      primarylight: "#e1f0ff",
-      danger: "#f64e60",
-      dangerhv: "#EE2D41",
-      light: "#F4F6FA",
-      lightinverse: "#7E8299",
+      primary: '#3699ff',
+      primaryhv: '#187de4',
+      primarylight: '#e1f0ff',
+      danger: '#f64e60',
+      dangerhv: '#EE2D41',
+      light: '#F4F6FA',
+      lightinverse: '#7E8299',
       success: '#50cd89',
-      successlight: "#e8fff3",
-      successhv: "#47be7d",
-      muted: "#A1A5B7"
+      successlight: '#e8fff3',
+      successhv: '#47be7d',
+      muted: '#A1A5B7'
     },
     borderColor: {
       gray: {
-        100: "#f9f9f9",
-        200: "#F4F4F4",
-        300: "#d5d7da",
-        400: "#B5B5C3",
-        700: "#5E6278",
-        800: "#3F4254"
+        100: '#f9f9f9',
+        200: '#F4F4F4',
+        300: '#d5d7da',
+        400: '#B5B5C3',
+        700: '#5E6278',
+        800: '#3F4254'
       },
       graydark: {
-        100: "#1b1b29",
-        200: "#2B2B40",
-        300: "#d5d7da",
-        400: "#323248",
-        700: "#92929F",
-        800: "#CDCDDE",
+        100: '#1b1b29',
+        200: '#2B2B40',
+        300: '#d5d7da',
+        400: '#323248',
+        700: '#92929F',
+        800: '#CDCDDE'
       },
-      white: "#fff",
-      primary: "#3699ff",
-      primaryhv: "#187de4",
-      separator: "#F4F4F4",
-      danger: "#F64E60",
-      dangerhv: "#EE2D41",
+      white: '#fff',
+      primary: '#3699ff',
+      primaryhv: '#187de4',
+      separator: '#F4F4F4',
+      danger: '#F64E60',
+      dangerhv: '#EE2D41',
       success: '#1bc5bd',
       light: '#EBEDF3',
-      transparent: "transparent",
+      transparent: 'transparent',
       dark: {
-        'separator': "#2B2B40",
-        'muted': '#3d3c59',
-        'light': '#EBEDF3',
+        separator: '#2B2B40',
+        muted: '#3d3c59',
+        light: '#EBEDF3'
       }
     },
     boxShadow: {
@@ -97,98 +97,96 @@ module.exports = withMT({
       sm: '0px 0px 20px 0px rgba(76, 87, 125, 0.02)'
     },
     fontFamily: {
-      sans: ["Mulish", "sans-serif"],
-      inter: ["Inter", "sans-serif"],
+      sans: ['Mulish', 'sans-serif'],
+      inter: ['Inter', 'sans-serif']
     },
     extend: {
       keyframes: {
         ringBell: {
-          "0%": {
-            transform: "rotate(0)"
+          '0%': {
+            transform: 'rotate(0)'
           },
-          "1%": {
-            transform: "rotate(30deg)"
+          '1%': {
+            transform: 'rotate(30deg)'
           },
-          "3%": {
-            transform: "rotate(-28deg)"
+          '3%': {
+            transform: 'rotate(-28deg)'
           },
-          "5%": {
-            transform: "rotate(34deg) "
+          '5%': {
+            transform: 'rotate(34deg) '
           },
-          "7%": {
-            transform: "rotate(-32deg)"
+          '7%': {
+            transform: 'rotate(-32deg)'
           },
-          "9%": {
-            transform: "rotate(30deg)"
+          '9%': {
+            transform: 'rotate(30deg)'
           },
-          "11%": {
-            transform: "rotate(-28deg)"
+          '11%': {
+            transform: 'rotate(-28deg)'
           },
-          "13%": {
-            transform: "rotate(26deg)"
+          '13%': {
+            transform: 'rotate(26deg)'
           },
-          "15%": {
-            transform: "rotate(-24deg)"
+          '15%': {
+            transform: 'rotate(-24deg)'
           },
-          "17%": {
-            transform: "rotate(22deg) "
+          '17%': {
+            transform: 'rotate(22deg) '
           },
-          " 19%": {
-            transform: "rotate(-20deg) "
+          ' 19%': {
+            transform: 'rotate(-20deg) '
           },
-          "21%": {
-            transform: "rotate(18deg) "
+          '21%': {
+            transform: 'rotate(18deg) '
           },
-          "23%": {
-            transform: "rotate(-16deg)"
+          '23%': {
+            transform: 'rotate(-16deg)'
           },
-          "25%": {
-            transform: "rotate(14deg)"
+          '25%': {
+            transform: 'rotate(14deg)'
           },
-          "27%": {
-            transform: "rotate(-12deg)"
+          '27%': {
+            transform: 'rotate(-12deg)'
           },
-          "29%": {
-            transform: "rotate(10deg)"
+          '29%': {
+            transform: 'rotate(10deg)'
           },
-          "31%": {
-            transform: "rotate(-8deg)"
+          '31%': {
+            transform: 'rotate(-8deg)'
           },
-          "33%": {
-            transform: "rotate(6deg)"
+          '33%': {
+            transform: 'rotate(6deg)'
           },
-          "35%": {
-            transform: "rotate(-4deg)"
+          '35%': {
+            transform: 'rotate(-4deg)'
           },
-          "37%": {
-            transform: "rotate(2deg)"
+          '37%': {
+            transform: 'rotate(2deg)'
           },
-          "39%": {
-            transform: "rotate(-1deg)"
+          '39%': {
+            transform: 'rotate(-1deg)'
           },
-          "41%": {
-            transform: "rotate(1deg) "
+          '41%': {
+            transform: 'rotate(1deg) '
           },
-          "43%": {
-            transform: "rotate(0)"
+          '43%': {
+            transform: 'rotate(0)'
           },
-          "100%": {
-            transform: "rotate(0)"
+          '100%': {
+            transform: 'rotate(0)'
           }
         },
         Blink: {
-          "100%": {
-            visibility: "hidden"
+          '100%': {
+            visibility: 'hidden'
           }
         }
       },
       animation: {
-        "ring-bell": "ringBell 2s .7s ease-in-out infinite",
-        "blink": "Blink 1s steps(5, start) infinite"
+        'ring-bell': 'ringBell 2s .7s ease-in-out infinite',
+        blink: 'Blink 1s steps(5, start) infinite'
       }
-    },
+    }
   },
-  plugins: [
-    require('tailwind-scrollbar')({ nocompatible: true })
-  ]
-});
+  plugins: [require('tailwind-scrollbar')({ nocompatible: true })]
+})
