@@ -25,7 +25,11 @@ const AuthProvider = ({ children }) => {
   const saveAuth = ({ auth, token }) => {
     if (auth) {
       let newStocks = auth.Stocks
-        ? auth.Stocks.filter(x => x.ParentID !== 0)
+        ? auth.Stocks.filter(x => x.ParentID !== 0).map(x => ({
+            ...x,
+            value: x.ID,
+            label: x.Title
+          }))
         : []
 
       setStocks(newStocks)

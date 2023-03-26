@@ -1,29 +1,24 @@
-import React from 'react'
-import { createSearchParams, Link, useLocation } from 'react-router-dom'
-import useQueryString from 'src/_ezs/hooks/useQueryString'
-import CalendarHeader from './components/CalendarHeader/CalendarHeader'
+import React, { lazy } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import SuspensedView from 'src/app/routing/SuspensedView'
+import { CalendarLayout } from './CalendarLayout'
+
+const Home = lazy(() => import('./pages/Home'))
 
 export default function CalendarPage() {
-  //console.log(useQueryString())
-  const { pathname } = useLocation()
   return (
-    <div className="flex flex-col h-full">
-      <CalendarHeader />
-      <div className="bg-white dark:bg-dark-app grow">
-        Page Calendar
-        <Link
-          type="button"
-          to={{
-            path: pathname,
-            search: createSearchParams({
-              stockid: 8795,
-              name: 'Nguyễn Tuấn'
-            }).toString()
-          }}
-        >
-          Click
-        </Link>
-      </div>
-    </div>
+    <Routes>
+      <Route element={<CalendarLayout />}>
+        <Route
+          index
+          element={
+            <SuspensedView>
+              <Home />
+            </SuspensedView>
+          }
+        />
+        <Route path="*" element={<Navigate to="/calendar" />} />
+      </Route>
+    </Routes>
   )
 }

@@ -30,7 +30,7 @@ function PrivateRoutes(props) {
           }
         />
         <Route
-          path="calendar"
+          path="calendar/*"
           element={
             <SuspensedView>
               <CalendarPage />

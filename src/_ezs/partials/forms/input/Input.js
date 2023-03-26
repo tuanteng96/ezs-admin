@@ -9,7 +9,7 @@ const Input = ({ errorMessage, errorMessageForce, ...props }) => {
         <input
           type="text"
           className={clsx(
-            'w-full px-5 py-3 font-medium text-gray-700 transition bg-white border rounded outline-none dark:bg-site-aside disabled:bg-gray-200 disabled:border-gray-200 dark:disabled:bg-graydark-200 dark:text-graydark-700',
+            'w-full px-5 py-3 font-medium text-gray-700 transition bg-white autofill:bg-white border rounded outline-none dark:bg-site-aside disabled:bg-gray-200 disabled:border-gray-200 dark:disabled:bg-graydark-200 dark:text-graydark-700',
             errorMessageForce
               ? 'border-danger'
               : 'border-gray-300 dark:border-graydark-400 focus:border-primary dark:focus:border-primary'

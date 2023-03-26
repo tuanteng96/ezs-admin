@@ -6,6 +6,11 @@
     --select-bg: #fff;
     --select-bg-item-multi: #f4f6fa;
     --select-color-item-multi: #212121;
+    --select-heading-color: #999999;
+    /* // */
+    --select-bg-solid: #f9f9f9;
+    --select-bg-solid-hover: #F4F4F4;
+    --select-color-placeholder-solid: #5e6278;
 }
 
 html.dark {
@@ -16,41 +21,54 @@ html.dark {
     --select-disabled-color: #2b2b40;
     --select-bg-item-multi: #2b2b40;
     --select-color-item-multi: #fff;
+    --select-heading-color: #92929f;
+
+    /* // */
+    --select-bg-solid: #1b1b29;
+    --select-bg-solid-hover: #2B2B40;
+    --select-color-placeholder-solid: #92929f;
 }
 
+.select__menu-portal .select__control,
 .select-control .select__control {
     border-color: var(--select-border-color);
     box-shadow: none;
     background-color: var(--select-bg);
 }
 
+.select__menu-portal .select__control:hover,
 .select-control .select__control:hover {
     border-color: var(--select-border-color);
 }
 
+.select__menu-portal .select__control.select__control--is-focused,
 .select-control .select__control.select__control--is-focused {
     border-color: var(--ezs-datepicker-bg-selected);
 }
 
+.select__menu-portal .select__value-container,
 .select-control .select__value-container {
     padding: 9px 18px;
 }
 
+.select__menu-portal .select__menu,
 .select-control .select__menu {
     border: 0;
     box-shadow: var(--ezs-datepicker-shadow);
     background-color: var(--select-bg);
 }
 
+.select__menu-portal .select__menu .select__menu-list,
 .select-control .select__menu .select__menu-list {
     padding: 0.5rem 0;
 }
 
+.select__menu-portal .select__menu .select__option,
 .select-control .select__menu .select__option {
     color: var(--select-color-item);
     font-weight: 500;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 1rem;
     transition: all .3s ease;
     font-family: "Inter", sans-serif;
     padding: 10px 12px;
@@ -62,21 +80,28 @@ html.dark {
     color: var(--ezs-datepicker-bg-selected);
 } */
 
+.select__menu-portal .select__menu .select__option:hover,
 .select-control .select__menu .select__option:hover {
     background-color: var(--select-bg-item-hover);
     color: var(--ezs-datepicker-bg-selected);
 }
 
+.select__menu-portal .select__menu .select__option.select__option--is-selected,
 .select-control .select__menu .select__option.select__option--is-selected {
     background-color: var(--select-bg-item-hover);
     color: var(--ezs-datepicker-bg-selected);
 }
 
+.select__menu-portal .select__control.select__control--is-disabled,
 .select-control .select__control.select__control--is-disabled {
     background: var(--select-disabled-color);
     border: 1px solid var(--select-disabled-color);
 }
 
+.select__menu-portal .select__input-container,
+.select__menu-portal .select__value-container .select__single-value,
+.select__menu-portal .select__value-container .select__placeholder,
+.select__menu-portal .select__menu-notice.select__menu-notice--no-options,
 .select-control .select__input-container,
 .select-control .select__value-container .select__single-value,
 .select-control .select__value-container .select__placeholder,
@@ -85,18 +110,49 @@ html.dark {
     font-weight: 500;
 }
 
+.select__menu-portal .select__indicator.select__clear-indicator,
+.select__menu-portal .select__indicator.select__dropdown-indicator,
 .select-control .select__indicator.select__clear-indicator,
 .select-control .select__indicator.select__dropdown-indicator {
     color: var(--select-color-item)
 }
 
+.select__menu-portal .select__indicator-separator,
 .select-control .select__indicator-separator {
     background-color: var(--select-border-color);
 }
 
+.select__menu-portal .select__multi-value,
+.select__menu-portal .select__multi-value__label,
 .select-control .select__multi-value,
 .select-control .select__multi-value__label {
     color: var(--select-color-item-multi);
     background-color: var(--select-bg-item-multi);
     font-weight: 600;
+}
+
+.select__menu-portal .select__group-heading,
+.select-control .select__group-heading {
+    color: var(--select-heading-color);
+    margin-bottom: 10px;
+}
+
+/* // */
+.select__menu-portal.select-control-solid .select__control,
+.select-control.select-control-solid .select__control {
+    background-color: var(--select-bg-solid);
+    border-color: var(--select-bg-solid);
+}
+
+.select__menu-portal.select-control-solid .select__control.select__control--menu-is-open,
+.select__menu-portal.select-control-solid .select__control:hover,
+.select-control.select-control-solid .select__control.select__control--menu-is-open,
+.select-control.select-control-solid .select__control:hover {
+    background-color: var(--select-bg-solid-hover);
+    border-color: var(--select-bg-solid-hover);
+}
+
+.select__menu-portal.select-control-solid .select__value-container .select__placeholder,
+.select-control.select-control-solid .select__value-container .select__placeholder {
+    color: var(--select-color-placeholder-solid);
 }

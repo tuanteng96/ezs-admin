@@ -84,7 +84,7 @@ const DropdownCheckin = props => {
             leaveFrom="translate-x-0"
             leaveTo="translate-x-full"
           >
-            <div className="relative py-5 text-xl font-bold text-center border-b border-separator dark:border-dark-separator dark:text-graydark-800">
+            <div className="relative py-5 text-2xl font-bold text-center border-b border-separator dark:border-dark-separator dark:text-graydark-800">
               <div
                 className="absolute flex items-center justify-center transition cursor-pointer w-11 h-11 dark:text-graydark-800 hover:text-primary top-1/2 -translate-y-2/4 left-3"
                 onClick={onHideShowing}
