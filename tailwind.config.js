@@ -68,7 +68,8 @@ module.exports = withMT({
         300: '#d5d7da',
         400: '#B5B5C3',
         700: '#5E6278',
-        800: '#3F4254'
+        800: '#3F4254',
+        900: "#222222"
       },
       graydark: {
         100: '#1b1b29',
@@ -76,7 +77,8 @@ module.exports = withMT({
         300: '#d5d7da',
         400: '#323248',
         700: '#92929F',
-        800: '#CDCDDE'
+        800: '#CDCDDE',
+        900: "#222222"
       },
       white: '#fff',
       primary: '#3699ff',

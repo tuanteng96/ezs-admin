@@ -25,6 +25,7 @@ const InputTimePicker = ({
   errorMessage,
   errorMessageForce,
   value,
+  onChange,
   ...props
 }) => {
   const componentRef = useRef()
@@ -47,7 +48,7 @@ const InputTimePicker = ({
     <>
       <div className="relative">
         <Tooltip
-          //visible={true}
+          // visible={true}
           afterVisibleChange={() => {
             const index = ListTime.findIndex(x => x.value === value)
             if (index > 1) {
@@ -65,6 +66,7 @@ const InputTimePicker = ({
               {ListTime &&
                 ListTime.map((item, index) => (
                   <div
+                    onClick={() => onChange(item.value)}
                     key={index}
                     className={clsx(
                       'flex items-center px-5 py-2 text-[15px] font-medium hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary',
