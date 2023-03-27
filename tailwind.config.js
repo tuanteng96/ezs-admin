@@ -53,11 +53,12 @@ module.exports = withMT({
       primarylight: '#e1f0ff',
       danger: '#f64e60',
       dangerhv: '#EE2D41',
+      dangerlight: '#FFE2E5',
       light: '#F4F6FA',
       lightinverse: '#7E8299',
-      success: '#50cd89',
-      successlight: '#e8fff3',
-      successhv: '#47be7d',
+      success: '#1bc5bd',
+      successlight: '#C9F7F5',
+      successhv: '#0BB7AF',
       muted: '#A1A5B7'
     },
     borderColor: {

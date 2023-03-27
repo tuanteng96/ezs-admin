@@ -2,7 +2,13 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
-const Checkbox = ({ labelText, htmlFor, className, ...props }) => {
+const Checkbox = ({
+  labelText,
+  labelClassName = 'pl-2',
+  htmlFor,
+  className,
+  ...props
+}) => {
   return (
     <label
       htmlFor={htmlFor}
@@ -18,7 +24,7 @@ const Checkbox = ({ labelText, htmlFor, className, ...props }) => {
         {...props}
       />
       <span className="w-5 h-5 bg-[#EBEDF3] dark:bg-dark-light rounded block icon checkbox-primary relative after:absolute after:left-2 after:top-[3px] transition"></span>
-      {labelText && <span className="pl-2">{labelText}</span>}
+      {labelText && <span className={labelClassName}>{labelText}</span>}
     </label>
   )
 }

@@ -2,7 +2,10 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import clsx from 'clsx'
 
-function LoadingComponentFull({ loading, bgClassName="bg-light dark:bg-dark-light" }) {
+function LoadingComponentFull({
+  loading,
+  bgClassName = 'bg-light dark:bg-dark-light'
+}) {
   return (
     <div
       role="status"

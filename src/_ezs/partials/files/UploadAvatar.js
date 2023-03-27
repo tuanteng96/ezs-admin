@@ -5,7 +5,7 @@ import clsx from 'clsx'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 import UploadsAPI from 'src/_ezs/api/uploads.api'
-import { toAbsolutePath, toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
+import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
 
 const UploadAvatar = ({
   value,

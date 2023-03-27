@@ -6,16 +6,19 @@ import { DropdownUser } from './DropdownUser'
 import { DropdownStocks } from './DropdownStocks'
 import { NotificationDrawer } from './NotificationDrawer'
 import { DropdownCheckin } from './DropdownCheckin'
+import { Link } from 'react-router-dom'
 
 const Header = () => {
   return (
     <div className="h-[70px] bg-white dark:bg-dark-aside fixed w-full top-0 left-0 z-[1001] flex justify-between pr-4 transition">
       <div className="flex items-center justify-center w-[72px] bg-site-aside">
-        <img
-          className="h-5"
-          src={toAbsoluteUrl('/assets/images/logos/logo-ezs.png')}
-          alt="EZS - Phần mềm quản lý Spa"
-        />
+        <Link className="block" to="/">
+          <img
+            className="h-5"
+            src={toAbsoluteUrl('/assets/images/logos/logo-ezs.png')}
+            alt="EZS - Phần mềm quản lý Spa"
+          />
+        </Link>
       </div>
       <div className="flex justify-between flex-1">
         <div className="flex items-center pl-4">

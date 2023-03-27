@@ -22,7 +22,7 @@ import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/Loading
 import clsx from 'clsx'
 import Swal from 'sweetalert2'
 
-const initialValus = {
+const initialValues = {
   BirthDate_Web: '',
   MemberGroups: null,
   InputGroups: '',
@@ -91,7 +91,7 @@ function ClientAddEdit(props) {
   const navigate = useNavigate()
 
   const { control, handleSubmit, setValue, setError, reset } = useForm({
-    defaultValues: initialValus,
+    defaultValues: initialValues,
     resolver: yupResolver(schemaUsers)
   })
 
@@ -311,7 +311,7 @@ function ClientAddEdit(props) {
                 </div>
                 <div className="grid flex-1 grid-cols-2 gap-5 pl-6">
                   <div>
-                    <div className="mb-1.5 text-base text-gray-900 dark:text-graydark-900 font-inter font-medium dark:text-graydark-800">
+                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                       Họ và tên
                     </div>
                     <Controller
@@ -330,7 +330,7 @@ function ClientAddEdit(props) {
                     />
                   </div>
                   <div>
-                    <div className="mb-1.5 text-base text-gray-900 dark:text-graydark-900 font-inter font-medium dark:text-graydark-800">
+                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                       Email
                     </div>
                     <Controller
@@ -349,7 +349,7 @@ function ClientAddEdit(props) {
                     />
                   </div>
                   <div>
-                    <div className="mb-1.5 text-base text-gray-900 dark:text-graydark-900 font-inter font-medium dark:text-graydark-800">
+                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                       Số điện thoại
                     </div>
                     <Controller
@@ -368,7 +368,7 @@ function ClientAddEdit(props) {
                     />
                   </div>
                   <div>
-                    <div className="mb-1.5 text-base text-gray-900 dark:text-graydark-900 font-inter font-medium dark:text-graydark-800">
+                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                       Số điện thoại khác
                       <span className="pl-1 font-sans font-normal text-muted">
                         ( Nếu có )
@@ -391,7 +391,7 @@ function ClientAddEdit(props) {
               </div>
               <div className="p-5">
                 <div>
-                  <div className="mb-1.5 text-base text-gray-900 dark:text-graydark-900 font-inter font-medium dark:text-graydark-800">
+                  <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                     Ghi chú
                     <span className="pl-1 font-sans font-normal text-muted">
                       ( Tùy chọn )
@@ -416,7 +416,7 @@ function ClientAddEdit(props) {
               <div className="p-5 border-t border-separator dark:border-dark-separator">
                 <div className="grid grid-cols-2 gap-5">
                   <div>
-                    <div className="mb-1.5 text-base text-gray-900 dark:text-graydark-900 font-inter font-medium dark:text-graydark-800">
+                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                       Ngày sinh
                     </div>
                     <Controller
@@ -435,7 +435,7 @@ function ClientAddEdit(props) {
                     />
                   </div>
                   <div>
-                    <div className="mb-1.5 text-base text-gray-900 dark:text-graydark-900 font-inter font-medium dark:text-graydark-800">
+                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                       Giới tính
                     </div>
                     <Controller
@@ -451,7 +451,7 @@ function ClientAddEdit(props) {
                     />
                   </div>
                   <div className="col-span-2">
-                    <div className="mb-1.5 text-base text-gray-900 dark:text-graydark-900 font-inter font-medium dark:text-graydark-800">
+                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                       Địa chỉ
                     </div>
                     <Controller
@@ -472,7 +472,7 @@ function ClientAddEdit(props) {
                     control={control}
                     render={({ field: { ref, ...field }, fieldState }) => (
                       <div>
-                        <div className="mb-1.5 text-base text-gray-900 dark:text-graydark-900 font-inter font-medium dark:text-graydark-800">
+                        <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                           Thành phố
                         </div>
                         <Select
@@ -506,7 +506,7 @@ function ClientAddEdit(props) {
                     control={control}
                     render={({ field: { ref, ...field }, fieldState }) => (
                       <div>
-                        <div className="mb-1.5 text-base text-gray-900 dark:text-graydark-900 font-inter font-medium dark:text-graydark-800">
+                        <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                           Quận huyện
                         </div>
                         <SelectDistricts
@@ -521,7 +521,7 @@ function ClientAddEdit(props) {
                     )}
                   />
                   <div>
-                    <div className="mb-1.5 text-base text-gray-900 dark:text-graydark-900 font-inter font-medium dark:text-graydark-800">
+                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                       Nhân viên phụ trách
                     </div>
                     <Controller
@@ -538,7 +538,7 @@ function ClientAddEdit(props) {
                     />
                   </div>
                   <div>
-                    <div className="mb-1.5 text-base text-gray-900 dark:text-graydark-900 font-inter font-medium dark:text-graydark-800">
+                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                       Nguồn
                     </div>
                     <Controller
@@ -562,7 +562,7 @@ function ClientAddEdit(props) {
                     />
                   </div>
                   <div>
-                    <div className="mb-1.5 text-base text-gray-900 dark:text-graydark-900 font-inter font-medium dark:text-graydark-800">
+                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                       Mã vạch
                     </div>
                     <Controller
@@ -579,7 +579,7 @@ function ClientAddEdit(props) {
                     />
                   </div>
                   <div>
-                    <div className="mb-1.5 text-base text-gray-900 dark:text-graydark-900 font-inter font-medium dark:text-graydark-800">
+                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                       Giữ nhóm
                     </div>
                     <div className="flex items-center py-3">

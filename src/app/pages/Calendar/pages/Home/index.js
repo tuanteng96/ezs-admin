@@ -1,7 +1,6 @@
 import React from 'react'
 import { createSearchParams, Link, useLocation } from 'react-router-dom'
 import { CalendarHeader } from '../../components/CalendarHeader/CalendarHeader'
-import { ModalAddEdit } from '../../components/ModalAddEdit/ModalAddEdit'
 
 function Home(props) {
   const { pathname } = useLocation()
@@ -23,8 +22,6 @@ function Home(props) {
           Click
         </Link>
       </div>
-
-      <ModalAddEdit />
     </div>
   )
 }

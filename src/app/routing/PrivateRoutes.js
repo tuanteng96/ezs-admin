@@ -7,6 +7,7 @@ const ProfilePage = lazy(() => import('../pages/Profile'))
 const DashboardPage = lazy(() => import('../pages/Dashboard'))
 const CalendarPage = lazy(() => import('../pages/Calendar'))
 const ClientsPage = lazy(() => import('../pages/Clients'))
+const AppointmentsPage = lazy(() => import('../pages/Appointments'))
 
 function PrivateRoutes(props) {
   return (
@@ -42,6 +43,14 @@ function PrivateRoutes(props) {
           element={
             <SuspensedView>
               <ClientsPage />
+            </SuspensedView>
+          }
+        />
+        <Route
+          path="appointments/*"
+          element={
+            <SuspensedView>
+              <AppointmentsPage />
             </SuspensedView>
           }
         />

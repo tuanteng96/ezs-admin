@@ -9,7 +9,6 @@ import {
 } from '@heroicons/react/24/outline'
 import { Popover } from '@headlessui/react'
 import { Link, useLocation } from 'react-router-dom'
-import { useCalendar } from '../../CalendarLayout'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -17,7 +16,6 @@ import 'moment/locale/vi'
 moment.locale('vi')
 
 const CalendarHeader = props => {
-  const { openAddEditCalendar } = useCalendar()
   const { pathname } = useLocation()
 
   return (
@@ -70,13 +68,13 @@ const CalendarHeader = props => {
               >
                 Khách hàng mới
               </Link>
-              <button
-                type="button"
-                onClick={openAddEditCalendar}
+              <Link
+                state={{ previousPath: pathname }}
+                to="/appointments/new"
                 className="flex items-center px-5 py-3 text-[15px] hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray text-site-color"
               >
                 Đặt lịch mới
-              </button>
+              </Link>
             </div>
           </Popover.Panel>
         </Popover>

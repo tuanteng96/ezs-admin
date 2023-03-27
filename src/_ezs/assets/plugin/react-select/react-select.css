@@ -22,7 +22,6 @@ html.dark {
     --select-bg-item-multi: #2b2b40;
     --select-color-item-multi: #fff;
     --select-heading-color: #92929f;
-
     /* // */
     --select-bg-solid: #1b1b29;
     --select-bg-solid-hover: #2B2B40;
@@ -48,7 +47,7 @@ html.dark {
 
 .select__menu-portal .select__value-container,
 .select-control .select__value-container {
-    padding: 9px 18px;
+    padding: 8px 18px;
 }
 
 .select__menu-portal .select__menu,
@@ -137,7 +136,9 @@ html.dark {
     margin-bottom: 10px;
 }
 
+
 /* // */
+
 .select__menu-portal.select-control-solid .select__control,
 .select-control.select-control-solid .select__control {
     background-color: var(--select-bg-solid);
