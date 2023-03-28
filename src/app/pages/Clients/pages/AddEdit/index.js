@@ -177,7 +177,7 @@ function ClientAddEdit(props) {
               ? 'Thêm mới khách hàng thành công.'
               : 'Cập nhập thông tin thành công.'
           )
-          navigate(state?.previousPath || '/calendar')
+          onToBack()
         }
       },
       onError: error => {
@@ -238,6 +238,16 @@ function ClientAddEdit(props) {
     })
   }
 
+  const onToBack = stateParams => {
+    navigate(state?.previousPath || '/clients', {
+      state: stateParams
+        ? {
+            formState: stateParams
+          }
+        : {}
+    })
+  }
+
   return (
     <FixedLayout>
       <form
@@ -250,7 +260,7 @@ function ClientAddEdit(props) {
             <div className="flex items-center">
               <div
                 className="flex items-center justify-center w-12 h-12 cursor-pointer dark:text-graydark-800"
-                onClick={() => navigate(state?.previousPath || '/clients')}
+                onClick={() => onToBack(state?.formState)}
               >
                 <XMarkIcon className="w-9" />
               </div>

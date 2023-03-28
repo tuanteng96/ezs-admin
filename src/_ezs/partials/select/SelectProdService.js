@@ -37,6 +37,7 @@ const SelectProdService = ({ value, StockID = 0, ...props }) => {
         cacheOptions
         defaultOptions
         loadOptions={promiseOptions}
+        value={value}
         {...props}
       />
     </div>

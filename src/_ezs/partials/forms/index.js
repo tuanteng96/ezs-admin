@@ -5,7 +5,6 @@ import { InputDatePickerInline } from './input/InputDatePickerInline'
 import { InputSolid } from './input/InputSolid'
 import { InputTextarea } from './input/InputTextarea'
 import { InputTextareaSolid } from './input/InputTextareaSolid'
-import { InputTimePicker } from './input/InputTimePicker'
 
 // Input
 export {
@@ -13,7 +12,6 @@ export {
   InputSolid,
   InputTextarea,
   InputTextareaSolid,
-  InputTimePicker,
   InputDatePickerInline,
   Checkbox
 }

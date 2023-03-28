@@ -7,6 +7,7 @@
     --select-bg-item-multi: #f4f6fa;
     --select-color-item-multi: #212121;
     --select-heading-color: #999999;
+    --select-border-error: #f1416c;
     /* // */
     --select-bg-solid: #f9f9f9;
     --select-bg-solid-hover: #F4F4F4;
@@ -33,6 +34,11 @@ html.dark {
     border-color: var(--select-border-color);
     box-shadow: none;
     background-color: var(--select-bg);
+}
+
+.select-control.select-control-error .select__control,
+.select-control.select-control-error .select__control:hover {
+    border-color: var(--select-border-error);
 }
 
 .select__menu-portal .select__control:hover,

@@ -16,7 +16,7 @@ const InputDatePickerInline = ({
   onChange
 }) => {
   return (
-    <div className="relative z-[100]">
+    <div className="relative">
       <Popover>
         {({ open }) => (
           <>
@@ -29,7 +29,7 @@ const InputDatePickerInline = ({
                 )}
               />
             </Popover.Button>
-            <Popover.Panel className="absolute pt-2.5 top-full">
+            <Popover.Panel className="z-10 absolute pt-2.5 top-full">
               {({ close }) => (
                 <DatePicker
                   selected={value}
