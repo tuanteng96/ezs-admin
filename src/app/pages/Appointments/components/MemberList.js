@@ -117,7 +117,7 @@ const MemberList = ({
               )}
               <input
                 className="w-full pr-5 py-3 font-medium text-gray-700 transition bg-white autofill:bg-white border rounded outline-none dark:bg-site-aside disabled:bg-gray-200 disabled:border-gray-200 dark:disabled:bg-graydark-200 dark:text-graydark-700 pl-12 border-gray-300 dark:border-graydark-400 focus:border-primary dark:focus:border-primary"
-                placeholder="Nhập tên khách hàng"
+                placeholder="Nhập tên hoặc số điện thoại khách hàng"
                 onChange={e => onChangeKey(e.target.value)}
                 onFocus={onOpen}
                 ref={descRef}
