@@ -437,7 +437,7 @@ function ClientAddEdit(props) {
                           placeholderText="Chọn ngày sinh"
                           autoComplete="off"
                           onChange={field.onChange}
-                          selected={field.value}
+                          selected={field.value ? new Date(field.value) : null}
                           dateFormat="dd/MM/yyyy"
                           {...field}
                         />

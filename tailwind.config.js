@@ -65,6 +65,7 @@ module.exports = withMT({
       success: '#1bc5bd',
       successlight: '#C9F7F5',
       successhv: '#0BB7AF',
+      warning: "#FFA800",
       muted: '#A1A5B7'
     },
     borderColor: {
@@ -97,6 +98,7 @@ module.exports = withMT({
       dangerhv: '#EE2D41',
       success: '#1bc5bd',
       light: '#EBEDF3',
+      warning: "#FFA800",
       transparent: 'transparent',
       dark: {
         separator: '#2B2B40',

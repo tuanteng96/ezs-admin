@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import {
   Controller,
   FormProvider,
@@ -6,8 +6,12 @@ import {
   useForm
 } from 'react-hook-form'
 import FixedLayout from 'src/_ezs/layout/FixedLayout'
-import { useLocation, useNavigate } from 'react-router-dom'
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import { useLocation, useMatch, useNavigate } from 'react-router-dom'
+import {
+  CheckIcon,
+  ChevronUpIcon,
+  XMarkIcon
+} from '@heroicons/react/24/outline'
 import clsx from 'clsx'
 import {
   Checkbox,
@@ -18,22 +22,51 @@ import { SelectProdService, SelectStocks } from 'src/_ezs/partials/select'
 import { SelectUserService } from 'src/_ezs/partials/select/SelectUserService'
 import { useAuth } from 'src/_ezs/core/Auth'
 import { Button } from 'src/_ezs/partials/button'
-import { Transition } from '@headlessui/react'
+import { Listbox, Transition } from '@headlessui/react'
 import useEscape from 'src/_ezs/hooks/useEscape'
 import { MemberList } from '../../components/MemberList'
 import { useMutation } from '@tanstack/react-query'
 import CalendarAPI from 'src/_ezs/api/calendar.api'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import { toast } from 'react-toastify'
+import Swal from 'sweetalert2'
 
 import moment from 'moment'
 import 'moment/locale/vi'
 
 moment.locale('vi')
 
+const ListStatus = [
+  {
+    value: 'CHUA_XAC_NHAN',
+    label: 'Chưa xác nhận',
+    className: 'text-warning'
+  },
+  {
+    value: 'XAC_NHAN',
+    label: 'Đã xác nhận',
+    className: 'text-primary'
+  },
+  {
+    value: 'KHACH_KHONG_DEN',
+    label: 'Khách không đến',
+    className: 'text-danger'
+  },
+  {
+    value: 'KHACH_DEN',
+    label: 'Hoàn thành',
+    className: 'text-success'
+  },
+  {
+    value: '',
+    label: 'Hủy lịch',
+    className: 'text-danger'
+  }
+]
+
 function AppointmentsAddEdit(props) {
   const { CrStocks } = useAuth()
-
+  const isAddMode = useMatch('/appointments/add')
   const [Key, setKey] = useState('')
   const [isShowing, setIsShowing] = useState(false)
 
@@ -68,6 +101,8 @@ function AppointmentsAddEdit(props) {
 
   const { control, handleSubmit, watch } = methodsUseForm
 
+  const watchForm = watch()
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'booking'
@@ -96,17 +131,67 @@ function AppointmentsAddEdit(props) {
           RootIdS: x.RootIdS.map(x => x.value).join(','),
           UserServiceIDs: x.UserServiceIDs
             ? x.UserServiceIDs.map(o => o.value).join(',')
-            : ''
+            : '',
+          Status: values?.Status || x.Status
         }))
         .filter(x => x.RootIdS)
     }
     addBookingMutation.mutate(dataAdd, {
       onSuccess: data => {
-        toast.success('Đặt lịch thành công.')
-        navigate('/calendar')
+        toast.success(
+          isAddMode ? 'Đặt lịch thành công.' : 'Chỉnh sửa lịch thành công.'
+        )
+        navigate(state?.previousPath || '/calendar')
       },
       onError: error => {
         console.log(error)
+      }
+    })
+  }
+
+  const onDeleteBook = () => {
+    const dataDelete = {
+      booking: watchForm.booking
+        .map(x => ({
+          ...x,
+          BookDate:
+            moment(x.BookDate).format('YYYY-MM-DD') +
+            ' ' +
+            moment(x.Time).format('HH:mm'),
+          MemberID: watchForm.MemberIDs?.ID,
+          RootIdS: x.RootIdS.map(x => x.value).join(','),
+          UserServiceIDs: x.UserServiceIDs
+            ? x.UserServiceIDs.map(o => o.value).join(',')
+            : '',
+          Status: 'TU_CHOI'
+        }))
+        .filter(x => x.RootIdS)
+    }
+    Swal.fire({
+      customClass: {
+        confirmButton: 'bg-success'
+      },
+      title: 'Xác nhận hủy ?',
+      html: `Bạn chắc chắn muốn thực hiện hủy lịch này ?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Hủy lịch',
+      cancelButtonText: 'Đóng',
+      reverseButtons: true,
+      showLoaderOnConfirm: true,
+      preConfirm: async () => {
+        const data = await addBookingMutation.mutateAsync(dataDelete)
+        return data
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then(result => {
+      if (result.isConfirmed) {
+        if (!result?.value?.data?.error) {
+          toast.success('Hủy lịch thành công.')
+          navigate(state?.previousPath || '/calendar')
+        } else {
+          toast.error('Xảy ra lỗi không xác định.')
+        }
       }
     })
   }
@@ -122,7 +207,7 @@ function AppointmentsAddEdit(props) {
           <div className="transition border-b z-[10] border-separator dark:border-dark-separator bg-white dark:bg-dark-aside">
             <div className="flex justify-center px-5 h-[85px] relative">
               <div className="flex items-center justify-center col-span-2 text-3xl font-extrabold transition dark:text-white">
-                Đặt lịch mới
+                {isAddMode ? 'Đặt lịch mới' : 'Chỉnh sửa đặt lịch'}
               </div>
               <div className="absolute top-0 flex items-center justify-center h-full right-5">
                 <div
@@ -411,20 +496,109 @@ function AppointmentsAddEdit(props) {
               />
               {!isShowing && (
                 <div className="grid grid-cols-2 gap-4 p-5 border-t border-separator dark:border-dark-separator">
-                  <button
-                    onClick={() => navigate(state?.previousPath || '/calendar')}
-                    type="submit"
-                    className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-black transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
-                  >
-                    Hủy
-                  </button>
+                  {isAddMode ? (
+                    <button
+                      onClick={() =>
+                        navigate(state?.previousPath || '/calendar')
+                      }
+                      type="submit"
+                      className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-black transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
+                    >
+                      Hủy
+                    </button>
+                  ) : (
+                    <Controller
+                      name="Status"
+                      control={control}
+                      render={({ field: { ref, ...field }, fieldState }) => (
+                        <Listbox
+                          value={
+                            field.value
+                              ? ListStatus.filter(
+                                  x => x.value === field.value
+                                )[0]
+                              : null
+                          }
+                          onChange={val =>
+                            val?.value
+                              ? field.onChange(val?.value)
+                              : onDeleteBook()
+                          }
+                        >
+                          <div className="relative h-full">
+                            <div className="flex items-center justify-center h-full">
+                              <Listbox.Button
+                                type="button"
+                                className="flex items-center justify-between w-full h-12 px-4 font-semibold text-gray-900 bg-white border rounded border-light dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary"
+                              >
+                                <span
+                                  className={clsx(
+                                    'block text-[15px] text-left truncate',
+                                    field.value &&
+                                      ListStatus.filter(
+                                        x => x.value === field.value
+                                      )[0].className
+                                  )}
+                                >
+                                  {field.value
+                                    ? ListStatus.filter(
+                                        x => x.value === field.value
+                                      )[0].label
+                                    : 'Chưa xác định'}
+                                </span>
+                                <ChevronUpIcon className="w-3.5 ml-2" />
+                              </Listbox.Button>
+                            </div>
+                            <Transition
+                              as={Fragment}
+                              leave="transition ease-in duration-100"
+                              leaveFrom="opacity-100"
+                              leaveTo="opacity-0"
+                            >
+                              <Listbox.Options className="z-[1001] rounded px-0 py-2 border-0 max-w-[200px] w-full bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow absolute bottom-full">
+                                {ListStatus.filter(x =>
+                                  field.value !== 'CHUA_XAC_NHAN'
+                                    ? x.value !== 'CHUA_XAC_NHAN'
+                                    : x.label
+                                ).map((item, index) => (
+                                  <Listbox.Option key={index} value={item}>
+                                    {({ selected }) => (
+                                      <div
+                                        className={clsx(
+                                          'flex items-center px-5 py-3 text-[15px] hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray',
+                                          selected &&
+                                            'bg-[#F4F6FA] dark:bg-dark-light',
+                                          item.className
+                                        )}
+                                        key={index}
+                                      >
+                                        <div className="flex-1 truncate">
+                                          {item?.label}
+                                        </div>
+                                        {selected && (
+                                          <div className="flex justify-end w-8">
+                                            <CheckIcon className="w-4 text-current" />
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+                                  </Listbox.Option>
+                                ))}
+                              </Listbox.Options>
+                            </Transition>
+                          </div>
+                        </Listbox>
+                      )}
+                    />
+                  )}
+
                   <Button
                     loading={addBookingMutation.isLoading}
                     disabled={addBookingMutation.isLoading}
                     type="submit"
                     className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
                   >
-                    Đặt lịch ngay
+                    {isAddMode ? 'Đặt lịch ngay' : 'Lưu thay đổi'}
                   </Button>
                 </div>
               )}

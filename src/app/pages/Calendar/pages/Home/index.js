@@ -48,6 +48,14 @@ const getStatusClass = (Status, item) => {
   }
 }
 
+const checkStar = item => {
+  if (item?.Member?.MobilePhone !== '0000000000') return ''
+  if (item?.Member?.MobilePhone === '0000000000' && item?.IsNew) return '**'
+  else {
+    return '*'
+  }
+}
+
 function Home(props) {
   const queryParams = useQueryParams()
   const queryConfig = {
@@ -93,7 +101,7 @@ function Home(props) {
                       ? item?.Phone
                       : item?.Member?.MobilePhone
                 },
-                Star: 2,
+                Star: checkStar(item),
                 isBook: true
               }))
               .filter(item => item.Status !== 'TU_CHOI')

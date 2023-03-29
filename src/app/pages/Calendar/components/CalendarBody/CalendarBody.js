@@ -4,10 +4,11 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list'
 import interactionPlugin from '@fullcalendar/interaction'
+import { useWindowSize } from 'src/_ezs/hooks/useWindowSize'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 import moment from 'moment'
 import 'moment/locale/vi'
-import { useWindowSize } from 'src/_ezs/hooks/useWindowSize'
 
 moment.locale('vi')
 
@@ -35,6 +36,8 @@ const viLocales = {
 
 function CalendarBody({ queryConfig, MemberBookings }) {
   const calendarRef = useRef('')
+  const navigate = useNavigate()
+  const { pathname, search } = useLocation()
   const { width } = useWindowSize()
   useEffect(() => {
     if (calendarRef?.current?.getApi()) {
@@ -198,9 +201,14 @@ function CalendarBody({ queryConfig, MemberBookings }) {
                   </div>`
                       : ''
                   }
-                  <div class="truncate max-w-2/4 capitalize">${
-                    extendedProps.MemberCurrent.FullName
-                  }</div>
+                  <div class="truncate max-w-2/4 capitalize">
+                    ${
+                      extendedProps.Star
+                        ? `<span class="pr-[2px]">${extendedProps.Star}</span>`
+                        : ''
+                    }
+                    ${extendedProps.MemberCurrent.FullName}
+                  </div>
                   <div class="px-[3px]">-</div>
                   <div>${extendedProps.MemberCurrent.MobilePhone}</div>
                 </div>
@@ -261,6 +269,54 @@ function CalendarBody({ queryConfig, MemberBookings }) {
         return {
           domNodes: arrayOfDomNodes
         }
+      }}
+      eventClick={({ event, el }) => {
+        const { _def } = event
+        const { extendedProps } = _def
+        if (_def.extendedProps.os) {
+          return
+        }
+        let formState = {
+          MemberIDs: extendedProps.Member,
+          AtHome: extendedProps.AtHome,
+          Desc: extendedProps.Desc,
+          Status: extendedProps.Status,
+          booking: [
+            {
+              ID: extendedProps.ID,
+              BookDate: new Date(extendedProps.BookDate),
+              Time: new Date(extendedProps.BookDate),
+              Desc: '',
+              IsAnonymous: false,
+              MemberID: '',
+              RootIdS:
+                extendedProps.Roots && extendedProps.Roots.length > 0
+                  ? extendedProps.Roots.map(x => ({
+                      ...x,
+                      value: x.ID,
+                      label: x.Title
+                    }))
+                  : [],
+              Status: extendedProps.Status,
+              StockID: extendedProps?.Stock?.ID,
+              UserServiceIDs:
+                extendedProps.UserServices &&
+                extendedProps.UserServices.length > 0
+                  ? extendedProps.UserServices.map(x => ({
+                      ...x,
+                      value: x.ID,
+                      label: x.FullName
+                    }))
+                  : []
+            }
+          ]
+        }
+        navigate(`/appointments/edit/${extendedProps.ID}`, {
+          state: {
+            previousPath: pathname + search,
+            formState
+          }
+        })
       }}
     />
   )

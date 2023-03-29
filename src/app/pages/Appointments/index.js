@@ -17,6 +17,14 @@ function AppointmentsPage(props) {
             </SuspensedView>
           }
         />
+        <Route
+          path="edit/:id"
+          element={
+            <SuspensedView>
+              <AppointmentAddEdit />
+            </SuspensedView>
+          }
+        />
         <Route path="*" element={<Navigate to="/calendar" />} />
       </Routes>
     </>
