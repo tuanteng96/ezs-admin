@@ -1,65 +1,233 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 // import PropTypes from 'prop-types'
 import {
   AdjustmentsVerticalIcon,
+  CheckIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   Cog6ToothIcon
 } from '@heroicons/react/24/outline'
-import { Popover } from '@headlessui/react'
-import { Link, useLocation } from 'react-router-dom'
+import { Listbox, Popover, Transition } from '@headlessui/react'
+import {
+  createSearchParams,
+  Link,
+  useLocation,
+  useNavigate
+} from 'react-router-dom'
+import { InputDatePickerInline } from 'src/_ezs/partials/forms'
+import clsx from 'clsx'
 
 import moment from 'moment'
 import 'moment/locale/vi'
 
 moment.locale('vi')
 
-const CalendarHeader = props => {
-  const { pathname } = useLocation()
+const ListView = [
+  {
+    value: 'dayGridMonth',
+    label: 'Theo Tháng'
+  },
+  {
+    value: 'timeGridWeek',
+    label: 'Theo Tuần'
+  },
+  {
+    value: 'timeGridDay',
+    label: 'Theo Ngày'
+  },
+  {
+    value: 'listWeek',
+    label: 'Danh sách'
+  },
+  {
+    value: 'resourceTimelineDay',
+    label: 'Nhân viên'
+  }
+]
 
+const CalendarHeader = ({ queryConfig }) => {
+  const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const views = ListView.filter(x => x.value === queryConfig.view)[0]
   return (
-    <div className="relative flex justify-between bg-white shadow-lg border-t border-separator px-4 py-4 dark:bg-dark-aside dark:border-t dark:border-[#393945] dark:border-dashed">
-      <div>
-        <button className="flex items-center px-4 font-semibold text-gray-700 transition bg-white border rounded border-light h-11 dark:bg-transparent dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary">
-          Bộ lọc <AdjustmentsVerticalIcon className="w-6 ml-2" />
+    <div className="relative flex justify-between bg-white shadow-lg dark:border-l border-t border-separator px-4 py-4 dark:bg-dark-aside dark:border-t dark:border-[#393945] dark:border-dashed dark:border-l-solid">
+      <div className="flex">
+        <Listbox
+          value={views}
+          onChange={val =>
+            navigate({
+              pathname: '/calendar',
+              search: createSearchParams({
+                ...queryConfig,
+                view: val.value
+              }).toString()
+            })
+          }
+        >
+          <div className="relative h-full">
+            <div className="flex items-center justify-center h-full">
+              <Listbox.Button
+                type="button"
+                className="px-4 flex items-center justify-center font-semibold text-gray-900 bg-white border rounded border-light h-11 dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary"
+              >
+                <span className="block w-[100px] text-[15px] text-left truncate">
+                  {views?.label}
+                </span>
+                <ChevronDownIcon className="w-3.5 ml-2" />
+              </Listbox.Button>
+            </div>
+            <Transition
+              as={Fragment}
+              leave="transition ease-in duration-100"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <Listbox.Options className="z-[1001] rounded px-0 py-2 border-0 max-w-[200px] w-full bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow absolute">
+                {ListView.map((item, index) => (
+                  <Listbox.Option key={index} value={item}>
+                    {({ selected }) => (
+                      <div
+                        className={clsx(
+                          'flex items-center px-5 py-3 text-sm hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray',
+                          selected
+                            ? 'bg-[#F4F6FA] text-primary dark:text-primary dark:bg-dark-light'
+                            : 'text-site-color'
+                        )}
+                        key={index}
+                      >
+                        <div className="flex-1 truncate">{item?.label}</div>
+                        {selected && (
+                          <div className="flex justify-end w-8">
+                            <CheckIcon className="w-4 text-current" />
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </Listbox.Option>
+                ))}
+              </Listbox.Options>
+            </Transition>
+          </div>
+        </Listbox>
+        <button
+          className="mx-2 flex items-center justify-center font-semibold text-gray-900 bg-white border rounded border-light h-11 w-11 dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary"
+          onClick={() =>
+            navigate({
+              pathname: '/calendar',
+              search: createSearchParams({
+                ...queryConfig,
+                day: moment(queryConfig.day, 'YYYY-MM-DD')
+                  .add(-1, 'days')
+                  .format('YYYY-MM-DD')
+              }).toString()
+            })
+          }
+        >
+          <ChevronLeftIcon className="w-4" />
+        </button>
+        <button
+          className="flex items-center justify-center font-semibold text-gray-900 bg-white border rounded border-light h-11 w-11 dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary"
+          onClick={() =>
+            navigate({
+              pathname: '/calendar',
+              search: createSearchParams({
+                ...queryConfig,
+                day: moment(queryConfig.day, 'YYYY-MM-DD')
+                  .add(1, 'days')
+                  .format('YYYY-MM-DD')
+              }).toString()
+            })
+          }
+        >
+          <ChevronRightIcon className="w-4" />
+        </button>
+        <button
+          disabled={moment(queryConfig.day, 'YYYY-MM-DD').isSame(
+            moment().format('YYYY-MM-DD'),
+            'day'
+          )}
+          className="flex items-center justify-center font-semibold text-gray-900 bg-white border rounded border-light h-11 dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary px-3 ml-2 disabled:bg-light disabled:text-gray-400 disabled:hover:text-gray-400 dark:disabled:opacity-40"
+          onClick={() =>
+            navigate({
+              pathname: '/calendar',
+              search: createSearchParams({
+                ...queryConfig,
+                day: moment().format('YYYY-MM-DD')
+              }).toString()
+            })
+          }
+        >
+          Hôm nay
         </button>
       </div>
       <div className="flex">
-        <div className="inline-flex rounded-md shadow-sm" role="group">
-          <button
-            type="button"
-            className="px-3 font-medium text-gray-700 transition bg-white border rounded-l dark:bg-transparent border-light h-11 dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary"
-          >
-            <ChevronLeftIcon className="w-5" />
-          </button>
-          <button
-            type="button"
-            className="px-4 font-semibold transition border-t border-b bg-light border-light h-11 dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
-          >
-            Hôm nay
-          </button>
-          <button
-            type="button"
-            className="px-4 font-semibold transition bg-white border-t border-b border-l border-light h-11 dark:bg-transparent dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
-          >
-            {moment().format('dd, D MMMM, YYYY')}
-          </button>
-          <button
-            type="button"
-            className="px-3 font-medium text-gray-700 transition bg-white border border-light h-11 rounded-r-md dark:bg-transparent dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary"
-          >
-            <ChevronRightIcon className="w-5" />
-          </button>
-        </div>
+        <InputDatePickerInline
+          className="flex items-center text-xl font-bold font-inter dark:text-white h-ful"
+          iconClassName="w-4 transition ml-2"
+          // value={field.value}
+          valueText={moment(queryConfig.day, 'YYYY-MM-DD').format(
+            'dd, DD MMMM, YYYY'
+          )}
+          selected={moment(queryConfig.day, 'YYYY-MM-DD').toDate()}
+          onChange={(e, close) => {
+            navigate({
+              pathname: '/calendar',
+              search: createSearchParams({
+                ...queryConfig,
+                day: moment(e).format('YYYY-MM-DD')
+              }).toString()
+            })
+            close()
+          }}
+          wrapClasName="flex items-center"
+        />
+        {/* <Datepicker
+            i18n={'vi'}
+            value={{
+              startDate: moment(queryConfig.from, 'YYYY-MM-DD').toDate(),
+              endDate: moment(queryConfig.to, 'YYYY-MM-DD').toDate()
+            }}
+            onChange={({ startDate, endDate }) => {
+              navigate({
+                pathname: '/calendar',
+                search: createSearchParams({
+                  ...queryConfig,
+                  from: moment(startDate).format('YYYY-MM-DD'),
+                  to: moment(endDate).format('YYYY-MM-DD')
+                }).toString()
+              })
+            }}
+            displayFormat="DD-MM-YYYY"
+            inputClassName="w-72 px-4 !font-bold transition bg-white border-t border-b border-light h-11 dark:bg-transparent rounded-none shadow-none text-[16px] text-black"
+            readOnly={true}
+            showShortcuts={true}
+            configs={{
+              shortcuts: {
+                today: 'Hôm nay',
+                yesterday: 'Hôm qua',
+                past: period => `${period} Ngày qua`,
+                currentMonth: 'Tháng này',
+                pastMonth: 'Tháng trước'
+              }
+            }}
+          /> */}
       </div>
       <div className="flex">
+        <button className="flex items-center px-4 font-semibold text-gray-900 transition bg-white border rounded border-light h-11 dark:bg-transparent dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary">
+          Bộ lọc <AdjustmentsVerticalIcon className="w-6 ml-2" />
+        </button>
+        <div className="mx-2">
+          <button className="flex items-center justify-center font-semibold text-gray-900 bg-white border rounded border-light h-11 w-11 dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary">
+            <Cog6ToothIcon className="w-6" />
+          </button>
+        </div>
         <Popover className="relative">
           <Popover.Button className="flex items-center px-4 font-semibold text-white transition rounded shadow-sm h-11 bg-success hover:bg-successhv">
             Thêm mới <ChevronDownIcon className="w-4 ml-2" />
           </Popover.Button>
 
-          <Popover.Panel className="absolute z-10 shadow-lg rounded border-0 w-[180px] bg-white dark:bg-site-aside dark:shadow-dark-shadow left-0">
+          <Popover.Panel className="absolute z-10 shadow-lg rounded border-0 w-[180px] bg-white dark:bg-site-aside dark:shadow-dark-shadow right-0">
             <div className="flex flex-col py-2.5">
               <Link
                 to="/clients/add"
@@ -78,11 +246,6 @@ const CalendarHeader = props => {
             </div>
           </Popover.Panel>
         </Popover>
-        <div className="ml-2">
-          <button className="flex items-center justify-center font-semibold text-gray-700 bg-white border rounded border-light h-11 w-11 dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary">
-            <Cog6ToothIcon className="w-6" />
-          </button>
-        </div>
       </div>
     </div>
   )

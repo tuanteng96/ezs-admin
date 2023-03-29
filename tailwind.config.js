@@ -3,7 +3,10 @@ const withMT = require('@material-tailwind/react/utils/withMT')
 
 module.exports = withMT({
   darkMode: ['class'],
-  content: ['./src/**/*.{js,jsx,ts,tsx}'],
+  content: [
+    './src/**/*.{js,jsx,ts,tsx}',
+    './node_modules/react-tailwindcss-datepicker/dist/index.esm.js'
+  ],
   theme: {
     container: {
       center: true
@@ -12,6 +15,9 @@ module.exports = withMT({
     //   // 'sm': '0.938rem'
     // },
     colors: {
+      slate: {
+        800: '#1e1e2d'
+      },
       gray: {
         100: '#f9f9f9',
         200: '#F4F4F4',
@@ -62,6 +68,9 @@ module.exports = withMT({
       muted: '#A1A5B7'
     },
     borderColor: {
+      slate: {
+        600: '#2B2B40'
+      },
       gray: {
         100: '#f9f9f9',
         200: '#F4F4F4',
@@ -69,7 +78,7 @@ module.exports = withMT({
         400: '#B5B5C3',
         700: '#5E6278',
         800: '#3F4254',
-        900: "#222222"
+        900: '#222222'
       },
       graydark: {
         100: '#1b1b29',
@@ -78,7 +87,7 @@ module.exports = withMT({
         400: '#323248',
         700: '#92929F',
         800: '#CDCDDE',
-        900: "#222222"
+        900: '#222222'
       },
       white: '#fff',
       primary: '#3699ff',

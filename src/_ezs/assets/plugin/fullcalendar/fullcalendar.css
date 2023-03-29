@@ -1,0 +1,151 @@
+:root {
+    --fc-border-color: #F4F4F4;
+    --fc-primary: #3699ff;
+    --fc-primaryhv: #187de4;
+    --fc-primarylight: #e1f0ff;
+    --fc-font-title: 'Inter', sans-serif;
+    --fc-light: #f4f6fa;
+    --fc-more-bg: rgba(77, 89, 149, 0.06);
+    --fc-more-color: #222;
+    --fc-color: #222;
+    --fc-color-othor: #3F4254;
+}
+
+html.dark {
+    --fc-border-color: #2B2B40;
+    --fc-more-bg: #2B2B40;
+    --fc-more-color: #fff;
+    --fc-light: #2b2b40;
+    --fc-color: #d1d1d1;
+    --fc-color-othor: #CDCDDE;
+}
+
+.fc {
+    height: 100%;
+}
+
+.fc .fc-daygrid-day-frame {
+    min-height: 192px!important;
+    padding: 10px;
+}
+
+.fc .fc-dayGridMonth-view .fc-col-header .fc-col-header-cell .fc-scrollgrid-sync-inner {
+    padding: 15px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.fc .fc-dayGridMonth-view .fc-col-header .fc-col-header-cell .fc-scrollgrid-sync-inner .fc-col-header-cell-cushion {
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-weight: 700;
+    text-transform: capitalize;
+    color: var(--fc-more-color);
+}
+
+.fc .fc-dayGridMonth-view .fc-daygrid-body .fc-daygrid-day {
+    cursor: pointer;
+}
+
+.fc .fc-dayGridMonth-view .fc-daygrid-body .fc-daygrid-day.fc-day-other .fc-daygrid-day-frame .fc-daygrid-day-top .fc-daygrid-day-number {
+    color: var(--fc-color-othor);
+}
+
+.fc .fc-dayGridMonth-view .fc-daygrid-body .fc-daygrid-day .fc-daygrid-day-frame .fc-daygrid-day-top .fc-daygrid-day-number {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    border-radius: 100%;
+    font-size: 14px;
+    font-family: var(--fc-font-title);
+    transition: all .2s ease;
+    color: var(--fc-color);
+}
+
+.fc .fc-dayGridMonth-view .fc-daygrid-body .fc-daygrid-day.fc-day-today {
+    background-color: transparent;
+}
+
+.fc .fc-dayGridMonth-view .fc-daygrid-body .fc-daygrid-day .fc-daygrid-day-frame .fc-daygrid-day-top {
+    margin-bottom: 8px;
+}
+
+.fc .fc-dayGridMonth-view .fc-daygrid-body .fc-daygrid-day.fc-day-today .fc-daygrid-day-frame .fc-daygrid-day-top .fc-daygrid-day-number {
+    background-color: var(--fc-primarylight);
+    color: var(--fc-primary);
+    font-weight: 700;
+}
+
+.fc .fc-dayGridMonth-view .fc-daygrid-body .fc-daygrid-day .fc-daygrid-day-frame .fc-daygrid-day-top .fc-daygrid-day-number:hover {
+    text-decoration: none;
+}
+
+.fc .fc-dayGridMonth-view .fc-daygrid-body .fc-daygrid-day:hover .fc-daygrid-day-frame .fc-daygrid-day-top .fc-daygrid-day-number {
+    background-color: var(--fc-light);
+}
+
+.fc .fc-dayGridMonth-view .fc-content {
+    width: 100%;
+}
+
+.fc .fc-dayGridMonth-view .fc-daygrid-more-link {
+    background-color: var(--fc-more-bg);
+    color: var(--fc-more-color);
+    font-weight: 700;
+    padding: 7px 10px;
+    font-size: 12px;
+    border-radius: 4px;
+}
+
+.fc .fc-popover-header {
+    font-weight: 500;
+    padding: 10px 8px;
+    font-weight: 600;
+}
+
+.fc .fc-more-popover .fc-popover-body {
+    max-height: 300px;
+    overflow: auto;
+}
+
+.fc-primary,
+.fc-primary:hover {
+    background-color: var(--fc-primary);
+}
+
+.fc-primary1,
+.fc-primary1:hover {
+    background-color: #009ef7;
+}
+
+.fc-warning,
+.fc-warning:hover {
+    background-color: var(--toastify-color-warning);
+}
+
+.fc-danger,
+.fc-danger:hover {
+    background-color: var(--toastify-color-error);
+}
+
+.fc-success,
+.fc-success:hover {
+    background-color: #1BC5BD;
+}
+
+.fc-info,
+.fc-info:hover {
+    background-color: var(--toastify-color-info);
+}
+
+.fc-secondary,
+.fc-secondary:hover {
+    background-color: #92929e;
+}

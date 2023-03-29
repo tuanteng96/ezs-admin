@@ -138,7 +138,11 @@ const MemberList = ({
                 <Link
                   className="flex items-center text-primary"
                   to="/clients/add"
-                  state={{ previousPath: pathname, formState: watchForm }}
+                  state={{
+                    previousPath: pathname,
+                    formState: watchForm,
+                    key: valueKey
+                  }}
                 >
                   <PlusSmallIcon className="justify-center pr-1 w-7" />
                   Thêm mới khách hàng
@@ -167,7 +171,43 @@ const MemberList = ({
                       </div>
                     ))
                   ) : (
-                    <>Không có dữ liệu</>
+                    <div className="grow">
+                      <div className="flex flex-col items-center justify-center px-10 py-14">
+                        <svg
+                          className="w-14"
+                          xmlns="http://www.w3.org/2000/svg"
+                          viewBox="0 0 64 64"
+                        >
+                          <g fill="none" fillRule="evenodd">
+                            <circle
+                              fill="#FBD74C"
+                              cx="28.5"
+                              cy="23.5"
+                              r="9.5"
+                            />
+                            <path
+                              className="fill-[#101928] dark:fill-[#92929f]"
+                              d="M28.5 4C42.031 4 53 14.969 53 28.5a24.413 24.413 0 01-6.508 16.63c.041.022.082.05.12.08l.095.083 14 14a1 1 0 01-1.32 1.497l-.094-.083-14-14a1 1 0 01-.164-.216A24.404 24.404 0 0128.5 53C14.969 53 4 42.031 4 28.5S14.969 4 28.5 4zm0 2C16.074 6 6 16.074 6 28.5S16.074 51 28.5 51 51 40.926 51 28.5 40.926 6 28.5 6zM28 32c3.856 0 7.096.928 9.689 2.392 1.362.77 2.226 2.143 2.305 3.66l.006.229V40a1 1 0 01-.883.993L39 41H17a1 1 0 01-.993-.883L16 40v-1.739c0-1.599.871-3.067 2.29-3.877C20.856 32.924 24.095 32 28 32zm0 2c-3.545 0-6.446.827-8.719 2.122-.748.426-1.216 1.16-1.275 1.966L18 38.26V39h20v-.72c0-.76-.364-1.472-.989-1.945l-.148-.105-.158-.097C34.401 34.832 31.495 34 28 34zm.5-17a6.5 6.5 0 110 13 6.5 6.5 0 010-13zm0 2a4.5 4.5 0 100 9 4.5 4.5 0 000-9z"
+                              fillRule="nonzero"
+                            />
+                          </g>
+                        </svg>
+                        <div className="text-center mt-7 text-[17px] leading-7 font-medium dark:text-graydark-800">
+                          Số điện thoại chưa tồn tại khách hàng. Vui lòng
+                          <Link
+                            className="text-primary pl-2"
+                            to="/clients/add"
+                            state={{
+                              previousPath: pathname,
+                              formState: watchForm,
+                              key: valueKey
+                            }}
+                          >
+                            Thêm mới khách hàng
+                          </Link>
+                        </div>
+                      </div>
+                    </div>
                   )}
                 </div>
               )}

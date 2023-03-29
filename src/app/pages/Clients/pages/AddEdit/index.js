@@ -76,10 +76,6 @@ const initialValues = {
 const schemaUsers = yup
   .object({
     FullName: yup.string().required('Vui lòng nhập họ và tên'),
-    Email: yup
-      .string()
-      .email('Email không đúng định dạng')
-      .required('Vui lòng nhập Email'),
     MobilePhone: yup.string().required('Vui lòng nhập số điện thoại')
   })
   .required()
@@ -91,7 +87,7 @@ function ClientAddEdit(props) {
   const navigate = useNavigate()
 
   const { control, handleSubmit, setValue, setError, reset } = useForm({
-    defaultValues: initialValues,
+    defaultValues: { ...initialValues, MobilePhone: state?.key || '' },
     resolver: yupResolver(schemaUsers)
   })
 
@@ -177,7 +173,11 @@ function ClientAddEdit(props) {
               ? 'Thêm mới khách hàng thành công.'
               : 'Cập nhập thông tin thành công.'
           )
-          onToBack()
+          onToBack(
+            state?.formState
+              ? { ...state?.formState, MemberIDs: data.Member }
+              : ''
+          )
         }
       },
       onError: error => {
@@ -341,25 +341,6 @@ function ClientAddEdit(props) {
                   </div>
                   <div>
                     <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
-                      Email
-                    </div>
-                    <Controller
-                      name="Email"
-                      control={control}
-                      render={({ field: { ref, ...field }, fieldState }) => (
-                        <Input
-                          placeholder="Nhập Email"
-                          type="text"
-                          errorMessageForce={fieldState?.invalid}
-                          errorMessage={fieldState?.error?.message}
-                          {...field}
-                          autoComplete="Emails"
-                        />
-                      )}
-                    />
-                  </div>
-                  <div>
-                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                       Số điện thoại
                     </div>
                     <Controller
@@ -393,6 +374,25 @@ function ClientAddEdit(props) {
                           placeholder="Nhập số điện thoại"
                           type="text"
                           {...field}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
+                      Email
+                    </div>
+                    <Controller
+                      name="Email"
+                      control={control}
+                      render={({ field: { ref, ...field }, fieldState }) => (
+                        <Input
+                          placeholder="Nhập Email"
+                          type="text"
+                          errorMessageForce={fieldState?.invalid}
+                          errorMessage={fieldState?.error?.message}
+                          {...field}
+                          autoComplete="Emails"
                         />
                       )}
                     />

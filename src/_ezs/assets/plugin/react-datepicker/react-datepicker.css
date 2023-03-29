@@ -657,6 +657,7 @@ html.dark {
 .react-datepicker__year-text--in-selecting-range:hover,
 .react-datepicker__year-text--in-range:hover {
     background-color: var(--ezs-datepicker-bg-selected);
+    color: #fff;
 }
 
 .react-datepicker__day--keyboard-selected,

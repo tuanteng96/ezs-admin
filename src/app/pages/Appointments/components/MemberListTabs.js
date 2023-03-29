@@ -32,7 +32,9 @@ function MemberListTabs({ value }) {
               <div className="mb-px font-bold dark:text-white">
                 {formatString.formatVND(value?.Present?.nap_vi)}
               </div>
-              <div className="text-gray-400 dark:text-graydark-700">Ví khả dụng</div>
+              <div className="text-gray-400 dark:text-graydark-700">
+                Ví khả dụng
+              </div>
             </div>
             <div className="text-center">
               <div className="mb-px font-bold dark:text-white">
@@ -92,7 +94,10 @@ function MemberListTabs({ value }) {
       )}
       {MemberHistory.isLoading && (
         <div className="relative grow">
-          <LoadingComponentFull bgClassName="bg-white dark:bg-dark-aside" loading={true} />
+          <LoadingComponentFull
+            bgClassName="bg-white dark:bg-dark-aside"
+            loading={true}
+          />
         </div>
       )}
     </>

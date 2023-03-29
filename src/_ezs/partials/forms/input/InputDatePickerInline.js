@@ -10,41 +10,41 @@ import 'moment/locale/vi'
 moment.locale('vi')
 
 const InputDatePickerInline = ({
+  wrapClasName,
   className,
   value,
+  valueText,
   iconClassName,
-  onChange
+  onChange,
+  ...props
 }) => {
   return (
-    <div className="relative">
-      <Popover>
-        {({ open }) => (
-          <>
-            <Popover.Button className={className}>
-              {moment(value).format('dd, D MMMM, YYYY')}
-              <ChevronDownIcon
-                className={clsx(
-                  iconClassName,
-                  open ? 'rotate-180 transform' : ''
-                )}
-              />
-            </Popover.Button>
-            <Popover.Panel className="z-10 absolute pt-2.5 top-full">
-              {({ close }) => (
-                <DatePicker
-                  selected={value}
-                  onChange={date => {
-                    onChange(date)
-                    close()
-                  }}
-                  inline
-                />
+    <Popover className={clsx('relative', wrapClasName && wrapClasName)}>
+      {({ open }) => (
+        <>
+          <Popover.Button className={className}>
+            {valueText || moment(value).format('dd, D MMMM, YYYY')}
+            <ChevronDownIcon
+              className={clsx(
+                iconClassName,
+                open ? 'rotate-180 transform' : ''
               )}
-            </Popover.Panel>
-          </>
-        )}
-      </Popover>
-    </div>
+            />
+          </Popover.Button>
+          <Popover.Panel className="z-10 absolute pt-2.5 top-full">
+            {({ close }) => (
+              <DatePicker
+                onChange={date => {
+                  onChange(date, close)
+                }}
+                inline
+                {...props}
+              />
+            )}
+          </Popover.Panel>
+        </>
+      )}
+    </Popover>
   )
 }
 

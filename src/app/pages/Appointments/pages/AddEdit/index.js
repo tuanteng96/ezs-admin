@@ -93,7 +93,7 @@ function AppointmentsAddEdit(props) {
             ' ' +
             moment(x.Time).format('HH:mm'),
           MemberID: values.MemberIDs?.ID,
-          RootIdS: x.RootIdS?.ID,
+          RootIdS: x.RootIdS.map(x => x.value).join(','),
           UserServiceIDs: x.UserServiceIDs
             ? x.UserServiceIDs.map(o => o.value).join(',')
             : ''
@@ -165,7 +165,11 @@ function AppointmentsAddEdit(props) {
                                   className="flex items-center text-xl font-bold font-inter dark:text-white"
                                   iconClassName="w-5 transition ml-2"
                                   value={field.value}
-                                  onChange={field.onChange}
+                                  selected={field.value}
+                                  onChange={(e, close) => {
+                                    field.onChange(e)
+                                    close()
+                                  }}
                                 />
                               </>
                             )}
@@ -181,7 +185,7 @@ function AppointmentsAddEdit(props) {
                         </div>
 
                         <div className="p-6 border border-gray-300 rounded-lg dark:border-graydark-400">
-                          <div className="grid grid-cols-5 gap-5">
+                          <div className="grid grid-cols-4 gap-5">
                             <div className="col-span-2">
                               <div className="mb-1.5 text-base text-gray-900 font-semibold dark:text-graydark-800">
                                 Thời gian
@@ -204,7 +208,7 @@ function AppointmentsAddEdit(props) {
                                 )}
                               />
                             </div>
-                            <div className="col-span-3">
+                            <div className="col-span-2">
                               <div className="mb-1.5 text-base text-gray-900 font-semibold dark:text-graydark-800">
                                 Cơ sở
                               </div>
@@ -251,6 +255,7 @@ function AppointmentsAddEdit(props) {
                                   fieldState
                                 }) => (
                                   <SelectProdService
+                                    isMulti
                                     StockID={watch(`booking[${index}].StockID`)}
                                     name={field.name}
                                     className={clsx(
@@ -261,26 +266,31 @@ function AppointmentsAddEdit(props) {
                                     value={field.value}
                                     onChange={val => {
                                       field.onChange(val)
-                                      append({
-                                        BookDate: new Date(),
-                                        Time: moment(new Date())
-                                          .endOf('hour')
-                                          .add(1, 'minutes')
-                                          .toDate(),
-                                        Desc: '',
-                                        IsAnonymous: false,
-                                        MemberID: '',
-                                        RootIdS: '',
-                                        Status: 'XAC_NHAN',
-                                        StockID: CrStocks.ID,
-                                        UserServiceIDs: ''
-                                      })
+                                      let isPush = watch(
+                                        `booking[${index + 1}].RootIdS`
+                                      )
+                                      if (typeof isPush === 'undefined') {
+                                        append({
+                                          BookDate: new Date(),
+                                          Time: moment(new Date())
+                                            .endOf('hour')
+                                            .add(1, 'minutes')
+                                            .toDate(),
+                                          Desc: '',
+                                          IsAnonymous: false,
+                                          MemberID: '',
+                                          RootIdS: '',
+                                          Status: 'XAC_NHAN',
+                                          StockID: CrStocks.ID,
+                                          UserServiceIDs: ''
+                                        })
+                                      }
                                     }}
                                   />
                                 )}
                               />
                             </div>
-                            <div className="col-span-3">
+                            <div className="col-span-2">
                               <div className="mb-1.5 text-base text-gray-900 font-semibold dark:text-graydark-800">
                                 Nhân viên thực hiện
                               </div>
