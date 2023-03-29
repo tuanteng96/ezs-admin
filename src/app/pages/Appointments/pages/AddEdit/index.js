@@ -31,7 +31,7 @@ import 'moment/locale/vi'
 
 moment.locale('vi')
 
-function AddEdit(props) {
+function AppointmentsAddEdit(props) {
   const { CrStocks } = useAuth()
 
   const [Key, setKey] = useState('')
@@ -66,7 +66,7 @@ function AddEdit(props) {
         }
   })
 
-  const { control, handleSubmit } = methodsUseForm
+  const { control, handleSubmit, watch } = methodsUseForm
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -136,7 +136,7 @@ function AddEdit(props) {
           </div>
           <div className="flex grow h-[calc(100%-85px)]">
             <div className="relative flex-1 border-r border-separator dark:border-dark-separator z-[10] dark:bg-dark-aside">
-              <div className="h-full px-5 py-7 overflow-auto scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
+              <div className="h-full px-5 overflow-auto py-7 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
                 <div className="max-w-[850px] m-auto">
                   <ol className="relative mb-10 border-l-2 border-gray-300 border-dashed dark:border-gray-700">
                     {fields.map((item, index) => (
@@ -146,7 +146,7 @@ function AddEdit(props) {
                       >
                         <span
                           className={clsx(
-                            "absolute ring-8 ring-white bg-white flex items-center justify-center w-7 h-7 font-bold text-[15px] border-2 border-primary text-primary rounded-full top-[100px] -left-[14px] before:w-[2px] before:absolute before:content-[''] before:bg-white before:right-[12px] before:bottom-[calc(100%+2px)]",
+                            "absolute ring-8 ring-white dark:ring-[#1e1e2d] bg-white dark:bg-dark-aside dark:text-white flex items-center justify-center w-7 h-7 font-bold text-[15px] border-2 border-primary text-primary rounded-full top-[100px] -left-[14px] before:w-[2px] before:absolute before:content-[''] before:bg-white dark:before:bg-dark-aside before:right-[12px] before:bottom-[calc(100%+2px)]",
                             index === 0 && 'before:h-[100px]'
                           )}
                         >
@@ -162,7 +162,7 @@ function AddEdit(props) {
                             }) => (
                               <>
                                 <InputDatePickerInline
-                                  className="flex items-center text-xl font-bold font-inter"
+                                  className="flex items-center text-xl font-bold font-inter dark:text-white"
                                   iconClassName="w-5 transition ml-2"
                                   value={field.value}
                                   onChange={field.onChange}
@@ -180,7 +180,7 @@ function AddEdit(props) {
                           )}
                         </div>
 
-                        <div className="p-6 border border-gray-300 rounded-lg dark:border-graydark-300">
+                        <div className="p-6 border border-gray-300 rounded-lg dark:border-graydark-400">
                           <div className="grid grid-cols-5 gap-5">
                             <div className="col-span-2">
                               <div className="mb-1.5 text-base text-gray-900 font-semibold dark:text-graydark-800">
@@ -251,6 +251,8 @@ function AddEdit(props) {
                                   fieldState
                                 }) => (
                                   <SelectProdService
+                                    StockID={watch(`booking[${index}].StockID`)}
+                                    name={field.name}
                                     className={clsx(
                                       'select-control',
                                       fieldState.invalid &&
@@ -311,39 +313,41 @@ function AddEdit(props) {
                       </li>
                     ))}
                   </ol>
-                  <div>
-                    <div className="mb-1.5 text-base text-gray-900 font-inter font-semibold dark:text-graydark-800">
-                      Ghi chú đặt lịch
+                  <div className="pl-8">
+                    <div>
+                      <div className="mb-1.5 text-base text-gray-900 font-inter font-semibold dark:text-graydark-800">
+                        Ghi chú đặt lịch
+                      </div>
+                      <Controller
+                        name="Desc"
+                        control={control}
+                        render={({ field: { ref, ...field }, fieldState }) => (
+                          <InputTextarea
+                            className="resize-none"
+                            rows={3}
+                            placeholder="Nhập ghi chú"
+                            autoComplete="off"
+                            type="text"
+                            {...field}
+                          />
+                        )}
+                      />
                     </div>
-                    <Controller
-                      name="Desc"
-                      control={control}
-                      render={({ field: { ref, ...field }, fieldState }) => (
-                        <InputTextarea
-                          className="resize-none"
-                          rows={3}
-                          placeholder="Nhập ghi chú"
-                          autoComplete="off"
-                          type="text"
-                          {...field}
-                        />
-                      )}
-                    />
-                  </div>
-                  <div className="mt-4">
-                    <Controller
-                      name="AtHome"
-                      control={control}
-                      render={({ field: { ref, ...field }, fieldState }) => (
-                        <Checkbox
-                          labelClassName="text-gray-800 dark:text-gray-800 font-semibold text-[15px] pl-3"
-                          labelText="Thực hiện các dịch vụ của khách hàng tại nhà."
-                          htmlFor="khong_ha_cap"
-                          {...field}
-                          checked={field.value}
-                        />
-                      )}
-                    />
+                    <div className="mt-4">
+                      <Controller
+                        name="AtHome"
+                        control={control}
+                        render={({ field: { ref, ...field }, fieldState }) => (
+                          <Checkbox
+                            labelClassName="text-gray-800 dark:text-graydark-800 font-semibold text-[15px] pl-3"
+                            labelText="Thực hiện các dịch vụ của khách hàng tại nhà."
+                            htmlFor="khong_ha_cap"
+                            {...field}
+                            checked={field.value}
+                          />
+                        )}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -360,12 +364,12 @@ function AddEdit(props) {
                   className="absolute top-0 left-0 w-full h-full bg-black/[.2] dark:bg-black/[.4] flex items-center justify-center cursor-pointer group"
                   onClick={() => setIsShowing(false)}
                 >
-                  <div className="flex items-center flex-col opacity-0 group-hover:opacity-100 transition">
-                    <div className="w-14 h-14 bg-white rounded-full flex items-center justify-center flex-col">
+                  <div className="flex flex-col items-center transition opacity-0 group-hover:opacity-100">
+                    <div className="flex flex-col items-center justify-center bg-white rounded-full w-14 h-14">
                       <XMarkIcon className="w-5" />
                       <span className="text-sm font-bold">ESC</span>
                     </div>
-                    <div className="text-white uppercase mt-3 font-bold text-sm">
+                    <div className="mt-3 text-sm font-bold text-white uppercase">
                       Bấm để đóng
                     </div>
                   </div>
@@ -374,7 +378,7 @@ function AddEdit(props) {
             </div>
             <div
               className={clsx(
-                'w-[450px] flex flex-col',
+                'w-[450px] flex flex-col dark:bg-dark-aside',
                 isShowing && 'shadow-lg'
               )}
             >
@@ -400,7 +404,7 @@ function AddEdit(props) {
                   <button
                     onClick={() => navigate(state?.previousPath || '/calendar')}
                     type="submit"
-                    className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-black transition border border-gray-400 rounded hover:border-gray-900 focus:outline-none focus:shadow-none disabled:opacity-70"
+                    className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-black transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
                   >
                     Hủy
                   </button>
@@ -422,4 +426,4 @@ function AddEdit(props) {
   )
 }
 
-export default AddEdit
+export default AppointmentsAddEdit

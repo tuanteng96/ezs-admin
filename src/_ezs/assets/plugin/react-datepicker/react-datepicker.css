@@ -426,7 +426,7 @@ html.dark {
 
 .react-datepicker__time-container .react-datepicker__time {
     position: relative;
-    background: white;
+    background: var(--ezs-datepicker-bg);
     border-bottom-right-radius: 0.3rem;
 }
 

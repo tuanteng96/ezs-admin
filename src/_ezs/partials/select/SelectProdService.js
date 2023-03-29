@@ -3,9 +3,8 @@ import React, { useRef } from 'react'
 import AsyncSelect from 'react-select/async'
 import ProdsAPI from 'src/_ezs/api/prods.api'
 
-const SelectProdService = ({ value, StockID = 0, ...props }) => {
+const SelectProdService = ({ value, name, StockID = 0, ...props }) => {
   const typingTimeoutRef = useRef(null)
-
   const getListServiceMutation = useMutation({
     mutationFn: body => ProdsAPI.getListService(body)
   })
@@ -31,6 +30,7 @@ const SelectProdService = ({ value, StockID = 0, ...props }) => {
   return (
     <div>
       <AsyncSelect
+        key={StockID}
         noOptionsMessage={() => 'Không có dữ liệu'}
         placeholder="Chọn dịch vụ"
         classNamePrefix="select"
@@ -38,6 +38,7 @@ const SelectProdService = ({ value, StockID = 0, ...props }) => {
         defaultOptions
         loadOptions={promiseOptions}
         value={value}
+        name="name"
         {...props}
       />
     </div>

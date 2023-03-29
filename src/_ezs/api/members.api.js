@@ -33,6 +33,10 @@ const MembersAPI = {
   memberSelect: ({ Key, StockID }) =>
     http.get(
       `/api/gl/select2?cmd=member&q=${Key || ''}&CurrentStockID=${StockID || 0}`
+    ),
+  memberBought: ({ MemberID, Pi, Ps }) =>
+    http.get(
+      `api/v3/member23?cmd=da_mua&memberid=${MemberID}&ps=${Ps}&pi=${Pi}`
     )
 }
 

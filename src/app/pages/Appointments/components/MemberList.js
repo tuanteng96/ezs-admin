@@ -14,6 +14,7 @@ import { Link, useLocation } from 'react-router-dom'
 import { formatString } from 'src/_ezs/utils/formatString'
 import { useFormContext } from 'react-hook-form'
 import { Menu, Transition } from '@headlessui/react'
+import { MemberListTabs } from './MemberListTabs'
 
 const MemberList = ({
   onOpen,
@@ -46,8 +47,8 @@ const MemberList = ({
       {value && (
         <>
           <Menu as="div" className="relative">
-            <Menu.Button className="p-5 border-b border-separator dark:border-dark-separator w-full flex items-center">
-              <div className="flex items-center justify-center w-14 h-14 font-bold uppercase rounded-full font-inter bg-primarylight dark:bg-dark-primarylight text-primary">
+            <Menu.Button className="flex items-center w-full p-5 border-b border-separator dark:border-dark-separator">
+              <div className="flex items-center justify-center font-bold uppercase rounded-full w-14 h-14 font-inter bg-primarylight dark:bg-dark-primarylight text-primary">
                 {formatString.getLastFirst(value.FullName)}
               </div>
               <div className="px-3.5 grow flex justify-center items-baseline flex-col">
@@ -91,7 +92,7 @@ const MemberList = ({
               </Menu.Items>
             </Transition>
           </Menu>
-          <div className="grow relative p-5 overflow-auto">Thông tin thêm</div>
+          <MemberListTabs value={value} />
         </>
       )}
       {!value && (
@@ -100,7 +101,7 @@ const MemberList = ({
             <div className="relative">
               {valueKey && (
                 <div
-                  className="text-gray-500 absolute right-0 h-full w-12 flex items-center justify-center cursor-pointer"
+                  className="absolute right-0 flex items-center justify-center w-12 h-full text-gray-500 cursor-pointer"
                   onClick={() => onChangeKey('')}
                 >
                   <svg
@@ -116,7 +117,7 @@ const MemberList = ({
                 </div>
               )}
               <input
-                className="w-full pr-5 py-3 font-medium text-gray-700 transition bg-white autofill:bg-white border rounded outline-none dark:bg-site-aside disabled:bg-gray-200 disabled:border-gray-200 dark:disabled:bg-graydark-200 dark:text-graydark-700 pl-12 border-gray-300 dark:border-graydark-400 focus:border-primary dark:focus:border-primary"
+                className="w-full py-3 pl-12 pr-5 font-medium text-gray-700 transition bg-white border border-gray-300 rounded outline-none autofill:bg-white dark:bg-site-aside disabled:bg-gray-200 disabled:border-gray-200 dark:disabled:bg-graydark-200 dark:text-graydark-700 dark:border-graydark-400 focus:border-primary dark:focus:border-primary"
                 placeholder="Nhập tên hoặc số điện thoại khách hàng"
                 onChange={e => onChangeKey(e.target.value)}
                 onFocus={onOpen}
@@ -129,7 +130,7 @@ const MemberList = ({
           {isShowing && (
             <>
               {ListMember.isLoading && (
-                <div className="grow relative">
+                <div className="relative grow">
                   <LoadingComponentFull bgClassName="bg-white" loading={true} />
                 </div>
               )}
@@ -139,20 +140,20 @@ const MemberList = ({
                   to="/clients/add"
                   state={{ previousPath: pathname, formState: watchForm }}
                 >
-                  <PlusSmallIcon className="w-7 justify-center pr-1" />
+                  <PlusSmallIcon className="justify-center pr-1 w-7" />
                   Thêm mới khách hàng
                 </Link>
               </div>
               {!ListMember.isLoading && (
-                <div className="grow overflow-auto relative">
+                <div className="relative overflow-auto grow">
                   {ListMember.data && ListMember.data.length > 0 ? (
                     ListMember.data.map((member, index) => (
                       <div
-                        className="flex p-5 border-b border-separator dark:border-dark-separator last:mb-0 last:pb-0 last:border-0 cursor-pointer"
+                        className="flex p-5 border-b cursor-pointer border-separator dark:border-dark-separator last:mb-0 last:pb-0 last:border-0"
                         key={index}
                         onClick={() => onChange(member)}
                       >
-                        <div className="flex items-center justify-center w-14 h-14 font-bold uppercase rounded-full font-inter bg-primarylight dark:bg-dark-primarylight text-primary">
+                        <div className="flex items-center justify-center font-bold uppercase rounded-full w-14 h-14 font-inter bg-primarylight dark:bg-dark-primarylight text-primary">
                           {formatString.getLastFirst(member.FullName)}
                         </div>
                         <div className="px-3.5 grow flex justify-center flex-col">
@@ -174,7 +175,7 @@ const MemberList = ({
           )}
           {!isShowing && (
             <div className="grow">
-              <div className="flex items-center justify-center flex-col px-10 py-14">
+              <div className="flex flex-col items-center justify-center px-10 py-14">
                 <svg
                   className="w-14"
                   xmlns="http://www.w3.org/2000/svg"
@@ -183,13 +184,13 @@ const MemberList = ({
                   <g fill="none" fillRule="evenodd">
                     <circle fill="#FBD74C" cx="28.5" cy="23.5" r="9.5" />
                     <path
+                      className="fill-[#101928] dark:fill-[#92929f]"
                       d="M28.5 4C42.031 4 53 14.969 53 28.5a24.413 24.413 0 01-6.508 16.63c.041.022.082.05.12.08l.095.083 14 14a1 1 0 01-1.32 1.497l-.094-.083-14-14a1 1 0 01-.164-.216A24.404 24.404 0 0128.5 53C14.969 53 4 42.031 4 28.5S14.969 4 28.5 4zm0 2C16.074 6 6 16.074 6 28.5S16.074 51 28.5 51 51 40.926 51 28.5 40.926 6 28.5 6zM28 32c3.856 0 7.096.928 9.689 2.392 1.362.77 2.226 2.143 2.305 3.66l.006.229V40a1 1 0 01-.883.993L39 41H17a1 1 0 01-.993-.883L16 40v-1.739c0-1.599.871-3.067 2.29-3.877C20.856 32.924 24.095 32 28 32zm0 2c-3.545 0-6.446.827-8.719 2.122-.748.426-1.216 1.16-1.275 1.966L18 38.26V39h20v-.72c0-.76-.364-1.472-.989-1.945l-.148-.105-.158-.097C34.401 34.832 31.495 34 28 34zm.5-17a6.5 6.5 0 110 13 6.5 6.5 0 010-13zm0 2a4.5 4.5 0 100 9 4.5 4.5 0 000-9z"
-                      fill="#101928"
                       fillRule="nonzero"
                     />
                   </g>
                 </svg>
-                <div className="text-center mt-7 text-[17px] leading-7 font-medium">
+                <div className="text-center mt-7 text-[17px] leading-7 font-medium dark:text-graydark-800">
                   Sử dụng tìm kiếm để thêm khách hàng hoặc để trống lưu dưới
                   dạng khách vãng lai.
                 </div>
