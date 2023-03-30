@@ -8,6 +8,7 @@ import { NotFound } from '../../notfound'
 import { DropdownCheckinItem } from './DropdownCheckinItem'
 import useDebounce from 'src/_ezs/hooks/useDebounce'
 import { DropdownCheckinFilter } from './DropdownCheckinFilter'
+import useEscape from 'src/_ezs/hooks/useEscape'
 
 const DropdownCheckin = props => {
   const { CrStocks, auth } = useAuth()
@@ -23,6 +24,8 @@ const DropdownCheckin = props => {
   const onHideShowing = () => {
     setIsShowing(false)
   }
+
+  useEscape(() => onHideShowing())
 
   const { data, isLoading } = useQuery({
     queryKey: [

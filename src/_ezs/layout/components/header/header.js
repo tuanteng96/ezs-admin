@@ -6,9 +6,11 @@ import { DropdownUser } from './DropdownUser'
 import { DropdownStocks } from './DropdownStocks'
 import { NotificationDrawer } from './NotificationDrawer'
 import { DropdownCheckin } from './DropdownCheckin'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 const Header = () => {
+  const { pathname, search } = useLocation()
+
   return (
     <div className="h-[70px] bg-white dark:bg-dark-aside fixed w-full top-0 left-0 z-[1001] flex justify-between pr-4 transition">
       <div className="flex items-center justify-center w-[72px] bg-site-aside">
@@ -27,9 +29,13 @@ const Header = () => {
         </div>
         <div className="flex items-center">
           <div>
-            <div className="flex items-center justify-center text-gray-700 transition rounded cursor-pointer dark:text-dark-muted w-11 h-11 hover:bg-light dark:hover:bg-dark-light hover:text-primary">
+            <Link
+              to="/search"
+              state={{ previousPath: pathname + search }}
+              className="flex items-center justify-center text-gray-700 transition rounded cursor-pointer dark:text-dark-muted w-11 h-11 hover:bg-light dark:hover:bg-dark-light hover:text-primary"
+            >
               <MagnifyingGlassIcon className="w-6 h-6" />
-            </div>
+            </Link>
           </div>
           <div className="ml-1">
             <NotificationDrawer />

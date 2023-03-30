@@ -19,6 +19,7 @@ import { InputDatePickerInline } from 'src/_ezs/partials/forms'
 import clsx from 'clsx'
 import { CalendarFilters } from '../CalendarFilters/CalendarFilters'
 import { isEmpty, omitBy } from 'lodash'
+import useEscape from 'src/_ezs/hooks/useEscape'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -58,6 +59,8 @@ const CalendarHeader = ({ queryConfig }) => {
     setIsFilters(false)
   }
 
+  useEscape(() => onHideFilters())
+
   const views = ListView.filter(x => x.value === queryConfig.view)[0]
   return (
     <div className="relative flex justify-between bg-white shadow-lg dark:border-l border-t border-separator px-4 py-4 dark:bg-dark-aside dark:border-t dark:border-[#393945] dark:border-dashed dark:border-l-solid">
@@ -83,7 +86,7 @@ const CalendarHeader = ({ queryConfig }) => {
             <div className="flex items-center justify-center h-full">
               <Listbox.Button
                 type="button"
-                className="px-4 flex items-center justify-center font-semibold text-gray-900 bg-white border rounded border-light h-11 dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary"
+                className="flex items-center justify-center px-4 font-semibold text-gray-900 bg-white border rounded border-light h-11 dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary"
               >
                 <span className="block w-[100px] text-[15px] text-left truncate">
                   {views?.label}
@@ -125,7 +128,7 @@ const CalendarHeader = ({ queryConfig }) => {
           </div>
         </Listbox>
         <button
-          className="mx-2 flex items-center justify-center font-semibold text-gray-900 bg-white border rounded border-light h-11 w-11 dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary"
+          className="flex items-center justify-center mx-2 font-semibold text-gray-900 bg-white border rounded border-light h-11 w-11 dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary"
           onClick={() =>
             navigate({
               pathname: '/calendar',
@@ -171,7 +174,7 @@ const CalendarHeader = ({ queryConfig }) => {
             moment().format('YYYY-MM-DD'),
             'day'
           )}
-          className="flex items-center justify-center font-semibold text-gray-900 bg-white border rounded border-light h-11 dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary px-3 ml-2 disabled:bg-light disabled:text-gray-400 disabled:hover:text-gray-400 dark:disabled:opacity-40"
+          className="flex items-center justify-center px-3 ml-2 font-semibold text-gray-900 bg-white border rounded border-light h-11 dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary disabled:bg-light disabled:text-gray-400 disabled:hover:text-gray-400 dark:disabled:opacity-40"
           onClick={() =>
             navigate({
               pathname: '/calendar',

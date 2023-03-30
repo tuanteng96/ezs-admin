@@ -20,6 +20,7 @@ import { NotificationDrawerFilter } from './NotificationDrawerFilter'
 import { NotificationDrawerTab } from './NotificationDrawerTab'
 import { NotFound } from '../../notfound'
 import clsx from 'clsx'
+import useEscape from 'src/_ezs/hooks/useEscape'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -99,6 +100,8 @@ const NotificationDrawer = props => {
     isShowingFilter && setIsShowingFilter(false)
     setIsShowing(false)
   }
+
+  useEscape(() => onHideShowing())
 
   return (
     <>

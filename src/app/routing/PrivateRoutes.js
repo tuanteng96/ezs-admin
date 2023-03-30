@@ -8,6 +8,7 @@ const DashboardPage = lazy(() => import('../pages/Dashboard'))
 const CalendarPage = lazy(() => import('../pages/Calendar'))
 const ClientsPage = lazy(() => import('../pages/Clients'))
 const AppointmentsPage = lazy(() => import('../pages/Appointments'))
+const SearchPage = lazy(() => import('../pages/Search'))
 
 function PrivateRoutes(props) {
   return (
@@ -51,6 +52,14 @@ function PrivateRoutes(props) {
           element={
             <SuspensedView>
               <AppointmentsPage />
+            </SuspensedView>
+          }
+        />
+        <Route
+          path="search"
+          element={
+            <SuspensedView>
+              <SearchPage />
             </SuspensedView>
           }
         />
