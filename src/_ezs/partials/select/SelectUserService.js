@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query'
 import UsersAPI from 'src/_ezs/api/users.api'
 import { toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 
-const SelectUserService = ({ value, StockID, ...props }) => {
+const SelectUserService = ({ value, StockID, isSome = false, ...props }) => {
   const ListUsers = useQuery({
     queryKey: ['ListUserService'],
     queryFn: async () => {
@@ -40,7 +40,13 @@ const SelectUserService = ({ value, StockID, ...props }) => {
           }
         }
       }
-      return newData
+      return {
+        data: newData,
+        dataList:
+          data?.data?.data?.length > 0
+            ? data?.data?.data.map(x => ({ ...x, value: x.id, label: x.text }))
+            : []
+      }
     },
     onSuccess: () => {}
   })
@@ -49,9 +55,17 @@ const SelectUserService = ({ value, StockID, ...props }) => {
     <div>
       <Select
         isLoading={ListUsers.isLoading}
-        value={value}
+        value={
+          isSome
+            ? ListUsers?.data?.dataList && ListUsers?.data?.dataList.length > 0
+              ? ListUsers?.data?.dataList.filter(
+                  x => value && value.some(k => k === x.value)
+                )
+              : null
+            : value
+        }
         classNamePrefix="select"
-        options={ListUsers?.data || []}
+        options={ListUsers?.data?.data || []}
         placeholder="Chọn nhân viên"
         noOptionsMessage={() => 'Không có dữ liệu'}
         {...props}

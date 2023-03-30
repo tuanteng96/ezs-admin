@@ -5,7 +5,9 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list'
 import interactionPlugin from '@fullcalendar/interaction'
 import { useWindowSize } from 'src/_ezs/hooks/useWindowSize'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { createSearchParams, useLocation, useNavigate } from 'react-router-dom'
+import { isEmpty, omitBy } from 'lodash'
+import clsx from 'clsx'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -62,7 +64,16 @@ function CalendarBody({ queryConfig, MemberBookings }) {
       views={{
         dayGridMonth: {
           dayMaxEvents: 2,
-          dateClick: ({ date }) => {},
+          dateClick: ({ date }) => {
+            navigate(
+              `/appointments/new?date=${moment(date).format('DD-MM-YYYY')}`,
+              {
+                state: {
+                  previousPath: pathname + search
+                }
+              }
+            )
+          },
           dayHeaderContent: ({ date, text }) => {
             return moment(date).format('dddd')
           }
@@ -76,27 +87,28 @@ function CalendarBody({ queryConfig, MemberBookings }) {
           slotLabelContent: ({ date, text }) => {
             return (
               <>
-                <span className="font-size-min gird-time font-number">
+                <span className="text-[11px] font-medium text-[#70757a] absolute -top-[11px] bg-white dark:bg-dark-aside left-0 pl-4 pr-1.5 font-inter dark:text-gray-400">
                   {text} {moment(date).format('A')}
                 </span>
-                <span className="font-size-min font-number w-55px d-block"></span>
+                <span className="block w-14"></span>
               </>
             )
           },
           dayHeaderContent: ({ date, isToday, ...arg }) => {
             return (
-              <div className="font-number">
-                <div className={`date-mm ${isToday && 'text-primary'}`}>
-                  {moment(date).format('ddd')}
-                </div>
+              <>
+                <div className="text-sm mb-1">{moment(date).format('ddd')}</div>
                 <div
-                  className={`w-40px h-40px d-flex align-items-center justify-content-center rounded-circle date-dd ${
-                    isToday && 'bg-primary text-white'
-                  }`}
+                  className={clsx(
+                    'w-10 h-10 rounded-full flex items-center justify-center',
+                    isToday
+                      ? 'bg-primary text-white'
+                      : 'bg-primarylight text-primary'
+                  )}
                 >
                   {moment(date).format('DD')}
                 </div>
-              </div>
+              </>
             )
           },
           nowIndicator: true,
@@ -107,29 +119,26 @@ function CalendarBody({ queryConfig, MemberBookings }) {
           // slotMaxTime: TimeClose
         },
         timeGridDay: {
+          allDaySlot: false,
           eventMaxStack: 8,
           slotLabelContent: ({ date, text }) => {
             return (
               <>
-                <span className="font-size-min gird-time font-number">
+                <span className="dark:text-gray-400 text-[11px] font-medium text-[#70757a] dark:bg-dark-aside absolute -top-[11px] bg-white left-0 pl-4 pr-1.5 font-inter">
                   {text} {moment(date).format('A')}
                 </span>
-                <span className="font-size-min font-number w-55px d-block"></span>
+                <span className="block w-14"></span>
               </>
             )
           },
           dayHeaderContent: ({ date, isToday, ...arg }) => {
             return (
-              <div className="font-number">
-                <div className={`date-mm text-center`}>
-                  {moment(date).format('ddd')}
-                </div>
-                <div
-                  className={`w-40px h-40px d-flex align-items-center justify-content-center rounded-circle date-dd`}
-                >
+              <>
+                <div className="text-sm mb-1">{moment(date).format('ddd')}</div>
+                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-primary text-white">
                   {moment(date).format('DD')}
                 </div>
-              </div>
+              </>
             )
           },
           nowIndicator: true,
@@ -317,6 +326,27 @@ function CalendarBody({ queryConfig, MemberBookings }) {
             formState
           }
         })
+      }}
+      datesSet={({ view, start, ...arg }) => {
+        if (view.type !== queryConfig.view) {
+          let newView = view.type
+          if (view.type === 'dayGridDay') {
+            newView = 'timeGridDay'
+          }
+          navigate({
+            pathname: pathname,
+            search: createSearchParams(
+              omitBy(
+                {
+                  ...queryConfig,
+                  view: newView,
+                  day: moment(start).format('YYYY-MM-DD')
+                },
+                isEmpty
+              )
+            ).toString()
+          })
+        }
       }}
     />
   )

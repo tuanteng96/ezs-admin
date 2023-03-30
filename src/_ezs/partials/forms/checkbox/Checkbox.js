@@ -7,6 +7,8 @@ const Checkbox = ({
   labelClassName = 'pl-2',
   htmlFor,
   className,
+  bgChecked = 'bg-[#EBEDF3] dark:bg-dark-light',
+  styleChecked,
   ...props
 }) => {
   return (
@@ -23,7 +25,13 @@ const Checkbox = ({
         id={htmlFor}
         {...props}
       />
-      <span className="w-5 h-5 bg-[#EBEDF3] dark:bg-dark-light rounded block icon checkbox-primary relative after:absolute after:left-2 after:top-[3px] transition"></span>
+      <span
+        className={clsx(
+          'w-5 h-5 rounded block icon checkbox-primary relative after:absolute after:left-2 after:top-[3px] transition',
+          bgChecked
+        )}
+        style={styleChecked}
+      ></span>
       {labelText && <span className={labelClassName}>{labelText}</span>}
     </label>
   )

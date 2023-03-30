@@ -6,7 +6,7 @@ import {
   useForm
 } from 'react-hook-form'
 import FixedLayout from 'src/_ezs/layout/FixedLayout'
-import { useLocation, useMatch, useNavigate } from 'react-router-dom'
+import { useLocation, useMatch, useNavigate, useParams } from 'react-router-dom'
 import {
   CheckIcon,
   ChevronUpIcon,
@@ -25,11 +25,13 @@ import { Button } from 'src/_ezs/partials/button'
 import { Listbox, Transition } from '@headlessui/react'
 import useEscape from 'src/_ezs/hooks/useEscape'
 import { MemberList } from '../../components/MemberList'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import CalendarAPI from 'src/_ezs/api/calendar.api'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
+import useQueryParams from 'src/_ezs/hooks/useQueryParams'
+import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -66,12 +68,13 @@ const ListStatus = [
 
 function AppointmentsAddEdit(props) {
   const { CrStocks } = useAuth()
-  const isAddMode = useMatch('/appointments/add')
+  const isAddMode = useMatch('/appointments/new')
+  const { id } = useParams()
   const [Key, setKey] = useState('')
   const [isShowing, setIsShowing] = useState(false)
-
   const { state } = useLocation()
   const navigate = useNavigate()
+  const queryString = useQueryParams()
 
   const methodsUseForm = useForm({
     defaultValues: state?.formState
@@ -85,7 +88,9 @@ function AppointmentsAddEdit(props) {
           Desc: '',
           booking: [
             {
-              BookDate: new Date(),
+              BookDate: queryString.date
+                ? moment(queryString.date, 'DD-MM-YYYY').toDate()
+                : new Date(),
               Time: moment(new Date()).endOf('hour').add(1, 'minutes').toDate(),
               Desc: '',
               IsAnonymous: false,
@@ -99,16 +104,66 @@ function AppointmentsAddEdit(props) {
         }
   })
 
-  const { control, handleSubmit, watch } = methodsUseForm
+  const { control, handleSubmit, watch, reset } = methodsUseForm
 
   const watchForm = watch()
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, remove } = useFieldArray({
     control,
     name: 'booking'
   })
 
   useEscape(() => setIsShowing(false))
+
+  const bookingCurrent = useQuery({
+    queryKey: ['bookingID', { BookIDs: id }],
+    queryFn: () => CalendarAPI.getBookingID({ BookIDs: id }),
+    onSuccess: ({ data }) => {
+      if (data?.books?.length > 0) {
+        let bookingItem = data?.books[0]
+        reset({
+          MemberIDs: bookingItem.Member,
+          AtHome: bookingItem.AtHome,
+          Desc: bookingItem.Desc,
+          booking: [
+            {
+              BookDate: bookingItem.BookDate
+                ? new Date(bookingItem.BookDate)
+                : new Date(),
+              Time: bookingItem.BookDate
+                ? new Date(bookingItem.BookDate)
+                : moment(new Date()).endOf('hour').add(1, 'minutes').toDate(),
+              Desc: '',
+              IsAnonymous: false,
+              MemberID: '',
+              RootIdS:
+                bookingItem.Roots && bookingItem.Roots.length > 0
+                  ? bookingItem.Roots.map(x => ({
+                      ...x,
+                      label: x.Title,
+                      value: x.ID
+                    }))
+                  : [],
+              Status: bookingItem.Status,
+              StockID: CrStocks.ID,
+              UserServiceIDs:
+                bookingItem.UserServices && bookingItem.UserServices.length > 0
+                  ? bookingItem.UserServices.map(x => ({
+                      ...x,
+                      label: x.FullName,
+                      value: x.ID
+                    }))
+                  : []
+            }
+          ]
+        })
+      } else {
+        toast.warning('Không tìm thấy lịch đã đặt.')
+        navigate(state?.previousPath || '/calendar')
+      }
+    },
+    enabled: Boolean(id) && !(isAddMode || Boolean(state?.formState))
+  })
 
   const onOpenShowing = () => {
     setIsShowing(true)
@@ -219,7 +274,7 @@ function AppointmentsAddEdit(props) {
               </div>
             </div>
           </div>
-          <div className="flex grow h-[calc(100%-85px)]">
+          <div className="flex grow h-[calc(100%-85px)] relative">
             <div className="relative flex-1 border-r border-separator dark:border-dark-separator z-[10] dark:bg-dark-aside">
               <div className="h-full px-5 overflow-auto py-7 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
                 <div className="max-w-[850px] m-auto">
@@ -351,25 +406,25 @@ function AppointmentsAddEdit(props) {
                                     value={field.value}
                                     onChange={val => {
                                       field.onChange(val)
-                                      let isPush = watch(
-                                        `booking[${index + 1}].RootIdS`
-                                      )
-                                      if (typeof isPush === 'undefined') {
-                                        append({
-                                          BookDate: new Date(),
-                                          Time: moment(new Date())
-                                            .endOf('hour')
-                                            .add(1, 'minutes')
-                                            .toDate(),
-                                          Desc: '',
-                                          IsAnonymous: false,
-                                          MemberID: '',
-                                          RootIdS: '',
-                                          Status: 'XAC_NHAN',
-                                          StockID: CrStocks.ID,
-                                          UserServiceIDs: ''
-                                        })
-                                      }
+                                      // let isPush = watch(
+                                      //   `booking[${index + 1}].RootIdS`
+                                      // )
+                                      // if (typeof isPush === 'undefined') {
+                                      //   append({
+                                      //     BookDate: new Date(),
+                                      //     Time: moment(new Date())
+                                      //       .endOf('hour')
+                                      //       .add(1, 'minutes')
+                                      //       .toDate(),
+                                      //     Desc: '',
+                                      //     IsAnonymous: false,
+                                      //     MemberID: '',
+                                      //     RootIdS: '',
+                                      //     Status: 'XAC_NHAN',
+                                      //     StockID: CrStocks.ID,
+                                      //     UserServiceIDs: ''
+                                      //   })
+                                      // }
                                     }}
                                   />
                                 )}
@@ -501,7 +556,7 @@ function AppointmentsAddEdit(props) {
                       onClick={() =>
                         navigate(state?.previousPath || '/calendar')
                       }
-                      type="submit"
+                      type="button"
                       className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-black transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
                     >
                       Hủy
@@ -529,11 +584,11 @@ function AppointmentsAddEdit(props) {
                             <div className="flex items-center justify-center h-full">
                               <Listbox.Button
                                 type="button"
-                                className="flex items-center justify-between w-full h-12 px-4 font-semibold text-gray-900 bg-white border rounded border-light dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary"
+                                className="flex items-center justify-between w-full h-12 px-4 font-bold text-gray-900 bg-white border rounded border-light dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary"
                               >
                                 <span
                                   className={clsx(
-                                    'block text-[15px] text-left truncate',
+                                    'block text-left truncate',
                                     field.value &&
                                       ListStatus.filter(
                                         x => x.value === field.value
@@ -565,7 +620,7 @@ function AppointmentsAddEdit(props) {
                                     {({ selected }) => (
                                       <div
                                         className={clsx(
-                                          'flex items-center px-5 py-3 text-[15px] hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray',
+                                          'flex items-center px-5 py-3 text-[15px] hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray font-semibold',
                                           selected &&
                                             'bg-[#F4F6FA] dark:bg-dark-light',
                                           item.className
@@ -603,6 +658,10 @@ function AppointmentsAddEdit(props) {
                 </div>
               )}
             </div>
+            <LoadingComponentFull
+              bgClassName="bg-white dark:bg-dark-aside z-[10]"
+              loading={bookingCurrent.loading}
+            />
           </div>
         </form>
       </FormProvider>

@@ -2,17 +2,19 @@ import React from 'react'
 import useQueryParams from 'src/_ezs/hooks/useQueryParams'
 import { CalendarHeader } from '../../components/CalendarHeader/CalendarHeader'
 import { CalendarBody } from '../../components/CalendarBody/CalendarBody'
-import MembersAPI from 'src/_ezs/api/members.api'
 import { useQuery } from '@tanstack/react-query'
+import CalendarAPI from 'src/_ezs/api/calendar.api'
+import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
+import { useAuth } from 'src/_ezs/core/Auth'
 
 import moment from 'moment'
 import 'moment/locale/vi'
-import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 
 moment.locale('vi')
 
 const getQueryParams = queryConfig => {
   let params = {
+    ...queryConfig,
     From: moment(moment(queryConfig.day, 'YYYY-MM-DD')),
     To: moment(moment(queryConfig.day, 'YYYY-MM-DD'))
   }
@@ -20,7 +22,6 @@ const getQueryParams = queryConfig => {
     params.From = params.From.startOf('month').format('YYYY-MM-DD')
     params.To = params.To.endOf('month').format('YYYY-MM-DD')
   }
-
   return params
 }
 
@@ -57,16 +58,26 @@ const checkStar = item => {
 }
 
 function Home(props) {
+  const { CrStocks } = useAuth()
   const queryParams = useQueryParams()
   const queryConfig = {
     view: queryParams?.view || 'dayGridMonth',
-    day: queryParams?.day || moment().format('YYYY-MM-DD')
+    day: queryParams?.day || moment().format('YYYY-MM-DD'),
+    StockID: CrStocks?.ID || 0,
+    MemberIDs: queryParams?.MemberIDs || '',
+    UserIDs: queryParams?.UserIDs || '',
+    status:
+      queryParams?.status ||
+      'XAC_NHAN,XAC_NHAN_TU_DONG,CHUA_XAC_NHAN,DANG_THUC_HIEN,THUC_HIEN_XONG',
+    atHome: queryParams?.atHome || '',
+    typeUser: queryParams?.typeUser || '',
+    typeMember: queryParams?.typeMember || ''
   }
 
   const MembersBookings = useQuery({
-    queryKey: ['MembersBookings', queryConfig],
+    queryKey: ['ListBookings', queryConfig],
     queryFn: async () => {
-      const { data } = await MembersAPI.memberBookings({
+      const { data } = await CalendarAPI.memberBookings({
         ...getQueryParams(queryConfig)
       })
       const dataBooks =
@@ -82,7 +93,7 @@ function Home(props) {
                 className: `fc-${getStatusClass(
                   item.Status,
                   item
-                )} shadow-lg rounded !mb-1.5 !mt-0 !ml-0 !mr-0 p-3 text-white`,
+                )} shadow-lg rounded !mt-0 !ml-0 !mr-0 p-3 text-white`,
                 resourceIds:
                   item.UserServices &&
                   Array.isArray(item.UserServices) &&
@@ -126,7 +137,7 @@ function Home(props) {
               className: `fc-${getStatusClass(
                 item.os.Status,
                 item
-              )} shadow-lg rounded !mb-1.5 !mt-0 !ml-0 !mr-0 p-3 text-white`,
+              )} shadow-lg rounded !mt-0 !ml-0 !mr-0 p-3 text-white`,
               resourceIds:
                 item.staffs && Array.isArray(item.staffs)
                   ? item.staffs.map(staf => staf.ID)
@@ -138,6 +149,7 @@ function Home(props) {
         userOffline: data?.dayOffs ?? []
       }
     }
+    //keepPreviousData: true
   })
 
   return (

@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useState } from 'react'
 // import PropTypes from 'prop-types'
 import {
   AdjustmentsVerticalIcon,
@@ -17,6 +17,8 @@ import {
 } from 'react-router-dom'
 import { InputDatePickerInline } from 'src/_ezs/partials/forms'
 import clsx from 'clsx'
+import { CalendarFilters } from '../CalendarFilters/CalendarFilters'
+import { isEmpty, omitBy } from 'lodash'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -49,6 +51,13 @@ const ListView = [
 const CalendarHeader = ({ queryConfig }) => {
   const { pathname } = useLocation()
   const navigate = useNavigate()
+
+  const [isFilters, setIsFilters] = useState(false)
+
+  const onHideFilters = () => {
+    setIsFilters(false)
+  }
+
   const views = ListView.filter(x => x.value === queryConfig.view)[0]
   return (
     <div className="relative flex justify-between bg-white shadow-lg dark:border-l border-t border-separator px-4 py-4 dark:bg-dark-aside dark:border-t dark:border-[#393945] dark:border-dashed dark:border-l-solid">
@@ -58,10 +67,15 @@ const CalendarHeader = ({ queryConfig }) => {
           onChange={val =>
             navigate({
               pathname: '/calendar',
-              search: createSearchParams({
-                ...queryConfig,
-                view: val.value
-              }).toString()
+              search: createSearchParams(
+                omitBy(
+                  {
+                    ...queryConfig,
+                    view: val.value
+                  },
+                  isEmpty
+                )
+              ).toString()
             })
           }
         >
@@ -115,12 +129,17 @@ const CalendarHeader = ({ queryConfig }) => {
           onClick={() =>
             navigate({
               pathname: '/calendar',
-              search: createSearchParams({
-                ...queryConfig,
-                day: moment(queryConfig.day, 'YYYY-MM-DD')
-                  .add(-1, 'days')
-                  .format('YYYY-MM-DD')
-              }).toString()
+              search: createSearchParams(
+                omitBy(
+                  {
+                    ...queryConfig,
+                    day: moment(queryConfig.day, 'YYYY-MM-DD')
+                      .add(-1, 'days')
+                      .format('YYYY-MM-DD')
+                  },
+                  isEmpty
+                )
+              ).toString()
             })
           }
         >
@@ -131,12 +150,17 @@ const CalendarHeader = ({ queryConfig }) => {
           onClick={() =>
             navigate({
               pathname: '/calendar',
-              search: createSearchParams({
-                ...queryConfig,
-                day: moment(queryConfig.day, 'YYYY-MM-DD')
-                  .add(1, 'days')
-                  .format('YYYY-MM-DD')
-              }).toString()
+              search: createSearchParams(
+                omitBy(
+                  {
+                    ...queryConfig,
+                    day: moment(queryConfig.day, 'YYYY-MM-DD')
+                      .add(1, 'days')
+                      .format('YYYY-MM-DD')
+                  },
+                  isEmpty
+                )
+              ).toString()
             })
           }
         >
@@ -151,10 +175,15 @@ const CalendarHeader = ({ queryConfig }) => {
           onClick={() =>
             navigate({
               pathname: '/calendar',
-              search: createSearchParams({
-                ...queryConfig,
-                day: moment().format('YYYY-MM-DD')
-              }).toString()
+              search: createSearchParams(
+                omitBy(
+                  {
+                    ...queryConfig,
+                    day: moment().format('YYYY-MM-DD')
+                  },
+                  isEmpty
+                )
+              ).toString()
             })
           }
         >
@@ -173,50 +202,33 @@ const CalendarHeader = ({ queryConfig }) => {
           onChange={(e, close) => {
             navigate({
               pathname: '/calendar',
-              search: createSearchParams({
-                ...queryConfig,
-                day: moment(e).format('YYYY-MM-DD')
-              }).toString()
+              search: createSearchParams(
+                omitBy(
+                  {
+                    ...queryConfig,
+                    day: moment(e).format('YYYY-MM-DD')
+                  },
+                  isEmpty
+                )
+              ).toString()
             })
             close()
           }}
           wrapClasName="flex items-center"
         />
-        {/* <Datepicker
-            i18n={'vi'}
-            value={{
-              startDate: moment(queryConfig.from, 'YYYY-MM-DD').toDate(),
-              endDate: moment(queryConfig.to, 'YYYY-MM-DD').toDate()
-            }}
-            onChange={({ startDate, endDate }) => {
-              navigate({
-                pathname: '/calendar',
-                search: createSearchParams({
-                  ...queryConfig,
-                  from: moment(startDate).format('YYYY-MM-DD'),
-                  to: moment(endDate).format('YYYY-MM-DD')
-                }).toString()
-              })
-            }}
-            displayFormat="DD-MM-YYYY"
-            inputClassName="w-72 px-4 !font-bold transition bg-white border-t border-b border-light h-11 dark:bg-transparent rounded-none shadow-none text-[16px] text-black"
-            readOnly={true}
-            showShortcuts={true}
-            configs={{
-              shortcuts: {
-                today: 'Hôm nay',
-                yesterday: 'Hôm qua',
-                past: period => `${period} Ngày qua`,
-                currentMonth: 'Tháng này',
-                pastMonth: 'Tháng trước'
-              }
-            }}
-          /> */}
       </div>
       <div className="flex">
-        <button className="flex items-center px-4 font-semibold text-gray-900 transition bg-white border rounded border-light h-11 dark:bg-transparent dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary">
+        <button
+          className="flex items-center px-4 font-semibold text-gray-900 transition bg-white border rounded border-light h-11 dark:bg-transparent dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary"
+          onClick={() => setIsFilters(true)}
+        >
           Bộ lọc <AdjustmentsVerticalIcon className="w-6 ml-2" />
         </button>
+        <CalendarFilters
+          isFilters={isFilters}
+          onHideFilters={onHideFilters}
+          queryConfig={queryConfig}
+        />
         <div className="mx-2">
           <button className="flex items-center justify-center font-semibold text-gray-900 bg-white border rounded border-light h-11 w-11 dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary">
             <Cog6ToothIcon className="w-6" />
