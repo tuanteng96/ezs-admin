@@ -5,6 +5,7 @@ import {
   CheckIcon,
   ChevronDownIcon,
   MagnifyingGlassIcon,
+  UserPlusIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline'
 import { SearchMember } from './components/SearchMember/SearchMember'
@@ -12,7 +13,7 @@ import { SearchOrder } from './components/SearchOrder/SearchOrder'
 import { Listbox, Transition } from '@headlessui/react'
 import clsx from 'clsx'
 import useQueryParams from 'src/_ezs/hooks/useQueryParams'
-import { createSearchParams } from 'react-router-dom'
+import { createSearchParams, Link } from 'react-router-dom'
 import useEscape from 'src/_ezs/hooks/useEscape'
 
 const ListsType = [
@@ -27,12 +28,14 @@ const ListsType = [
 ]
 
 function SearchPage(props) {
-  const { state } = useLocation()
+  const queryParams = useQueryParams()
+  const { state, pathname } = useLocation()
   const navigate = useNavigate()
-  const [Key, setKey] = useState('')
+  const [Key, setKey] = useState(queryParams?.key || '')
+  const [isModeNew, setIsModeNew] = useState(true)
+
   const inputRef = useRef(null)
 
-  const queryParams = useQueryParams()
   const queryConfig = {
     type: queryParams?.type || 'member'
   }
@@ -60,14 +63,28 @@ function SearchPage(props) {
                 <input
                   ref={inputRef}
                   type="text"
-                  className="w-full h-12 pl-10 text-lg font-semibold dark:bg-dark-aside dark:text-white"
+                  className="w-full h-12 pl-10 text-lg font-semibold pr-14 dark:bg-dark-aside dark:text-white"
                   placeholder={
                     queryConfig.type === 'member'
                       ? 'Nhập thông tin khách hàng cần tìm ?'
                       : 'Nhập thông tin đơn hàng cần tìm ?'
                   }
+                  value={Key}
                   onChange={e => setKey(e.target.value)}
                 />
+                {queryConfig.type === 'member' && (
+                  <Link
+                    to="/clients/add"
+                    state={{
+                      previousPath:
+                        pathname + '?type=' + queryConfig.type + '&key=' + Key,
+                      key: isModeNew ? '' : Key
+                    }}
+                    className="absolute right-0 flex items-center justify-center h-full transition cursor-pointer w-14 top-2/4 -translate-y-2/4 text-muted hover:text-black"
+                  >
+                    <UserPlusIcon className="w-6 mt-1" />
+                  </Link>
+                )}
               </div>
               <div className="relative h-12 pl-6 border-l border-separator">
                 <Listbox
@@ -135,7 +152,10 @@ function SearchPage(props) {
               </div>
             </div>
             {queryConfig.type === 'member' ? (
-              <SearchMember valueKey={Key} />
+              <SearchMember
+                valueKey={Key}
+                onChangeMode={val => setIsModeNew(val)}
+              />
             ) : (
               <SearchOrder valueKey={Key} />
             )}

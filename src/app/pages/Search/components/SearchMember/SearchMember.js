@@ -7,7 +7,7 @@ import { NotFound } from 'src/_ezs/layout/components/notfound'
 import { formatArray } from 'src/_ezs/utils/formatArray'
 import { formatString } from 'src/_ezs/utils/formatString'
 
-function SearchMember({ valueKey }) {
+function SearchMember({ valueKey, onChangeMode }) {
   const debouncedKey = useDebounce(valueKey, 200)
   const ListMembersQuery = useInfiniteQuery({
     queryKey: ['ListMembersSearch', debouncedKey],
@@ -20,7 +20,14 @@ function SearchMember({ valueKey }) {
       return data
     },
     getNextPageParam: (lastPage, pages) =>
-      lastPage.pi === lastPage.pCount ? undefined : lastPage.pi + 1
+      lastPage.pi === lastPage.pCount ? undefined : lastPage.pi + 1,
+    onSuccess: ({ pages }) => {
+      if (!pages || (pages && pages[0].data.length === 0)) {
+        onChangeMode(false)
+      } else {
+        onChangeMode(true)
+      }
+    }
   })
   const ListMembers = formatArray.useInfiniteQuery(
     ListMembersQuery?.data?.pages
