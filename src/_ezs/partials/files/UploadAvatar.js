@@ -91,6 +91,7 @@ const UploadAvatar = ({
                 className="w-full"
                 src={toAbsolutePath(value)}
                 alt="Avatar"
+                onError={() => onChange('')}
               />
             </a>
             <div
@@ -128,7 +129,7 @@ const UploadAvatar = ({
                 fill="currentFill"
               />
             </svg>
-            <div className="mt-3 text-sm text-gray-800 dark:text-graydark-800 font-semibold">
+            <div className="mt-3 text-sm font-semibold text-gray-800 dark:text-graydark-800">
               Đang tải ...
               <span className="text-primary pl-1.5 font-semibold font-inter">
                 {completed}%

@@ -23,7 +23,7 @@ const MasterLayout = () => {
           e.preventDefault()
           navigate('/search?type=order', {
             state: {
-              previousPath: pathname + search
+              previousPath: pathname === '/search' ? '/' : pathname + search
             }
           })
           return false

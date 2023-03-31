@@ -21,6 +21,10 @@ import { toast } from 'react-toastify'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import clsx from 'clsx'
 import Swal from 'sweetalert2'
+import moment from 'moment'
+import 'moment/locale/vi'
+
+moment.locale('vi')
 
 const initialValues = {
   BirthDate_Web: '',
@@ -129,7 +133,12 @@ function ClientAddEdit(props) {
     queryFn: () => MembersAPI.memberSearch({ Ps: 1, Pi: 1, Key: '#' + id }),
     onSuccess: ({ data }) => {
       if (data?.data?.length > 0) {
-        reset(data?.data[0])
+        reset({
+          ...data?.data[0],
+          Birth: data?.data[0].Birth
+            ? moment(data?.data[0].Birth, 'YYYY-MM-DD HH:mm').toDate()
+            : ''
+        })
       } else {
         toast.warning('Không tìm thấy khách hàng')
         navigate(state?.previousPath || '/calendar')
@@ -144,7 +153,12 @@ function ClientAddEdit(props) {
 
   const onSubmit = values => {
     const dataUser = {
-      member: values
+      member: {
+        ...values,
+        Birth: values.Birth
+          ? moment(values.Birth).format('DD/MM/YYYY HH:mm')
+          : ''
+      }
     }
     addUpdateMutation.mutate(dataUser, {
       onSuccess: ({ data }) => {
@@ -360,18 +374,15 @@ function ClientAddEdit(props) {
                   </div>
                   <div>
                     <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
-                      Số điện thoại khác
-                      <span className="pl-1 font-sans font-normal text-muted">
-                        ( Nếu có )
-                      </span>
+                      Mã vạch
                     </div>
                     <Controller
-                      name="FixedPhone"
+                      name="HandCardID"
                       control={control}
                       render={({ field: { ref, ...field }, fieldState }) => (
                         <Input
-                          autoComplete="FixedPhone"
-                          placeholder="Nhập số điện thoại"
+                          placeholder="Nhập mã vạch"
+                          autoComplete="off"
                           type="text"
                           {...field}
                         />
@@ -438,8 +449,8 @@ function ClientAddEdit(props) {
                           autoComplete="off"
                           onChange={field.onChange}
                           selected={field.value ? new Date(field.value) : null}
-                          dateFormat="dd/MM/yyyy"
                           {...field}
+                          dateFormat="dd/MM/yyyy"
                         />
                       )}
                     />
@@ -456,6 +467,43 @@ function ClientAddEdit(props) {
                           className="select-control"
                           value={field.value}
                           onChange={val => field.onChange(val)}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
+                      Số điện thoại khác
+                      <span className="pl-1 font-sans font-normal text-muted">
+                        ( Nếu có )
+                      </span>
+                    </div>
+                    <Controller
+                      name="FixedPhone"
+                      control={control}
+                      render={({ field: { ref, ...field }, fieldState }) => (
+                        <Input
+                          autoComplete="FixedPhone"
+                          placeholder="Nhập số điện thoại"
+                          type="text"
+                          {...field}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
+                      Nhân viên phụ trách
+                    </div>
+                    <Controller
+                      name="DistrictID"
+                      control={control}
+                      render={({ field: { ref, ...field }, fieldState }) => (
+                        <SelectUserAdmin
+                          className="select-control"
+                          isClearable
+                          value={field.value}
+                          onChange={val => field.onChange(val?.value || '')}
                         />
                       )}
                     />
@@ -532,23 +580,6 @@ function ClientAddEdit(props) {
                   />
                   <div>
                     <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
-                      Nhân viên phụ trách
-                    </div>
-                    <Controller
-                      name="DistrictID"
-                      control={control}
-                      render={({ field: { ref, ...field }, fieldState }) => (
-                        <SelectUserAdmin
-                          className="select-control"
-                          isClearable
-                          value={field.value}
-                          onChange={val => field.onChange(val?.value || '')}
-                        />
-                      )}
-                    />
-                  </div>
-                  <div>
-                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                       Nguồn
                     </div>
                     <Controller
@@ -556,11 +587,13 @@ function ClientAddEdit(props) {
                       control={control}
                       render={({ field: { ref, ...field }, fieldState }) => (
                         <Select
+                          isClearable
                           value={
                             dataAdd?.data?.Sources?.filter(
-                              x => x.value === Number(field.value)
+                              x => x.value === field.value
                             ) || null
                           }
+                          onChange={val => field.onChange(val?.val || '')}
                           className="select-control"
                           classNamePrefix="select"
                           isLoading={dataAdd.isLoading}
@@ -571,23 +604,7 @@ function ClientAddEdit(props) {
                       )}
                     />
                   </div>
-                  <div>
-                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
-                      Mã vạch
-                    </div>
-                    <Controller
-                      name="HandCardID"
-                      control={control}
-                      render={({ field: { ref, ...field }, fieldState }) => (
-                        <Input
-                          placeholder="Nhập mã vạch"
-                          autoComplete="off"
-                          type="text"
-                          {...field}
-                        />
-                      )}
-                    />
-                  </div>
+
                   <div>
                     <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                       Giữ nhóm
