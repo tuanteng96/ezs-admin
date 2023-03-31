@@ -45,7 +45,7 @@ module.exports = withMT({
       },
       dark: {
         app: '#151521',
-        muted: '#92929F',
+        muted: '#ced4da',
         light: '#2B2B40',
         primarylight: '#212e48',
         successlight: '#1c3238',
@@ -65,7 +65,7 @@ module.exports = withMT({
       success: '#1bc5bd',
       successlight: '#C9F7F5',
       successhv: '#0BB7AF',
-      warning: "#FFA800",
+      warning: '#FFA800',
       muted: '#A1A5B7'
     },
     borderColor: {
@@ -98,7 +98,7 @@ module.exports = withMT({
       dangerhv: '#EE2D41',
       success: '#1bc5bd',
       light: '#EBEDF3',
-      warning: "#FFA800",
+      warning: '#FFA800',
       transparent: 'transparent',
       dark: {
         separator: '#2B2B40',
@@ -202,5 +202,8 @@ module.exports = withMT({
       }
     }
   },
-  plugins: [require('tailwind-scrollbar')({ nocompatible: true })]
+  plugins: [
+    require('tailwind-scrollbar')({ nocompatible: true }),
+    require('@tailwindcss/line-clamp')
+  ]
 })

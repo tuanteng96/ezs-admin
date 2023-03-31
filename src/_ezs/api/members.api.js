@@ -20,7 +20,7 @@ const MembersAPI = {
   memberDataAdd: () => {
     return http.get('/api/v3/member23?cmd=dataForAdd')
   },
-  memberSearch: ({ Pi, Ps, Key }) =>
+  memberSearch: ({ Pi, Ps, Key = '' }) =>
     http.get(
       `/services/preview.aspx?cmd=search_member&key=${encodeURIComponent(
         Key

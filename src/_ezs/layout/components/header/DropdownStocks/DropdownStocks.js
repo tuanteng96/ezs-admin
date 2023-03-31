@@ -44,7 +44,7 @@ const DropdownStocks = () => {
           <div className="flex items-center justify-center h-full">
             <Listbox.Button
               type="button"
-              className="flex items-center px-3 mr-2 text-sm font-medium transition rounded text-primary font-inter h-11 bg-light dark:bg-dark-light focus:outline-none focus:shadow-none focus:z-10 hover:bg-primary dark:hover:bg-primary hover:text-white dark:hover:text-white dark:text-primary"
+              className="flex items-center px-3 mr-2 text-sm font-medium transition rounded text-primary font-inter h-11 bg-light dark:bg-dark-light focus:outline-none focus:shadow-none focus:z-10 hover:bg-primary dark:hover:bg-primary hover:text-white dark:hover:text-white dark:text-white"
             >
               <span className="block w-[135px] text-left truncate">
                 {CrStocks?.Title}

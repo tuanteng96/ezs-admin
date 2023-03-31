@@ -195,6 +195,60 @@ function CalendarFilters({ isFilters, onHideFilters, queryConfig }) {
             Bộ lọc đặt lịch
           </div>
           <div className="px-6 py-4 overflow-auto grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
+            <div>
+              <div className="mb-1.5 text-muted font-semibold dark:text-graydark-800 text-[13px] font-inter uppercase">
+                Lịch dự kiến
+              </div>
+              <div className="flex flex-col">
+                {fields &&
+                  fields.slice(0, 5).map((item, index) => (
+                    <div className="mt-1.5" key={index}>
+                      <Controller
+                        name={`status[${index}].selected`}
+                        control={control}
+                        render={({ field: { ref, ...field }, fieldState }) => (
+                          <Checkbox
+                            labelText={item.label}
+                            htmlFor={item.value}
+                            {...field}
+                            onChange={field.onChange}
+                            checked={field.value}
+                            labelClassName="text-[15px] font-semibold pl-2"
+                            styleChecked={{ background: item.color }}
+                          />
+                        )}
+                      />
+                    </div>
+                  ))}
+              </div>
+            </div>
+            <div className="mt-4 mb-4">
+              <div className="mb-1.5 text-muted font-semibold dark:text-graydark-800 text-[13px] font-inter uppercase">
+                Lịch thực hiện
+              </div>
+              <div className="flex flex-col">
+                {fields &&
+                  fields.slice(5, StatusBooking.length).map((item, index) => (
+                    <div className="mt-1.5" key={index}>
+                      <Controller
+                        name={`status[${5 + index}].selected`}
+                        control={control}
+                        render={({ field: { ref, ...field }, fieldState }) => (
+                          <Checkbox
+                            labelText={item.label}
+                            htmlFor={item.value}
+                            {...field}
+                            onChange={field.onChange}
+                            checked={field.value}
+                            labelClassName="text-[15px] font-semibold pl-2"
+                            styleChecked={{ background: item.color }}
+                          />
+                        )}
+                      />
+                    </div>
+                  ))}
+              </div>
+            </div>
             <div className="mb-3">
               <div className="mb-1.5 text-base text-gray-900 font-semibold dark:text-graydark-800">
                 Khách hàng
@@ -298,7 +352,7 @@ function CalendarFilters({ isFilters, onHideFilters, queryConfig }) {
                 )}
               />
             </div>
-            <div className="mb-3">
+            <div>
               <div className="mb-1.5 text-base text-gray-900 font-semibold dark:text-graydark-800">
                 Loại thực hiện
               </div>
@@ -320,60 +374,6 @@ function CalendarFilters({ isFilters, onHideFilters, queryConfig }) {
                   />
                 )}
               />
-            </div>
-            <div>
-              <div className="mb-1.5 text-muted font-semibold dark:text-graydark-800 text-[13px] font-inter uppercase">
-                Lịch dự kiến
-              </div>
-              <div className="flex flex-col">
-                {fields &&
-                  fields.slice(0, 5).map((item, index) => (
-                    <div className="mt-1.5" key={index}>
-                      <Controller
-                        name={`status[${index}].selected`}
-                        control={control}
-                        render={({ field: { ref, ...field }, fieldState }) => (
-                          <Checkbox
-                            labelText={item.label}
-                            htmlFor={item.value}
-                            {...field}
-                            onChange={field.onChange}
-                            checked={field.value}
-                            labelClassName="text-[15px] font-semibold pl-2"
-                            styleChecked={{ background: item.color }}
-                          />
-                        )}
-                      />
-                    </div>
-                  ))}
-              </div>
-            </div>
-            <div className="mt-4">
-              <div className="mb-1.5 text-muted font-semibold dark:text-graydark-800 text-[13px] font-inter uppercase">
-                Lịch thực hiện
-              </div>
-              <div className="flex flex-col">
-                {fields &&
-                  fields.slice(5, StatusBooking.length).map((item, index) => (
-                    <div className="mt-1.5" key={index}>
-                      <Controller
-                        name={`status[${5 + index}].selected`}
-                        control={control}
-                        render={({ field: { ref, ...field }, fieldState }) => (
-                          <Checkbox
-                            labelText={item.label}
-                            htmlFor={item.value}
-                            {...field}
-                            onChange={field.onChange}
-                            checked={field.value}
-                            labelClassName="text-[15px] font-semibold pl-2"
-                            styleChecked={{ background: item.color }}
-                          />
-                        )}
-                      />
-                    </div>
-                  ))}
-              </div>
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4 p-6 border-t border-separator dark:border-dark-separator">

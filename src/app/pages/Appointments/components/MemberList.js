@@ -8,13 +8,15 @@ import PropTypes from 'prop-types'
 import useEscape from 'src/_ezs/hooks/useEscape'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import MembersAPI from 'src/_ezs/api/members.api'
-import { useQuery } from '@tanstack/react-query'
+import { useInfiniteQuery } from '@tanstack/react-query'
 import useDebounce from 'src/_ezs/hooks/useDebounce'
 import { Link, useLocation } from 'react-router-dom'
 import { formatString } from 'src/_ezs/utils/formatString'
 import { useFormContext } from 'react-hook-form'
 import { Menu, Transition } from '@headlessui/react'
 import { MemberListTabs } from './MemberListTabs'
+import { formatArray } from 'src/_ezs/utils/formatArray'
+import useInfiniteScroll from 'react-infinite-scroll-hook'
 
 const MemberList = ({
   onOpen,
@@ -34,12 +36,29 @@ const MemberList = ({
     descRef?.current?.blur()
   })
 
-  const ListMember = useQuery({
+  const ListMembersQuery = useInfiniteQuery({
     queryKey: ['ListMembers', debouncedKey],
-    queryFn: async () => {
-      const { data } = await MembersAPI.memberList({ Key: debouncedKey })
-      return data?.data || []
-    }
+    queryFn: async ({ pageParam = 1 }) => {
+      const { data } = await MembersAPI.memberSearch({
+        Pi: pageParam,
+        Ps: 20,
+        Key: debouncedKey
+      })
+      return data
+    },
+    getNextPageParam: (lastPage, pages) =>
+      lastPage.pi === lastPage.pCount ? undefined : lastPage.pi + 1
+  })
+
+  const ListMembers = formatArray.useInfiniteQuery(
+    ListMembersQuery?.data?.pages
+  )
+
+  const [sentryRef, { rootRef }] = useInfiniteScroll({
+    loading: ListMembersQuery.isLoading,
+    hasNextPage: ListMembersQuery.hasNextPage,
+    onLoadMore: () => ListMembersQuery.fetchNextPage()
+    //disabled: !!error,
   })
 
   return (
@@ -129,7 +148,7 @@ const MemberList = ({
           </div>
           {isShowing && (
             <>
-              {ListMember.isLoading && (
+              {ListMembersQuery.isLoading && (
                 <div className="relative grow">
                   <LoadingComponentFull bgClassName="bg-white" loading={true} />
                 </div>
@@ -148,14 +167,15 @@ const MemberList = ({
                   Thêm mới khách hàng
                 </Link>
               </div>
-              {!ListMember.isLoading && (
-                <div className="relative overflow-auto grow">
-                  {ListMember.data && ListMember.data.length > 0 ? (
-                    ListMember.data.map((member, index) => (
+              {!ListMembersQuery.isLoading && (
+                <div className="relative overflow-auto grow" ref={rootRef}>
+                  {ListMembers && ListMembers.length > 0 ? (
+                    ListMembers.map((member, index) => (
                       <div
                         className="flex p-5 border-b cursor-pointer border-separator dark:border-dark-separator last:mb-0 last:pb-0 last:border-0"
                         key={index}
                         onClick={() => onChange(member)}
+                        ref={sentryRef}
                       >
                         <div className="flex items-center justify-center font-bold uppercase rounded-full w-14 h-14 font-inter bg-primarylight dark:bg-dark-primarylight text-primary">
                           {formatString.getLastFirst(member.FullName)}
@@ -206,6 +226,17 @@ const MemberList = ({
                             Thêm mới khách hàng
                           </Link>
                         </div>
+                      </div>
+                    </div>
+                  )}
+                  {ListMembers.length > 0 && ListMembersQuery.hasNextPage && (
+                    <div className="flex p-5 border-b cursor-pointer border-separator dark:border-dark-separator last:mb-0 last:pb-0 last:border-0">
+                      <div className="flex items-center justify-center font-bold uppercase rounded-full w-14 h-14 font-inter bg-gray-200 dark:bg-gray-700 text-primary animate-pulse"></div>
+                      <div className="px-3.5 grow flex justify-center flex-col">
+                        <div className="mb-px font-semibold capitalize truncate dark:text-graydark-800 font-inter">
+                          <div className="h-5 bg-gray-200 rounded dark:bg-gray-700 w-9/12"></div>
+                        </div>
+                        <div className="h-3.5 mt-1 bg-gray-200 rounded dark:bg-gray-700 w-2/4"></div>
                       </div>
                     </div>
                   )}
