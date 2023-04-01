@@ -31,7 +31,7 @@ const MasterLayout = () => {
           e.preventDefault()
           navigate('/search?type=member', {
             state: {
-              previousPath: pathname + search
+              previousPath: pathname === '/search' ? '/' : pathname + search
             }
           })
           return false
