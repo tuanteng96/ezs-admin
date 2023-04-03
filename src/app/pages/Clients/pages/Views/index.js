@@ -156,8 +156,8 @@ function ClientViews(props) {
             </div>
           </div>
         </div>
-        <div className="flex-1 px-5 pt-4 flex flex-col h-full overflow-auto">
-          <div className="mb-5 grow bg-white rounded shadow-sm">
+        <div className="flex-1 p-5 flex flex-col h-full overflow-auto">
+          <div className="mb-5 grow bg-white rounded shadow-sm last:mb-0">
             <div className="px-5 py-4 font-inter uppercase font-bold text-lg border-b border-separator">
               Dịch vụ đang thực hiện
             </div>
@@ -204,7 +204,7 @@ function ClientViews(props) {
                 ))}
             </div>
           </div>
-          <div className="mb-5 bg-white rounded shadow-sm">
+          <div className="mb-5 bg-white rounded shadow-sm last:mb-0">
             <div className="px-5 py-4 font-inter uppercase font-bold text-lg border-b border-separator">
               Thanh toán nợ
             </div>
@@ -223,9 +223,11 @@ function ClientViews(props) {
                     className="p-5 border-t border-separator border-dashed cursor-pointer flex items-center text-[15px]"
                     key={index}
                   >
-                    <div className="font-bold w-[145px]">
-                      <div>#32857</div>
-                      <div>15:30 22/03/2023</div>
+                    <div className="w-[145px]">
+                      <div className="font-bold">#32857</div>
+                      <div className="text-muted2 font-semibold text-sm">
+                        15:30 22/03/2023
+                      </div>
                     </div>
                     <div className="font-bold col-span-2 flex-1 pl-5">
                       Thẻ dịch vụ triệt lông, Kem trị nám Body
@@ -243,7 +245,7 @@ function ClientViews(props) {
           </div>
         </div>
       </div>
-      <div className="w-[350px] pt-4">
+      <div className="w-[350px] pt-5">
         <div className="flex flex-col h-full rounded shahdow-lg">
           <div className="flex justify-between px-5 py-3.5 border-b border-separator bg-white">
             <div className="font-semibold uppercase font-inter">Đơn hàng</div>
