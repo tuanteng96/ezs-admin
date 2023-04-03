@@ -156,7 +156,7 @@ function ClientViews(props) {
             </div>
           </div>
         </div>
-        <div className="flex-1 px-5 pt-4 flex flex-col h-full">
+        <div className="flex-1 px-5 pt-4 flex flex-col h-full overflow-auto">
           <div className="mb-5 grow bg-white rounded shadow-sm">
             <div className="px-5 py-4 font-inter uppercase font-bold text-lg border-b border-separator">
               Dịch vụ đang thực hiện
