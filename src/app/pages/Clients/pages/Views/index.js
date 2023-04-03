@@ -156,15 +156,119 @@ function ClientViews(props) {
             </div>
           </div>
         </div>
-        <div className="grid flex-1 grid-cols-1 grid-rows-2 gap-4 px-5 pt-4 auto-rows-max auto-cols-max">
-          <div className="flex flex-col w-full bg-white rounded shadow-sm">
-            <div className="px-5 py-4 font-semibold uppercase border-b border-separator font-inter">
-              Đặt lịch hôm nay
+        <div className="flex-1 px-5 pt-4 flex flex-col h-full">
+          <div className="mb-5 grow bg-white rounded shadow-sm">
+            <div className="px-5 py-4 font-inter uppercase font-bold text-lg border-b border-separator">
+              Dịch vụ đang thực hiện
+            </div>
+            <div className="grid grid-cols-5 gap-4">
+              <div className="col-span-2 pl-5 flex items-center">
+                <div className="w-16 text-muted2 font-semibold uppercase text-[13px] font-inter text-center py-5">
+                  Ảnh
+                </div>
+                <div className="pl-5 py-5 text-muted2 font-semibold uppercase text-[13px] font-inter flex-1">
+                  Dịch vụ thực hiện
+                </div>
+              </div>
+              <div className="pl-5 py-5 text-muted2 font-semibold uppercase text-[13px] font-inter flex-1">
+                Thời gian
+              </div>
+              <div className="col-span-2 py-5 text-muted2 font-semibold uppercase text-[13px] font-inter flex-1">
+                Nhân viên thực hiện
+              </div>
+            </div>
+            <div>
+              {Array(3)
+                .fill()
+                .map((_, index) => (
+                  <div
+                    className="grid grid-cols-5 gap-5 border-t border-separator border-dashed cursor-pointer"
+                    key={index}
+                  >
+                    <div className="col-span-2 pl-5 py-5">
+                      <div className="flex items-center">
+                        <div className="w-16">
+                          <img
+                            className="w-full h-16 rounded-full object-cover"
+                            src="https://cser.vn/Upload/image/2022/12/27/buoi-le-cham-soc-da-co-ban_2022-12-27-142755.jpg"
+                            alt=""
+                          />
+                        </div>
+                        <div className="flex-1 pl-4">
+                          <div className="font-bold">
+                            Chăm sóc da cơ bản trải nghiệm
+                          </div>
+                          <div className="font-semibold text-muted2 text-sm">
+                            Thời gian 90P
+                          </div>
+                          <div className="font-semibold text-muted2 text-sm">
+                            Phụ phí làm ngoài giờ
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="py-5 font-inter text-[15] font-semibold">
+                      15:30 22/03/2023
+                    </div>
+                    <div className="col-span-2 pr-5 py-5 flex">
+                      <div className="font-bold">
+                        Nguyễn Tài Tuấn - 80.000₫, Nguyễn Lan Anh - 40.000₫,
+                        Phạm Trung Hiếu - 60.000₫
+                      </div>
+                      <div className="w-12 flex justify-end">
+                        <ChevronRightIcon className="w-5 text-muted" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
             </div>
           </div>
-          <div className="w-full bg-white rounded shadow-sm">
-            <div className="px-5 py-4 font-semibold uppercase border-b border-separator font-inter">
-              Thẻ dịch vụ khách hàng
+          <div className="mb-5 bg-white rounded shadow-sm">
+            <div className="px-5 py-4 font-inter uppercase font-bold text-lg border-b border-separator">
+              Thanh toán nợ
+            </div>
+            <div className="flex p-5">
+              <div className="text-muted2 font-semibold uppercase text-[13px] font-inter w-[100px]">
+                ID ĐH
+              </div>
+              <div className="text-muted2 font-semibold uppercase text-[13px] font-inter w-[170px] pl-5">
+                Thời gian
+              </div>
+              <div className="text-muted2 font-semibold uppercase text-[13px] font-inter pl-5 flex-1">
+                Mặt hàng
+              </div>
+              <div className="text-muted2 font-semibold uppercase text-[13px] font-inter pl-5 flex-1">
+                Nhân viên
+              </div>
+              <div className="text-muted2 font-semibold uppercase text-[13px] font-inter pl-5 w-[125px]">
+                Giá trị
+              </div>
+              <div className="w-12"></div>
+            </div>
+            <div>
+              {Array(2)
+                .fill()
+                .map((_, index) => (
+                  <div
+                    className="p-5 border-t border-separator border-dashed cursor-pointer flex"
+                    key={index}
+                  >
+                    <div className="font-bold font-inter w-[100px]">#32857</div>
+                    <div className="font-inter font-semibold w-[170px] pl-5">
+                      15:30 22/03/2023
+                    </div>
+                    <div className="font-bold col-span-2 flex-1 pl-5">
+                      Thẻ dịch vụ triệt lông, Kem trị nám Body
+                    </div>
+                    <div className="font-bold flex-1 pl-5">
+                      Nguyễn Tài Tuấn - 80.000₫
+                    </div>
+                    <div className="font-bold pl-5 w-[125px]">200.000.000₫</div>
+                    <div className="flex items-center justify-end w-12">
+                      <ChevronRightIcon className="w-5 text-muted" />
+                    </div>
+                  </div>
+                ))}
             </div>
           </div>
         </div>
@@ -252,7 +356,7 @@ function ClientViews(props) {
               </div>
             </div>
           </div>
-          <div className="pr-5 pb-3.5 pt-3.5">
+          <div className="pr-5 py-5">
             <Button className="relative flex items-center justify-center w-full h-12 pl-5 pr-10 text-sm font-bold text-white uppercase transition rounded shadow-lg font-inter bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70">
               Khách hàng Check IN
               <ArrowLeftOnRectangleIcon className="absolute w-6 right-3" />
