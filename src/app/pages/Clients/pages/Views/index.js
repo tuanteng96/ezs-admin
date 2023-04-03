@@ -14,23 +14,23 @@ function ClientViews(props) {
   return (
     <div className="flex h-full ">
       <div className="flex flex-1 h-full">
-        <div className="w-[350px] rounded h-full flex flex-col border-t border-separator">
-          <div className="mb-1 bg-white shadow-sm">
+        <div className="w-[350px] rounded h-full flex flex-col border-t border-separator dark:border-[#151521] dark:border-l-2 dark:border-t-2">
+          <div className="mb-1 bg-white dark:bg-dark-aside shadow-sm">
             <div className="flex p-4 flex-wrap">
               <div className="flex items-center justify-center font-bold rounded-full w-14 h-14 bg-primarylight font-inter text-primary">
                 NT
               </div>
               <div className="flex flex-col justify-center flex-1 pl-3">
                 <div className="mb-px font-bold">
-                  <Link className="text-primary" to="/">
+                  <Link className="text-primary dark:text-white" to="/">
                     Nguyễn Tài Tuấn
                   </Link>
                 </div>
-                <div className="text-[15px] font-semibold font-inter">
+                <div className="text-[15px] font-semibold font-inter dark:text-graydark-900">
                   0971021196
                 </div>
               </div>
-              <div className="flex flex-col items-end w-10 h-10 mt-1 cursor-pointer">
+              <div className="flex flex-col items-end w-10 h-10 mt-1 cursor-pointer dark:text-graydark-800">
                 <EllipsisHorizontalIcon className="w-7" />
               </div>
               <div className="w-full mt-3">
@@ -39,34 +39,42 @@ function ClientViews(props) {
                 </span>
               </div>
             </div>
-            <div className="grid grid-cols-3 gap-2.5 py-3 border-t border-separator">
+            <div className="grid grid-cols-3 gap-2.5 py-3 border-t border-separator dark:border-dark-separator">
               <div className="flex flex-col items-center">
-                <div className="text-sm text-muted2">Ví điện tử</div>
-                <div className="font-bold">2.000.000</div>
+                <div className="text-sm text-muted2 dark:text-graydark-800">
+                  Ví điện tử
+                </div>
+                <div className="font-bold dark:text-white">2.000.000</div>
               </div>
               <div className="flex flex-col items-center">
-                <div className="text-sm text-muted2">Thẻ tiền</div>
-                <div className="font-bold">10.000.000</div>
+                <div className="text-sm text-muted2 dark:text-graydark-800">
+                  Thẻ tiền
+                </div>
+                <div className="font-bold dark:text-white">10.000.000</div>
               </div>
               <div className="flex flex-col items-center">
-                <div className="text-sm text-muted2">Công nợ</div>
+                <div className="text-sm text-muted2 dark:text-graydark-800">
+                  Công nợ
+                </div>
                 <div className="font-bold text-danger">500.000</div>
               </div>
             </div>
-            <div className="flex items-center justify-between border-t border-separator">
-              <div className="px-4 font-medium">Cser Hà Nội</div>
+            <div className="flex items-center justify-between border-t border-separator dark:border-dark-separator">
+              <div className="px-4 font-medium dark:text-white">
+                Cser Hà Nội
+              </div>
               <div className="flex">
-                <div className="flex justify-center w-12 h-12 border-l cursor-pointer item-center border-separator text-orange">
+                <div className="flex justify-center w-12 h-12 border-l cursor-pointer item-center border-separator dark:border-dark-separator text-orange">
                   <QrCodeIcon className="w-7" />
                 </div>
-                <div className="flex justify-center w-12 h-12 border-l cursor-pointer item-center border-separator text-primary">
+                <div className="flex justify-center w-12 h-12 border-l cursor-pointer item-center border-separator dark:border-dark-separator text-primary">
                   <ChatBubbleBottomCenterTextIcon className="w-7" />
                 </div>
               </div>
             </div>
           </div>
-          <div className="flex flex-col overflow-auto bg-white rounded shadow-sm grow">
-            <div className="flex items-center py-3.5 transition border-b cursor-pointer border-separator hover:text-primary">
+          <div className="flex flex-col overflow-auto bg-white dark:bg-dark-aside rounded shadow-sm grow">
+            <div className="flex items-center py-3.5 transition border-b cursor-pointer border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary dark:text-white">
               <div className="flex-1 pl-4">
                 <div className="mb-px font-medium">Quản lý thẻ dịch vụ</div>
                 <div className="text-sm text-muted">
@@ -77,7 +85,7 @@ function ClientViews(props) {
                 <ChevronRightIcon className="w-4" />
               </div>
             </div>
-            <div className="flex items-center py-3.5 transition border-b cursor-pointer border-separator hover:text-primary">
+            <div className="flex items-center py-3.5 transition border-b cursor-pointer border-separator dark:text-white dark:border-dark-separator hover:text-primary dark:hover:text-primary">
               <div className="flex-1 pl-4">
                 <div className="mb-px font-medium">Đăng ký mới</div>
                 <div className="text-sm text-muted">
@@ -88,7 +96,7 @@ function ClientViews(props) {
                 <ChevronRightIcon className="w-4" />
               </div>
             </div>
-            <div className="flex items-center py-3.5 transition border-b cursor-pointer border-separator hover:text-primary">
+            <div className="flex items-center py-3.5 transition border-b cursor-pointer dark:text-white border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary">
               <div className="flex-1 pl-4">
                 <div className="mb-px font-medium">Đặt lịch mới</div>
                 <div className="text-sm text-muted">
@@ -99,7 +107,7 @@ function ClientViews(props) {
                 <ChevronRightIcon className="w-4" />
               </div>
             </div>
-            <div className="flex items-center py-3.5 transition border-b cursor-pointer border-separator hover:text-primary">
+            <div className="flex items-center py-3.5 transition border-b cursor-pointer dark:text-white border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary">
               <div className="flex-1 pl-4">
                 <div className="mb-px font-medium">Quản lý đặt lịch</div>
               </div>
@@ -107,7 +115,7 @@ function ClientViews(props) {
                 <ChevronRightIcon className="w-4" />
               </div>
             </div>
-            <div className="flex items-center py-3.5 transition border-b cursor-pointer border-separator hover:text-primary">
+            <div className="flex items-center dark:text-white py-3.5 transition border-b cursor-pointer border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary">
               <div className="flex-1 pl-4">
                 <div className="mb-px font-medium">Thanh toán nợ</div>
                 <div className="text-sm text-muted">
@@ -118,7 +126,7 @@ function ClientViews(props) {
                 <ChevronRightIcon className="w-4" />
               </div>
             </div>
-            <div className="flex items-center py-3.5 transition border-b cursor-pointer border-separator hover:text-primary">
+            <div className="flex items-center py-3.5 transition border-b cursor-pointer dark:text-white border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary">
               <div className="flex-1 pl-4">
                 <div className="mb-px font-medium">Ví điện tử & Thẻ tiền</div>
                 <div className="text-sm text-muted">Quản lý ví & thẻ tiền</div>
@@ -127,7 +135,7 @@ function ClientViews(props) {
                 <ChevronRightIcon className="w-4" />
               </div>
             </div>
-            <div className="flex items-center py-3.5 transition border-b cursor-pointer border-separator hover:text-primary">
+            <div className="flex items-center py-3.5 dark:text-white transition border-b cursor-pointer border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary">
               <div className="flex-1 pl-4">
                 <div className="mb-px font-medium">Quản lý đơn hàng</div>
               </div>
@@ -135,7 +143,7 @@ function ClientViews(props) {
                 <ChevronRightIcon className="w-4" />
               </div>
             </div>
-            <div className="flex items-center py-3.5 transition border-b cursor-pointer border-separator hover:text-primary">
+            <div className="flex items-center py-3.5 transition border-b dark:text-white cursor-pointer border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary">
               <div className="flex-1 pl-4">
                 <div className="mb-px font-medium">Nhật ký & lịch sử</div>
                 <div className="text-sm text-muted">
@@ -146,7 +154,7 @@ function ClientViews(props) {
                 <ChevronRightIcon className="w-4" />
               </div>
             </div>
-            <div className="flex items-center py-3.5 cursor-pointer">
+            <div className="flex items-center py-3.5 cursor-pointer dark:text-white">
               <div className="flex-1 pl-4">
                 <div className="mb-px font-medium">Tạo thẻ cũ</div>
               </div>
@@ -157,7 +165,7 @@ function ClientViews(props) {
           </div>
         </div>
         <div className="flex-1 p-5 flex flex-col h-full overflow-auto">
-          <div className="h-full border border-[#d5d7da] rounded-lg flex items-center justify-center flex-col">
+          <div className="h-full border border-[#d5d7da] dark:border-dark-separator rounded-lg flex items-center justify-center flex-col">
             <svg
               className="w-16 h-auto"
               fill="none"
@@ -200,7 +208,7 @@ function ClientViews(props) {
               </defs>
             </svg>
             <div className="mt-3 mb-5 font-bold text-2xl">
-              Không có dịch vụ nào được thiết lập .
+              Không có dịch vụ nào.
             </div>
             <div className="max-w-lg mx-auto text-center font-semibold text-[15px] leading-6">
               Vào
@@ -214,13 +222,6 @@ function ClientViews(props) {
                 Đăng ký mới
               </span>
               để đăng ký buổi lẻ, thẻ liệu trình, thẻ tiền ....
-            </div>
-            <div className="max-w-lg mx-auto text-center font-semibold text-[15px] m-3">
-              Để thanh toán nợ cho khách hàng vui lòng chọn
-              <span className="text-primaryhv px-1.5 font-bold underline cursor-pointer">
-                Thanh toán nợ
-              </span>
-              để xử lý.
             </div>
           </div>
           {/* <div className="mb-5 grow bg-white rounded shadow-sm last:mb-0">
@@ -311,7 +312,7 @@ function ClientViews(props) {
           </div> */}
         </div>
       </div>
-      <div className="w-[350px] pt-5">
+      <div className="w-[360px] pt-5">
         <div className="flex flex-col h-full rounded shahdow-lg">
           <div className="flex justify-between px-5 py-3.5 border-b border-separator bg-white">
             <div className="font-semibold uppercase font-inter">Đơn hàng</div>
