@@ -169,7 +169,7 @@ function ClientViews(props) {
               <div className="w-5"></div>
             </div>
             <div>
-              {Array(3)
+              {Array(2)
                 .fill()
                 .map((_, index) => (
                   <div
@@ -216,7 +216,7 @@ function ClientViews(props) {
               <div className="w-5"></div>
             </div>
             <div>
-              {Array(2)
+              {Array(1)
                 .fill()
                 .map((_, index) => (
                   <div
