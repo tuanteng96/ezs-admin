@@ -5,6 +5,7 @@ import SuspensedView from 'src/app/routing/SuspensedView'
 // const ClientList = lazy(() => import('./pages/Home'))
 const ClientAddEdit = lazy(() => import('./pages/AddEdit'))
 const ClientViews = lazy(() => import('./pages/Views'))
+const ClientViewWalletMoney = lazy(() => import('./pages/ViewWalletMoney'))
 
 function ClientsPage(props) {
   return (
@@ -42,7 +43,16 @@ function ClientsPage(props) {
               <ClientViews />
             </SuspensedView>
           }
-        />
+        >
+          <Route
+            path="wallet-moneycard"
+            element={
+              <SuspensedView>
+                <ClientViewWalletMoney />
+              </SuspensedView>
+            }
+          />
+        </Route>
         <Route path="*" element={<Navigate to="/calendar" />} />
       </Routes>
     </>

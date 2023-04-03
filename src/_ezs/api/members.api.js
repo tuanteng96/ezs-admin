@@ -41,7 +41,9 @@ const MembersAPI = {
   memberBookings: ({ From, To }) =>
     http.get(
       `api/v3/mbookadmin?cmd=getbooks&memberid=&from=${From}&to=${To}&stockid=0&status=XAC_NHAN,XAC_NHAN_TU_DONG,CHUA_XAC_NHAN,DANG_THUC_HIEN,THUC_HIEN_XONG,KHACH_KHONG_DEN,KHACH_DEN&UserServiceIDs=&StatusMember=&StatusBook=&StatusAtHome=`
-    )
+    ),
+  memberListsWallet: body =>
+    http.post('/services/preview.aspx?cmd=list_money', body)
 }
 
 export default MembersAPI
