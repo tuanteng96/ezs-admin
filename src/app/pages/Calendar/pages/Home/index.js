@@ -16,13 +16,17 @@ moment.locale('vi')
 const getQueryParams = queryConfig => {
   let params = {
     ...queryConfig,
-    From: moment(moment(queryConfig.day, 'YYYY-MM-DD')).format('YYYY-MM-DD'),
-    To: moment(moment(queryConfig.day, 'YYYY-MM-DD')).format('YYYY-MM-DD')
+    From: moment(moment(queryConfig.day, 'YYYY-MM-DD')),
+    To: moment(moment(queryConfig.day, 'YYYY-MM-DD'))
   }
   if (queryConfig.view === 'dayGridMonth') {
     params.From = params.From.startOf('month').format('YYYY-MM-DD')
     params.To = params.To.endOf('month').format('YYYY-MM-DD')
+  } else {
+    params.From = params.From.format('YYYY-MM-DD')
+    params.To = params.To.format('YYYY-MM-DD')
   }
+
   return params
 }
 

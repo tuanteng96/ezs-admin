@@ -21,6 +21,7 @@ import { toast } from 'react-toastify'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import clsx from 'clsx'
 import Swal from 'sweetalert2'
+
 import moment from 'moment'
 import 'moment/locale/vi'
 
@@ -91,7 +92,11 @@ function ClientAddEdit(props) {
   const navigate = useNavigate()
 
   const { control, handleSubmit, setValue, setError, reset } = useForm({
-    defaultValues: { ...initialValues, MobilePhone: state?.key || '' },
+    defaultValues: {
+      ...initialValues,
+      MobilePhone: Number(state?.key) ? state?.key : '',
+      FullName: !Number(state?.key) ? state?.key : ''
+    },
     resolver: yupResolver(schemaUsers)
   })
 

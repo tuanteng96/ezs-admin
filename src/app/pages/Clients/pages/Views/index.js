@@ -16,7 +16,7 @@ function ClientViews(props) {
       <div className="flex flex-1 h-full">
         <div className="w-[350px] rounded h-full flex flex-col border-t border-separator">
           <div className="mb-1 bg-white shadow-sm">
-            <div className="flex px-4 py-3">
+            <div className="flex p-4 flex-wrap">
               <div className="flex items-center justify-center font-bold rounded-full w-14 h-14 bg-primarylight font-inter text-primary">
                 NT
               </div>
@@ -26,10 +26,31 @@ function ClientViews(props) {
                     Nguyễn Tài Tuấn
                   </Link>
                 </div>
-                <div className="text-[15px] font-medium">0971021196</div>
+                <div className="text-[15px] font-semibold font-inter">
+                  0971021196
+                </div>
               </div>
               <div className="flex flex-col items-end w-10 h-10 mt-1 cursor-pointer">
                 <EllipsisHorizontalIcon className="w-7" />
+              </div>
+              <div className="w-full mt-3">
+                <span className="bg-primarylight text-primary font-bold text-xs px-3 py-1 rounded">
+                  Khách hàng thân thiết
+                </span>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-2.5 py-3 border-t border-separator">
+              <div className="flex flex-col items-center">
+                <div className="text-sm text-muted2">Ví điện tử</div>
+                <div className="font-bold">2.000.000</div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="text-sm text-muted2">Thẻ tiền</div>
+                <div className="font-bold">10.000.000</div>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="text-sm text-muted2">Công nợ</div>
+                <div className="font-bold text-danger">500.000</div>
               </div>
             </div>
             <div className="flex items-center justify-between border-t border-separator">
@@ -70,6 +91,9 @@ function ClientViews(props) {
             <div className="flex items-center py-3.5 transition border-b cursor-pointer border-separator hover:text-primary">
               <div className="flex-1 pl-4">
                 <div className="mb-px font-medium">Đặt lịch mới</div>
+                <div className="text-sm text-muted">
+                  Thực hiện đặt lịch mới cho khách hàng
+                </div>
               </div>
               <div className="flex justify-center w-10 text-muted">
                 <ChevronRightIcon className="w-4" />
@@ -86,6 +110,9 @@ function ClientViews(props) {
             <div className="flex items-center py-3.5 transition border-b cursor-pointer border-separator hover:text-primary">
               <div className="flex-1 pl-4">
                 <div className="mb-px font-medium">Thanh toán nợ</div>
+                <div className="text-sm text-muted">
+                  Danh sách, sử lý các thanh toán nợ
+                </div>
               </div>
               <div className="flex justify-center w-10 text-muted">
                 <ChevronRightIcon className="w-4" />
@@ -94,6 +121,7 @@ function ClientViews(props) {
             <div className="flex items-center py-3.5 transition border-b cursor-pointer border-separator hover:text-primary">
               <div className="flex-1 pl-4">
                 <div className="mb-px font-medium">Ví điện tử & Thẻ tiền</div>
+                <div className="text-sm text-muted">Quản lý ví & thẻ tiền</div>
               </div>
               <div className="flex justify-center w-10 text-muted">
                 <ChevronRightIcon className="w-4" />
@@ -110,6 +138,9 @@ function ClientViews(props) {
             <div className="flex items-center py-3.5 transition border-b cursor-pointer border-separator hover:text-primary">
               <div className="flex-1 pl-4">
                 <div className="mb-px font-medium">Nhật ký & lịch sử</div>
+                <div className="text-sm text-muted">
+                  Quản lý lịch sử khách hàng
+                </div>
               </div>
               <div className="flex justify-center w-10 text-muted">
                 <ChevronRightIcon className="w-4" />
