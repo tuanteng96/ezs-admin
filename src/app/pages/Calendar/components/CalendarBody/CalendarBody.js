@@ -3,11 +3,20 @@ import FullCalendar from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import timeGridPlugin from '@fullcalendar/timegrid'
 import listPlugin from '@fullcalendar/list'
+import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
+import scrollGridPlugin from '@fullcalendar/scrollgrid'
 import { useWindowSize } from 'src/_ezs/hooks/useWindowSize'
-import { createSearchParams, useLocation, useNavigate } from 'react-router-dom'
+import {
+  createSearchParams,
+  Link,
+  useLocation,
+  useNavigate
+} from 'react-router-dom'
 import { isEmpty, omitBy } from 'lodash'
 import clsx from 'clsx'
+import { formatString } from 'src/_ezs/utils/formatString'
+import { useAuth } from 'src/_ezs/core/Auth'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -36,11 +45,13 @@ const viLocales = {
   noEventsText: 'Không có dịch vụ'
 }
 
-function CalendarBody({ queryConfig, MemberBookings }) {
+function CalendarBody({ queryConfig, MemberBookings, Resources }) {
+  const { CrStocks } = useAuth()
   const calendarRef = useRef('')
   const navigate = useNavigate()
   const { pathname, search } = useLocation()
   const { width } = useWindowSize()
+
   useEffect(() => {
     if (calendarRef?.current?.getApi()) {
       let calendarApi = calendarRef.current.getApi()
@@ -50,17 +61,26 @@ function CalendarBody({ queryConfig, MemberBookings }) {
 
   return (
     <FullCalendar
+      schedulerLicenseKey="GPL-My-Project-Is-Open-Source"
       themeSystem="unthemed"
       locale={viLocales}
       headerToolbar={false}
-      plugins={[dayGridPlugin, interactionPlugin, timeGridPlugin, listPlugin]}
+      plugins={[
+        dayGridPlugin,
+        interactionPlugin,
+        timeGridPlugin,
+        listPlugin,
+        resourceTimeGridPlugin,
+        scrollGridPlugin
+      ]}
       initialView={queryConfig.view}
       handleWindowResize={true}
       aspectRatio="3"
       editable={false}
       navLinks={true}
       ref={calendarRef}
-      events={MemberBookings?.data?.data}
+      events={MemberBookings?.data?.data || []}
+      resources={Resources?.data || []}
       views={{
         dayGridMonth: {
           dayMaxEvents: 2,
@@ -97,7 +117,7 @@ function CalendarBody({ queryConfig, MemberBookings }) {
           dayHeaderContent: ({ date, isToday, ...arg }) => {
             return (
               <>
-                <div className="text-sm mb-1">{moment(date).format('ddd')}</div>
+                <div className="mb-1 text-sm">{moment(date).format('ddd')}</div>
                 <div
                   className={clsx(
                     'w-10 h-10 rounded-full flex items-center justify-center',
@@ -114,7 +134,31 @@ function CalendarBody({ queryConfig, MemberBookings }) {
           nowIndicator: true,
           now: moment(new Date()).format('YYYY-MM-DD HH:mm'),
           scrollTime: moment(new Date()).format('HH:mm'),
-          dateClick: ({ date }) => {}
+          dateClick: ({ date }) => {
+            navigate(`/appointments/new`, {
+              state: {
+                previousPath: pathname + search,
+                formState: {
+                  MemberIDs: '',
+                  AtHome: false,
+                  Desc: '',
+                  booking: [
+                    {
+                      BookDate: moment(date).toDate(),
+                      Time: moment(date).toDate(),
+                      Desc: '',
+                      IsAnonymous: false,
+                      MemberID: '',
+                      RootIdS: '',
+                      Status: 'XAC_NHAN',
+                      StockID: CrStocks.ID,
+                      UserServiceIDs: ''
+                    }
+                  ]
+                }
+              }
+            })
+          }
           // slotMinTime: TimeOpen,
           // slotMaxTime: TimeClose
         },
@@ -134,8 +178,8 @@ function CalendarBody({ queryConfig, MemberBookings }) {
           dayHeaderContent: ({ date, isToday, ...arg }) => {
             return (
               <>
-                <div className="text-sm mb-1">{moment(date).format('ddd')}</div>
-                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-primary text-white">
+                <div className="mb-1 text-sm">{moment(date).format('ddd')}</div>
+                <div className="flex items-center justify-center w-10 h-10 text-white rounded-full bg-primary">
                   {moment(date).format('DD')}
                 </div>
               </>
@@ -145,45 +189,97 @@ function CalendarBody({ queryConfig, MemberBookings }) {
           now: moment(new Date()).format('YYYY-MM-DD HH:mm'),
           scrollTime: moment(new Date()).format('HH:mm'),
           slotMinWidth: '50',
-          dateClick: ({ date }) => {}
+          dateClick: ({ date }) => {
+            navigate(`/appointments/new`, {
+              state: {
+                previousPath: pathname + search,
+                formState: {
+                  MemberIDs: '',
+                  AtHome: false,
+                  Desc: '',
+                  booking: [
+                    {
+                      BookDate: moment(date).toDate(),
+                      Time: moment(date).toDate(),
+                      Desc: '',
+                      IsAnonymous: false,
+                      MemberID: '',
+                      RootIdS: '',
+                      Status: 'XAC_NHAN',
+                      StockID: CrStocks.ID,
+                      UserServiceIDs: ''
+                    }
+                  ]
+                }
+              }
+            })
+          }
           // slotMinTime: TimeOpen,
           // slotMaxTime: TimeClose
         },
         resourceTimeGridDay: {
+          dayMinWidth: 300,
+          allDaySlot: false,
           type: 'resourceTimeline',
-          buttonText: 'Nhân viên',
-          resourceAreaHeaderContent: () => 'Nhân viên',
           nowIndicator: true,
           now: moment(new Date()).format('YYYY-MM-DD HH:mm'),
           scrollTime: moment(new Date()).format('HH:mm'),
           resourceAreaWidth: '300px',
-          stickyHeaderDates: true
-          // slotMinTime: TimeOpen,
-          // slotMaxTime: TimeClose
-        },
-        resourceTimelineDay: {
-          type: 'resourceTimeline',
-          buttonText: 'Nhân viên',
-          resourceAreaHeaderContent: () =>
-            width > 1200 ? 'Nhân viên' : 'N.Viên',
-          nowIndicator: true,
-          now: moment(new Date()).format('YYYY-MM-DD HH:mm'),
-          scrollTime: moment(new Date()).format('HH:mm'),
-          resourceAreaWidth: width > 767 ? '180px' : '70px',
-          slotMinWidth: width > 767 ? '60' : '35',
-          dateClick: ({ date }) => {}
-          // resourceLabelDidMount: ({ el, fieldValue, ...arg }) => {
-          //   el.querySelector(
-          //     '.fc-datagrid-cell-main'
-          //   ).innerHTML = `${GenerateName(fieldValue)}`
-          // },
-          // slotLabelDidMount: ({ text, date, el, ...arg }) => {
-          //   el.querySelector(
-          //     '.fc-timeline-slot-cushion'
-          //   ).innerHTML = `<span class="gird-time font-number">
-          //               ${text} ${moment(date).format('A')}
-          //             </span>`
-          // },
+          stickyHeaderDates: true,
+          slotLabelContent: ({ date, text }) => {
+            return (
+              <>
+                <span className="text-[11px] font-medium text-[#70757a] absolute -top-[11px] bg-white dark:bg-dark-aside left-0 pl-4 pr-1.5 font-inter dark:text-gray-400">
+                  {text} {moment(date).format('A')}
+                </span>
+                <span className="block w-14"></span>
+              </>
+            )
+          },
+          resourceLabelContent: ({ resource }) => {
+            return (
+              <Link to="/" className="flex flex-col items-center">
+                <div className="p-1 border rounded-full w-14 h-14 font-inter border-primary">
+                  <div className="flex items-center justify-center w-full h-full rounded-full bg-primarylight text-primary">
+                    {formatString.getLastFirst(resource._resource.title)}
+                  </div>
+                </div>
+                <div className="mt-2 text-[13px]">
+                  {resource._resource.title}
+                </div>
+              </Link>
+            )
+          },
+          dateClick: ({ date, resource, ...args }) => {
+            navigate(`/appointments/new`, {
+              state: {
+                previousPath: pathname + search,
+                formState: {
+                  MemberIDs: '',
+                  AtHome: false,
+                  Desc: '',
+                  booking: [
+                    {
+                      BookDate: moment(date).toDate(),
+                      Time: moment(date).toDate(),
+                      Desc: '',
+                      IsAnonymous: false,
+                      MemberID: '',
+                      RootIdS: '',
+                      Status: 'XAC_NHAN',
+                      StockID: CrStocks.ID,
+                      UserServiceIDs: [
+                        {
+                          label: resource._resource.title,
+                          value: resource._resource.id
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            })
+          }
           // slotMinTime: TimeOpen,
           // slotMaxTime: TimeClose
         }
@@ -283,49 +379,56 @@ function CalendarBody({ queryConfig, MemberBookings }) {
         const { _def } = event
         const { extendedProps } = _def
         if (_def.extendedProps.os) {
-          return
-        }
-        let formState = {
-          MemberIDs: extendedProps.Member,
-          AtHome: extendedProps.AtHome,
-          Desc: extendedProps.Desc,
-          Status: extendedProps.Status,
-          booking: [
-            {
-              ID: extendedProps.ID,
-              BookDate: new Date(extendedProps.BookDate),
-              Time: new Date(extendedProps.BookDate),
-              Desc: '',
-              IsAnonymous: false,
-              MemberID: '',
-              RootIdS:
-                extendedProps.Roots && extendedProps.Roots.length > 0
-                  ? extendedProps.Roots.map(x => ({
-                      ...x,
-                      value: x.ID,
-                      label: x.Title
-                    }))
-                  : [],
-              Status: extendedProps.Status,
-              StockID: extendedProps?.Stock?.ID,
-              UserServiceIDs:
-                extendedProps.UserServices &&
-                extendedProps.UserServices.length > 0
-                  ? extendedProps.UserServices.map(x => ({
-                      ...x,
-                      value: x.ID,
-                      label: x.FullName
-                    }))
-                  : []
+          let formState = {}
+          navigate(`/appointments/os/${_def.extendedProps.os.ID}`, {
+            state: {
+              previousPath: pathname + search,
+              formState
             }
-          ]
-        }
-        navigate(`/appointments/edit/${extendedProps.ID}`, {
-          state: {
-            previousPath: pathname + search,
-            formState
+          })
+        } else {
+          let formState = {
+            MemberIDs: extendedProps.Member,
+            AtHome: extendedProps.AtHome,
+            Desc: extendedProps.Desc,
+            Status: extendedProps.Status,
+            booking: [
+              {
+                ID: extendedProps.ID,
+                BookDate: new Date(extendedProps.BookDate),
+                Time: new Date(extendedProps.BookDate),
+                Desc: '',
+                IsAnonymous: false,
+                MemberID: '',
+                RootIdS:
+                  extendedProps.Roots && extendedProps.Roots.length > 0
+                    ? extendedProps.Roots.map(x => ({
+                        ...x,
+                        value: x.ID,
+                        label: x.Title
+                      }))
+                    : [],
+                Status: extendedProps.Status,
+                StockID: extendedProps?.Stock?.ID,
+                UserServiceIDs:
+                  extendedProps.UserServices &&
+                  extendedProps.UserServices.length > 0
+                    ? extendedProps.UserServices.map(x => ({
+                        ...x,
+                        value: x.ID,
+                        label: x.FullName
+                      }))
+                    : []
+              }
+            ]
           }
-        })
+          navigate(`/appointments/edit/${extendedProps.ID}`, {
+            state: {
+              previousPath: pathname + search,
+              formState
+            }
+          })
+        }
       }}
       datesSet={({ view, start, ...arg }) => {
         if (view.type !== queryConfig.view) {

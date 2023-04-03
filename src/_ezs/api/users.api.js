@@ -11,6 +11,10 @@ const UsersAPI = {
       `/api/gl/select2?cmd=user&roles=DV&crstockid=${StockID || 0}&q=${
         Key || ''
       }&all=1`
+    ),
+  listUsersBooking: ({ StockID = 0, Key = '', All = '' }) =>
+    http.get(
+      `/api/gl/select2?cmd=user&roles=DV&crstockid=${StockID}&q=${Key}&All=${All}`
     )
 }
 

@@ -6,6 +6,7 @@ import { useQuery } from '@tanstack/react-query'
 import CalendarAPI from 'src/_ezs/api/calendar.api'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import { useAuth } from 'src/_ezs/core/Auth'
+import UsersAPI from 'src/_ezs/api/users.api'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -15,8 +16,8 @@ moment.locale('vi')
 const getQueryParams = queryConfig => {
   let params = {
     ...queryConfig,
-    From: moment(moment(queryConfig.day, 'YYYY-MM-DD')),
-    To: moment(moment(queryConfig.day, 'YYYY-MM-DD'))
+    From: moment(moment(queryConfig.day, 'YYYY-MM-DD')).format('YYYY-MM-DD'),
+    To: moment(moment(queryConfig.day, 'YYYY-MM-DD')).format('YYYY-MM-DD')
   }
   if (queryConfig.view === 'dayGridMonth') {
     params.From = params.From.startOf('month').format('YYYY-MM-DD')
@@ -152,17 +153,42 @@ function Home(props) {
     //keepPreviousData: true
   })
 
+  const ResourcesBookings = useQuery({
+    queryKey: [
+      'ResourcesBookings',
+      { StockID: CrStocks?.ID, All: 1, Key: queryConfig.UserIDs }
+    ],
+    queryFn: async () => {
+      const { data } = await UsersAPI.listUsersBooking({
+        StockID: CrStocks?.ID,
+        All: 1,
+        Key: queryConfig.UserIDs
+      })
+      const newData =
+        Array.isArray(data?.data) && data?.data.length > 0
+          ? data?.data.map(item => ({ ...item, id: item.id, title: item.text }))
+          : []
+      return newData
+    },
+    enabled: queryParams.view === 'resourceTimeGridDay'
+  })
+
   return (
     <div className="flex flex-col h-full">
       <CalendarHeader queryConfig={queryConfig} />
-      <div className="bg-white dark:bg-dark-aside h-[calc(100%-77px)]">
+      <div className="bg-white dark:bg-dark-aside h-[calc(100%-77px)] relative">
         <CalendarBody
           queryConfig={queryConfig}
           MemberBookings={MembersBookings}
+          Resources={ResourcesBookings}
         />
         <LoadingComponentFull
           bgClassName="bg-transparent z-[10]"
-          loading={MembersBookings.isLoading}
+          loading={
+            queryConfig.view === 'resourceTimeGridDay'
+              ? ResourcesBookings.isLoading
+              : MembersBookings.isLoading
+          }
         />
       </div>
     </div>

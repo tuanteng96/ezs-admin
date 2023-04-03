@@ -44,7 +44,7 @@ const ListView = [
     label: 'Danh sách'
   },
   {
-    value: 'resourceTimelineDay',
+    value: 'resourceTimeGridDay',
     label: 'Nhân viên'
   }
 ]

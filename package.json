@@ -8,6 +8,8 @@
         "@fullcalendar/interaction": "^6.1.5",
         "@fullcalendar/list": "^6.1.5",
         "@fullcalendar/react": "^6.1.5",
+        "@fullcalendar/resource-timegrid": "^6.1.5",
+        "@fullcalendar/scrollgrid": "^6.1.5",
         "@fullcalendar/timegrid": "^6.1.5",
         "@headlessui/react": "^1.7.13",
         "@heroicons/react": "^2.0.16",

@@ -2,7 +2,8 @@ import React, { lazy } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import SuspensedView from 'src/app/routing/SuspensedView'
 
-const AppointmentAddEdit = lazy(() => import('./pages/AddEdit'))
+const AppointmentsAddEdit = lazy(() => import('./pages/AddEdit'))
+const AppointmentsOsAddEdit = lazy(() => import('./pages/OsAddEdit'))
 
 function AppointmentsPage(props) {
   return (
@@ -13,7 +14,7 @@ function AppointmentsPage(props) {
           path="new"
           element={
             <SuspensedView>
-              <AppointmentAddEdit />
+              <AppointmentsAddEdit />
             </SuspensedView>
           }
         />
@@ -21,7 +22,15 @@ function AppointmentsPage(props) {
           path="edit/:id"
           element={
             <SuspensedView>
-              <AppointmentAddEdit />
+              <AppointmentsAddEdit />
+            </SuspensedView>
+          }
+        />
+        <Route
+          path="os/:id"
+          element={
+            <SuspensedView>
+              <AppointmentsOsAddEdit />
             </SuspensedView>
           }
         />

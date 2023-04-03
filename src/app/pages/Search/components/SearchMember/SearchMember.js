@@ -1,6 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query'
 import React from 'react'
 import useInfiniteScroll from 'react-infinite-scroll-hook'
+import { Link } from 'react-router-dom'
 import MembersAPI from 'src/_ezs/api/members.api'
 import useDebounce from 'src/_ezs/hooks/useDebounce'
 import { NotFound } from 'src/_ezs/layout/components/notfound'
@@ -79,7 +80,8 @@ function SearchMember({ valueKey, onChangeMode }) {
         <>
           {ListMembers && ListMembers.length > 0 ? (
             ListMembers.map((item, index) => (
-              <div
+              <Link
+                to={'/clients/' + item.ID}
                 className="grid grid-cols-7 gap-4 p-5 transition border-t cursor-pointer border-separator dark:border-dark-separator hover:bg-light dark:hover:bg-dark-light"
                 ref={sentryRef}
                 key={index}
@@ -122,7 +124,7 @@ function SearchMember({ valueKey, onChangeMode }) {
                     </div>
                   </div>
                 )}
-              </div>
+              </Link>
             ))
           ) : (
             <NotFound Title="Không thấy dữ liệu" />

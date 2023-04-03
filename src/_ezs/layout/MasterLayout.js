@@ -14,7 +14,7 @@ const MasterLayout = () => {
       document.removeEventListener('keydown', keydownHandler)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [pathname])
 
   const keydownHandler = e => {
     if (e.ctrlKey || e.metaKey) {
