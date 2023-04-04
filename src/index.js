@@ -6,6 +6,7 @@ import reportWebVitals from './reportWebVitals'
 import { AuthProvider } from './_ezs/core/Auth'
 import AppRoutes from './app/routing/AppRoutes'
 
+import 'react-texty/styles.css'
 import './index.css'
 
 import { EzsSplashScreenProvider } from './_ezs/core/EzsSplashScreen'

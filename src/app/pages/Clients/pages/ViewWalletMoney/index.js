@@ -13,6 +13,7 @@ import { useQuery } from '@tanstack/react-query'
 import WalletList from './WalletList'
 import MoneyCardList from './MoneyCardList'
 import AddWallet from './components/AddWallet/AddWallet'
+import useQueryParams from 'src/_ezs/hooks/useQueryParams'
 
 const ListTabs = [
   {
@@ -28,9 +29,12 @@ const ListTabs = [
 function ViewWalletMoney(props) {
   const { pathname } = useLocation()
   const { id } = useParams()
+  const queryString = useQueryParams()
   const navigate = useNavigate()
   const [isOpen, setIsOpen] = useState(false)
-  const [selectedIndex, setSelectedIndex] = useState(0)
+  const [selectedIndex, setSelectedIndex] = useState(
+    queryString?.type ? Number(queryString?.type) : 0
+  )
 
   const onOpenAddWallet = () => {
     setIsOpen(true)
@@ -81,7 +85,7 @@ function ViewWalletMoney(props) {
           ></div>
         </motion.div>
         <motion.div
-          className="absolute top-0 right-0 z-10 flex w-full h-full max-w-7xl bg-white dark:bg-dark-aside"
+          className="absolute top-0 right-0 z-10 flex w-full h-full bg-white max-w-7xl dark:bg-dark-aside"
           initial={{ x: '100%' }}
           transition={{
             transform: { ease: 'linear' }
@@ -139,7 +143,7 @@ function ViewWalletMoney(props) {
                   onOpenAddWallet={onOpenAddWallet}
                 />
               </Tab.Panel>
-              <Tab.Panel className="relative h-full p-5 flex flex-col">
+              <Tab.Panel className="relative flex flex-col h-full p-5">
                 <MoneyCardList resultMoneyCard={resultMoneyCard} />
               </Tab.Panel>
             </Tab.Panels>

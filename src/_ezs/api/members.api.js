@@ -50,6 +50,11 @@ const MembersAPI = {
     http.post('/services/preview.aspx?cmd=add_money', body),
   memberListMoneyCard: ({ MemberID }) =>
     http.get(`/api/v3/moneycard?cmd=get&memberid=${MemberID}`),
+  memberListPay: ({ MemberID, ...body }) =>
+    http.post(
+      `/api/v3/r23/cong-no/danh-sach/@memberid=${MemberID}`,
+      JSON.stringify(body)
+    ),
   memberLockMoneyCard: ({ CardID }) =>
     http.get(`/api/v3/moneycard?cmd=lock&id=${CardID}`)
 }

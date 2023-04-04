@@ -4,11 +4,13 @@
 :root {
     --ezs-body-bg: #f5f8fa;
     --ezs-body-color: #181C32;
+    --ezs-element-bg: #fff;
 }
 
 html.dark {
     --ezs-body-bg: #151521;
     --ezs-body-color: #FFFFFF;
+    --ezs-element-bg: #1b1b29;
 }
 
 

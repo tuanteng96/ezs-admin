@@ -7,10 +7,11 @@ import {
   QrCodeIcon
 } from '@heroicons/react/24/outline'
 import React from 'react'
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useLocation } from 'react-router-dom'
 import { Button } from 'src/_ezs/partials/button'
 
 function ClientViews(props) {
+  const { pathname } = useLocation()
   return (
     <>
       <div className="flex h-full">
@@ -41,24 +42,30 @@ function ClientViews(props) {
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-2.5 py-3 border-t border-separator dark:border-dark-separator">
-                <div className="flex flex-col items-center">
+                <Link
+                  to="wallet-moneycard"
+                  className="flex flex-col items-center"
+                >
                   <div className="text-sm text-muted2 dark:text-graydark-800">
                     Ví điện tử
                   </div>
                   <div className="font-bold dark:text-white">2.000.000</div>
-                </div>
-                <div className="flex flex-col items-center">
+                </Link>
+                <Link
+                  to="wallet-moneycard?type=1"
+                  className="flex flex-col items-center"
+                >
                   <div className="text-sm text-muted2 dark:text-graydark-800">
                     Thẻ tiền
                   </div>
                   <div className="font-bold dark:text-white">10.000.000</div>
-                </div>
-                <div className="flex flex-col items-center">
+                </Link>
+                <Link to="pay" className="flex flex-col items-center">
                   <div className="text-sm text-muted2 dark:text-graydark-800">
                     Công nợ
                   </div>
                   <div className="font-bold text-danger">500.000</div>
-                </div>
+                </Link>
               </div>
               <div className="flex items-center justify-between border-t border-separator dark:border-dark-separator">
                 <div className="px-4 font-medium dark:text-white">
@@ -97,7 +104,11 @@ function ClientViews(props) {
                   <ChevronRightIcon className="w-4" />
                 </div>
               </div>
-              <div className="flex items-center py-3.5 transition border-b cursor-pointer dark:text-white border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary">
+              <Link
+                to="/appointments/new"
+                className="flex items-center py-3.5 transition border-b cursor-pointer dark:text-white border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary"
+                state={{ previousPath: pathname }}
+              >
                 <div className="flex-1 pl-4">
                   <div className="mb-px font-medium">Đặt lịch mới</div>
                   <div className="text-sm text-muted">
@@ -107,7 +118,7 @@ function ClientViews(props) {
                 <div className="flex justify-center w-10 text-muted">
                   <ChevronRightIcon className="w-4" />
                 </div>
-              </div>
+              </Link>
               <div className="flex items-center py-3.5 transition border-b cursor-pointer dark:text-white border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary">
                 <div className="flex-1 pl-4">
                   <div className="mb-px font-medium">Quản lý đặt lịch</div>
@@ -119,7 +130,10 @@ function ClientViews(props) {
                   <ChevronRightIcon className="w-4" />
                 </div>
               </div>
-              <div className="flex items-center dark:text-white py-3.5 transition border-b cursor-pointer border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary">
+              <Link
+                to="pay"
+                className="flex items-center dark:text-white py-3.5 transition border-b cursor-pointer border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary"
+              >
                 <div className="flex-1 pl-4">
                   <div className="mb-px font-medium">Thanh toán nợ</div>
                   <div className="text-sm text-muted">
@@ -129,7 +143,7 @@ function ClientViews(props) {
                 <div className="flex justify-center w-10 text-muted">
                   <ChevronRightIcon className="w-4" />
                 </div>
-              </div>
+              </Link>
               <Link
                 to="wallet-moneycard"
                 className="flex items-center py-3.5 transition border-b cursor-pointer dark:text-white border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary"

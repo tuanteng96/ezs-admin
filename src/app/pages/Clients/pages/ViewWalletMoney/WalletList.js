@@ -71,7 +71,7 @@ const EditableCell = ({ rowData }) => {
         {editing && (
           <textarea
             ref={descRef}
-            className="w-full px-3 py-2 font-medium text-gray-700 transition bg-white border rounded outline-none dark:bg-site-aside disabled:bg-gray-200 disabled:border-gray-200 dark:disabled:bg-graydark-200 dark:text-graydark-700 border-gray-300 dark:border-graydark-400 focus:border-primary dark:focus:border-primary h-12"
+            className="w-full h-12 px-3 py-2 font-medium text-gray-700 transition bg-white border border-gray-300 rounded outline-none dark:bg-site-aside disabled:bg-gray-200 disabled:border-gray-200 dark:disabled:bg-graydark-200 dark:text-graydark-700 dark:border-graydark-400 focus:border-primary dark:focus:border-primary"
             placeholder="Nhập ghi chú"
             onBlur={onChangeValue}
             onChange={e => setValue(e.target.value)}
@@ -175,30 +175,45 @@ function WalletList({ resultWallet, onOpenAddWallet }) {
 
   return (
     <>
-      <div className="flex items-end justify-between p-6 mb-4 bg-white dark:bg-dark-aside rounded shadow-sm">
+      <div className="flex items-end justify-between p-6 mb-4 bg-white rounded shadow-sm dark:bg-dark-aside">
         <div>
           <div className="mb-2 font-semibold">Ví khả dụng</div>
-          <div className="text-4xl font-bold text-orange">
-            {formatString.formatVND(resultWallet?.data?.total)}
-          </div>
+          {resultWallet.isLoading && (
+            <div className="h-8 bg-gray-200 rounded animate-pulse w-[140px] dark:bg-gray-700 "></div>
+          )}
+          {!resultWallet.isLoading && (
+            <div className="text-4xl font-bold text-orange">
+              {formatString.formatVND(resultWallet?.data?.total)}
+            </div>
+          )}
         </div>
         <div>
           <div className="text-[#969ba0] uppercase text-[13px] font-inter font-medium dark:text-gray-300">
             Tổng ví
           </div>
-          <div className="text-xl font-bold dark:text-white">
-            {formatString.formatVND(resultWallet?.data?.total2)}
-          </div>
+          {resultWallet.isLoading && (
+            <div className="h-5 bg-gray-200 rounded animate-pulse w-[100px] dark:bg-gray-700 "></div>
+          )}
+          {!resultWallet.isLoading && (
+            <div className="text-xl font-bold dark:text-white">
+              {formatString.formatVND(resultWallet?.data?.total2)}
+            </div>
+          )}
         </div>
         <div>
           <div className="text-[#969ba0] uppercase text-[13px] font-inter font-medium dark:text-gray-300">
             Chờ xử lý
           </div>
-          <div className="text-xl font-bold text-warning">
-            {formatString.formatVND(
-              resultWallet?.data?.total2 - resultWallet?.data?.total
-            )}
-          </div>
+          {resultWallet.isLoading && (
+            <div className="h-5 bg-gray-200 rounded animate-pulse w-[100px] dark:bg-gray-700 "></div>
+          )}
+          {!resultWallet.isLoading && (
+            <div className="text-xl font-bold text-warning">
+              {formatString.formatVND(
+                resultWallet?.data?.total2 - resultWallet?.data?.total
+              )}
+            </div>
+          )}
         </div>
         <div>
           <button
