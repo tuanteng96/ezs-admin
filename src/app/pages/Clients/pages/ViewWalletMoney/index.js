@@ -11,6 +11,8 @@ import clsx from 'clsx'
 import MembersAPI from 'src/_ezs/api/members.api'
 import { useQuery } from '@tanstack/react-query'
 import WalletList from './WalletList'
+import MoneyCardList from './MoneyCardList'
+import AddWallet from './components/AddWallet/AddWallet'
 
 const ListTabs = [
   {
@@ -27,8 +29,16 @@ function ViewWalletMoney(props) {
   const { pathname } = useLocation()
   const { id } = useParams()
   const navigate = useNavigate()
-
+  const [isOpen, setIsOpen] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(0)
+
+  const onOpenAddWallet = () => {
+    setIsOpen(true)
+  }
+
+  const onHideAddWallet = () => {
+    setIsOpen(false)
+  }
 
   const resultWallet = useQuery({
     queryKey: ['MemberListWallet', id],
@@ -39,7 +49,26 @@ function ViewWalletMoney(props) {
       const { data } = await MembersAPI.memberListsWallet(bodyFormData)
       return data
     },
-    enabled: selectedIndex === 0
+    enabled: selectedIndex === 0,
+    onSuccess: () => {
+      isOpen && onHideAddWallet()
+    }
+  })
+
+  const resultMoneyCard = useQuery({
+    queryKey: ['MemberListMoneyCard', { MemberID: id }],
+    queryFn: async () => {
+      const { data } = await MembersAPI.memberListMoneyCard({ MemberID: id })
+      return (
+        (data?.data &&
+          data?.data.map(x => ({
+            ...x,
+            children: [{ id: x.id + '-detail', content: x.Lich_su }]
+          }))) ||
+        []
+      )
+    },
+    enabled: selectedIndex === 1
   })
 
   return (
@@ -52,7 +81,7 @@ function ViewWalletMoney(props) {
           ></div>
         </motion.div>
         <motion.div
-          className="absolute top-0 right-0 z-10 flex w-full h-full max-w-5xl bg-white dark:bg-dark-aside"
+          className="absolute top-0 right-0 z-10 flex w-full h-full max-w-7xl bg-white dark:bg-dark-aside"
           initial={{ x: '100%' }}
           transition={{
             transform: { ease: 'linear' }
@@ -105,13 +134,19 @@ function ViewWalletMoney(props) {
             </div>
             <Tab.Panels className="flex-1 bg-site-app dark:bg-dark-app">
               <Tab.Panel className="relative flex flex-col h-full p-5">
-                <WalletList resultWallet={resultWallet} />
+                <WalletList
+                  resultWallet={resultWallet}
+                  onOpenAddWallet={onOpenAddWallet}
+                />
               </Tab.Panel>
-              <Tab.Panel className="relative h-full">tab-2</Tab.Panel>
+              <Tab.Panel className="relative h-full p-5 flex flex-col">
+                <MoneyCardList resultMoneyCard={resultMoneyCard} />
+              </Tab.Panel>
             </Tab.Panels>
           </Tab.Group>
         </motion.div>
       </div>
+      <AddWallet isOpen={isOpen} onHide={onHideAddWallet} />
     </LayoutGroup>
   )
 }

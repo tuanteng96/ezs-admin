@@ -43,7 +43,15 @@ const MembersAPI = {
       `api/v3/mbookadmin?cmd=getbooks&memberid=&from=${From}&to=${To}&stockid=0&status=XAC_NHAN,XAC_NHAN_TU_DONG,CHUA_XAC_NHAN,DANG_THUC_HIEN,THUC_HIEN_XONG,KHACH_KHONG_DEN,KHACH_DEN&UserServiceIDs=&StatusMember=&StatusBook=&StatusAtHome=`
     ),
   memberListsWallet: body =>
-    http.post('/services/preview.aspx?cmd=list_money', body)
+    http.post('/services/preview.aspx?cmd=list_money', body),
+  memberWalletAddDesc: body =>
+    http.post('/services/preview.aspx?cmd=member_money_desc', body),
+  memberWalletAddMoney: body =>
+    http.post('/services/preview.aspx?cmd=add_money', body),
+  memberListMoneyCard: ({ MemberID }) =>
+    http.get(`/api/v3/moneycard?cmd=get&memberid=${MemberID}`),
+  memberLockMoneyCard: ({ CardID }) =>
+    http.get(`/api/v3/moneycard?cmd=lock&id=${CardID}`)
 }
 
 export default MembersAPI

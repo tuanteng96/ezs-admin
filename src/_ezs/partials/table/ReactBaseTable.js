@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import Table, { AutoResizer } from 'react-base-table'
 import 'src/_ezs/assets/plugin/react-base-table/react-base-table.css'
 import Text from 'react-texty'
+import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 
 ReactBaseTable.propTypes = {
   columns: PropTypes.array,
@@ -56,15 +57,20 @@ function ReactBaseTable({
             columns={columns}
             data={data}
             overlayRenderer={() => (
-              <>
-                {loading && (
-                  <div className="BaseTable-loading">
-                    <div className="spinner spinner-primary"></div>
-                  </div>
-                )}
-              </>
+              <LoadingComponentFull
+                bgClassName="bg-white dark:bg-dark-aside"
+                top="top-[50px]"
+                height="h-[calc(100%-50px)]"
+                loading={loading}
+              />
             )}
-            emptyRenderer={() => !loading && <>Không có dữ liệu</>}
+            emptyRenderer={() =>
+              !loading && (
+                <div className="h-full flex justify-center items-center flex-col dark:bg-dark-aside">
+                  <div className="mt-5 font-bold">Không có dữ liệu.</div>
+                </div>
+              )
+            }
             rowRenderer={rowRenderer}
             components={{ TableCell, TableHeaderCell, ...components }}
             ignoreFunctionInColumnCompare={false}
