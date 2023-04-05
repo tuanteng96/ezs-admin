@@ -4,6 +4,7 @@ import Table, { AutoResizer } from 'react-base-table'
 import 'src/_ezs/assets/plugin/react-base-table/react-base-table.css'
 import Text from 'react-texty'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
+import { toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 
 ReactBaseTable.propTypes = {
   columns: PropTypes.array,
@@ -66,8 +67,12 @@ function ReactBaseTable({
             )}
             emptyRenderer={() =>
               !loading && (
-                <div className="h-full flex justify-center items-center flex-col dark:bg-dark-aside">
-                  <div className="mt-5 font-bold">Không có dữ liệu.</div>
+                <div className="flex flex-col items-center justify-center h-full dark:bg-dark-aside">
+                  <img
+                    className="w-auto max-w-[350px]"
+                    src={toAbsoluteUrl('/assets/svg/sketchy/4.png')}
+                    alt="EZS - Phần mềm quản lý Spa"
+                  />
                 </div>
               )
             }

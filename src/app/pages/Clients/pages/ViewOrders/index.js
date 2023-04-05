@@ -9,6 +9,7 @@ import MembersAPI from 'src/_ezs/api/members.api'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { Link } from 'react-router-dom'
+import Text from 'react-texty'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -111,6 +112,11 @@ function ViewOrders(props) {
         key: 'User.FullName',
         title: 'Nhân viên bán',
         dataKey: 'User.FullName',
+        cellRenderer: ({ rowData }) => (
+          <Text tooltipMaxWidth={280}>
+            {rowData?.User?.FullName || 'Đơn hàng Online'}
+          </Text>
+        ),
         width: 180,
         sortable: false
       },
