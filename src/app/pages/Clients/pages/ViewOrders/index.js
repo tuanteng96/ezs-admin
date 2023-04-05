@@ -8,10 +8,10 @@ import { formatArray } from 'src/_ezs/utils/formatArray'
 import MembersAPI from 'src/_ezs/api/members.api'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import clsx from 'clsx'
+import { Link } from 'react-router-dom'
 
 import moment from 'moment'
 import 'moment/locale/vi'
-import { Link } from 'react-router-dom'
 
 moment.locale('vi')
 

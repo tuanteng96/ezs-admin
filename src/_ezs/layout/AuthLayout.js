@@ -39,10 +39,10 @@ const AuthLayout = () => {
           </div>
         </div>
       </div>
-      <div className="w-3/6 bg-[#edf5ff] flex items-center justify-center">
+      <div className="relative flex items-center justify-center w-3/6">
         <img
-          className="w-full max-w-xl"
-          src={toAbsoluteUrl('/assets/images/auth/banner-1.png')}
+          className="absolute object-cover w-full h-full object-left-center"
+          src={toAbsoluteUrl('/assets/images/auth/bg11.png')}
           alt="EZS - Phần mềm quản lý Spa"
         />
       </div>

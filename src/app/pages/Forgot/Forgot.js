@@ -72,7 +72,7 @@ function Forgot() {
               <input
                 type="text"
                 className={clsx(
-                  'rounded outline-none px-4 pt-2.5 w-full pb-3 border focus:border-primary hover:border-primary transition',
+                  'rounded outline-none px-4 py-3.5 w-full border focus:border-primary hover:border-primary transition',
                   fieldState?.invalid ? 'border-danger' : 'border-[#d5d7da]'
                 )}
                 placeholder="Nhập tài khoản của bạn"
@@ -88,7 +88,7 @@ function Forgot() {
           )}
         />
         <button
-          className="w-full h-12 font-semibold text-white rounded shadow-lg bg-primary transiton hover:bg-primaryhv disabled:opacity-60"
+          className="w-full py-3.5 font-semibold text-white rounded shadow-lg bg-primary transiton hover:bg-primaryhv disabled:opacity-60"
           type="submit"
           disabled={forgotMutation.isLoading}
         >
@@ -120,7 +120,7 @@ function Forgot() {
         </div>
         <div>
           <Link
-            className="rounded pt-2.5 pb-3 border block text-center font-semibol transition bg-[#101928] text-white shadow hover:bg-[#404753]"
+            className="rounded py-3.5 border block text-center font-semibol transition bg-[#101928] text-white shadow hover:bg-[#404753]"
             to="/auth/login"
           >
             Đăng nhập tài khoản
