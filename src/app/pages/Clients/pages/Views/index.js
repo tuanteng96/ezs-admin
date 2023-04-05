@@ -158,7 +158,10 @@ function ClientViews(props) {
                   <ChevronRightIcon className="w-4" />
                 </div>
               </Link>
-              <div className="flex items-center py-3.5 dark:text-white transition border-b cursor-pointer border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary">
+              <Link
+                to="orders"
+                className="flex items-center py-3.5 dark:text-white transition border-b cursor-pointer border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary"
+              >
                 <div className="flex-1 pl-4">
                   <div className="mb-px font-medium">Quản lý đơn hàng</div>
                   <div className="text-sm text-muted">
@@ -168,7 +171,7 @@ function ClientViews(props) {
                 <div className="flex justify-center w-10 text-muted">
                   <ChevronRightIcon className="w-4" />
                 </div>
-              </div>
+              </Link>
               <div className="flex items-center py-3.5 transition border-b dark:text-white cursor-pointer border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary">
                 <div className="flex-1 pl-4">
                   <div className="mb-px font-medium">Nhật ký & lịch sử</div>

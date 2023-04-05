@@ -109,7 +109,7 @@ function ViewPay(props) {
         dataKey: 'ToPayOrder',
         cellRenderer: ({ rowData }) =>
           formatString.formatVND(rowData.ToPayOrder),
-        width: 160,
+        width: 150,
         sortable: false,
         rowSpan: ({ rowData }) =>
           rowData.ListDebt ? rowData.ListDebt.length : 1
@@ -123,7 +123,7 @@ function ViewPay(props) {
             {formatString.formatVND(rowData.TongNo)}
           </div>
         ),
-        width: 160,
+        width: 150,
         sortable: false,
         rowSpan: ({ rowData }) =>
           rowData.ListDebt ? rowData.ListDebt.length : 1
@@ -226,7 +226,5 @@ function ViewPay(props) {
     </LayoutGroup>
   )
 }
-
-ViewPay.propTypes = {}
 
 export default ViewPay

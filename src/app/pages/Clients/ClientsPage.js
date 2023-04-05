@@ -7,6 +7,8 @@ const ClientAddEdit = lazy(() => import('./pages/AddEdit'))
 const ClientViews = lazy(() => import('./pages/Views'))
 const ClientViewWalletMoney = lazy(() => import('./pages/ViewWalletMoney'))
 const ViewPay = lazy(() => import('./pages/ViewPay'))
+const ViewOrders = lazy(() => import('./pages/ViewOrders'))
+const ViewOrderDetail = lazy(() => import('./pages/ViewOrderDetail'))
 
 function ClientsPage(props) {
   return (
@@ -58,6 +60,22 @@ function ClientsPage(props) {
             element={
               <SuspensedView>
                 <ViewPay />
+              </SuspensedView>
+            }
+          />
+          <Route
+            path="orders"
+            element={
+              <SuspensedView>
+                <ViewOrders />
+              </SuspensedView>
+            }
+          />
+          <Route
+            path="order/:orderId"
+            element={
+              <SuspensedView>
+                <ViewOrderDetail />
               </SuspensedView>
             }
           />

@@ -56,7 +56,19 @@ const MembersAPI = {
       JSON.stringify(body)
     ),
   memberLockMoneyCard: ({ CardID }) =>
-    http.get(`/api/v3/moneycard?cmd=lock&id=${CardID}`)
+    http.get(`/api/v3/moneycard?cmd=lock&id=${CardID}`),
+  memberSearchOrder: ({
+    Key = '',
+    Pi = 1,
+    Ps = 20,
+    searchId = 1,
+    searchForMember = ''
+  }) =>
+    http.get(
+      `/services/preview.aspx?cmd=search_order&key=${encodeURIComponent(
+        Key
+      )}&pi=${Pi}&ps=${Ps}&searchId=${searchId}&searchForMember=${searchForMember}`
+    )
 }
 
 export default MembersAPI

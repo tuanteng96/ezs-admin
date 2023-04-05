@@ -68,7 +68,7 @@ module.exports = withMT({
       warning: '#FFA800',
       muted: '#A1A5B7',
       orange: '#f26353',
-      muted2: "#878c93"
+      muted2: '#878c93'
     },
     borderColor: {
       slate: {
@@ -205,8 +205,5 @@ module.exports = withMT({
       }
     }
   },
-  plugins: [
-    require('tailwind-scrollbar')({ nocompatible: true }),
-    require('@tailwindcss/line-clamp')
-  ]
+  plugins: [require('tailwind-scrollbar')({ nocompatible: true })]
 })

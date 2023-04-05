@@ -26,7 +26,7 @@ html.dark {
 }
 
 .BaseTable__row-cell {
-    font-weight: 500;
+    font-family: 'Inter', sans-serif;
 }
 
 .BaseTable--dynamic .BaseTable__row {
