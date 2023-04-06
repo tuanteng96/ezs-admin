@@ -159,7 +159,7 @@ function WalletList({ resultWallet, onOpenAddWallet }) {
         return formatString.formatVND(resultWallet?.data?.cash[index].Value)
       }
     }
-    return
+    return '-'
   }
 
   const statusPayted = ({ SourceID, SubSourceID }) => {
