@@ -12,7 +12,8 @@ const TasksAPI = {
       JSON.stringify(body)
     ),
   confirmContact: body => http.post(`/api/v3/usertask?cmd=doRead`, body),
-  doSmsPayed: body => http.post(`/api/v3/usertask?cmd=doSmsPayed`, body)
+  doSmsPayed: body => http.post(`/api/v3/usertask?cmd=doSmsPayed`, body),
+  confirmBook: body => http.post(`/admin/smart.aspx?reply_noti=1`, body)
 }
 
 export default TasksAPI

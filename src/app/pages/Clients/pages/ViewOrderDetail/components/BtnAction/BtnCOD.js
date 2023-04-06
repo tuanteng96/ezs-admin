@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { toast } from 'react-toastify'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import OrdersAPI from 'src/_ezs/api/orders'
-import { LayoutGroup, motion } from 'framer-motion'
+import { LayoutGroup, motion, AnimatePresence } from 'framer-motion'
 import { Dialog } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { Button } from 'src/_ezs/partials/button'
@@ -100,105 +100,114 @@ const BtnCOD = ({ className, OrderID, children }) => {
       <div className={className} onClick={onOpen}>
         {children}
       </div>
-      <LayoutGroup key={isOpen}>
-        <Dialog open={isOpen} onClose={onHide}>
-          <motion.div
-            className="fixed inset-0 bg-black/[.2] dark:bg-black/[.4] z-[1003]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          ></motion.div>
-          <form
-            onSubmit={handleSubmit(onSubmit)}
-            className="fixed inset-0 flex items-center justify-center z-[1003]"
-            autoComplete="off"
-          >
+      <AnimatePresence>
+        <LayoutGroup key={isOpen}>
+          <Dialog open={isOpen} onClose={onHide}>
             <motion.div
-              className="absolute"
-              initial={{ opacity: 0, top: '80%' }}
-              animate={{ opacity: 1, top: 'auto' }}
+              className="fixed inset-0 bg-black/[.2] dark:bg-black/[.4] z-[1003]"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            ></motion.div>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="fixed inset-0 flex items-center justify-center z-[1003]"
+              autoComplete="off"
             >
-              <Dialog.Panel className="bg-white dark:bg-dark-aside max-w-full w-[500px] rounded shadow-lg">
-                <Dialog.Title className="flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator relative">
-                  <div className="text-2xl font-bold">Vận chuyển</div>
-                  <div
-                    className="w-12 h-12 flex items-center justify-center absolute right-2 top-2/4 -translate-y-2/4 cursor-pointer"
-                    onClick={onHide}
-                  >
-                    <XMarkIcon className="w-8" />
-                  </div>
-                </Dialog.Title>
-                <div className="p-5 relative">
-                  <div className="mb-4">
-                    <div className="font-semibold">Vận chuyển</div>
-                    <div className="mt-1">
-                      <Controller
-                        name="Shipper"
-                        control={control}
-                        render={({ field: { ref, ...field }, fieldState }) => (
-                          <Select
-                            classNamePrefix="select"
-                            options={resultCOD?.data?.shipperList || []}
-                            className="select-control mb-8px"
-                            placeholder="Chọn đơn vị"
-                            value={
-                              resultCOD?.data?.shipperList
-                                ? resultCOD?.data?.shipperList.filter(
-                                    x => x.value === field.value
-                                  )
-                                : null
-                            }
-                            onChange={val => field.onChange(val?.value || '')}
-                          />
-                        )}
-                      />
+              <motion.div
+                className="absolute flex flex-col justify-center h-full py-8"
+                initial={{ opacity: 0, top: '60%' }}
+                animate={{ opacity: 1, top: 'auto' }}
+                exit={{ opacity: 0, top: '60%' }}
+              >
+                <Dialog.Panel className="bg-white dark:bg-dark-aside max-w-full w-[500px] max-h-full rounded shadow-lg flex flex-col">
+                  <Dialog.Title className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
+                    <div className="text-2xl font-bold">Vận chuyển</div>
+                    <div
+                      className="absolute flex items-center justify-center w-12 h-12 cursor-pointer right-2 top-2/4 -translate-y-2/4"
+                      onClick={onHide}
+                    >
+                      <XMarkIcon className="w-8" />
                     </div>
-                  </div>
-                  <div>
-                    <div className="font-semibold">Mã vận chuyển</div>
-                    <div className="mt-1">
-                      <Controller
-                        name="ShipCode"
-                        control={control}
-                        render={({ field: { ref, ...field }, fieldState }) => (
-                          <Input
-                            placeholder="Nhập mã"
-                            thousandSeparator={true}
-                            value={field.value}
-                            onChange={field.onChange}
-                            errorMessageForce={fieldState?.invalid}
-                            errorMessage={fieldState?.error?.message}
-                          />
-                        )}
-                      />
+                  </Dialog.Title>
+                  <div className="relative p-5 overflow-auto grow">
+                    <div className="mb-4">
+                      <div className="font-semibold">Vận chuyển</div>
+                      <div className="mt-1">
+                        <Controller
+                          name="Shipper"
+                          control={control}
+                          render={({
+                            field: { ref, ...field },
+                            fieldState
+                          }) => (
+                            <Select
+                              classNamePrefix="select"
+                              options={resultCOD?.data?.shipperList || []}
+                              className="select-control mb-8px"
+                              placeholder="Chọn đơn vị"
+                              value={
+                                resultCOD?.data?.shipperList
+                                  ? resultCOD?.data?.shipperList.filter(
+                                      x => x.value === field.value
+                                    )
+                                  : null
+                              }
+                              onChange={val => field.onChange(val?.value || '')}
+                            />
+                          )}
+                        />
+                      </div>
                     </div>
+                    <div>
+                      <div className="font-semibold">Mã vận chuyển</div>
+                      <div className="mt-1">
+                        <Controller
+                          name="ShipCode"
+                          control={control}
+                          render={({
+                            field: { ref, ...field },
+                            fieldState
+                          }) => (
+                            <Input
+                              placeholder="Nhập mã"
+                              value={field.value}
+                              onChange={field.onChange}
+                              errorMessageForce={fieldState?.invalid}
+                              errorMessage={fieldState?.error?.message}
+                            />
+                          )}
+                        />
+                      </div>
+                    </div>
+                    <LoadingComponentFull
+                      bgClassName="bg-white dark:bg-dark-aside"
+                      loading={resultCOD.isLoading}
+                    />
                   </div>
-                  <LoadingComponentFull
-                    bgClassName="bg-white dark:bg-dark-aside"
-                    loading={resultCOD.isLoading}
-                  />
-                </div>
-                <div className="p-5 border-t border-separator dark:border-dark-separator flex justify-end">
-                  <Button
-                    type="button"
-                    className="relative flex items-center px-4 border border-gray-300 dark:border-gray-700 transition rounded shadow-lg h-11 hover:border-gray-800 focus:outline-none focus:shadow-none font-bold"
-                    onClick={onHide}
-                  >
-                    Hủy
-                  </Button>
-                  <Button
-                    loading={orderUpdateCODMutation.isLoading}
-                    disabled={orderUpdateCODMutation.isLoading}
-                    type="submit"
-                    className="relative flex items-center px-4 font-semibold text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-11 focus:outline-none focus:shadow-none ml-2 disabled:opacity-70"
-                  >
-                    Thực hiện
-                  </Button>
-                </div>
-              </Dialog.Panel>
-            </motion.div>
-          </form>
-        </Dialog>
-      </LayoutGroup>
+                  <div className="flex justify-end p-5 border-t border-separator dark:border-dark-separator">
+                    <Button
+                      type="button"
+                      className="relative flex items-center px-4 font-bold transition border border-gray-300 rounded shadow-lg dark:border-gray-700 h-11 hover:border-gray-800 focus:outline-none focus:shadow-none"
+                      onClick={onHide}
+                    >
+                      Hủy
+                    </Button>
+                    <Button
+                      loading={orderUpdateCODMutation.isLoading}
+                      disabled={orderUpdateCODMutation.isLoading}
+                      type="submit"
+                      className="relative flex items-center px-4 ml-2 font-semibold text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-11 focus:outline-none focus:shadow-none disabled:opacity-70"
+                    >
+                      Thực hiện
+                    </Button>
+                  </div>
+                </Dialog.Panel>
+              </motion.div>
+            </form>
+          </Dialog>
+        </LayoutGroup>
+      </AnimatePresence>
     </>
   )
 }

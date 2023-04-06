@@ -1,10 +1,11 @@
+import { Menu, Transition } from '@headlessui/react'
 import {
   ChatBubbleBottomCenterTextIcon,
   ChevronRightIcon,
   EllipsisHorizontalIcon,
   QrCodeIcon
 } from '@heroicons/react/24/outline'
-import React from 'react'
+import React, { Fragment } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { formatString } from 'src/_ezs/utils/formatString'
 import { useClientView } from '../../ClientViewContext'
@@ -17,9 +18,15 @@ const ClientsAside = props => {
     <div className="w-[350px] rounded h-full flex flex-col border-t border-separator dark:border-[#151521] dark:border-l-2 dark:border-t-2">
       <div className="mb-1 bg-white shadow-sm dark:bg-dark-aside">
         <div className="flex flex-wrap p-4">
-          <div className="flex items-center justify-center font-bold rounded-full w-14 h-14 bg-primarylight font-inter text-primary">
+          <Link
+            to={'/clients/edit/' + MemberView?.ID}
+            state={{
+              previousPath: pathname
+            }}
+            className="flex items-center justify-center font-bold rounded-full w-14 h-14 bg-primarylight font-inter text-primary"
+          >
             {formatString.getLastFirst(MemberView?.FullName)}
-          </div>
+          </Link>
           <div className="flex flex-col justify-center flex-1 pl-3">
             <div className="mb-px font-bold">
               <Link
@@ -36,9 +43,39 @@ const ClientsAside = props => {
               {MemberView?.MobilePhone}
             </div>
           </div>
-          <div className="flex flex-col items-end w-10 h-10 mt-1 cursor-pointer dark:text-graydark-800">
-            <EllipsisHorizontalIcon className="w-7" />
-          </div>
+          <Menu as="div" className="relative">
+            <Menu.Button className="flex flex-col items-end w-10 h-10 mt-1 cursor-pointer dark:text-graydark-800">
+              <EllipsisHorizontalIcon className="w-7" />
+            </Menu.Button>
+            <Transition
+              as={Fragment}
+              leave="transition ease-in duration-100"
+              leaveFrom="opacity-100"
+              leaveTo="opacity-0"
+            >
+              <Menu.Items className="z-[1001] rounded px-0 py-2 border-0 w-[200px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow absolute left-0 top-3/4">
+                <div>
+                  <Menu.Item>
+                    <Link
+                      to={`/clients/edit/${MemberView?.ID}`}
+                      state={{ previousPath: pathname }}
+                      className="flex items-center px-4 py-3 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray font-medium"
+                    >
+                      <div className="flex-1 truncate">Chỉnh sửa thông tin</div>
+                    </Link>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <div
+                      className="flex items-center px-4 py-3 text-[15px] hover:bg-dangerlight text-danger font-inter transition cursor-pointer font-medium"
+                      onClick={() => console.log('Delete')}
+                    >
+                      <div className="flex-1 truncate">Xóa khách hàng</div>
+                    </div>
+                  </Menu.Item>
+                </div>
+              </Menu.Items>
+            </Transition>
+          </Menu>
           <div className="w-full mt-3">
             <span className="px-3 py-1 text-xs font-bold rounded bg-primarylight text-primary">
               {MemberView?.GroupNames}
