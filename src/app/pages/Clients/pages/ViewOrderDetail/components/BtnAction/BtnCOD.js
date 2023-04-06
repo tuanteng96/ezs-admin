@@ -181,6 +181,7 @@ const BtnCOD = ({ className, OrderID, children }) => {
                   <Button
                     type="button"
                     className="relative flex items-center px-4 border border-gray-300 dark:border-gray-700 transition rounded shadow-lg h-11 hover:border-gray-800 focus:outline-none focus:shadow-none font-bold"
+                    onClick={onHide}
                   >
                     Hủy
                   </Button>

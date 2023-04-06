@@ -82,7 +82,7 @@ function ViewOrderDetail({ OrderID, onHide }) {
           animate={{ x: '0' }}
         >
           <div className="w-[220px] flex flex-col border-r border-separator dark:border-dark-separator">
-            <div className="flex items-center justify-center bg-white border-b py-7 border-separator dark:border-dark-separator">
+            <div className="flex items-center justify-center bg-white dark:bg-dark-aside border-b py-7 border-separator dark:border-dark-separator">
               <div
                 className="flex items-center justify-center w-12 h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
                 onClick={() =>
@@ -239,7 +239,7 @@ function ViewOrderDetail({ OrderID, onHide }) {
             <div className="h-full overflow-auto">
               <div className="max-w-4xl pb-10 m-auto">
                 <div className="grow">
-                  <div className="flex items-center justify-between pt-12 pb-10 text-gray-800 border-b border-separator dark:border-dark-separator">
+                  <div className="flex items-center justify-between pt-12 pb-10 text-gray-800 dark:text-white border-b border-separator dark:border-dark-separator">
                     <div className="flex items-end">
                       <div className="text-3xl font-bold uppercase font-inter">
                         HÓA ĐƠN
@@ -265,7 +265,7 @@ function ViewOrderDetail({ OrderID, onHide }) {
                       </div>
                     </div>
                   </div>
-                  <div className="flex justify-between pt-4 text-gray-800 font-inter">
+                  <div className="flex justify-between pt-4 text-gray-800 dark:text-graydark-800 font-inter">
                     <div>
                       <div className="mb-1.5 text-sm font-semibold uppercase font-inter">
                         Đơn hàng
@@ -294,7 +294,7 @@ function ViewOrderDetail({ OrderID, onHide }) {
                     </div>
                   </div>
                   <div className="pt-16 pb-5 mb-5 border-b border-separator dark:border-dark-separator">
-                    <div className="flex py-3 mb-4 text-sm font-medium text-gray-400 uppercase border-b font-inter border-separator">
+                    <div className="flex py-3 mb-4 text-sm font-medium text-gray-400 dark:text-graydark-800 uppercase border-b font-inter border-separator dark:border-dark-separator">
                       <div className="flex-1 pr-5">Mặt hàng</div>
                       <div className="pr-3 w-[100px] text-right">Số lượng</div>
                       <div className="pr-3 w-[150px] text-right">Đơn giá</div>
@@ -304,7 +304,7 @@ function ViewOrderDetail({ OrderID, onHide }) {
                       {resultOrder?.data?.Items &&
                         resultOrder?.data?.Items.map((item, index) => (
                           <div
-                            className="flex pb-4 font-bold last:pb-0 text-[15px] text-gray-800"
+                            className="flex pb-4 font-bold last:pb-0 text-[15px] text-gray-800 dark:text-white"
                             key={index}
                           >
                             <div className="flex-1 pr-5">{item.ProdTitle}</div>
@@ -377,7 +377,7 @@ function ViewOrderDetail({ OrderID, onHide }) {
                   </div>
                 </div>
               </div>
-              <div className="bg-[#F3F6F9] py-10">
+              <div className="bg-[#F3F6F9] dark:bg-dark-aside py-10">
                 <div className="max-w-4xl m-auto">
                   <div className="grid grid-cols-5 gap-4 text-sm font-medium text-gray-400 uppercase font-inter">
                     <div>TM-CK-QT</div>

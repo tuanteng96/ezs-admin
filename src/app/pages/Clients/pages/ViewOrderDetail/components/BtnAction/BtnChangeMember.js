@@ -129,7 +129,7 @@ const BtnChangeMember = ({ className, OrderID, children }) => {
                       />
                     </div>
                   </div>
-                  <div className="text-[15px] text-gray-800 font-medium">
+                  <div className="text-[15px] text-gray-800 dark:text-gray-300 font-medium">
                     <span className="text-danger pr-1">(*)</span>
                     Thông tin các buổi dịch vụ, tích lũy thành viên sẽ được
                     chuyển theo
@@ -139,6 +139,7 @@ const BtnChangeMember = ({ className, OrderID, children }) => {
                   <Button
                     type="button"
                     className="relative flex items-center px-4 border border-gray-300 dark:border-gray-700 transition rounded shadow-lg h-11 hover:border-gray-800 focus:outline-none focus:shadow-none font-bold"
+                    onClick={onHide}
                   >
                     Hủy
                   </Button>
