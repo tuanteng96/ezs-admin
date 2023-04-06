@@ -5,9 +5,11 @@ import OrdersAPI from 'src/_ezs/api/orders'
 import useDebounce from 'src/_ezs/hooks/useDebounce'
 import { formatArray } from 'src/_ezs/utils/formatArray'
 import { formatString } from 'src/_ezs/utils/formatString'
+import { NotFound } from 'src/_ezs/layout/components/notfound'
+import { Link } from 'react-router-dom'
+
 import moment from 'moment'
 import 'moment/locale/vi'
-import { NotFound } from 'src/_ezs/layout/components/notfound'
 
 moment.locale('vi')
 
@@ -18,7 +20,7 @@ const SearchOrder = ({ valueKey }) => {
     queryFn: async ({ pageParam = 1 }) => {
       const { data } = await OrdersAPI.orderSearch({
         Pi: pageParam,
-        Ps: 20,
+        Ps: 15,
         Key: debouncedKey
       })
       return data
@@ -72,7 +74,11 @@ const SearchOrder = ({ valueKey }) => {
         <>
           {ListOrders && ListOrders.length > 0 ? (
             ListOrders.map((item, index) => (
-              <div
+              <Link
+                to={`/clients/${item?.Member?.ID}/order/${item.ID}`}
+                state={{
+                  previousPath: `/clients/${item?.Member?.ID}`
+                }}
                 className="grid grid-cols-5 gap-4 p-5 transition border-b cursor-pointer border-separator dark:border-dark-separator hover:bg-light dark:hover:bg-dark-light"
                 key={index}
                 ref={sentryRef}
@@ -116,7 +122,7 @@ const SearchOrder = ({ valueKey }) => {
                     {formatString.formatVND(item.thanhtoan?.tong_gia_tri_dh)}
                   </div>
                 </div>
-              </div>
+              </Link>
             ))
           ) : (
             <NotFound Title="Không thấy dữ liệu" />

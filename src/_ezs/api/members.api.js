@@ -68,7 +68,9 @@ const MembersAPI = {
       `/services/preview.aspx?cmd=search_order&key=${encodeURIComponent(
         Key
       )}&pi=${Pi}&ps=${Ps}&searchId=${searchId}&searchForMember=${searchForMember}`
-    )
+    ),
+  memberAddFast: body =>
+    http.post(`/api/v3/member23?cmd=add`, JSON.stringify(body))
 }
 
 export default MembersAPI

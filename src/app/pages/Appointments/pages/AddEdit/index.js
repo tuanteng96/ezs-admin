@@ -80,7 +80,21 @@ function AppointmentsAddEdit(props) {
     defaultValues: state?.formState
       ? {
           ...state?.formState,
-          booking: state?.formState.booking
+          booking: state?.formState?.booking || [
+            {
+              BookDate: queryString.date
+                ? moment(queryString.date, 'DD-MM-YYYY').toDate()
+                : new Date(),
+              Time: moment(new Date()).endOf('hour').add(1, 'minutes').toDate(),
+              Desc: '',
+              IsAnonymous: false,
+              MemberID: '',
+              RootIdS: '',
+              Status: 'XAC_NHAN',
+              StockID: CrStocks.ID,
+              UserServiceIDs: ''
+            }
+          ]
         }
       : {
           MemberIDs: '',

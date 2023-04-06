@@ -42,7 +42,7 @@ const getStatusOrder = (item, type = false) => {
 
 function ViewOrders(props) {
   const { id } = useParams()
-  const { pathname } = useLocation()
+  const { pathname, state } = useLocation()
   const navigate = useNavigate()
 
   const resultOrdersQuery = useInfiniteQuery({
@@ -163,85 +163,6 @@ function ViewOrders(props) {
             >
               Xem đơn hàng
             </Link>
-            {/* <ButtonDropdown
-              classPopover="fixed bg-white dark:bg-site-aside dark:shadow-dark-shadow shadow-lg rounded w-[200px] py-2"
-              placement="left"
-              Button={
-                <button className="relative flex items-center px-4 text-[15px] font-medium text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-10 focus:outline-none focus:shadow-none text-sm">
-                  Lựa chọn <ChevronDownIcon className="w-[18px] ml-1" />
-                </button>
-              }
-            >
-              <div className="flex items-center px-5 py-2 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary transition cursor-pointer dark:hover:text-primary dark:text-white font-medium">
-                Xem đơn hàng
-              </div>
-              {rowData?.Status === 'user_sent' && rowData.IsAnonymous && (
-                <>
-                  <div className="flex items-center px-5 py-2 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary transition cursor-pointer dark:hover:text-primary dark:text-white font-medium">
-                    Hoàn thành khách vãng lai
-                  </div>
-                  {rowData?.PhoneID && (
-                    <div className="flex items-center px-5 py-2 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary transition cursor-pointer dark:hover:text-primary dark:text-white font-medium">
-                      Duyệt cho khách hàng
-                    </div>
-                  )}
-                  {!rowData?.PhoneID && (
-                    <div className="flex items-center px-5 py-2 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary transition cursor-pointer dark:hover:text-primary dark:text-white font-medium">
-                      Tạo mới khách & Duyệt
-                    </div>
-                  )}
-                </>
-              )}
-              {rowData?.Status === 'user_sent' && !rowData.IsAnonymous && (
-                <div className="flex items-center px-5 py-2 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary transition cursor-pointer dark:hover:text-primary dark:text-white font-medium">
-                  Hoàn thành
-                </div>
-              )}
-
-              {rowData?.Status !== 'user_sent' && (
-                <div className="flex items-center px-5 py-2 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary transition cursor-pointer dark:hover:text-primary dark:text-white font-medium">
-                  Thưởng & Doanh số
-                </div>
-              )}
-              {(rowData?.Status === 'finish' &&
-                rowData?.AdminAction === 'TANG_DH_KET_THUC_NO') ||
-                (rowData?.Status === 'finish' &&
-                  rowData?.AdminAction === 'KHOA_NO_KET_THUC_NO') ||
-                (rowData?.Status === 'finish' && (
-                  <>
-                    <div className="flex items-center px-5 py-2 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary transition cursor-pointer dark:hover:text-primary dark:text-white font-medium">
-                      Thanh toán
-                    </div>
-                    <div className="flex items-center px-5 py-2 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary transition cursor-pointer dark:hover:text-primary dark:text-white font-medium">
-                      Trả hàng
-                    </div>
-                  </>
-                ))}
-              {rowData?.Status === 'finish' && (
-                <>
-                  <div className="flex items-center px-5 py-2 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary transition cursor-pointer dark:hover:text-primary dark:text-white font-medium">
-                    Thay đổi khách hàng
-                  </div>
-                  <div className="flex items-center px-5 py-2 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary transition cursor-pointer dark:hover:text-primary dark:text-white font-medium">
-                    Tặng
-                  </div>
-                  <div className="flex items-center px-5 py-2 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary transition cursor-pointer dark:hover:text-primary dark:text-white font-medium">
-                    Khóa nợ
-                  </div>
-                </>
-              )}
-              <div className="flex items-center px-5 py-2 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary transition cursor-pointer dark:hover:text-primary dark:text-white font-medium">
-                COD
-              </div>
-              {rowData?.Status === 'user_sent' && (
-                <div className="flex items-center px-5 py-2 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary transition cursor-pointer dark:hover:text-primary dark:text-white font-medium">
-                  Hủy
-                </div>
-              )}
-              <div className="flex items-center px-5 py-2 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary transition cursor-pointer dark:hover:text-primary dark:text-white font-medium">
-                Xóa đơn hàng
-              </div>
-            </ButtonDropdown> */}
           </>
         ),
         width: 155,
@@ -260,7 +181,7 @@ function ViewOrders(props) {
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <div
             className="absolute w-full h-full top-0 left bg-black/[.2] dark:bg-black/[.4]"
-            onClick={() => navigate(-1)}
+            onClick={() => navigate(state?.previousPath || `/clients/${id}`)}
           ></div>
         </motion.div>
         <motion.div
@@ -283,7 +204,9 @@ function ViewOrders(props) {
               </div>
               <div
                 className="flex items-center justify-center w-12 h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
-                onClick={() => navigate(-1)}
+                onClick={() =>
+                  navigate(state?.previousPath || `/clients/${id}`)
+                }
               >
                 <XMarkIcon className="w-9" />
               </div>

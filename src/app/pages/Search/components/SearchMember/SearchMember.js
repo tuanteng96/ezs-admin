@@ -15,7 +15,7 @@ function SearchMember({ valueKey, onChangeMode }) {
     queryFn: async ({ pageParam = 1 }) => {
       const { data } = await MembersAPI.memberSearch({
         Pi: pageParam,
-        Ps: 20,
+        Ps: 15,
         Key: debouncedKey
       })
       return data
