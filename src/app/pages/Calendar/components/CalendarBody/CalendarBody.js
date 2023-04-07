@@ -260,35 +260,37 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
               </Link>
             )
           },
-          dateClick: ({ date, resource, ...args }) => {
-            navigate(`/appointments/new`, {
-              state: {
-                previousPath: pathname + search,
-                formState: {
-                  MemberIDs: '',
-                  AtHome: false,
-                  Desc: '',
-                  booking: [
-                    {
-                      BookDate: moment(date).toDate(),
-                      Time: moment(date).toDate(),
-                      Desc: '',
-                      IsAnonymous: false,
-                      MemberID: '',
-                      RootIdS: '',
-                      Status: 'XAC_NHAN',
-                      StockID: CrStocks.ID,
-                      UserServiceIDs: [
-                        {
-                          label: resource._resource.title,
-                          value: resource._resource.id
-                        }
-                      ]
-                    }
-                  ]
+          dateClick: ({ date, resource, jsEvent, ...args }) => {
+            if (!jsEvent.target.classList.contains('fc-no-event')) {
+              navigate(`/appointments/new`, {
+                state: {
+                  previousPath: pathname + search,
+                  formState: {
+                    MemberIDs: '',
+                    AtHome: false,
+                    Desc: '',
+                    booking: [
+                      {
+                        BookDate: moment(date).toDate(),
+                        Time: moment(date).toDate(),
+                        Desc: '',
+                        IsAnonymous: false,
+                        MemberID: '',
+                        RootIdS: '',
+                        Status: 'XAC_NHAN',
+                        StockID: CrStocks.ID,
+                        UserServiceIDs: [
+                          {
+                            label: resource._resource.title,
+                            value: resource._resource.id
+                          }
+                        ]
+                      }
+                    ]
+                  }
                 }
-              }
-            })
+              })
+            }
           },
           slotMinTime: TimeOpen,
           slotMaxTime: TimeClose
@@ -304,11 +306,12 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
           Object.keys(extendedProps).length > 0
         ) {
           if (view.type !== 'listWeek') {
-            italicEl.innerHTML = `
+            if (!extendedProps.noEvent) {
+              italicEl.innerHTML = `
               <div class="fc-title">
                 <div class="flex">
                   ${
-                    extendedProps.AtHome
+                    extendedProps?.AtHome
                       ? `<div class="mr-1">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
@@ -318,24 +321,30 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
                   }
                   <div class="truncate max-w-2/4 capitalize">
                     ${
-                      extendedProps.Star
-                        ? `<span class="pr-[2px]">${extendedProps.Star}</span>`
+                      extendedProps?.Star
+                        ? `<span class="pr-[2px]">${extendedProps?.Star}</span>`
                         : ''
                     }
-                    ${extendedProps.MemberCurrent.FullName}
+                    ${
+                      extendedProps?.MemberCurrent?.FullName ||
+                      'Chưa xác định tên'
+                    }
                   </div>
                   <div class="px-[3px]">-</div>
-                  <div>${extendedProps.MemberCurrent.MobilePhone}</div>
+                  <div>${
+                    extendedProps?.MemberCurrent?.MobilePhone ||
+                    'Chưa xác định số'
+                  }</div>
                 </div>
                 <div class="flex">
                   <div>
-                    ${moment(extendedProps.BookDate).format('HH:mm')}
+                    ${moment(extendedProps?.BookDate).format('HH:mm')}
                   </div>
                   <div class="px-[3px]">-</div>
                   <div>
                     ${
-                      extendedProps.RootTitles
-                        ? extendedProps.RootMinutes ??
+                      extendedProps?.RootTitles
+                        ? extendedProps?.RootMinutes ??
                           extendedProps?.os?.RootMinutes ??
                           60
                         : 30
@@ -352,33 +361,34 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
                   extendedProps.RootTitles || 'Không xác định'
                 }</div>
               </div>`
+            }
           } else {
             italicEl.innerHTML = `<div class="fc-title">
                     <div><span class="fullname">${
-                      extendedProps.AtHome
+                      extendedProps?.AtHome
                         ? `<i class="fas fa-home font-size-xs"></i>`
                         : ''
-                    } ${extendedProps.Star ? `(${extendedProps.Star})` : ''} ${
-              extendedProps.MemberCurrent.FullName
+                    } ${
+              extendedProps?.Star ? `(${extendedProps?.Star})` : ''
+            } ${
+              extendedProps?.MemberCurrent?.FullName || 'Chưa xác định tên'
             }</span><span class="d-none d-md-inline"> - ${
-              extendedProps.MemberCurrent?.MobilePhone
+              extendedProps?.MemberCurrent?.MobilePhone || 'Chưa xác định số'
             }</span><span> - ${
-              extendedProps.RootTitles
-                ? extendedProps.RootMinutes ??
+              extendedProps?.RootTitles
+                ? extendedProps?.RootMinutes ??
                   extendedProps?.os?.RootMinutes ??
                   60
                 : 30
             }p - ${
               extendedProps.RootTitles || 'Không xác định'
-            }</span> <span class="${!extendedProps.isBook && 'd-none'}">- ${
+            }</span> <span class="${!extendedProps?.isBook && 'd-none'}">- ${
               extendedProps?.BookCount?.Done || 0
             }/${extendedProps?.BookCount?.Total || 0}</span></div>
                   </div>`
           }
         } else {
-          italicEl.innerHTML = `<div class="fc-title">
-                    Không có lịch
-                  </div>`
+          italicEl.innerHTML = `<div>Chưa có lịch.</div>`
         }
         let arrayOfDomNodes = [italicEl]
         return {
@@ -388,56 +398,58 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
       eventClick={({ event, el }) => {
         const { _def } = event
         const { extendedProps } = _def
-        if (_def.extendedProps.os) {
+        if (extendedProps?.os) {
           let formState = {}
-          navigate(`/appointments/os/${_def.extendedProps.os.ID}`, {
+          navigate(`/appointments/os/${extendedProps.os.ID}`, {
             state: {
               previousPath: pathname + search,
               formState
             }
           })
         } else {
-          let formState = {
-            MemberIDs: extendedProps.Member,
-            AtHome: extendedProps.AtHome,
-            Desc: extendedProps.Desc,
-            Status: extendedProps.Status,
-            booking: [
-              {
-                ID: extendedProps.ID,
-                BookDate: new Date(extendedProps.BookDate),
-                Time: new Date(extendedProps.BookDate),
-                Desc: '',
-                IsAnonymous: false,
-                MemberID: '',
-                RootIdS:
-                  extendedProps.Roots && extendedProps.Roots.length > 0
-                    ? extendedProps.Roots.map(x => ({
-                        ...x,
-                        value: x.ID,
-                        label: x.Title
-                      }))
-                    : [],
-                Status: extendedProps.Status,
-                StockID: extendedProps?.Stock?.ID,
-                UserServiceIDs:
-                  extendedProps.UserServices &&
-                  extendedProps.UserServices.length > 0
-                    ? extendedProps.UserServices.map(x => ({
-                        ...x,
-                        value: x.ID,
-                        label: x.FullName
-                      }))
-                    : []
-              }
-            ]
-          }
-          navigate(`/appointments/edit/${extendedProps.ID}`, {
-            state: {
-              previousPath: pathname + search,
-              formState
+          if (!extendedProps.noEvent) {
+            let formState = {
+              MemberIDs: extendedProps.Member,
+              AtHome: extendedProps.AtHome,
+              Desc: extendedProps.Desc,
+              Status: extendedProps.Status,
+              booking: [
+                {
+                  ID: extendedProps.ID,
+                  BookDate: new Date(extendedProps.BookDate),
+                  Time: new Date(extendedProps.BookDate),
+                  Desc: '',
+                  IsAnonymous: false,
+                  MemberID: '',
+                  RootIdS:
+                    extendedProps.Roots && extendedProps.Roots.length > 0
+                      ? extendedProps.Roots.map(x => ({
+                          ...x,
+                          value: x.ID,
+                          label: x.Title
+                        }))
+                      : [],
+                  Status: extendedProps.Status,
+                  StockID: extendedProps?.Stock?.ID,
+                  UserServiceIDs:
+                    extendedProps.UserServices &&
+                    extendedProps.UserServices.length > 0
+                      ? extendedProps.UserServices.map(x => ({
+                          ...x,
+                          value: x.ID,
+                          label: x.FullName
+                        }))
+                      : []
+                }
+              ]
             }
-          })
+            navigate(`/appointments/edit/${extendedProps.ID}`, {
+              state: {
+                previousPath: pathname + search,
+                formState
+              }
+            })
+          }
         }
       }}
       datesSet={({ view, start, ...arg }) => {

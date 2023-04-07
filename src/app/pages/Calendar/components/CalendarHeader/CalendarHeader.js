@@ -3,8 +3,7 @@ import React, { Fragment, useState } from 'react'
 import {
   AdjustmentsVerticalIcon,
   CheckIcon,
-  ChevronDownIcon,
-  Cog6ToothIcon
+  ChevronDownIcon
 } from '@heroicons/react/24/outline'
 import { Listbox, Popover, Transition } from '@headlessui/react'
 import {
@@ -18,6 +17,7 @@ import clsx from 'clsx'
 import { CalendarFilters } from '../CalendarFilters/CalendarFilters'
 import { isEmpty, omitBy } from 'lodash'
 import useEscape from 'src/_ezs/hooks/useEscape'
+import { CalendarLock } from '../CalendarLock/CalendarLock'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -231,9 +231,7 @@ const CalendarHeader = ({ queryConfig }) => {
           queryConfig={queryConfig}
         />
         <div className="mx-2">
-          <button className="flex items-center justify-center font-semibold text-gray-900 bg-white border rounded border-light h-11 w-11 dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary">
-            <Cog6ToothIcon className="w-6" />
-          </button>
+          <CalendarLock />
         </div>
         <Popover className="relative">
           <Popover.Button className="flex items-center px-4 font-semibold text-white transition rounded shadow-sm h-11 bg-success hover:bg-successhv">

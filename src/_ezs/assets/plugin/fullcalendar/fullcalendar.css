@@ -13,9 +13,11 @@
     --fc-popover-shadow: 0px 0px 20px 0px rgba(76, 87, 125, 0.02);
     --fc-title-bg: hsla(0, 0%, 82%, .3);
     --fc-title-color: #222;
+    --fc-bg-stripes: linear-gradient(45deg, #ddd 25%, transparent 0, transparent 50%, #ddd 0, #ddd 75%, transparent 0, transparent)
 }
 
 html.dark {
+    --fc-page-bg-color: #1e1e2d;
     --fc-border-color: #2B2B40;
     --fc-more-bg: #2B2B40;
     --fc-more-color: #fff;
@@ -25,10 +27,19 @@ html.dark {
     --fc-popover-bg: #1e1e2d;
     --fc-title-bg: #1e1e2d;
     --fc-title-color: #fff;
+    --fc-bg-stripes: linear-gradient(45deg, #2B2B40 25%, transparent 0, transparent 50%, #2B2B40 0, #2B2B40 75%, transparent 0, transparent)
 }
 
 .fc {
     height: 100%;
+}
+
+.fc .fc-bg-event {
+    background: transparent;
+    background-image: var(--fc-bg-stripes) !important;
+    opacity: 1;
+    background-size: 4px 4px;
+    cursor: not-allowed;
 }
 
 .fc .fc-popover {

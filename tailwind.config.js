@@ -109,6 +109,9 @@ module.exports = withMT({
         light: '#EBEDF3'
       }
     },
+    backgroundImage: {
+      stripes: `linear-gradient(45deg,#ddd 25%,transparent 0,transparent 50%,#ddd 0,#ddd 75%,transparent 0,transparent)`
+    },
     boxShadow: {
       lg: '0px 0px 50px 0px rgba(82, 63, 105, 0.15)',
       sm: '0px 0px 20px 0px rgba(76, 87, 125, 0.02)'

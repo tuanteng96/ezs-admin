@@ -162,8 +162,12 @@ function Home(props) {
             ? data?.dayOffs.map(item => ({
                 start: item.From,
                 end: item.To,
-                groupId: item.UserID,
-                display: 'inverse-background'
+                resourceIds: [item.UserID],
+                display: 'background',
+                extendedProps: {
+                  noEvent: true
+                },
+                className: ['fc-no-event']
               }))
             : []
       }
