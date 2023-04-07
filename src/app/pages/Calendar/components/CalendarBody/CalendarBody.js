@@ -6,7 +6,6 @@ import listPlugin from '@fullcalendar/list'
 import resourceTimeGridPlugin from '@fullcalendar/resource-timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import scrollGridPlugin from '@fullcalendar/scrollgrid'
-import { useWindowSize } from 'src/_ezs/hooks/useWindowSize'
 import {
   createSearchParams,
   Link,
@@ -45,12 +44,14 @@ const viLocales = {
   noEventsText: 'Không có dịch vụ'
 }
 
+let TimeOpen = '10:00:00'
+let TimeClose = '21:00:00'
+
 function CalendarBody({ queryConfig, MemberBookings, Resources }) {
   const { CrStocks } = useAuth()
   const calendarRef = useRef('')
   const navigate = useNavigate()
   const { pathname, search } = useLocation()
-  const { width } = useWindowSize()
 
   useEffect(() => {
     if (calendarRef?.current?.getApi()) {
@@ -59,8 +60,16 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
     }
   }, [calendarRef, queryConfig.view])
 
+  useEffect(() => {
+    if (calendarRef?.current?.getApi()) {
+      let calendarApi = calendarRef.current.getApi()
+      calendarApi.gotoDate(queryConfig.day)
+    }
+  }, [calendarRef, queryConfig.day])
+
   return (
     <FullCalendar
+      firstDay={1}
       schedulerLicenseKey="GPL-My-Project-Is-Open-Source"
       themeSystem="unthemed"
       locale={viLocales}
@@ -73,6 +82,7 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
         resourceTimeGridPlugin,
         scrollGridPlugin
       ]}
+      initialDate={queryConfig.day}
       initialView={queryConfig.view}
       handleWindowResize={true}
       aspectRatio="3"
@@ -96,14 +106,13 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
           },
           dayHeaderContent: ({ date, text }) => {
             return moment(date).format('dddd')
-          }
-          // slotMinTime: TimeOpen,
-          // slotMaxTime: TimeClose
+          },
+          slotMinTime: TimeOpen,
+          slotMaxTime: TimeClose
         },
         timeGridWeek: {
           allDaySlot: false,
           eventMaxStack: 2,
-          duration: { days: width > 991 ? 6 : 3 },
           slotLabelContent: ({ date, text }) => {
             return (
               <>
@@ -158,9 +167,10 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
                 }
               }
             })
-          }
-          // slotMinTime: TimeOpen,
-          // slotMaxTime: TimeClose
+          },
+          duration: { weeks: 1 },
+          slotMinTime: TimeOpen,
+          slotMaxTime: TimeClose
         },
         timeGridDay: {
           allDaySlot: false,
@@ -213,9 +223,9 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
                 }
               }
             })
-          }
-          // slotMinTime: TimeOpen,
-          // slotMaxTime: TimeClose
+          },
+          slotMinTime: TimeOpen,
+          slotMaxTime: TimeClose
         },
         resourceTimeGridDay: {
           dayMinWidth: 300,
@@ -279,9 +289,9 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
                 }
               }
             })
-          }
-          // slotMinTime: TimeOpen,
-          // slotMaxTime: TimeClose
+          },
+          slotMinTime: TimeOpen,
+          slotMaxTime: TimeClose
         }
       }}
       eventContent={arg => {

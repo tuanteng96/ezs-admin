@@ -60,7 +60,7 @@ let initialResult = [
   },
   {
     title: 'Dịch vụ',
-    name: 'undones',
+    name: 'osUnDoneList',
     icon: <HeartIcon className="w-7" />
   }
 ]

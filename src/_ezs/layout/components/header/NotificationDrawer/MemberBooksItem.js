@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Button } from 'src/_ezs/partials/button'
 import { LayoutGroup, motion, AnimatePresence } from 'framer-motion'
 import { Controller, useForm } from 'react-hook-form'
@@ -17,7 +17,7 @@ moment.locale('vi')
 
 const MemberBooksEdit = ({ isOpen, isCancel, onHide, data }) => {
   const queryClient = useQueryClient()
-  const { control, handleSubmit } = useForm({
+  const { control, handleSubmit, reset } = useForm({
     defaultValues: {
       memberBookID: data?.ID,
       content: isCancel ? 'Xác nhận Hủy lịch' : 'Xác nhận đặt lịch',
@@ -31,6 +31,24 @@ const MemberBooksEdit = ({ isOpen, isCancel, onHide, data }) => {
       desc: ''
     }
   })
+
+  useEffect(() => {
+    if (isOpen) {
+      reset({
+        memberBookID: data?.ID,
+        content: isCancel ? 'Xác nhận Hủy lịch' : 'Xác nhận đặt lịch',
+        mid: data?.Member?.ID,
+        title: isCancel ? 'Từ chối đặt lịch' : 'Xác nhận đặt lịch',
+        confirm: '1',
+        bookinfo: '',
+        bookdate: data?.BookDate
+          ? moment(data?.BookDate, 'YYYY-MM-DD HH:mm').toDate()
+          : '',
+        desc: ''
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen])
 
   const confirmBookMutation = useMutation({
     mutationFn: body => TasksAPI.confirmBook(body)
@@ -111,8 +129,56 @@ const MemberBooksEdit = ({ isOpen, isCancel, onHide, data }) => {
                     <XMarkIcon className="w-8" />
                   </div>
                 </Dialog.Title>
-                <div className="p-5 overflow-auto grow">
-                  <div className="mb-3.5">
+                <div className="p-5 overflow-auto grow" tabIndex={0}>
+                  <div className="text-sm border-b border-separator dark:border-dark-separator pb-2 mb-3">
+                    <div className="flex mb-1">
+                      <div className="font-medium mb-px text-muted2 w-[120px]">
+                        Dịch vụ
+                      </div>
+                      <div className="capitalize font-bold pl-1 flex-1">
+                        {data?.RootTitles}
+                      </div>
+                    </div>
+                    <div className="flex mb-1">
+                      <div className="font-medium mb-px text-muted2 w-[120px]">
+                        Khách hàng
+                      </div>
+                      <div className="capitalize font-bold pl-1 flex-1">
+                        {data?.Member?.FullName || 'Chưa xác đinh'}
+                      </div>
+                    </div>
+                    <div className="flex mb-1">
+                      <div className="font-medium mb-px text-muted2 w-[120px]">
+                        Nhân viên
+                      </div>
+                      <div className="capitalize font-bold pl-1 flex-1">
+                        {data?.UserServices && data?.UserServices.length > 0
+                          ? data?.UserServices.map(x => x.FullName).join(', ')
+                          : 'Chưa có'}
+                      </div>
+                    </div>
+                    {data?.AtHome && (
+                      <div className="flex mb-1">
+                        <div className="font-medium mb-px text-muted2 w-[120px]">
+                          Thực hiện
+                        </div>
+                        <div className="capitalize font-bold pl-1 flex-1">
+                          tại nhà
+                        </div>
+                      </div>
+                    )}
+                    {data?.Desc && (
+                      <div className="flex mb-1">
+                        <div className="font-medium mb-px text-muted2 w-[120px]">
+                          Ghi chú
+                        </div>
+                        <div className="capitalize font-bold pl-1 flex-1">
+                          {data?.Desc}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {/* <div className="mb-3.5">
                     <div className="font-semibold">Nội dung</div>
                     <div className="mt-1">
                       <Controller
@@ -128,23 +194,42 @@ const MemberBooksEdit = ({ isOpen, isCancel, onHide, data }) => {
                         )}
                       />
                     </div>
-                  </div>
+                  </div> */}
                   <div className="mb-3.5">
                     <div className="font-semibold">Thời gian</div>
-                    <div className="mt-1">
+                    <div className="mt-1 grid grid-cols-2 gap-4">
                       <Controller
                         name="bookdate"
                         control={control}
                         render={({ field: { ref, ...field }, fieldState }) => (
                           <InputDatePicker
-                            placeholderText="Chọn ngày sinh"
+                            placeholderText="Chọn thời gian"
                             autoComplete="off"
                             onChange={field.onChange}
                             selected={
                               field.value ? new Date(field.value) : null
                             }
                             {...field}
-                            dateFormat="HH:mm dd/MM/yyyy"
+                            dateFormat="dd/MM/yyyy"
+                          />
+                        )}
+                      />
+                      <Controller
+                        name="bookdate"
+                        control={control}
+                        render={({ field: { ref, ...field }, fieldState }) => (
+                          <InputDatePicker
+                            placeholderText="Chọn thời gian"
+                            autoComplete="off"
+                            onChange={field.onChange}
+                            selected={
+                              field.value ? new Date(field.value) : null
+                            }
+                            {...field}
+                            showTimeSelect
+                            showTimeSelectOnly
+                            dateFormat="HH:mm aa"
+                            timeFormat="HH:mm aa"
                           />
                         )}
                       />
@@ -231,14 +316,14 @@ const MemberBooksItem = ({ data }) => {
         </div>
         <div className="flex mt-4">
           <Button
-            className="relative flex items-center px-3.5 text-sm font-medium text-white transition rounded shadow-lg h-9 bg-success hover:bg-successhv focus:outline-none focus:shadow-none"
+            className="relative flex items-center px-3.5 text-sm font-medium text-white transition rounded shadow-lg h-10 bg-success hover:bg-successhv focus:outline-none focus:shadow-none"
             type="button"
             onClick={() => onOpen(false)}
           >
             Xác nhận
           </Button>
           <Button
-            className="relative flex items-center px-3.5 ml-2 text-sm font-medium text-white transition rounded shadow-lg h-9 bg-danger hover:bg-dangerhv focus:outline-none focus:shadow-none"
+            className="relative flex items-center px-3.5 ml-2 text-sm font-medium text-white transition rounded shadow-lg h-10 bg-danger hover:bg-dangerhv focus:outline-none focus:shadow-none"
             type="button"
             onClick={() => onOpen(true)}
           >

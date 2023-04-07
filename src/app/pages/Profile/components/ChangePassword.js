@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { Card } from 'src/_ezs/partials/card'
-import { EZSSVG } from 'src/_ezs/partials/svg'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { InputSolid } from 'src/_ezs/partials/forms'
@@ -174,7 +173,7 @@ function ChangePassword() {
               </div>
             </div>
           )}
-          <div className="flex p-6 mt-5 border border-dashed rounded-sm border-primary bg-primarylight dark:bg-dark-primarylight">
+          {/* <div className="flex p-6 mt-5 border border-dashed rounded-sm border-primary bg-primarylight dark:bg-dark-primarylight">
             <div>
               <EZSSVG
                 svgClassName="text-primary"
@@ -192,7 +191,7 @@ function ChangePassword() {
                 số
               </div>
             </div>
-          </div>
+          </div> */}
         </Card.Body>
       </Card>
     </form>

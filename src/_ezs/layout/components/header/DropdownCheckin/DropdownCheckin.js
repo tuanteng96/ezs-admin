@@ -1,7 +1,7 @@
 import { Transition } from '@headlessui/react'
 import { BarsArrowDownIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useQuery } from '@tanstack/react-query'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import MembersAPI from 'src/_ezs/api/members.api'
 import { useAuth } from 'src/_ezs/core/Auth'
 import { NotFound } from '../../notfound'
@@ -9,9 +9,11 @@ import { DropdownCheckinItem } from './DropdownCheckinItem'
 import useDebounce from 'src/_ezs/hooks/useDebounce'
 import { DropdownCheckinFilter } from './DropdownCheckinFilter'
 import useEscape from 'src/_ezs/hooks/useEscape'
+import { useLocation } from 'react-router'
 
 const DropdownCheckin = props => {
   const { CrStocks, auth } = useAuth()
+  const { pathname } = useLocation()
   const [isShowing, setIsShowing] = useState(false)
   const [key, setkey] = useState('')
   const [type, setType] = useState({
@@ -20,6 +22,11 @@ const DropdownCheckin = props => {
   })
 
   const debouncedKey = useDebounce(key, 300)
+
+  useEffect(() => {
+    isShowing && onHideShowing()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname])
 
   const onHideShowing = () => {
     setIsShowing(false)
@@ -52,10 +59,10 @@ const DropdownCheckin = props => {
           className="relative flex items-center px-4 text-sm font-medium text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-11 focus:outline-none focus:shadow-none text"
           onClick={() => setIsShowing(true)}
         >
-          <span className="absolute top-0 right-0 flex w-3 h-3 -mt-1 -mr-1">
+          {/* <span className="absolute top-0 right-0 flex w-3 h-3 -mt-1 -mr-1">
             <span className="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping bg-primary"></span>
             <span className="relative inline-flex w-3 h-3 border border-white rounded-full bg-primary"></span>
-          </span>
+          </span> */}
           <span className="font-medium font-inter">
             {auth?.Present?.CHECKIN[CrStocks?.ID]} khách CheckIn
           </span>

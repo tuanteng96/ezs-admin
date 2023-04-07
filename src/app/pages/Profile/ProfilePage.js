@@ -66,14 +66,14 @@ export default function ProfilePage() {
                 Thông tin cá nhân
               </div>
               <div>
-                <Button
+                {/* <Button
                   type="submit"
                   className="relative flex items-center h-12 px-4 font-medium text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
                   disabled={updateUserMutation.isLoading}
                   loading={updateUserMutation.isLoading}
                 >
                   Lưu thông tin
-                </Button>
+                </Button> */}
               </div>
             </Card.Header>
             <Card.Body>

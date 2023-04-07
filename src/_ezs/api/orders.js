@@ -14,7 +14,11 @@ const OrdersAPI = {
     http.post(`/api/v3/shipcode@getorder`, JSON.stringify(body)),
   orderUpdateCOD: body => http.post(`/api/v3/shipcode@update`, body),
   orderChangeMember: body => http.post(`/api/v3/OrderAdmin@changeMember`, body),
-  orderFinish: body => http.post(`/api/v3/Order23@finish`, JSON.stringify(body))
+  orderFinish: body =>
+    http.post(`/api/v3/Order23@finish`, JSON.stringify(body)),
+  orderCancel: body =>
+    http.post(`/services/preview.aspx?cmd=ORDER_CANCEL`, body),
+  orderDelete: body => http.post(`/api/v3/Order23@delete`, JSON.stringify(body))
 }
 
 export default OrdersAPI

@@ -19,12 +19,18 @@ const getQueryParams = queryConfig => {
     From: moment(moment(queryConfig.day, 'YYYY-MM-DD')),
     To: moment(moment(queryConfig.day, 'YYYY-MM-DD'))
   }
-  if (queryConfig.view === 'dayGridMonth') {
-    params.From = params.From.startOf('month').format('YYYY-MM-DD')
-    params.To = params.To.endOf('month').format('YYYY-MM-DD')
-  } else {
-    params.From = params.From.format('YYYY-MM-DD')
-    params.To = params.To.format('YYYY-MM-DD')
+  switch (queryConfig.view) {
+    case 'dayGridMonth':
+      params.From = params.From.startOf('month').format('YYYY-MM-DD')
+      params.To = params.To.endOf('month').format('YYYY-MM-DD')
+      break
+    case 'timeGridWeek':
+      params.From = params.From.clone().weekday(0).format('YYYY-MM-DD')
+      params.To = params.To.clone().weekday(6).format('YYYY-MM-DD')
+      break
+    default:
+      params.From = params.From.format('YYYY-MM-DD')
+      params.To = params.To.format('YYYY-MM-DD')
   }
 
   return params
@@ -149,9 +155,20 @@ function Home(props) {
                   : []
             }))
           : []
+      let dataOffline = []
+      if (queryConfig.view === 'resourceTimeGridDay') {
+        dataOffline =
+          data?.dayOffs && data?.dayOffs.length > 0
+            ? data?.dayOffs.map(item => ({
+                start: item.From,
+                end: item.To,
+                groupId: item.UserID,
+                display: 'inverse-background'
+              }))
+            : []
+      }
       return {
-        data: [...dataBooks, ...dataBooksAuto],
-        userOffline: data?.dayOffs ?? []
+        data: [...dataBooks, ...dataBooksAuto, ...dataOffline]
       }
     }
     //keepPreviousData: true

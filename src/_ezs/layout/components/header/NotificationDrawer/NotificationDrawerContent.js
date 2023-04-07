@@ -5,6 +5,7 @@ import { MemberNoteItem } from './MemberNoteItem'
 import { MemberContactItem } from './MemberContactItem'
 import { MemberOrderItem } from './MemberOrderItem'
 import { MemberSmsPayed } from './MemberSmsPayed'
+import { MemberServices } from './MemberServices'
 
 const NotificationDrawerContent = ({ name, data }) => {
   const renderSwitch = () => {
@@ -22,7 +23,7 @@ const NotificationDrawerContent = ({ name, data }) => {
       case 'smsPayed':
         return <MemberSmsPayed data={data} />
       default:
-        return 'foo'
+        return <MemberServices data={data} />
     }
   }
   return renderSwitch()

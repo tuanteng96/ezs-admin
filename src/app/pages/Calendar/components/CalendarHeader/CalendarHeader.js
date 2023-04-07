@@ -4,8 +4,6 @@ import {
   AdjustmentsVerticalIcon,
   CheckIcon,
   ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
   Cog6ToothIcon
 } from '@heroicons/react/24/outline'
 import { Listbox, Popover, Transition } from '@headlessui/react'
@@ -127,7 +125,7 @@ const CalendarHeader = ({ queryConfig }) => {
             </Transition>
           </div>
         </Listbox>
-        <button
+        {/* <button
           className="flex items-center justify-center mx-2 font-semibold text-gray-900 bg-white border rounded border-light h-11 w-11 dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary"
           onClick={() =>
             navigate({
@@ -168,7 +166,7 @@ const CalendarHeader = ({ queryConfig }) => {
           }
         >
           <ChevronRightIcon className="w-4" />
-        </button>
+        </button> */}
         <button
           disabled={moment(queryConfig.day, 'YYYY-MM-DD').isSame(
             moment().format('YYYY-MM-DD'),

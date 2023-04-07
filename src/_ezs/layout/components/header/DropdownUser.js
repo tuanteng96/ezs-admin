@@ -45,7 +45,7 @@ const DropdownUser = () => {
                       <NavLink to="/profile">Thông tin cá nhân</NavLink>
                     </Popover.Button>
                   </div>
-                  <div>
+                  {/* <div>
                     <Popover.Button
                       className="inline-flex items-center px-5 font-medium transition h-9 text-site-color hover:text-primary dark:hover:text-primary dark:text-dark-gray"
                       as={Fragment}
@@ -61,7 +61,7 @@ const DropdownUser = () => {
                       <NavLink to="/">Trợ giúp</NavLink>
                     </Popover.Button>
                   </div>
-                  <div className="my-2 transition border-b border-separator dark:border-dark-separator"></div>
+                  <div className="my-2 transition border-b border-separator dark:border-dark-separator"></div> */}
                   <div>
                     <button
                       type="button"

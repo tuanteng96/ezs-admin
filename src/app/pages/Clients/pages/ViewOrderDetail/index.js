@@ -8,9 +8,11 @@ import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/Loading
 import { formatString } from 'src/_ezs/utils/formatString'
 import clsx from 'clsx'
 import {
+  BtnCancelOrder,
   BtnChangeMember,
   BtnCOD,
   BtnDebtLock,
+  BtnDeleteOrder,
   BtnDonate,
   BtnFinish,
   BtnFinishCreateMember,
@@ -185,7 +187,10 @@ function ViewOrderDetail({ OrderID, onHide }) {
                           </>
                         ))}
                       {resultOrder?.data?.Order?.Status !== 'user_sent' && (
-                        <div className="p-3.5 text-[15px] font-semibold border-b border-dashed cursor-pointer border-separator dark:border-dark-separator hover:text-primary last:border-0">
+                        <div
+                          className="p-3.5 text-[15px] font-semibold border-b border-dashed cursor-pointer border-separator dark:border-dark-separator hover:text-primary last:border-0"
+                          OrderID={resultOrder?.data?.Order?.ID}
+                        >
                           Thưởng & Doanh số
                           {resultOrder?.data?.Order?.Counter?.doanh_so +
                             resultOrder?.data?.Order?.Counter?.thuong >
@@ -227,18 +232,26 @@ function ViewOrderDetail({ OrderID, onHide }) {
                         COD
                       </BtnCOD>
                       {resultOrder?.data?.Order?.Status === 'user_sent' && (
-                        <div className="p-3.5 text-[15px] font-semibold border-b border-dashed cursor-pointer border-separator dark:border-dark-separator hover:text-primary last:border-0">
+                        <BtnCancelOrder
+                          className="p-3.5 text-[15px] font-semibold border-b border-dashed cursor-pointer border-separator dark:border-dark-separator hover:text-primary last:border-0"
+                          OrderID={resultOrder?.data?.Order?.ID}
+                          Order={resultOrder?.data?.Order}
+                        >
                           Hủy
-                        </div>
+                        </BtnCancelOrder>
                       )}
                       {moment(resultOrder?.data?.Order?.CreateDate).format(
                         'DD/MM/YYYY'
                       ) === moment().format('DD/MM/YYYY') &&
                         resultOrder?.data?.Order?.Status !== 'user_sent' &&
                         !resultOrder?.data?.Order?.MemberCheckInID && (
-                          <div className="p-3.5 text-[15px] font-semibold border-b border-dashed cursor-pointer border-separator dark:border-dark-separator hover:text-primary last:border-0">
+                          <BtnDeleteOrder
+                            className="p-3.5 text-[15px] font-semibold border-b border-dashed cursor-pointer border-separator dark:border-dark-separator hover:text-primary last:border-0"
+                            OrderID={resultOrder?.data?.Order?.ID}
+                            Order={resultOrder?.data?.Order}
+                          >
                             Xóa đơn hàng
-                          </div>
+                          </BtnDeleteOrder>
                         )}
                     </>
                   )}

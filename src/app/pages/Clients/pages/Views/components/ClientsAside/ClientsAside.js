@@ -9,6 +9,7 @@ import React, { Fragment } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { formatString } from 'src/_ezs/utils/formatString'
 import { useClientView } from '../../ClientViewContext'
+import Text from 'react-texty'
 
 const ClientsAside = props => {
   const { pathname } = useLocation()
@@ -88,7 +89,9 @@ const ClientsAside = props => {
               Ví điện tử
             </div>
             <div className="font-bold dark:text-white">
-              {formatString.formatVND(MemberView?.Present?.nap_vi)}
+              <Text tooltipMaxWidth={280}>
+                {formatString.formatVND(MemberView?.Present?.nap_vi)}
+              </Text>
             </div>
           </Link>
           <Link
@@ -99,7 +102,9 @@ const ClientsAside = props => {
               Thẻ tiền
             </div>
             <div className="font-bold dark:text-white">
-              {formatString.formatVND(MemberView?.Present?.the_tien_kha_dung)}
+              <Text tooltipMaxWidth={280}>
+                {formatString.formatVND(MemberView?.Present?.the_tien_kha_dung)}
+              </Text>
             </div>
           </Link>
           <Link to="pay" className="flex flex-col items-center">
@@ -107,7 +112,9 @@ const ClientsAside = props => {
               Công nợ
             </div>
             <div className="font-bold text-danger">
-              {formatString.formatVND(MemberView?.Present?.no)}
+              <Text tooltipMaxWidth={280}>
+                {formatString.formatVND(MemberView?.Present?.no)}
+              </Text>
             </div>
           </Link>
         </div>

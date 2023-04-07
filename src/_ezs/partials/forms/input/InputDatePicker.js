@@ -2,6 +2,13 @@ import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
 import React from 'react'
 import DatePicker from 'react-datepicker'
+import Portal from 'react-overlays/cjs/Portal'
+
+const CalendarContainer = ({ children }) => {
+  const el = document.getElementById('calendar-portal')
+
+  return <Portal container={el}>{children}</Portal>
+}
 
 const InputDatePicker = ({ errorMessage, errorMessageForce, ...props }) => {
   return (
@@ -14,6 +21,8 @@ const InputDatePicker = ({ errorMessage, errorMessageForce, ...props }) => {
               ? 'border-danger'
               : 'border-gray-300 dark:border-graydark-400 focus:border-primary dark:focus:border-primary'
           )}
+          popperContainer={CalendarContainer}
+          timeIntervals={5}
           {...props}
         />
         {errorMessageForce && (
