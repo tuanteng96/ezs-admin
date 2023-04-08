@@ -196,7 +196,7 @@ html.dark {
 .fc .fc-resourceTimeGridDay-view .fc-timegrid-event-harness>.fc-timegrid-event,
 .fc .fc-timeGridWeek-view .fc-timegrid-event-harness>.fc-timegrid-event,
 .fc .fc-timeGridDay-view .fc-timegrid-event-harness>.fc-timegrid-event {
-    min-height: 85px;
+    min-height: 57px;
 }
 
 .fc .fc-resourceTimeGridDay-view .fc-v-event,
@@ -268,6 +268,7 @@ html.dark {
 
 .fc .fc-more-popover .fc-popover-body .fc-daygrid-event-harness:not(:last-child) .fc-event {
     margin-bottom: 8px;
+    cursor: pointer;
 }
 
 .fc .fc-listWeek-view .fc-event.fc-primary .fc-list-event-graphic .fc-list-event-dot {

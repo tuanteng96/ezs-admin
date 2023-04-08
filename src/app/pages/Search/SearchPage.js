@@ -76,6 +76,7 @@ function SearchPage(props) {
                   <Link
                     to="/clients/add"
                     state={{
+                      previousFinishPath: true,
                       previousPath:
                         pathname + '?type=' + queryConfig.type + '&key=' + Key,
                       key: isModeNew ? '' : Key

@@ -104,7 +104,7 @@ function Home(props) {
                 className: `fc-${getStatusClass(
                   item.Status,
                   item
-                )} shadow-lg rounded !mt-0 !ml-0 !mr-0 p-3 text-white`,
+                )} shadow-lg rounded !mt-0 !ml-0 !mr-0 px-3 py-1.5 text-white`,
                 resourceIds:
                   item.UserServices &&
                   Array.isArray(item.UserServices) &&
@@ -148,7 +148,7 @@ function Home(props) {
               className: `fc-${getStatusClass(
                 item.os.Status,
                 item
-              )} shadow-lg rounded !mt-0 !ml-0 !mr-0 p-3 text-white`,
+              )} shadow-lg rounded !mt-0 !ml-0 !mr-0 p-3 py-1.5 text-white`,
               resourceIds:
                 item.staffs && Array.isArray(item.staffs)
                   ? item.staffs.map(staf => staf.ID)

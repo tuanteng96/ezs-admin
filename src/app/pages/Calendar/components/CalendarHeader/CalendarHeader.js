@@ -242,7 +242,7 @@ const CalendarHeader = ({ queryConfig }) => {
             <div className="flex flex-col py-2.5">
               <Link
                 to="/clients/add"
-                state={{ previousPath: pathname }}
+                state={{ previousPath: pathname, previousFinishPath: true }}
                 className="flex items-center px-5 py-3 text-[15px] hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray text-site-color"
               >
                 Khách hàng mới

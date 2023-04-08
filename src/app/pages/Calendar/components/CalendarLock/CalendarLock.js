@@ -2,14 +2,14 @@ import React, { useState } from 'react'
 import { Cog6ToothIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion'
 import { Dialog } from '@headlessui/react'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { useFieldArray, useForm } from 'react-hook-form'
 import { Button } from 'src/_ezs/partials/button'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import ConfigAPI from 'src/_ezs/api/config'
 import { useAuth } from 'src/_ezs/core/Auth'
-import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
-import { CalendarLockNested } from './CalendarLockNested'
+import { CalendarLockChildren } from './CalendarLockChildren'
+import { toast } from 'react-toastify'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -17,17 +17,16 @@ import 'moment/locale/vi'
 moment.locale('vi')
 
 const CalendarLock = props => {
-  const { CrStocks } = useAuth()
+  const { CrStocks, Stocks } = useAuth()
   const [isOpen, setIsOpen] = useState(false)
   const { control, handleSubmit, setValue } = useForm({
     defaultValues: {
-      ListDisable: []
+      ListLocks: []
     }
   })
-
-  const { fields, append, remove } = useFieldArray({
+  const { fields } = useFieldArray({
     control,
-    name: 'ListDisable'
+    name: 'ListLocks'
   })
 
   const resultLock = useQuery({
@@ -44,36 +43,116 @@ const CalendarLock = props => {
           ...x,
           ListDisable:
             x.ListDisable && x.ListDisable.length > 0
-              ? x.ListDisable.map(item => ({
-                  ...item,
-                  Date: moment(item.Date, 'DD/MM/YYYY').toDate(),
-                  TimeClose:
-                    item.TimeClose && item.TimeClose.length > 0
-                      ? item.TimeClose.map(time => ({
-                          Start: time.Start
-                            ? moment(time.Start, 'HH:mm').toDate()
-                            : null,
-                          End: time.End
-                            ? moment(time.End, 'HH:mm').toDate()
-                            : null
-                        }))
-                      : [{ Start: null, End: null }]
-                }))
-              : []
+              ? x.ListDisable.filter(item =>
+                  moment().isSameOrBefore(item.Date, 'day')
+                )
+                  .map(item => ({
+                    ...item,
+                    Date: moment(item.Date, 'DD/MM/YYYY').toDate(),
+                    TimeClose:
+                      item.TimeClose && item.TimeClose.length > 0
+                        ? item.TimeClose.map(time => ({
+                            Start: time.Start
+                              ? moment(time.Start, 'HH:mm').toDate()
+                              : null,
+                            End: time.End
+                              ? moment(time.End, 'HH:mm').toDate()
+                              : null
+                          }))
+                        : [{ Start: null, End: null }]
+                  }))
+                  .sort(
+                    (a, b) =>
+                      moment(a.Date).valueOf() - moment(b.Date).valueOf()
+                  )
+              : [
+                  {
+                    Date: null,
+                    TimeClose: [{ Start: null, End: null }]
+                  }
+                ]
         }))
+      } else {
+        initialValue = Stocks
+          ? Stocks.map(x => ({
+              StockID: x.ID,
+              ListDisable: [
+                {
+                  Date: null,
+                  TimeClose: [{ Start: null, End: null }]
+                }
+              ]
+            }))
+          : []
       }
-      const inStock = initialValue.filter(x => x.StockID === CrStocks.ID)[0]
-        .ListDisable
-      setValue('ListDisable', inStock)
-    }
+      setValue('ListLocks', initialValue)
+    },
+    enabled: isOpen
   })
 
   const onOpen = () => setIsOpen(true)
 
   const onHide = () => setIsOpen(false)
 
-  const onSubmit = values => console.log(values)
-  
+  const LockUpdateMutation = useMutation({
+    mutationFn: body => ConfigAPI.saveName(body)
+  })
+
+  const onSubmit = values => {
+    const newValues = values.ListLocks.map(({ ListDisable, ...Stock }) => {
+      const newListDisable = ListDisable.map(x => {
+        let newTimeClose = [
+          {
+            Start: null,
+            End: null
+          }
+        ]
+        if (x.Date) {
+          let lengthTimeClose = x.TimeClose.filter(x => x.Start && x.End).length
+          newTimeClose =
+            x.TimeClose && x.TimeClose.length > 0
+              ? x.TimeClose.map(time => ({
+                  Start: time.Start
+                    ? moment(time.Start).format('HH:mm')
+                    : lengthTimeClose === 0
+                    ? '00:00'
+                    : null,
+                  End: time.End
+                    ? moment(time.End).format('HH:mm')
+                    : lengthTimeClose === 0
+                    ? '23:59'
+                    : null
+                }))
+              : [{ Start: '00:00', End: '23:59' }]
+        }
+        return {
+          Date: x.Date ? moment(x.Date).format('DD/MM/YYYY') : null,
+          TimeClose: newTimeClose.filter(time => time.Start && time.End)
+        }
+      }).filter(x => x.Date)
+      return {
+        ...Stock,
+        ListDisable: newListDisable
+      }
+    })
+
+    LockUpdateMutation.mutate(
+      {
+        name: 'giocam',
+        body: JSON.stringify(newValues)
+      },
+      {
+        onSuccess: ({ data }) => {
+          toast.success('Cập nhập đơn vị vận chuyển thành công.')
+          onHide()
+        },
+        onError: error => {
+          console.log(error)
+        }
+      }
+    )
+  }
+
   return (
     <>
       <button
@@ -114,37 +193,23 @@ const CalendarLock = props => {
                     </div>
                   </Dialog.Title>
                   <div className="relative p-5 overflow-auto grow">
-                    <div className="mb-5" tabIndex={0}>
-                      Bạn đang thực hiện khóa lịch tại cơ sở {CrStocks?.Title}
+                    <div
+                      className="mb-5 bg-warninglight rounded border-warning border border-dashed px-6 py-4"
+                      tabIndex={0}
+                    >
+                      Bạn đang thực hiện khóa lịch tại cơ sở
+                      <span className="pl-1.5 font-bold">
+                        {CrStocks?.Title}
+                      </span>
                     </div>
-
                     {fields &&
                       fields.map((item, index) => (
-                        <div key={item.id}>
-                          <div>
-                            <Controller
-                              name={`ListDisable[${index}].Date`}
-                              control={control}
-                              render={({
-                                field: { ref, ...field },
-                                fieldState
-                              }) => (
-                                <InputDatePicker
-                                  placeholderText="Chọn ngày"
-                                  selected={field.value}
-                                  onChange={field.onChange}
-                                  errorMessageForce={fieldState?.invalid}
-                                  errorMessage={fieldState?.error?.message}
-                                  dateFormat="dd/MM/yyyy"
-                                />
-                              )}
-                            />
-                          </div>
-                          <CalendarLockNested
-                            nestIndex={index}
-                            {...{ control }}
-                          />
-                        </div>
+                        <CalendarLockChildren
+                          Stocks={item}
+                          key={item.id}
+                          childrenIndex={index}
+                          {...{ control }}
+                        />
                       ))}
                     <LoadingComponentFull
                       bgClassName="bg-white dark:bg-dark-aside"
@@ -160,8 +225,8 @@ const CalendarLock = props => {
                       Hủy
                     </Button>
                     <Button
-                      //   loading={orderUpdateCODMutation.isLoading}
-                      //   disabled={orderUpdateCODMutation.isLoading}
+                      loading={LockUpdateMutation.isLoading}
+                      disabled={LockUpdateMutation.isLoading}
                       type="submit"
                       className="relative flex items-center px-4 ml-2 font-semibold text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-11 focus:outline-none focus:shadow-none disabled:opacity-70"
                     >

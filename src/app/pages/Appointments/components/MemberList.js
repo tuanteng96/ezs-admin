@@ -17,6 +17,8 @@ import { Menu, Transition } from '@headlessui/react'
 import { MemberListTabs } from './MemberListTabs'
 import { formatArray } from 'src/_ezs/utils/formatArray'
 import useInfiniteScroll from 'react-infinite-scroll-hook'
+import MemberPassersBy from './MemberPassersBy'
+import { useState } from 'react'
 
 const MemberList = ({
   onOpen,
@@ -27,9 +29,11 @@ const MemberList = ({
   isShowing
 }) => {
   const { pathname } = useLocation()
+  const [isPassersBy, setIsPassersBy] = useState(false)
   const debouncedKey = useDebounce(valueKey, 200)
+  const { setValue } = useFormContext()
   const watchForm = useFormContext().watch()
-
+  console.log(watchForm)
   const descRef = useRef()
 
   useEscape(() => {
@@ -60,6 +64,18 @@ const MemberList = ({
     onLoadMore: () => ListMembersQuery.fetchNextPage()
     //disabled: !!error,
   })
+
+  const onOpenPassersBy = () => {
+    setIsPassersBy(true)
+    setValue('IsAnonymous', true)
+  }
+
+  const onHidePassersBy = () => {
+    setIsPassersBy(false)
+    setValue('IsAnonymous', false)
+    setValue('FullName', '')
+    setValue('Phone', '')
+  }
 
   return (
     <>
@@ -213,7 +229,14 @@ const MemberList = ({
                           </g>
                         </svg>
                         <div className="text-center mt-7 text-[17px] leading-7 font-medium dark:text-graydark-800">
-                          Số điện thoại chưa tồn tại khách hàng. Vui lòng
+                          Không tìm thấy khách hàng. Vui lòng
+                          <span
+                            className="text-primary px-2 cursor-pointer"
+                            onClick={onOpenPassersBy}
+                          >
+                            Đặt lịch cho khách vãng lai
+                          </span>
+                          hoặc
                           <Link
                             className="text-primary pl-2"
                             to="/clients/add"
@@ -223,7 +246,7 @@ const MemberList = ({
                               key: valueKey
                             }}
                           >
-                            Thêm mới khách hàng
+                            Tạo mới khách hàng
                           </Link>
                         </div>
                       </div>
@@ -270,6 +293,20 @@ const MemberList = ({
           )}
         </>
       )}
+      <MemberPassersBy
+        isOpen={isPassersBy}
+        onHide={onHidePassersBy}
+        onSubmit={() => {
+          setIsPassersBy(false)
+          onChange({
+            ID: 0,
+            FullName: 'Khách vãng lai',
+            label: 'Khách vãng lai',
+            value: 0,
+            MobilePhone: watchForm.Phone
+          })
+        }}
+      />
     </>
   )
 }

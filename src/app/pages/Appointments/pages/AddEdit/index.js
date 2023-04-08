@@ -80,6 +80,9 @@ function AppointmentsAddEdit(props) {
     defaultValues: state?.formState
       ? {
           ...state?.formState,
+          FullName: '',
+          Phone: '',
+          IsAnonymous: false,
           booking: state?.formState?.booking || [
             {
               BookDate: queryString.date
@@ -100,6 +103,9 @@ function AppointmentsAddEdit(props) {
           MemberIDs: '',
           AtHome: false,
           Desc: '',
+          FullName: '',
+          Phone: '',
+          IsAnonymous: false,
           booking: [
             {
               BookDate: queryString.date
@@ -188,34 +194,35 @@ function AppointmentsAddEdit(props) {
   })
 
   const onSubmit = values => {
-    const dataAdd = {
-      booking: values.booking
-        .map(x => ({
-          ...x,
-          BookDate:
-            moment(x.BookDate).format('YYYY-MM-DD') +
-            ' ' +
-            moment(x.Time).format('HH:mm'),
-          MemberID: values.MemberIDs?.ID,
-          RootIdS: x.RootIdS.map(x => x.value).join(','),
-          UserServiceIDs: x.UserServiceIDs
-            ? x.UserServiceIDs.map(o => o.value).join(',')
-            : '',
-          Status: values?.Status || x.Status
-        }))
-        .filter(x => x.RootIdS)
-    }
-    addBookingMutation.mutate(dataAdd, {
-      onSuccess: data => {
-        toast.success(
-          isAddMode ? 'Đặt lịch thành công.' : 'Chỉnh sửa lịch thành công.'
-        )
-        navigate(state?.previousPath || '/calendar')
-      },
-      onError: error => {
-        console.log(error)
-      }
-    })
+    console.log(values)
+    // const dataAdd = {
+    //   booking: values.booking
+    //     .map(x => ({
+    //       ...x,
+    //       BookDate:
+    //         moment(x.BookDate).format('YYYY-MM-DD') +
+    //         ' ' +
+    //         moment(x.Time).format('HH:mm'),
+    //       MemberID: values.MemberIDs?.ID,
+    //       RootIdS: x.RootIdS.map(x => x.value).join(','),
+    //       UserServiceIDs: x.UserServiceIDs
+    //         ? x.UserServiceIDs.map(o => o.value).join(',')
+    //         : '',
+    //       Status: values?.Status || x.Status
+    //     }))
+    //     .filter(x => x.RootIdS)
+    // }
+    // addBookingMutation.mutate(dataAdd, {
+    //   onSuccess: data => {
+    //     toast.success(
+    //       isAddMode ? 'Đặt lịch thành công.' : 'Chỉnh sửa lịch thành công.'
+    //     )
+    //     navigate(state?.previousPath || '/calendar')
+    //   },
+    //   onError: error => {
+    //     console.log(error)
+    //   }
+    // })
   }
 
   const onDeleteBook = () => {

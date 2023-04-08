@@ -66,9 +66,12 @@ module.exports = withMT({
       successlight: '#C9F7F5',
       successhv: '#0BB7AF',
       warning: '#FFA800',
+      warninglight: '#fff8dd',
       muted: '#A1A5B7',
       orange: '#f26353',
-      muted2: '#878c93'
+      muted2: '#878c93',
+      textcode: '#b93993',
+      bgcode: '#F1F3F8'
     },
     borderColor: {
       slate: {

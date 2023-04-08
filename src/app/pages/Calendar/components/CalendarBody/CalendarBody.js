@@ -322,7 +322,7 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
                   <div class="truncate max-w-2/4 capitalize">
                     ${
                       extendedProps?.Star
-                        ? `<span class="pr-[2px]">${extendedProps?.Star}</span>`
+                        ? `<span class="pr-[2px]">(${extendedProps?.Star})</span>`
                         : ''
                     }
                     ${
@@ -331,35 +331,25 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
                     }
                   </div>
                   <div class="px-[3px]">-</div>
-                  <div>${
+                  <div class="truncate">${
                     extendedProps?.MemberCurrent?.MobilePhone ||
                     'Chưa xác định số'
                   }</div>
                 </div>
-                <div class="flex">
+                <div class="flex items-center">
                   <div>
                     ${moment(extendedProps?.BookDate).format('HH:mm')}
                   </div>
                   <div class="px-[3px]">-</div>
-                  <div>
-                    ${
-                      extendedProps?.RootTitles
-                        ? extendedProps?.RootMinutes ??
-                          extendedProps?.os?.RootMinutes ??
-                          60
-                        : 30
-                    }p
-                  </div>
-                  <div class="px-[3px]">-</div>
-                  <div class="flex">
-                    <span>${extendedProps?.BookCount?.Done || 0}</span>
+                  <div class="truncate capitalize pr-1">${
+                    extendedProps.RootTitles || 'Không xác định'
+                  }</div>
+                  <div class="flex text-xs">
+                    (<span>${extendedProps?.BookCount?.Done || 0}</span>
                     <span class="px2">/</span>
-                    <span>${extendedProps?.BookCount?.Total || 0}</span>
+                    <span>${extendedProps?.BookCount?.Total || 0}</span>)
                   </div>
                 </div>
-                <div class="truncate">${
-                  extendedProps.RootTitles || 'Không xác định'
-                }</div>
               </div>`
             }
           } else {
@@ -374,18 +364,17 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
               extendedProps?.MemberCurrent?.FullName || 'Chưa xác định tên'
             }</span><span class="d-none d-md-inline"> - ${
               extendedProps?.MemberCurrent?.MobilePhone || 'Chưa xác định số'
-            }</span><span> - ${
-              extendedProps?.RootTitles
-                ? extendedProps?.RootMinutes ??
-                  extendedProps?.os?.RootMinutes ??
-                  60
-                : 30
-            }p - ${
-              extendedProps.RootTitles || 'Không xác định'
-            }</span> <span class="${!extendedProps?.isBook && 'd-none'}">- ${
+            }</span> 
+              <div class="flex">
+                <div class="truncate capitalize">${
+                  extendedProps.RootTitles || 'Không xác định'
+                }</div>
+              <span class="${!extendedProps?.isBook && 'd-none'} pl-1">- ${
               extendedProps?.BookCount?.Done || 0
-            }/${extendedProps?.BookCount?.Total || 0}</span></div>
-                  </div>`
+            }/${extendedProps?.BookCount?.Total || 0}</span>
+              </div>
+            </div>
+            </div>`
           }
         } else {
           italicEl.innerHTML = `<div>Chưa có lịch.</div>`

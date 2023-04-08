@@ -95,7 +95,7 @@ function ClientAddEdit(props) {
     defaultValues: {
       ...initialValues,
       MobilePhone: Number(state?.key) ? state?.key : '',
-      FullName: !Number(state?.key) ? state?.key : ''
+      FullName: !Number(state?.key) ? state?.key || '' : ''
     },
     resolver: yupResolver(schemaUsers)
   })
@@ -192,11 +192,19 @@ function ClientAddEdit(props) {
               ? 'Thêm mới khách hàng thành công.'
               : 'Cập nhập thông tin thành công.'
           )
-          onToBack(
-            state?.formState
-              ? { ...state?.formState, MemberIDs: data.Member }
-              : ''
-          )
+          if (isAddMode) {
+            navigate(
+              state?.previousFinishPath
+                ? '/clients/' + data?.Member?.ID
+                : state?.previousPath || '/clients'
+            )
+          } else {
+            onToBack(
+              state?.formState
+                ? { ...state?.formState, MemberIDs: data.Member }
+                : ''
+            )
+          }
         }
       },
       onError: error => {
@@ -478,20 +486,26 @@ function ClientAddEdit(props) {
                   </div>
                   <div>
                     <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
-                      Số điện thoại khác
-                      <span className="pl-1 font-sans font-normal text-muted">
-                        ( Nếu có )
-                      </span>
+                      Nguồn
                     </div>
                     <Controller
-                      name="FixedPhone"
+                      name="Source"
                       control={control}
                       render={({ field: { ref, ...field }, fieldState }) => (
-                        <Input
-                          autoComplete="FixedPhone"
-                          placeholder="Nhập số điện thoại"
-                          type="text"
-                          {...field}
+                        <Select
+                          isClearable
+                          value={
+                            dataAdd?.data?.Sources?.filter(
+                              x => x.value === field.value
+                            ) || null
+                          }
+                          onChange={val => field.onChange(val?.val || '')}
+                          className="select-control"
+                          classNamePrefix="select"
+                          isLoading={dataAdd.isLoading}
+                          options={dataAdd?.data?.Sources}
+                          placeholder="Chọn nguồn"
+                          noOptionsMessage={() => 'Không có dữ liệu'}
                         />
                       )}
                     />
@@ -513,7 +527,27 @@ function ClientAddEdit(props) {
                       )}
                     />
                   </div>
-                  <div className="col-span-2">
+                  <div>
+                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
+                      Số điện thoại khác
+                      <span className="pl-1 font-sans font-normal text-muted">
+                        ( Nếu có )
+                      </span>
+                    </div>
+                    <Controller
+                      name="FixedPhone"
+                      control={control}
+                      render={({ field: { ref, ...field }, fieldState }) => (
+                        <Input
+                          autoComplete="FixedPhone"
+                          placeholder="Nhập số điện thoại"
+                          type="text"
+                          {...field}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
                     <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                       Địa chỉ
                     </div>
@@ -583,44 +617,48 @@ function ClientAddEdit(props) {
                       </div>
                     )}
                   />
-                  <div>
-                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
-                      Nguồn
-                    </div>
-                    <Controller
-                      name="Source"
-                      control={control}
-                      render={({ field: { ref, ...field }, fieldState }) => (
-                        <Select
-                          isClearable
-                          value={
-                            dataAdd?.data?.Sources?.filter(
-                              x => x.value === field.value
-                            ) || null
-                          }
-                          onChange={val => field.onChange(val?.val || '')}
-                          className="select-control"
-                          classNamePrefix="select"
-                          isLoading={dataAdd.isLoading}
-                          options={dataAdd?.data?.Sources}
-                          placeholder="Chọn nguồn"
-                          noOptionsMessage={() => 'Không có dữ liệu'}
-                        />
-                      )}
-                    />
+                </div>
+              </div>
+            </div>
+            {dataAdd?.data?.MemberGroups &&
+              dataAdd?.data?.MemberGroups.length > 0 && (
+                <div className="mt-5 border rounded border-separator dark:border-dark-separator">
+                  <div className="px-5 py-3.5 text-xl font-semibold border-b border-separator dark:border-dark-separator font-inter dark:text-white">
+                    Nhóm thành viên
                   </div>
-
-                  <div>
-                    <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
-                      Giữ nhóm
+                  <div className="flex flex-col p-6">
+                    <div className="flex">
+                      {dataAdd?.data?.MemberGroups.map((group, index) => (
+                        <Controller
+                          key={index}
+                          name="InputGroups"
+                          control={control}
+                          render={({
+                            field: { ref, ...field },
+                            fieldState
+                          }) => (
+                            <div className="mr-6" key={index}>
+                              <Checkbox
+                                labelText={group.Title}
+                                htmlFor={'group-' + group.ID}
+                                {...field}
+                                onChange={() => field.onChange(group.ID)}
+                                checked={
+                                  Number(field.value) === Number(group.ID)
+                                }
+                              />
+                            </div>
+                          )}
+                        />
+                      ))}
                     </div>
-                    <div className="flex items-center py-3">
+                    <div className="mt-5 bg-warninglight rounded border-warning border border-dashed px-6 py-4">
                       <Controller
                         name="IsKeepGroup"
                         control={control}
                         render={({ field: { ref, ...field }, fieldState }) => (
                           <Checkbox
-                            labelText="Không hạ cấp"
+                            labelText="Giữ nhóm không hạ cấp"
                             htmlFor="khong_ha_cap"
                             {...field}
                           />
@@ -629,33 +667,7 @@ function ClientAddEdit(props) {
                     </div>
                   </div>
                 </div>
-              </div>
-            </div>
-            <div className="mt-5 border rounded border-separator dark:border-dark-separator">
-              <div className="px-5 py-3.5 text-xl font-semibold border-b border-separator dark:border-dark-separator font-inter dark:text-white">
-                Nhóm thành viên
-              </div>
-              <div className="flex p-6">
-                {dataAdd?.data?.MemberGroups.map((group, index) => (
-                  <Controller
-                    key={index}
-                    name="InputGroups"
-                    control={control}
-                    render={({ field: { ref, ...field }, fieldState }) => (
-                      <div className="mr-6" key={index}>
-                        <Checkbox
-                          labelText={group.Title}
-                          htmlFor={'group-' + group.ID}
-                          {...field}
-                          onChange={() => field.onChange(group.ID)}
-                          checked={Number(field.value) === Number(group.ID)}
-                        />
-                      </div>
-                    )}
-                  />
-                ))}
-              </div>
-            </div>
+              )}
           </div>
           <LoadingComponentFull
             bgClassName="bg-white dark:bg-dark-aside"
