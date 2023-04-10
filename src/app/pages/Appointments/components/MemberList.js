@@ -10,7 +10,7 @@ import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/Loading
 import MembersAPI from 'src/_ezs/api/members.api'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import useDebounce from 'src/_ezs/hooks/useDebounce'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useMatch } from 'react-router-dom'
 import { formatString } from 'src/_ezs/utils/formatString'
 import { useFormContext } from 'react-hook-form'
 import { Menu, Transition } from '@headlessui/react'
@@ -19,6 +19,7 @@ import { formatArray } from 'src/_ezs/utils/formatArray'
 import useInfiniteScroll from 'react-infinite-scroll-hook'
 import MemberPassersBy from './MemberPassersBy'
 import { useState } from 'react'
+import clsx from 'clsx'
 
 const MemberList = ({
   onOpen,
@@ -28,12 +29,13 @@ const MemberList = ({
   value,
   isShowing
 }) => {
+  const isAddMode = useMatch('/appointments/new')
   const { pathname } = useLocation()
   const [isPassersBy, setIsPassersBy] = useState(false)
   const debouncedKey = useDebounce(valueKey, 200)
-  const { setValue } = useFormContext()
+  const { setValue, formState } = useFormContext()
   const watchForm = useFormContext().watch()
-  console.log(watchForm)
+
   const descRef = useRef()
 
   useEscape(() => {
@@ -67,34 +69,45 @@ const MemberList = ({
 
   const onOpenPassersBy = () => {
     setIsPassersBy(true)
-    setValue('IsAnonymous', true)
   }
 
   const onHidePassersBy = () => {
     setIsPassersBy(false)
-    setValue('IsAnonymous', false)
-    setValue('FullName', '')
-    setValue('Phone', '')
   }
+
+  const hasIsAnonymous =
+    watchForm.IsAnonymous ||
+    (!isAddMode && watchForm?.MemberIDs?.MobilePhone === '0000000000')
 
   return (
     <>
       {value && (
         <>
           <Menu as="div" className="relative">
-            <Menu.Button className="flex items-center w-full p-5 border-b border-separator dark:border-dark-separator">
-              <div className="flex items-center justify-center font-bold uppercase rounded-full w-14 h-14 font-inter bg-primarylight dark:bg-dark-primarylight text-primary">
-                {formatString.getLastFirst(value.FullName)}
+            <Menu.Button className="flex items-center w-full max-w-full p-5 border-b border-separator dark:border-dark-separator">
+              <div className="w-14">
+                <div className="flex items-center justify-center font-bold uppercase rounded-full w-14 h-14 font-inter bg-primarylight dark:bg-dark-primarylight text-primary">
+                  {formatString.getLastFirst(
+                    hasIsAnonymous ? watchForm.FullName : value.FullName
+                  )}
+                </div>
               </div>
-              <div className="px-3.5 grow flex justify-center items-baseline flex-col">
-                <div className="mb-px font-semibold capitalize truncate dark:text-graydark-800 font-inter">
-                  {value.FullName}
+              <div className="flex-1 px-3.5 flex flex-col items-baseline justify-center overflow-hidden">
+                <div className="flex w-full mb-px font-semibold dark:text-graydark-800 font-inter">
+                  <div className="max-w-[calc(100%-130px)] capitalize truncate">
+                    {hasIsAnonymous ? watchForm.FullName : value.FullName}
+                  </div>
+                  {hasIsAnonymous && (
+                    <span className="pl-1 w-[130px]">(Khách vãng lai)</span>
+                  )}
                 </div>
                 <div className="text-sm font-medium text-gray-700 text-dark dark:text-graydark-800">
-                  <span>{value.MobilePhone}</span>
+                  <span>
+                    {hasIsAnonymous ? watchForm.Phone : value.MobilePhone}
+                  </span>
                 </div>
               </div>
-              <div>
+              <div className="w-8">
                 <EllipsisHorizontalIcon className="w-8" />
               </div>
             </Menu.Button>
@@ -107,18 +120,60 @@ const MemberList = ({
               <Menu.Items className="z-[1001] rounded px-0 py-2 border-0 max-w-[200px] w-full bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow absolute right-2 top-3/4">
                 <div>
                   <Menu.Item>
-                    <Link
-                      to={`/clients/edit/${value.ID}`}
-                      state={{ previousPath: pathname, formState: watchForm }}
-                      className="flex items-center px-4 py-3 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray font-medium"
-                    >
-                      <div className="flex-1 truncate">Chỉnh sửa thông tin</div>
-                    </Link>
+                    {({ close }) => (
+                      <Fragment>
+                        {hasIsAnonymous && (
+                          <div
+                            className="flex items-center px-4 py-3 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray font-medium"
+                            onClick={() => {
+                              setIsPassersBy(true)
+                              close()
+                            }}
+                          >
+                            <div className="flex-1 truncate">
+                              Chỉnh sửa thông tin
+                            </div>
+                          </div>
+                        )}
+                        {!hasIsAnonymous && (
+                          <Link
+                            to={`/clients/edit/${value.ID}`}
+                            state={{
+                              previousPath: pathname,
+                              formState: watchForm
+                            }}
+                            className="flex items-center px-4 py-3 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray font-medium"
+                          >
+                            <div className="flex-1 truncate">
+                              Chỉnh sửa thông tin
+                            </div>
+                          </Link>
+                        )}
+                      </Fragment>
+                    )}
                   </Menu.Item>
                   <Menu.Item>
                     <div
                       className="flex items-center px-4 py-3 text-[15px] hover:bg-dangerlight text-danger font-inter transition cursor-pointer font-medium"
-                      onClick={() => onChange('')}
+                      onClick={() => {
+                        if (watchForm.IsAnonymous) {
+                          onChangeKey('')
+                        }
+                        onChange('')
+                        setValue('Phone', '')
+                        setValue('FullName', '')
+                        setValue('IsAnonymous', false)
+                        const autoFocus = () => {
+                          if (descRef?.current) {
+                            descRef?.current?.focus()
+                          } else {
+                            setTimeout(() => {
+                              autoFocus()
+                            }, 50)
+                          }
+                        }
+                        autoFocus()
+                      }}
                     >
                       <div className="flex-1 truncate">Đổi khách đặt lịch</div>
                     </div>
@@ -127,7 +182,7 @@ const MemberList = ({
               </Menu.Items>
             </Transition>
           </Menu>
-          <MemberListTabs value={value} />
+          <MemberListTabs value={value} hasIsAnonymous={hasIsAnonymous} />
         </>
       )}
       {!value && (
@@ -152,7 +207,12 @@ const MemberList = ({
                 </div>
               )}
               <input
-                className="w-full py-3 pl-12 pr-5 font-medium text-gray-700 transition bg-white border border-gray-300 rounded outline-none autofill:bg-white dark:bg-site-aside disabled:bg-gray-200 disabled:border-gray-200 dark:disabled:bg-graydark-200 dark:text-graydark-700 dark:border-graydark-400 focus:border-primary dark:focus:border-primary"
+                className={clsx(
+                  'w-full py-3 pl-12 pr-5 font-medium text-gray-700 transition bg-white border rounded outline-none autofill:bg-white dark:bg-site-aside disabled:bg-gray-200 disabled:border-gray-200 dark:disabled:bg-graydark-200 dark:text-graydark-700 focus:border-primary dark:focus:border-primary',
+                  formState?.errors?.MemberIDs
+                    ? 'border-danger'
+                    : 'border-gray-300 dark:border-graydark-400'
+                )}
                 placeholder="Nhập tên hoặc số điện thoại khách hàng"
                 onChange={e => onChangeKey(e.target.value)}
                 onFocus={onOpen}
@@ -166,7 +226,10 @@ const MemberList = ({
             <>
               {ListMembersQuery.isLoading && (
                 <div className="relative grow">
-                  <LoadingComponentFull bgClassName="bg-white" loading={true} />
+                  <LoadingComponentFull
+                    bgClassName="bg-white dark:bg-dark-aside"
+                    loading={ListMembersQuery.isLoading}
+                  />
                 </div>
               )}
               <div className="flex items-center justify-center py-3.5 border-b border-separator dark:border-dark-separator font-semibold">
@@ -207,7 +270,7 @@ const MemberList = ({
                       </div>
                     ))
                   ) : (
-                    <div className="grow">
+                    <div className="overflow-auto grow">
                       <div className="flex flex-col items-center justify-center px-10 py-14">
                         <svg
                           className="w-14"
@@ -229,16 +292,16 @@ const MemberList = ({
                           </g>
                         </svg>
                         <div className="text-center mt-7 text-[17px] leading-7 font-medium dark:text-graydark-800">
-                          Không tìm thấy khách hàng. Vui lòng
+                          Không tìm thấy khách hàng. Bạn có thể thực hiện
                           <span
-                            className="text-primary px-2 cursor-pointer"
+                            className="px-2 cursor-pointer text-primary"
                             onClick={onOpenPassersBy}
                           >
-                            Đặt lịch cho khách vãng lai
+                            Đặt lịch cho khách vãng lai.
                           </span>
-                          hoặc
+                          {/* hoặc
                           <Link
-                            className="text-primary pl-2"
+                            className="pl-2 text-primary"
                             to="/clients/add"
                             state={{
                               previousPath: pathname,
@@ -247,17 +310,17 @@ const MemberList = ({
                             }}
                           >
                             Tạo mới khách hàng
-                          </Link>
+                          </Link> */}
                         </div>
                       </div>
                     </div>
                   )}
                   {ListMembers.length > 0 && ListMembersQuery.hasNextPage && (
                     <div className="flex p-5 border-b cursor-pointer border-separator dark:border-dark-separator last:mb-0 last:pb-0 last:border-0">
-                      <div className="flex items-center justify-center font-bold uppercase rounded-full w-14 h-14 font-inter bg-gray-200 dark:bg-gray-700 text-primary animate-pulse"></div>
+                      <div className="flex items-center justify-center font-bold uppercase bg-gray-200 rounded-full w-14 h-14 font-inter dark:bg-gray-700 text-primary animate-pulse"></div>
                       <div className="px-3.5 grow flex justify-center flex-col">
                         <div className="mb-px font-semibold capitalize truncate dark:text-graydark-800 font-inter">
-                          <div className="h-5 bg-gray-200 rounded dark:bg-gray-700 w-9/12"></div>
+                          <div className="w-9/12 h-5 bg-gray-200 rounded dark:bg-gray-700"></div>
                         </div>
                         <div className="h-3.5 mt-1 bg-gray-200 rounded dark:bg-gray-700 w-2/4"></div>
                       </div>
@@ -296,16 +359,20 @@ const MemberList = ({
       <MemberPassersBy
         isOpen={isPassersBy}
         onHide={onHidePassersBy}
-        onSubmit={() => {
+        onChange={values => {
           setIsPassersBy(false)
           onChange({
             ID: 0,
             FullName: 'Khách vãng lai',
             label: 'Khách vãng lai',
             value: 0,
-            MobilePhone: watchForm.Phone
+            MobilePhone: values.Phone
           })
+          setValue('Phone', values.Phone)
+          setValue('FullName', values.FullName)
+          setValue('IsAnonymous', true)
         }}
+        valueKey={valueKey}
       />
     </>
   )

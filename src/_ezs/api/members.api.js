@@ -1,6 +1,7 @@
 import http from 'src/_ezs/utils/http'
 
 const MembersAPI = {
+  memberOnCheckin: body => http.post(`services/preview.aspx?cmd=checkin`, body),
   memberCheckin: ({ StockID, Key, Type = '' }) =>
     http.get(
       `/services/preview.aspx?cmd=search_member&key=${

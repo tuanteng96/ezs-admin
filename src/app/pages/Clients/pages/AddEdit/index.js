@@ -479,7 +479,7 @@ function ClientAddEdit(props) {
                         <SelectGender
                           className="select-control"
                           value={field.value}
-                          onChange={val => field.onChange(val)}
+                          onChange={val => field.onChange(val?.value || '')}
                         />
                       )}
                     />
@@ -492,21 +492,23 @@ function ClientAddEdit(props) {
                       name="Source"
                       control={control}
                       render={({ field: { ref, ...field }, fieldState }) => (
-                        <Select
-                          isClearable
-                          value={
-                            dataAdd?.data?.Sources?.filter(
-                              x => x.value === field.value
-                            ) || null
-                          }
-                          onChange={val => field.onChange(val?.val || '')}
-                          className="select-control"
-                          classNamePrefix="select"
-                          isLoading={dataAdd.isLoading}
-                          options={dataAdd?.data?.Sources}
-                          placeholder="Chọn nguồn"
-                          noOptionsMessage={() => 'Không có dữ liệu'}
-                        />
+                        <>
+                          <Select
+                            isClearable
+                            value={
+                              dataAdd?.data?.Sources?.filter(
+                                x => x.value === field.value
+                              ) || null
+                            }
+                            onChange={val => field.onChange(val?.value || '')}
+                            className="select-control"
+                            classNamePrefix="select"
+                            isLoading={dataAdd.isLoading}
+                            options={dataAdd?.data?.Sources}
+                            placeholder="Chọn nguồn"
+                            noOptionsMessage={() => 'Không có dữ liệu'}
+                          />
+                        </>
                       )}
                     />
                   </div>
@@ -652,7 +654,7 @@ function ClientAddEdit(props) {
                         />
                       ))}
                     </div>
-                    <div className="mt-5 bg-warninglight rounded border-warning border border-dashed px-6 py-4">
+                    <div className="px-6 py-4 mt-5 border border-dashed rounded bg-warninglight border-warning">
                       <Controller
                         name="IsKeepGroup"
                         control={control}

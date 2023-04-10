@@ -124,7 +124,8 @@ function Home(props) {
                       : item?.Member?.MobilePhone
                 },
                 Star: checkStar(item),
-                isBook: true
+                isBook: true,
+                MemberPhone: item?.MemberPhone || null
               }))
               .filter(item => item.Status !== 'TU_CHOI')
           : []

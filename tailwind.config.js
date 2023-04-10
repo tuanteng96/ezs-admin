@@ -203,13 +203,21 @@ module.exports = withMT({
           '100%': {
             visibility: 'hidden'
           }
+        },
+        blinker: {
+          "50%": {
+            opacity: 0
+          }
         }
       },
       animation: {
         'ring-bell': 'ringBell 2s .7s ease-in-out infinite',
-        blink: 'Blink 1s steps(5, start) infinite'
+        blink: 'Blink 1s steps(5, start) infinite',
+        blinker: 'blinker 1s linear infinite'
       }
     }
   },
-  plugins: [require('tailwind-scrollbar')({ nocompatible: true })]
+  plugins: [require('tailwind-scrollbar')({
+    nocompatible: true
+  })]
 })

@@ -48,7 +48,7 @@ function SearchPage(props) {
 
   return (
     <FixedLayout>
-      <div className="relative flex flex-col h-full bg-site-app">
+      <div className="relative flex flex-col h-full bg-site-app dark:bg-dark-app">
         <div
           className="absolute flex items-center justify-center w-16 h-16 cursor-pointer top-2 right-2 dark:text-graydark-800"
           onClick={() => navigate(state?.previousPath || '/')}
@@ -57,7 +57,7 @@ function SearchPage(props) {
         </div>
         <div className="h-full pt-16 pb-8">
           <div className="flex flex-col h-full max-w-4xl m-auto">
-            <div className="flex px-6 py-4 bg-white rounded shadow-lg">
+            <div className="flex px-6 py-4 bg-white rounded shadow-lg dark:bg-dark-aside">
               <div className="relative flex-1">
                 <MagnifyingGlassIcon className="absolute w-6 pointer-events-none top-2/4 -translate-y-2/4 text-muted" />
                 <input

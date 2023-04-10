@@ -1,5 +1,4 @@
 import {
-  ArrowLeftOnRectangleIcon,
   ChevronRightIcon,
   EllipsisHorizontalIcon,
   PlusIcon
@@ -8,6 +7,7 @@ import React from 'react'
 import { Outlet } from 'react-router-dom'
 import { Button } from 'src/_ezs/partials/button'
 import { ClientViewLayout } from './ClientViewContext'
+import { CheckInOut } from './components/CheckInOut/CheckInOut'
 import { ClientsAside } from './components/ClientsAside/ClientsAside'
 
 function ClientViews(props) {
@@ -249,12 +249,7 @@ function ClientViews(props) {
                 </div>
               </div>
             </div>
-            <div className="py-5 pr-5">
-              <Button className="relative flex items-center justify-center w-full h-12 pl-5 pr-10 text-sm font-bold text-white uppercase transition rounded shadow-lg font-inter bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70">
-                Khách hàng Check IN
-                <ArrowLeftOnRectangleIcon className="absolute w-6 right-3" />
-              </Button>
-            </div>
+            <CheckInOut />
           </div>
         </div>
       </div>

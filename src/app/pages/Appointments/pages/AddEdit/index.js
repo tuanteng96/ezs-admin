@@ -35,6 +35,7 @@ import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/Loading
 
 import moment from 'moment'
 import 'moment/locale/vi'
+import MembersAPI from 'src/_ezs/api/members.api'
 
 moment.locale('vi')
 
@@ -79,10 +80,10 @@ function AppointmentsAddEdit(props) {
   const methodsUseForm = useForm({
     defaultValues: state?.formState
       ? {
-          ...state?.formState,
           FullName: '',
           Phone: '',
           IsAnonymous: false,
+          ...state?.formState,
           booking: state?.formState?.booking || [
             {
               BookDate: queryString.date
@@ -143,10 +144,15 @@ function AppointmentsAddEdit(props) {
         let bookingItem = data?.books[0]
         reset({
           MemberIDs: bookingItem.Member,
+          FullName: bookingItem?.FullName || '',
+          Phone: bookingItem?.Phone || '',
           AtHome: bookingItem.AtHome,
           Desc: bookingItem.Desc,
+          Status: bookingItem.Status,
+          MemberPhone: bookingItem?.MemberPhone || null,
           booking: [
             {
+              ID: bookingItem.ID,
               BookDate: bookingItem.BookDate
                 ? new Date(bookingItem.BookDate)
                 : new Date(),
@@ -193,36 +199,77 @@ function AppointmentsAddEdit(props) {
     mutationFn: body => CalendarAPI.addBooking(body)
   })
 
-  const onSubmit = values => {
-    console.log(values)
-    // const dataAdd = {
-    //   booking: values.booking
-    //     .map(x => ({
-    //       ...x,
-    //       BookDate:
-    //         moment(x.BookDate).format('YYYY-MM-DD') +
-    //         ' ' +
-    //         moment(x.Time).format('HH:mm'),
-    //       MemberID: values.MemberIDs?.ID,
-    //       RootIdS: x.RootIdS.map(x => x.value).join(','),
-    //       UserServiceIDs: x.UserServiceIDs
-    //         ? x.UserServiceIDs.map(o => o.value).join(',')
-    //         : '',
-    //       Status: values?.Status || x.Status
-    //     }))
-    //     .filter(x => x.RootIdS)
-    // }
-    // addBookingMutation.mutate(dataAdd, {
-    //   onSuccess: data => {
-    //     toast.success(
-    //       isAddMode ? 'Đặt lịch thành công.' : 'Chỉnh sửa lịch thành công.'
-    //     )
-    //     navigate(state?.previousPath || '/calendar')
-    //   },
-    //   onError: error => {
-    //     console.log(error)
-    //   }
-    // })
+  const addMemberMutation = useMutation({
+    mutationFn: body => MembersAPI.memberAddFast(body)
+  })
+
+  const MemberCheckinMutation = useMutation({
+    mutationFn: body => MembersAPI.memberOnCheckin(body)
+  })
+
+  const onSubmit = async values => {
+    const dataAdd = {
+      booking: values.booking
+        .map(x => ({
+          ...x,
+          BookDate:
+            moment(x.BookDate).format('YYYY-MM-DD') +
+            ' ' +
+            moment(x.Time).format('HH:mm'),
+          MemberID: values.MemberIDs?.ID,
+          RootIdS: x.RootIdS.map(x => x.value).join(','),
+          UserServiceIDs: x.UserServiceIDs
+            ? x.UserServiceIDs.map(o => o.value).join(',')
+            : '',
+          Status: values?.Status || x.Status,
+          FullName: values?.FullName || '',
+          Phone: values?.Phone || '',
+          IsAnonymous: values?.IsAnonymous
+        }))
+        .filter(x => x.RootIdS)
+    }
+    try {
+      if (
+        values.Status === 'KHACH_DEN' &&
+        values.MemberIDs.MobilePhone === '0000000000'
+      ) {
+        if (!values?.MemberPhone?.ID) {
+          const MemberCreate = {
+            member: {
+              FullName: values?.FullName,
+              MobilePhone: values?.Phone
+            }
+          }
+          const dataMember = await addMemberMutation.mutateAsync(MemberCreate)
+          if (dataMember?.data?.error) {
+            toast.error(dataMember?.data?.error)
+            return
+          }
+          dataAdd.booking[0].MemberID = dataMember.data.member.ID
+        } else {
+          dataAdd.booking[0].MemberID = values?.MemberPhone?.ID
+        }
+      }
+
+      await addBookingMutation.mutateAsync(dataAdd)
+
+      if (values.Status === 'KHACH_DEN') {
+        var bodyFormData = new FormData()
+        bodyFormData.append('cmd', 'checkin')
+        bodyFormData.append('mid', dataAdd.booking[0].MemberID)
+
+        await MemberCheckinMutation.mutateAsync(bodyFormData)
+        navigate('/clients/' + dataAdd.booking[0].MemberID)
+        toast.success('Xác nhận khách đến thành công.')
+      } else {
+        toast.success(
+          isAddMode ? 'Đặt lịch thành công.' : 'Chỉnh sửa lịch thành công.'
+        )
+        navigate(state?.previousPath || '/calendar')
+      }
+    } catch (error) {
+      toast.error(JSON.stringify(error))
+    }
   }
 
   const onDeleteBook = () => {
@@ -272,6 +319,12 @@ function AppointmentsAddEdit(props) {
     })
   }
 
+  const BookingItem =
+    bookingCurrent?.data?.data?.books &&
+    bookingCurrent.data.data.books.length > 0
+      ? bookingCurrent.data.data.books[0]
+      : null
+
   return (
     <FixedLayout>
       <FormProvider {...methodsUseForm}>
@@ -299,7 +352,7 @@ function AppointmentsAddEdit(props) {
             <div className="relative flex-1 border-r border-separator dark:border-dark-separator z-[10] dark:bg-dark-aside">
               <div className="h-full px-5 overflow-auto py-7 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
                 <div className="max-w-[850px] m-auto">
-                  <ol className="relative mb-10 border-l-2 border-gray-300 border-dashed dark:border-gray-700">
+                  <ol className="relative mb-5 border-l-2 border-gray-300 border-dashed dark:border-gray-700">
                     {fields.map((item, index) => (
                       <li
                         className="relative pb-10 pl-8 last:pb-0"
@@ -344,7 +397,6 @@ function AppointmentsAddEdit(props) {
                             </div>
                           )}
                         </div>
-
                         <div className="p-6 border border-gray-300 rounded-lg dark:border-graydark-400">
                           <div className="grid grid-cols-4 gap-5">
                             <div className="col-span-2">
@@ -484,6 +536,28 @@ function AppointmentsAddEdit(props) {
                       </li>
                     ))}
                   </ol>
+                  {(state?.formState?.ID > 0 || BookingItem?.ID > 0) && (
+                    <div className="grid grid-cols-2 gap-4 pl-8 mb-5">
+                      <div className="flex">
+                        <div>Nhân viên tạo</div>
+                        <div className="pl-1.5 font-bold">
+                          {state?.formState?.UserName ||
+                            BookingItem?.UserName ||
+                            'Đặt lịch Online'}
+                        </div>
+                      </div>
+                      <div className="flex">
+                        <div>Đặt lịch thành công</div>
+                        <div className="pl-1.5 font-bold font-inter">
+                          {state?.formState?.BookCount?.Done ||
+                            BookingItem?.BookCount?.Done}
+                          <span className="px-1">/</span>
+                          {state?.formState?.BookCount?.Total ||
+                            BookingItem?.BookCount?.Total}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div className="pl-8">
                     <div>
                       <div className="mb-1.5 text-base text-gray-900 font-inter font-semibold dark:text-graydark-800">
@@ -556,6 +630,9 @@ function AppointmentsAddEdit(props) {
               <Controller
                 name="MemberIDs"
                 control={control}
+                rules={{
+                  required: true
+                }}
                 render={({ field: { ref, ...field }, fieldState }) => (
                   <MemberList
                     value={field.value}
@@ -669,12 +746,20 @@ function AppointmentsAddEdit(props) {
                   )}
 
                   <Button
-                    loading={addBookingMutation.isLoading}
-                    disabled={addBookingMutation.isLoading}
+                    loading={
+                      addBookingMutation.isLoading ||
+                      addMemberMutation.isLoading ||
+                      MemberCheckinMutation.isLoading
+                    }
+                    disabled={
+                      addBookingMutation.isLoading ||
+                      addMemberMutation.isLoading ||
+                      MemberCheckinMutation.isLoading
+                    }
                     type="submit"
                     className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
                   >
-                    {isAddMode ? 'Đặt lịch ngay' : 'Lưu thay đổi'}
+                    {isAddMode ? 'Đặt lịch ngay' : 'Cập nhập'}
                   </Button>
                 </div>
               )}

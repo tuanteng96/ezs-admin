@@ -1,15 +1,71 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import PropTypes from 'prop-types'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import { Dialog } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { Controller, useFormContext } from 'react-hook-form'
+import { Controller, useForm, useFormContext } from 'react-hook-form'
 import { Input } from 'src/_ezs/partials/forms'
 import { Button } from 'src/_ezs/partials/button'
 import { createPortal } from 'react-dom'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
 
-function MemberPassersBy({ isOpen, onHide, onSubmit }) {
-  const { control } = useFormContext()
+const schemaUser = yup
+  .object({
+    FullName: yup.string().required('Vui lòng nhập số điện thoại'),
+    Phone: yup.string().required('Vui lòng nhập số điện thoại')
+  })
+  .required()
+
+const isPhone = value => {
+  var phone_regex = /((09|03|07|08|05)+([0-9]{8})\b)/g
+  return phone_regex.test(value)
+}
+
+function MemberPassersBy({ isOpen, onHide, onChange, valueKey }) {
+  const watchForm = useFormContext().watch()
+
+  const { control, handleSubmit, reset } = useForm({
+    defaultValues: {
+      FullName: '',
+      Phone: ''
+    },
+    resolver: yupResolver(schemaUser)
+  })
+
+  useEffect(() => {
+    if (isOpen) {
+      reset({
+        FullName: watchForm.FullName
+          ? watchForm.FullName
+          : !isPhone(valueKey)
+          ? valueKey
+          : '',
+        Phone: watchForm.Phone
+          ? watchForm.Phone
+          : isPhone(valueKey)
+          ? valueKey
+          : ''
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen])
+
+  const onSubmit = event => {
+    if (event) {
+      if (typeof event.preventDefault === 'function') {
+        event.preventDefault()
+      }
+      if (typeof event.stopPropagation === 'function') {
+        event.stopPropagation()
+      }
+    }
+
+    return handleSubmit(async values => {
+      onChange(values)
+    })(event)
+  }
+
   return createPortal(
     <AnimatePresence>
       <LayoutGroup key={isOpen}>
@@ -20,7 +76,10 @@ function MemberPassersBy({ isOpen, onHide, onSubmit }) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           ></motion.div>
-          <div className="fixed inset-0 flex items-center justify-center z-[1010]">
+          <form
+            onSubmit={onSubmit}
+            className="fixed inset-0 flex items-center justify-center z-[1010]"
+          >
             <motion.div
               className="absolute flex flex-col justify-center h-full py-8"
               initial={{ opacity: 0, top: '60%' }}
@@ -86,7 +145,7 @@ function MemberPassersBy({ isOpen, onHide, onSubmit }) {
                     Hủy
                   </Button>
                   <Button
-                    type="button"
+                    type="submit"
                     className="relative flex items-center px-4 ml-2 font-semibold text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-11 focus:outline-none focus:shadow-none disabled:opacity-70"
                     onClick={onSubmit}
                   >
@@ -95,7 +154,7 @@ function MemberPassersBy({ isOpen, onHide, onSubmit }) {
                 </div>
               </Dialog.Panel>
             </motion.div>
-          </div>
+          </form>
         </Dialog>
       </LayoutGroup>
     </AnimatePresence>,

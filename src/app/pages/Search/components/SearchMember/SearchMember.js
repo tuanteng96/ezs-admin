@@ -8,6 +8,11 @@ import { NotFound } from 'src/_ezs/layout/components/notfound'
 import { formatArray } from 'src/_ezs/utils/formatArray'
 import { formatString } from 'src/_ezs/utils/formatString'
 
+import moment from 'moment'
+import 'moment/locale/vi'
+
+moment.locale('vi')
+
 function SearchMember({ valueKey, onChangeMode }) {
   const debouncedKey = useDebounce(valueKey, 200)
   const ListMembersQuery = useInfiniteQuery({
@@ -43,7 +48,7 @@ function SearchMember({ valueKey, onChangeMode }) {
 
   return (
     <div
-      className="relative mt-1.5 overflow-auto bg-white rounded"
+      className="relative mt-1.5 overflow-auto bg-white dark:bg-dark-app rounded"
       ref={rootRef}
     >
       {ListMembersQuery.isLoading && (
@@ -82,7 +87,7 @@ function SearchMember({ valueKey, onChangeMode }) {
             ListMembers.map((item, index) => (
               <Link
                 to={'/clients/' + item.ID}
-                className="grid grid-cols-7 gap-4 p-5 transition border-t cursor-pointer border-separator dark:border-dark-separator hover:bg-light dark:hover:bg-dark-light"
+                className="grid grid-cols-7 gap-4 p-5 transition border-t cursor-pointer border-separator dark:border-dark-separator hover:bg-light dark:hover:bg-dark-light first:border-0"
                 ref={sentryRef}
                 key={index}
               >
@@ -102,11 +107,11 @@ function SearchMember({ valueKey, onChangeMode }) {
                 <div className="flex flex-col justify-center">
                   <div className="mb-1 text-sm font-inter text-muted">Nhóm</div>
                   <div className="truncate font-bold text-[15px] leading-5">
-                    {item.GroupNames}
+                    {item.GroupNames || 'Không'}
                   </div>
                 </div>
                 {item.HomeAddress ? (
-                  <div className="flex flex-col justify-center col-span-3">
+                  <div className="flex flex-col justify-center col-span-2">
                     <div className="mb-1 text-sm font-inter text-muted">
                       Địa chỉ
                     </div>
@@ -115,12 +120,24 @@ function SearchMember({ valueKey, onChangeMode }) {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col justify-center col-span-3">
+                  <div className="flex flex-col justify-center col-span-2">
                     <div className="mb-1 text-sm font-inter text-muted">
                       Cơ sở
                     </div>
                     <div className="truncate font-bold text-[15px] leading-5 dark:text-white">
                       {item?.Stock?.Title || 'Chưa xác định'}
+                    </div>
+                  </div>
+                )}
+                {item?.CheckIn && (
+                  <div className="flex flex-col justify-center">
+                    <div className="mb-1 text-sm font-inter text-muted">
+                      Đang CheckIn
+                    </div>
+                    <div className="truncate font-bold text-[15px] leading-5 capitalize text-success">
+                      {item?.CheckIn?.StockTitle
+                        ? item?.CheckIn?.StockTitle
+                        : moment(item?.CheckIn?.CreateDate).format('HH:mm:ss')}
                     </div>
                   </div>
                 )}

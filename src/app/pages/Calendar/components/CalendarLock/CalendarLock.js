@@ -194,7 +194,7 @@ const CalendarLock = props => {
                   </Dialog.Title>
                   <div className="relative p-5 overflow-auto grow">
                     <div
-                      className="mb-5 bg-warninglight rounded border-warning border border-dashed px-6 py-4"
+                      className="px-6 py-4 mb-5 border border-dashed rounded bg-warninglight border-warning dark:text-graydark-200"
                       tabIndex={0}
                     >
                       Bạn đang thực hiện khóa lịch tại cơ sở

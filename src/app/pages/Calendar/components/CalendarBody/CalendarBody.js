@@ -41,7 +41,7 @@ const viLocales = {
   weekText: 'Sm',
   allDayText: 'Cả ngày',
   moreLinkText: 'Xem thêm',
-  noEventsText: 'Không có dịch vụ'
+  noEventsText: 'Không có dữ liệu'
 }
 
 let TimeOpen = '10:00:00'
@@ -402,6 +402,12 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
               AtHome: extendedProps.AtHome,
               Desc: extendedProps.Desc,
               Status: extendedProps.Status,
+              FullName: extendedProps?.FullName || '',
+              Phone: extendedProps.Phone || '',
+              UserName: extendedProps.UserName,
+              ID: extendedProps.ID || 0,
+              BookCount: extendedProps?.BookCount || null,
+              MemberPhone: extendedProps?.MemberPhone,
               booking: [
                 {
                   ID: extendedProps.ID,
@@ -462,6 +468,7 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
           })
         }
       }}
+      noEventsContent={() => !MemberBookings.isLoading && 'Không có dữ liệu'}
     />
   )
 }

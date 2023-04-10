@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState, useEffect, createContext, useContext } from 'react'
 import AuthAPI from '../api/auth.api'
+import { setCookie } from '../utils/localCookie'
 import {
   getLocalStorage,
   removeLocalStorage,
@@ -33,10 +34,17 @@ const AuthProvider = ({ children }) => {
         : []
 
       setStocks(newStocks)
+      setCookie(
+        'StockID',
+        !auth.CrStockID
+          ? newStocks[0].ID
+          : newStocks.filter(x => x.CrStockID === auth.CrStockID)[0].ID,
+        360
+      )
       setCrStocks(
         !auth.CrStockID
           ? newStocks[0]
-          : newStocks.filter(x => x.CrStockID === auth.CrStockID)
+          : newStocks.filter(x => x.CrStockID === auth.CrStockID)[0]
       )
       setAuth(auth)
     }
@@ -46,8 +54,9 @@ const AuthProvider = ({ children }) => {
     }
   }
 
-  const saveStocks = stock => {
-    setCrStocks(stock)
+  const saveStocks = Stock => {
+    setCookie('StockID', Stock.ID, 360)
+    setCrStocks(Stock)
   }
 
   const logout = () => {

@@ -38,7 +38,10 @@ const SearchOrder = ({ valueKey }) => {
   })
 
   return (
-    <div className="relative mt-1.5 overflow-auto bg-white" ref={rootRef}>
+    <div
+      className="relative mt-1.5 overflow-auto bg-white dark:bg-dark-app rounded"
+      ref={rootRef}
+    >
       {ListOrdersQuery.isLoading &&
         Array(3)
           .fill()

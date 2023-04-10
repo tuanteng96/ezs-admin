@@ -5,15 +5,23 @@ import {
   EllipsisHorizontalIcon,
   QrCodeIcon
 } from '@heroicons/react/24/outline'
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { formatString } from 'src/_ezs/utils/formatString'
 import { useClientView } from '../../ClientViewContext'
 import Text from 'react-texty'
+import { toast } from 'react-toastify'
 
 const ClientsAside = props => {
   const { pathname } = useLocation()
   const { MemberView } = useClientView()
+
+  useEffect(() => {
+    if (MemberView?.CheckIn?.StockTitle)
+      toast.warning(
+        'Khách hàng đang Check In tại ' + MemberView?.CheckIn?.StockTitle
+      )
+  }, [MemberView])
 
   return (
     <div className="w-[350px] rounded h-full flex flex-col border-t border-separator dark:border-[#151521] dark:border-l-2 dark:border-t-2">
@@ -77,11 +85,13 @@ const ClientsAside = props => {
               </Menu.Items>
             </Transition>
           </Menu>
-          <div className="w-full mt-3">
-            <span className="px-3 py-1 text-xs font-bold rounded bg-primarylight text-primary">
-              {MemberView?.GroupNames}
-            </span>
-          </div>
+          {MemberView?.GroupNames && (
+            <div className="w-full mt-3">
+              <span className="px-3 py-1 text-xs font-bold rounded bg-primarylight text-primary">
+                {MemberView?.GroupNames}
+              </span>
+            </div>
+          )}
         </div>
         <div className="grid grid-cols-3 gap-2.5 py-3 border-t border-separator dark:border-dark-separator">
           <Link to="wallet-moneycard" className="flex flex-col items-center">
@@ -119,9 +129,17 @@ const ClientsAside = props => {
           </Link>
         </div>
         <div className="flex items-center justify-between border-t border-separator dark:border-dark-separator">
-          <div className="px-4 font-medium dark:text-white">
-            {MemberView?.Stock?.Title}
-          </div>
+          {MemberView?.CheckIn?.StockTitle ? (
+            <div className="flex-1 px-4 font-medium truncate cursor-pointer dark:text-white text-danger animate-blinker">
+              <Text tooltipMaxWidth={280}>
+                Đang Check In tại {MemberView?.CheckIn?.StockTitle}
+              </Text>
+            </div>
+          ) : (
+            <div className="flex-1 px-4 font-medium truncate cursor-pointer dark:text-white">
+              <Text tooltipMaxWidth={280}>{MemberView?.Stock?.Title}</Text>
+            </div>
+          )}
           <div className="flex">
             <div className="flex justify-center w-12 h-12 border-l cursor-pointer item-center border-separator dark:border-dark-separator text-orange">
               <QrCodeIcon className="w-7" />
