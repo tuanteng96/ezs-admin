@@ -5,23 +5,15 @@ import {
   EllipsisHorizontalIcon,
   QrCodeIcon
 } from '@heroicons/react/24/outline'
-import React, { Fragment, useEffect } from 'react'
+import React, { Fragment } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { formatString } from 'src/_ezs/utils/formatString'
 import { useClientView } from '../../ClientViewContext'
 import Text from 'react-texty'
-import { toast } from 'react-toastify'
 
 const ClientsAside = props => {
   const { pathname } = useLocation()
   const { MemberView } = useClientView()
-
-  useEffect(() => {
-    if (MemberView?.CheckIn?.StockTitle)
-      toast.warning(
-        'Khách hàng đang Check In tại ' + MemberView?.CheckIn?.StockTitle
-      )
-  }, [MemberView])
 
   return (
     <div className="w-[350px] rounded h-full flex flex-col border-t border-separator dark:border-[#151521] dark:border-l-2 dark:border-t-2">

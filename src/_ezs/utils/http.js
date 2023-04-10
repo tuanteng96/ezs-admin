@@ -6,6 +6,7 @@ class Http {
   constructor() {
     this.pathLogin = ['/admin/login.aspx?login=1', '/api/v3/user@setpwd']
     this.accessToken = getLocalStorage('access_token')
+    this.accessStock = getLocalStorage('access_stock')
     this.instance = axios.create({
       baseURL: process.env.REACT_APP_API_URL,
       timeout: 10000,
@@ -13,11 +14,13 @@ class Http {
         'content-type': 'text/plain'
       }
     })
-
     this.instance.interceptors.request.use(
       config => {
         if (this.accessToken) {
           config.headers.Authorization = 'Bearer ' + this.accessToken
+        }
+        if (this.accessStock) {
+          config.headers.StockID = this.accessStock?.ID
         }
         return config
       },
@@ -30,6 +33,27 @@ class Http {
       ({ data, ...response }) => {
         if (this.pathLogin.includes(response.config.url) && data?.token) {
           this.accessToken = data?.token
+        }
+        if (response.config.url === '/admin/login.aspx?login=1') {
+          if (data?.Info?.Stocks && data?.Info?.Stocks.length > 0) {
+            this.accessStock = data?.Info?.Stocks.filter(
+              x => x.ID === data?.Info?.CrStockID
+            )[0]
+          }
+        }
+        if (
+          response.config.url === '/admin/login.aspx?ajax=1&cmd=info' &&
+          !this.accessStock
+        ) {
+          if (data?.Stocks && data?.Stocks.length > 0) {
+            this.accessStock = data.Stocks.filter(x => x.ID === data?.CrStockID)
+          }
+        }
+        if (response.config.url === '/services/preview.aspx?cmd=SwStock') {
+          this.accessStock = {
+            ...data?.data,
+            ID: data?.data?.StockID
+          }
         }
         return {
           data

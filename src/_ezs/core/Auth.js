@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState, useEffect, createContext, useContext } from 'react'
 import AuthAPI from '../api/auth.api'
-import { setCookie } from '../utils/localCookie'
 import {
   getLocalStorage,
   removeLocalStorage,
@@ -20,7 +19,7 @@ const AuthProvider = ({ children }) => {
   const [accessToken, setAccessToken] = useState(
     getLocalStorage('access_token')
   )
-  const [CrStocks, setCrStocks] = useState(null)
+  const [CrStocks, setCrStocks] = useState(getLocalStorage('access_stock'))
   const [Stocks, setStocks] = useState(null)
 
   const saveAuth = ({ auth, token }) => {
@@ -32,20 +31,13 @@ const AuthProvider = ({ children }) => {
             label: x.Title
           }))
         : []
+      let newCrStock = !CrStocks
+        ? newStocks[0]
+        : newStocks.filter(x => x.ID === CrStocks.ID)[0]
 
       setStocks(newStocks)
-      setCookie(
-        'StockID',
-        !auth.CrStockID
-          ? newStocks[0].ID
-          : newStocks.filter(x => x.CrStockID === auth.CrStockID)[0].ID,
-        360
-      )
-      setCrStocks(
-        !auth.CrStockID
-          ? newStocks[0]
-          : newStocks.filter(x => x.CrStockID === auth.CrStockID)[0]
-      )
+      setCrStocks(newCrStock)
+      storeLocalStorage(newCrStock, 'access_stock')
       setAuth(auth)
     }
     if (token) {
@@ -55,12 +47,13 @@ const AuthProvider = ({ children }) => {
   }
 
   const saveStocks = Stock => {
-    setCookie('StockID', Stock.ID, 360)
     setCrStocks(Stock)
+    storeLocalStorage(Stock, 'access_stock')
   }
 
   const logout = () => {
     setAccessToken(null)
+    removeLocalStorage('access_stock')
     removeLocalStorage('access_token')
   }
 
