@@ -135,9 +135,7 @@ function SearchMember({ valueKey, onChangeMode }) {
                       Đang CheckIn
                     </div>
                     <div className="truncate font-bold text-[15px] leading-5 capitalize text-success">
-                      {item?.CheckIn?.StockTitle
-                        ? item?.CheckIn?.StockTitle
-                        : moment(item?.CheckIn?.CreateDate).format('HH:mm:ss')}
+                      {item?.CheckIn?.StockTitle}
                     </div>
                   </div>
                 )}

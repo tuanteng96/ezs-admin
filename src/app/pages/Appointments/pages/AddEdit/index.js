@@ -9,6 +9,7 @@ import FixedLayout from 'src/_ezs/layout/FixedLayout'
 import { useLocation, useMatch, useNavigate, useParams } from 'react-router-dom'
 import {
   CheckIcon,
+  ChevronDownIcon,
   ChevronUpIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline'
@@ -21,8 +22,8 @@ import {
 import { SelectProdService, SelectStocks } from 'src/_ezs/partials/select'
 import { SelectUserService } from 'src/_ezs/partials/select/SelectUserService'
 import { useAuth } from 'src/_ezs/core/Auth'
-import { Button } from 'src/_ezs/partials/button'
-import { Listbox, Transition } from '@headlessui/react'
+import { Button, ButtonAs } from 'src/_ezs/partials/button'
+import { Listbox, Popover, Transition } from '@headlessui/react'
 import useEscape from 'src/_ezs/hooks/useEscape'
 import { MemberList } from '../../components/MemberList'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -57,24 +58,20 @@ const ListStatus = [
   },
   {
     value: 'KHACH_DEN',
-    label: 'Hoàn thành',
+    label: 'Khách đến',
     className: 'text-success'
-  },
-  {
-    value: '',
-    label: 'Hủy lịch',
-    className: 'text-danger'
   }
 ]
 
 function AppointmentsAddEdit(props) {
   const { CrStocks } = useAuth()
-  const isAddMode = useMatch('/appointments/new')
-  const { id } = useParams()
-  const [Key, setKey] = useState('')
-  const [isShowing, setIsShowing] = useState(false)
   const { state } = useLocation()
   const navigate = useNavigate()
+  const isAddMode = useMatch('/appointments/new')
+  const { id } = useParams()
+  const [BookStatus, setBookStatus] = useState(state?.formState?.Status || '')
+  const [Key, setKey] = useState('')
+  const [isShowing, setIsShowing] = useState(false)
   const queryString = useQueryParams()
 
   const methodsUseForm = useForm({
@@ -183,6 +180,7 @@ function AppointmentsAddEdit(props) {
             }
           ]
         })
+        setBookStatus(bookingItem.Status)
       } else {
         toast.warning('Không tìm thấy lịch đã đặt.')
         navigate(state?.previousPath || '/calendar')
@@ -388,6 +386,97 @@ function AppointmentsAddEdit(props) {
                               </>
                             )}
                           />
+                          {!isAddMode &&
+                            ListStatus.filter(x => x.value === BookStatus)
+                              .length > 0 && (
+                              <Controller
+                                name="Status"
+                                control={control}
+                                render={({
+                                  field: { ref, ...field },
+                                  fieldState
+                                }) => (
+                                  <Listbox
+                                    value={
+                                      field.value
+                                        ? ListStatus.filter(
+                                            x => x.value === field.value
+                                          )[0]
+                                        : null
+                                    }
+                                    onChange={val =>
+                                      val?.value
+                                        ? field.onChange(val?.value)
+                                        : onDeleteBook()
+                                    }
+                                  >
+                                    <div className="relative h-full">
+                                      <div className="flex items-center justify-center h-full">
+                                        <Listbox.Button
+                                          type="button"
+                                          className={clsx(
+                                            'flex items-center justify-between w-full h-10 px-4 font-bold bg-white rounded  dark:bg-dark-light dark:border-dark-separator',
+                                            field.value &&
+                                              ListStatus.filter(
+                                                x => x.value === field.value
+                                              )[0].className
+                                          )}
+                                        >
+                                          <span className="block text-left truncate">
+                                            {field.value
+                                              ? ListStatus.filter(
+                                                  x => x.value === field.value
+                                                )[0].label
+                                              : 'Chưa xác định'}
+                                          </span>
+                                          <ChevronDownIcon className="w-4 ml-2 mt-1" />
+                                        </Listbox.Button>
+                                      </div>
+                                      <Transition
+                                        as={Fragment}
+                                        leave="transition ease-in duration-100"
+                                        leaveFrom="opacity-100"
+                                        leaveTo="opacity-0"
+                                      >
+                                        <Listbox.Options className="z-[1001] rounded px-0 py-2 border-0 w-[225px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow absolute top-full">
+                                          {ListStatus.filter(x =>
+                                            field.value !== 'CHUA_XAC_NHAN'
+                                              ? x.value !== 'CHUA_XAC_NHAN'
+                                              : x.label
+                                          ).map((item, index) => (
+                                            <Listbox.Option
+                                              key={index}
+                                              value={item}
+                                            >
+                                              {({ selected }) => (
+                                                <div
+                                                  className={clsx(
+                                                    'flex items-center px-5 py-3 text-sm hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray font-semibold',
+                                                    selected &&
+                                                      'bg-[#F4F6FA] dark:bg-dark-light',
+                                                    item.className
+                                                  )}
+                                                  key={index}
+                                                >
+                                                  <div className="flex-1 truncate">
+                                                    {item?.label}
+                                                  </div>
+                                                  {selected && (
+                                                    <div className="flex justify-end w-8">
+                                                      <CheckIcon className="w-4 text-current" />
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              )}
+                                            </Listbox.Option>
+                                          ))}
+                                        </Listbox.Options>
+                                      </Transition>
+                                    </div>
+                                  </Listbox>
+                                )}
+                              />
+                            )}
                           {fields.length > 1 && (
                             <div
                               className="flex items-center justify-center w-8 h-8 text-gray-900 transition rounded-full cursor-pointer bg-light hover:bg-dangerlight hover:text-danger"
@@ -550,10 +639,12 @@ function AppointmentsAddEdit(props) {
                         <div>Đặt lịch thành công</div>
                         <div className="pl-1.5 font-bold font-inter">
                           {state?.formState?.BookCount?.Done ||
-                            BookingItem?.BookCount?.Done}
+                            BookingItem?.BookCount?.Done ||
+                            0}
                           <span className="px-1">/</span>
                           {state?.formState?.BookCount?.Total ||
-                            BookingItem?.BookCount?.Total}
+                            BookingItem?.BookCount?.Total ||
+                            0}
                         </div>
                       </div>
                     </div>
@@ -648,119 +739,157 @@ function AppointmentsAddEdit(props) {
                 )}
               />
               {!isShowing && (
-                <div className="grid grid-cols-2 gap-4 p-5 border-t border-separator dark:border-dark-separator">
+                <div
+                  className={clsx(
+                    'p-5 border-t border-separator dark:border-dark-separator'
+                  )}
+                >
                   {isAddMode ? (
-                    <button
-                      onClick={() =>
-                        navigate(state?.previousPath || '/calendar')
-                      }
-                      type="button"
-                      className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-black transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
-                    >
-                      Hủy
-                    </button>
+                    <div className="grid grid-cols-2 gap-4">
+                      <button
+                        onClick={() =>
+                          navigate(state?.previousPath || '/calendar')
+                        }
+                        type="button"
+                        className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-black transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
+                      >
+                        Hủy
+                      </button>
+                      <Button
+                        loading={addBookingMutation.isLoading}
+                        disabled={addBookingMutation.isLoading}
+                        type="submit"
+                        className="relative flex items-center justify-center h-12 px-4 font-semibold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                      >
+                        Đặt lịch ngay
+                      </Button>
+                    </div>
                   ) : (
                     <Controller
                       name="Status"
                       control={control}
                       render={({ field: { ref, ...field }, fieldState }) => (
-                        <Listbox
-                          value={
-                            field.value
-                              ? ListStatus.filter(
-                                  x => x.value === field.value
-                                )[0]
-                              : null
-                          }
-                          onChange={val =>
-                            val?.value
-                              ? field.onChange(val?.value)
-                              : onDeleteBook()
-                          }
-                        >
-                          <div className="relative h-full">
-                            <div className="flex items-center justify-center h-full">
-                              <Listbox.Button
-                                type="button"
-                                className="flex items-center justify-between w-full h-12 px-4 font-bold text-gray-900 bg-white border rounded border-light dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary"
+                        <>
+                          {BookStatus === 'CHUA_XAC_NHAN' ? (
+                            <div className="grid grid-cols-2 gap-4">
+                              <Button
+                                loading={
+                                  field.value === 'XAC_NHAN' &&
+                                  addBookingMutation.isLoading
+                                }
+                                disabled={
+                                  addBookingMutation.isLoading ||
+                                  addMemberMutation.isLoading ||
+                                  MemberCheckinMutation.isLoading
+                                }
+                                className="relative flex items-center justify-center h-12 px-4 font-semibold text-white transition rounded bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                                onClick={() => {
+                                  field.onChange('XAC_NHAN')
+                                }}
                               >
-                                <span
-                                  className={clsx(
-                                    'block text-left truncate',
-                                    field.value &&
-                                      ListStatus.filter(
-                                        x => x.value === field.value
-                                      )[0].className
-                                  )}
-                                >
-                                  {field.value
-                                    ? ListStatus.filter(
-                                        x => x.value === field.value
-                                      )[0].label
-                                    : 'Chưa xác định'}
-                                </span>
-                                <ChevronUpIcon className="w-3.5 ml-2" />
-                              </Listbox.Button>
+                                Xác nhận
+                              </Button>
+                              <Button
+                                disabled={
+                                  addBookingMutation.isLoading ||
+                                  addMemberMutation.isLoading ||
+                                  MemberCheckinMutation.isLoading
+                                }
+                                type="button"
+                                className="relative flex items-center justify-center h-12 px-4 font-semibold text-white transition rounded bg-danger hover:bg-danger focus:outline-none focus:shadow-none disabled:opacity-70"
+                                onClick={onDeleteBook}
+                              >
+                                Hủy
+                              </Button>
                             </div>
-                            <Transition
-                              as={Fragment}
-                              leave="transition ease-in duration-100"
-                              leaveFrom="opacity-100"
-                              leaveTo="opacity-0"
-                            >
-                              <Listbox.Options className="z-[1001] rounded px-0 py-2 border-0 max-w-[200px] w-full bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow absolute bottom-full">
-                                {ListStatus.filter(x =>
-                                  field.value !== 'CHUA_XAC_NHAN'
-                                    ? x.value !== 'CHUA_XAC_NHAN'
-                                    : x.label
-                                ).map((item, index) => (
-                                  <Listbox.Option key={index} value={item}>
-                                    {({ selected }) => (
-                                      <div
-                                        className={clsx(
-                                          'flex items-center px-5 py-3 text-[15px] hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray font-semibold',
-                                          selected &&
-                                            'bg-[#F4F6FA] dark:bg-dark-light',
-                                          item.className
-                                        )}
-                                        key={index}
-                                      >
-                                        <div className="flex-1 truncate">
-                                          {item?.label}
-                                        </div>
-                                        {selected && (
-                                          <div className="flex justify-end w-8">
-                                            <CheckIcon className="w-4 text-current" />
-                                          </div>
-                                        )}
-                                      </div>
-                                    )}
-                                  </Listbox.Option>
-                                ))}
-                              </Listbox.Options>
-                            </Transition>
-                          </div>
-                        </Listbox>
+                          ) : (
+                            <div className="flex justify-between">
+                              <div className="flex">
+                                <Button
+                                  loading={
+                                    field.value === 'XAC_NHAN' &&
+                                    addBookingMutation.isLoading
+                                  }
+                                  disabled={
+                                    addBookingMutation.isLoading ||
+                                    addMemberMutation.isLoading ||
+                                    MemberCheckinMutation.isLoading
+                                  }
+                                  type="submit"
+                                  className="relative flex items-center justify-center h-12 px-4 font-semibold text-white transition rounded bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                                >
+                                  Cập nhập
+                                </Button>
+                                <Popover className="relative">
+                                  <Popover.Button
+                                    as={ButtonAs}
+                                    className="relative flex items-center justify-center h-12 px-4 font-semibold text-white transition rounded bg-danger hover:bg-danger focus:outline-none focus:shadow-none disabled:opacity-70 ml-2"
+                                    loading={
+                                      field.value === 'KHACH_KHONG_DEN' &&
+                                      addBookingMutation.isLoading
+                                    }
+                                    disabled={
+                                      addBookingMutation.isLoading ||
+                                      addMemberMutation.isLoading ||
+                                      MemberCheckinMutation.isLoading
+                                    }
+                                  >
+                                    Hủy
+                                    <ChevronUpIcon className="w-3.5 ml-2" />
+                                  </Popover.Button>
+
+                                  <Popover.Panel className="z-[1001] rounded px-0 py-2 border-0 w-[200px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow absolute bottom-full">
+                                    <button
+                                      type="submit"
+                                      onClick={() => {
+                                        field.onChange('KHACH_KHONG_DEN')
+                                      }}
+                                      className={clsx(
+                                        'flex items-center px-5 py-3 text-[15px] hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray font-medium border-b border-separator w-full'
+                                      )}
+                                    >
+                                      Khách không đến
+                                    </button>
+                                    <div
+                                      className={clsx(
+                                        'flex items-center px-5 py-3 text-[15px] hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray font-medium'
+                                      )}
+                                      onClick={onDeleteBook}
+                                    >
+                                      Hủy lịch
+                                    </div>
+                                  </Popover.Panel>
+                                </Popover>
+                              </div>
+                              <Button
+                                loading={
+                                  (field.value === 'KHACH_DEN' &&
+                                    addBookingMutation.isLoading) ||
+                                  (field.value === 'KHACH_DEN' &&
+                                    addMemberMutation.isLoading) ||
+                                  (field.value === 'KHACH_DEN' &&
+                                    MemberCheckinMutation.isLoading)
+                                }
+                                disabled={
+                                  addBookingMutation.isLoading ||
+                                  addMemberMutation.isLoading ||
+                                  MemberCheckinMutation.isLoading ||
+                                  watchForm.Status === 'KHACH_KHONG_DEN'
+                                }
+                                type="submit"
+                                className="relative flex items-center justify-center h-12 px-4 font-semibold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70 ml-2"
+                                onClick={() => {
+                                  field.onChange('KHACH_DEN')
+                                }}
+                              >
+                                Khách Check In
+                              </Button>
+                            </div>
+                          )}
+                        </>
                       )}
                     />
                   )}
-
-                  <Button
-                    loading={
-                      addBookingMutation.isLoading ||
-                      addMemberMutation.isLoading ||
-                      MemberCheckinMutation.isLoading
-                    }
-                    disabled={
-                      addBookingMutation.isLoading ||
-                      addMemberMutation.isLoading ||
-                      MemberCheckinMutation.isLoading
-                    }
-                    type="submit"
-                    className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
-                  >
-                    {isAddMode ? 'Đặt lịch ngay' : 'Cập nhập'}
-                  </Button>
                 </div>
               )}
             </div>

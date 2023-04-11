@@ -9,6 +9,7 @@ const ClientViewWalletMoney = lazy(() => import('./pages/ViewWalletMoney'))
 const ViewPay = lazy(() => import('./pages/ViewPay'))
 const ViewOrders = lazy(() => import('./pages/ViewOrders'))
 const ViewOrderDetail = lazy(() => import('./pages/ViewOrderDetail'))
+const ViewDiaryHistory = lazy(() => import('./pages/ViewDiaryHistory'))
 
 function ClientsPage(props) {
   return (
@@ -76,6 +77,14 @@ function ClientsPage(props) {
             element={
               <SuspensedView>
                 <ViewOrderDetail />
+              </SuspensedView>
+            }
+          />
+          <Route
+            path="diary-history"
+            element={
+              <SuspensedView>
+                <ViewDiaryHistory />
               </SuspensedView>
             }
           />

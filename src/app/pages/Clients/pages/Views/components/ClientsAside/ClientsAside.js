@@ -10,10 +10,13 @@ import { Link, useLocation } from 'react-router-dom'
 import { formatString } from 'src/_ezs/utils/formatString'
 import { useClientView } from '../../ClientViewContext'
 import Text from 'react-texty'
+import { useAuth } from 'src/_ezs/core/Auth'
+import clsx from 'clsx'
 
 const ClientsAside = props => {
   const { pathname } = useLocation()
   const { MemberView } = useClientView()
+  const { CrStocks } = useAuth()
 
   return (
     <div className="w-[350px] rounded h-full flex flex-col border-t border-separator dark:border-[#151521] dark:border-l-2 dark:border-t-2">
@@ -121,10 +124,16 @@ const ClientsAside = props => {
           </Link>
         </div>
         <div className="flex items-center justify-between border-t border-separator dark:border-dark-separator">
-          {MemberView?.CheckIn?.StockTitle ? (
-            <div className="flex-1 px-4 font-medium truncate cursor-pointer dark:text-white text-danger animate-blinker">
+          {MemberView?.CheckIn ? (
+            <div
+              className={clsx(
+                'flex-1 px-4 font-medium truncate cursor-pointer dark:text-white',
+                MemberView?.CheckIn?.StockID !== CrStocks?.ID &&
+                  'text-danger animate-blinker'
+              )}
+            >
               <Text tooltipMaxWidth={280}>
-                Đang Check In tại {MemberView?.CheckIn?.StockTitle}
+                Check In tại {MemberView?.CheckIn?.StockTitle}
               </Text>
             </div>
           ) : (
@@ -232,7 +241,10 @@ const ClientsAside = props => {
             <ChevronRightIcon className="w-4" />
           </div>
         </Link>
-        <div className="flex items-center py-3.5 transition border-b dark:text-white cursor-pointer border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary">
+        <Link
+          to="diary-history"
+          className="flex items-center py-3.5 transition border-b dark:text-white cursor-pointer border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary"
+        >
           <div className="flex-1 pl-4">
             <div className="mb-px font-medium">Nhật ký & lịch sử</div>
             <div className="text-sm text-muted">Quản lý lịch sử khách hàng</div>
@@ -240,7 +252,7 @@ const ClientsAside = props => {
           <div className="flex justify-center w-10 text-muted">
             <ChevronRightIcon className="w-4" />
           </div>
-        </div>
+        </Link>
         <div className="flex items-center py-3.5 cursor-pointer dark:text-white">
           <div className="flex-1 pl-4">
             <div className="mb-px font-medium">Tạo thẻ cũ</div>
