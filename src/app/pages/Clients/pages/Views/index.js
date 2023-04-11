@@ -6,18 +6,29 @@ import {
 import React from 'react'
 import { Outlet } from 'react-router-dom'
 import { Button } from 'src/_ezs/partials/button'
+import { ClientViewContent } from './ClientViewContent'
 import { ClientViewLayout } from './ClientViewContext'
 import { CheckInOut } from './components/CheckInOut/CheckInOut'
 import { ClientsAside } from './components/ClientsAside/ClientsAside'
+import PerfectScrollbar from 'react-perfect-scrollbar'
+
+const perfectScrollbarOptions = {
+  wheelSpeed: 2,
+  wheelPropagation: false
+}
 
 function ClientViews(props) {
   return (
     <ClientViewLayout>
-      <div className="flex h-full">
+      <ClientViewContent>
         <div className="flex flex-1 h-full">
           <ClientsAside />
-          <div className="flex flex-col flex-1 h-full p-5 overflow-auto">
-            {/* <div className="h-full border border-[#d5d7da] dark:border-dark-separator rounded-lg flex items-center justify-center flex-col">
+          <div className="h-full p-5">
+            <PerfectScrollbar
+              options={perfectScrollbarOptions}
+              className="relative flex flex-col flex-1 h-full overflow-auto scroll"
+            >
+              {/* <div className="h-full border border-[#d5d7da] dark:border-dark-separator rounded-lg flex items-center justify-center flex-col">
             <svg
               className="w-16 h-auto"
               fill="none"
@@ -76,113 +87,119 @@ function ClientViews(props) {
               để đăng ký buổi lẻ, thẻ liệu trình, thẻ tiền ....
             </div>
           </div> */}
-            <div className="mb-5 bg-white rounded shadow-sm grow last:mb-0">
-              <div className="px-5 py-3.5 font-inter uppercase font-bold border-b border-separator">
-                Dịch vụ đang thực hiện
-              </div>
-              <div className="flex p-5 text-[13px] text-muted2 uppercase font-inter font-semibold">
-                <div className="w-14">Ảnh</div>
-                <div className="flex-1 pl-5">Dịch vụ thực hiện</div>
-                <div className="pl-5 w-[170px]">Thời gian</div>
-                <div className="flex-1 pl-5">Nhân viên</div>
-                <div className="w-6"></div>
-              </div>
               <div>
-                {Array(2)
-                  .fill()
-                  .map((_, index) => (
-                    <div
-                      className="flex items-center text-[15px] p-5 border-t border-separator border-dashed cursor-pointer"
-                      key={index}
-                    >
-                      <div className="w-14">
-                        <img
-                          className="object-cover rounded-full h-14"
-                          src="https://cser.vn/Upload/image/2022/12/27/buoi-le-cham-soc-da-co-ban_2022-12-27-142755.jpg"
-                          alt=""
-                        />
-                      </div>
-                      <div className="flex-1 pl-5">
-                        <div className="font-bold">
-                          Chăm sóc da cơ bản trải nghiệm
+                <div className="mb-5 bg-white rounded shadow-sm dark:bg-dark-aside grow last:mb-0">
+                  <div className="px-5 py-3.5 font-inter uppercase font-bold border-b border-separator">
+                    Dịch vụ đang thực hiện
+                  </div>
+                  <div className="flex p-5 text-[13px] text-muted2 uppercase font-inter font-semibold">
+                    <div className="w-14">Ảnh</div>
+                    <div className="flex-1 pl-5">Dịch vụ thực hiện</div>
+                    <div className="pl-5 w-[170px]">Thời gian</div>
+                    <div className="flex-1 pl-5">Nhân viên</div>
+                    <div className="w-6"></div>
+                  </div>
+                  <div>
+                    {Array(2)
+                      .fill()
+                      .map((_, index) => (
+                        <div
+                          className="flex items-center text-[15px] p-5 border-t border-separator border-dashed cursor-pointer"
+                          key={index}
+                        >
+                          <div className="w-14">
+                            <img
+                              className="object-cover rounded-full h-14"
+                              src="https://cser.vn/Upload/image/2022/12/27/buoi-le-cham-soc-da-co-ban_2022-12-27-142755.jpg"
+                              alt=""
+                            />
+                          </div>
+                          <div className="flex-1 pl-5">
+                            <div className="font-bold">
+                              Chăm sóc da cơ bản trải nghiệm
+                            </div>
+                            <div className="font-semibold text-muted2">
+                              Phụ phí làm ngoài giờ
+                            </div>
+                          </div>
+                          <div className="w-[170px] font-bold pl-5">
+                            15:30 22/03/2023
+                          </div>
+                          <div className="flex-1 pl-5 font-bold">
+                            Nguyễn Tài Tuấn - 80.000, Nguyễn Lan Anh - 40.000
+                          </div>
+                          <div className="flex items-center justify-end w-6">
+                            <ChevronRightIcon className="w-5 text-muted" />
+                          </div>
                         </div>
-                        <div className="font-semibold text-muted2">
-                          Phụ phí làm ngoài giờ
+                      ))}
+                  </div>
+                </div>
+                <div className="mb-5 bg-white rounded shadow-sm dark:bg-dark-aside last:mb-0">
+                  <div className="px-5 py-3.5 font-inter uppercase font-bold border-b border-separator">
+                    Thanh toán nợ
+                  </div>
+                  <div className="flex p-5 text-muted2 font-semibold uppercase text-[13px] font-inter">
+                    <div className="w-[145px]">Đơn hàng</div>
+                    <div className="flex-1 pl-5">Mặt hàng</div>
+                    <div className="flex-1 pl-5">Nhân viên</div>
+                    <div className="pl-5 w-[125px]">Giá trị</div>
+                    <div className="w-6"></div>
+                  </div>
+                  <div>
+                    {Array(1)
+                      .fill()
+                      .map((_, index) => (
+                        <div
+                          className="p-5 border-t border-separator border-dashed cursor-pointer flex items-center text-[15px]"
+                          key={index}
+                        >
+                          <div className="w-[145px]">
+                            <div className="font-bold">#32857</div>
+                            <div className="text-sm font-semibold text-muted2">
+                              15:30 22/03/2023
+                            </div>
+                          </div>
+                          <div className="flex-1 col-span-2 pl-5 font-bold">
+                            Thẻ dịch vụ triệt lông, Kem trị nám Body
+                          </div>
+                          <div className="flex-1 pl-5 font-bold">
+                            Nguyễn Tài Tuấn - 80.000
+                          </div>
+                          <div className="font-bold pl-5 w-[125px]">
+                            200.000.000
+                          </div>
+                          <div className="flex items-center justify-end w-5">
+                            <ChevronRightIcon className="w-6 text-muted" />
+                          </div>
                         </div>
-                      </div>
-                      <div className="w-[170px] font-bold pl-5">
-                        15:30 22/03/2023
-                      </div>
-                      <div className="flex-1 pl-5 font-bold">
-                        Nguyễn Tài Tuấn - 80.000, Nguyễn Lan Anh - 40.000
-                      </div>
-                      <div className="flex items-center justify-end w-6">
-                        <ChevronRightIcon className="w-5 text-muted" />
-                      </div>
-                    </div>
-                  ))}
+                      ))}
+                  </div>
+                </div>
               </div>
-            </div>
-            <div className="mb-5 bg-white rounded shadow-sm last:mb-0">
-              <div className="px-5 py-3.5 font-inter uppercase font-bold border-b border-separator">
-                Thanh toán nợ
-              </div>
-              <div className="flex p-5 text-muted2 font-semibold uppercase text-[13px] font-inter">
-                <div className="w-[145px]">Đơn hàng</div>
-                <div className="flex-1 pl-5">Mặt hàng</div>
-                <div className="flex-1 pl-5">Nhân viên</div>
-                <div className="pl-5 w-[125px]">Giá trị</div>
-                <div className="w-6"></div>
-              </div>
-              <div>
-                {Array(1)
-                  .fill()
-                  .map((_, index) => (
-                    <div
-                      className="p-5 border-t border-separator border-dashed cursor-pointer flex items-center text-[15px]"
-                      key={index}
-                    >
-                      <div className="w-[145px]">
-                        <div className="font-bold">#32857</div>
-                        <div className="text-sm font-semibold text-muted2">
-                          15:30 22/03/2023
-                        </div>
-                      </div>
-                      <div className="flex-1 col-span-2 pl-5 font-bold">
-                        Thẻ dịch vụ triệt lông, Kem trị nám Body
-                      </div>
-                      <div className="flex-1 pl-5 font-bold">
-                        Nguyễn Tài Tuấn - 80.000
-                      </div>
-                      <div className="font-bold pl-5 w-[125px]">
-                        200.000.000
-                      </div>
-                      <div className="flex items-center justify-end w-5">
-                        <ChevronRightIcon className="w-6 text-muted" />
-                      </div>
-                    </div>
-                  ))}
-              </div>
-            </div>
+            </PerfectScrollbar>
           </div>
         </div>
         <div className="w-[360px] pt-5">
           <div className="flex flex-col h-full rounded shahdow-lg">
-            <div className="flex justify-between px-5 py-3.5 border-b border-separator bg-white">
+            <div className="flex justify-between px-5 py-3.5 border-b border-separator dark:border-dark-separator bg-white dark:bg-dark-aside">
               <div className="font-semibold uppercase font-inter">Đơn hàng</div>
               <div className="flex items-center font-semibold cursor-pointer text-primary">
                 <PlusIcon className="w-4 mr-1" />
                 Thêm mặt hàng
               </div>
             </div>
-            <div className="flex flex-col justify-between px-5 py-3.5 grow overflow-auto bg-white">
+            <PerfectScrollbar
+              options={perfectScrollbarOptions}
+              className="scroll relative flex flex-col justify-between px-5 py-3.5 grow overflow-auto bg-white dark:bg-dark-aside"
+            >
               <div>
                 <div className="flex justify-between mb-4 text-muted2 text-[15px]">
                   <div>Mặt hàng</div>
                   <div>Thành tiền</div>
                 </div>
                 <div>
-                  <div className="text-[15px] flex justify-between pb-3 mb-3 border-b cursor-pointer border-separator">
+                  <div className="text-[15px] flex justify-between pb-3 mb-3 border-b cursor-pointer border-separator dark:border-dark-separator">
                     <div className="w-[calc(100%-100px)] pr-3">
                       <div className="mb-px font-semibold text-primary">
                         Nước hoa hồng
@@ -194,7 +211,7 @@ function ClientViews(props) {
                       <div>1.800.000₫</div>
                     </div>
                   </div>
-                  <div className="text-[15px] flex items-end justify-between pb-3 mb-3 border-b cursor-pointer border-separator">
+                  <div className="text-[15px] flex items-end justify-between pb-3 mb-3 border-b cursor-pointer border-separator dark:border-dark-separator">
                     <div className="w-[calc(100%-100px)] pr-3">
                       <div className="w-full mb-px font-semibold truncate text-primary">
                         Chăm sóc da cơ bản trải nghiệm
@@ -232,8 +249,8 @@ function ClientViews(props) {
                   </div>
                 </div>
               </div>
-            </div>
-            <div className="px-5 pt-3.5 py-5 border-t border-separator bg-white">
+            </PerfectScrollbar>
+            <div className="px-5 pt-3.5 py-5 border-t border-separator dark:border-dark-separator bg-white dark:bg-dark-aside">
               <div className="flex items-end justify-between mb-4">
                 <div className="font-medium">Tổng thanh toán</div>
                 <div className="text-lg font-bold text-orange">16.800.000₫</div>
@@ -252,7 +269,7 @@ function ClientViews(props) {
             <CheckInOut />
           </div>
         </div>
-      </div>
+      </ClientViewContent>
       <Outlet />
     </ClientViewLayout>
   )

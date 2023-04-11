@@ -12,6 +12,12 @@ import { useClientView } from '../../ClientViewContext'
 import Text from 'react-texty'
 import { useAuth } from 'src/_ezs/core/Auth'
 import clsx from 'clsx'
+import PerfectScrollbar from 'react-perfect-scrollbar'
+
+const perfectScrollbarOptions = {
+  wheelSpeed: 2,
+  wheelPropagation: false
+}
 
 const ClientsAside = props => {
   const { pathname } = useLocation()
@@ -151,7 +157,10 @@ const ClientsAside = props => {
           </div>
         </div>
       </div>
-      <div className="flex flex-col overflow-auto bg-white rounded shadow-sm dark:bg-dark-aside grow">
+      <PerfectScrollbar
+        options={perfectScrollbarOptions}
+        className="relative flex flex-col overflow-auto bg-white rounded shadow-sm scroll dark:bg-dark-aside grow"
+      >
         <div className="flex items-center py-3.5 transition border-b cursor-pointer border-separator dark:border-dark-separator hover:text-primary dark:hover:text-primary dark:text-white">
           <div className="flex-1 pl-4">
             <div className="mb-px font-medium">Quản lý thẻ dịch vụ</div>
@@ -261,7 +270,7 @@ const ClientsAside = props => {
             <ChevronRightIcon className="w-4" />
           </div>
         </div>
-      </div>
+      </PerfectScrollbar>
     </div>
   )
 }

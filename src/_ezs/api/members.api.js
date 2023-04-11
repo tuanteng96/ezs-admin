@@ -69,7 +69,9 @@ const MembersAPI = {
       )}&pi=${Pi}&ps=${Ps}&searchId=${searchId}&searchForMember=${searchForMember}`
     ),
   memberAddFast: body =>
-    http.post(`/api/v3/member23?cmd=add`, JSON.stringify(body))
+    http.post(`/api/v3/member23?cmd=add`, JSON.stringify(body)),
+  memberListCare: ({ MemberID }) =>
+    http.get(`api/v3/membercare?cmd=get&mid=${MemberID}`)
 }
 
 export default MembersAPI

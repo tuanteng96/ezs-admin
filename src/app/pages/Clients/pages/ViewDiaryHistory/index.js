@@ -1,12 +1,25 @@
 import { XMarkIcon } from '@heroicons/react/24/outline'
+import { useQuery } from '@tanstack/react-query'
 import { LayoutGroup, motion } from 'framer-motion'
 import React from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import MembersAPI from 'src/_ezs/api/members.api'
 
 function ViewDiaryHistory(props) {
   const { id } = useParams()
   const { pathname, state } = useLocation()
   const navigate = useNavigate()
+
+  const resultCare = useQuery({
+    queryKey: ['MemberListCare', { MemberID: id }],
+    queryFn: async () => {
+      const { data } = await MembersAPI.memberListCare({
+        MemberID: id
+      })
+      console.log(data)
+      return data
+    }
+  })
 
   return (
     <LayoutGroup key={pathname}>
@@ -18,7 +31,7 @@ function ViewDiaryHistory(props) {
           ></div>
         </motion.div>
         <motion.div
-          className="absolute top-0 right-0 z-10 w-full h-full flex max-w-3xl bg-white dark:bg-dark-aside"
+          className="absolute top-0 right-0 z-10 flex w-full h-full max-w-3xl bg-white dark:bg-dark-aside"
           initial={{ x: '100%' }}
           transition={{
             transform: { ease: 'linear' }
