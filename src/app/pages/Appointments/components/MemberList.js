@@ -153,36 +153,32 @@ const MemberList = ({
                       </Fragment>
                     )}
                   </Menu.Item>
-                  {onChange && (
-                    <Menu.Item>
-                      <div
-                        className="flex items-center px-4 py-3 text-[15px] hover:bg-dangerlight text-danger font-inter transition cursor-pointer font-medium"
-                        onClick={() => {
-                          if (watchForm.IsAnonymous) {
-                            onChangeKey('')
+                  <Menu.Item>
+                    <div
+                      className="flex items-center px-4 py-3 text-[15px] hover:bg-dangerlight text-danger font-inter transition cursor-pointer font-medium"
+                      onClick={() => {
+                        if (watchForm.IsAnonymous) {
+                          onChangeKey('')
+                        }
+                        onChange('')
+                        setValue('Phone', '')
+                        setValue('FullName', '')
+                        setValue('IsAnonymous', false)
+                        const autoFocus = () => {
+                          if (descRef?.current) {
+                            descRef?.current?.focus()
+                          } else {
+                            setTimeout(() => {
+                              autoFocus()
+                            }, 50)
                           }
-                          onChange('')
-                          setValue('Phone', '')
-                          setValue('FullName', '')
-                          setValue('IsAnonymous', false)
-                          const autoFocus = () => {
-                            if (descRef?.current) {
-                              descRef?.current?.focus()
-                            } else {
-                              setTimeout(() => {
-                                autoFocus()
-                              }, 50)
-                            }
-                          }
-                          autoFocus()
-                        }}
-                      >
-                        <div className="flex-1 truncate">
-                          Đổi khách đặt lịch
-                        </div>
-                      </div>
-                    </Menu.Item>
-                  )}
+                        }
+                        autoFocus()
+                      }}
+                    >
+                      <div className="flex-1 truncate">Đổi khách đặt lịch</div>
+                    </div>
+                  </Menu.Item>
                 </div>
               </Menu.Items>
             </Transition>

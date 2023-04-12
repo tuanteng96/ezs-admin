@@ -6,12 +6,8 @@ import {
   useForm
 } from 'react-hook-form'
 import FixedLayout from 'src/_ezs/layout/FixedLayout'
-import { useLocation, useMatch, useNavigate, useParams } from 'react-router-dom'
-import {
-  CheckIcon,
-  ChevronUpIcon,
-  XMarkIcon
-} from '@heroicons/react/24/outline'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { XMarkIcon } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
 import {
   Checkbox,
@@ -26,57 +22,27 @@ import { useAuth } from 'src/_ezs/core/Auth'
 import { Button } from 'src/_ezs/partials/button'
 import { Listbox, Transition } from '@headlessui/react'
 import useEscape from 'src/_ezs/hooks/useEscape'
-import { MemberList } from '../../components/MemberList'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import CalendarAPI from 'src/_ezs/api/calendar.api'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
-import useQueryParams from 'src/_ezs/hooks/useQueryParams'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
+import { MemberOs } from '../../components/MemberOs'
+import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
 
 import moment from 'moment'
 import 'moment/locale/vi'
 
 moment.locale('vi')
 
-const ListStatus = [
-  {
-    value: 'CHUA_XAC_NHAN',
-    label: 'Chưa xác nhận',
-    className: 'text-warning'
-  },
-  {
-    value: 'XAC_NHAN',
-    label: 'Đã xác nhận',
-    className: 'text-primary'
-  },
-  {
-    value: 'KHACH_KHONG_DEN',
-    label: 'Khách không đến',
-    className: 'text-danger'
-  },
-  {
-    value: 'KHACH_DEN',
-    label: 'Hoàn thành',
-    className: 'text-success'
-  },
-  {
-    value: '',
-    label: 'Hủy lịch',
-    className: 'text-danger'
-  }
-]
-
 function AppointmentsOsAddEdit(props) {
   const { CrStocks } = useAuth()
-  const isAddMode = useMatch('/appointments/new')
   const { id } = useParams()
-  const [Key, setKey] = useState('')
   const [isShowing, setIsShowing] = useState(false)
   const { state } = useLocation()
   const navigate = useNavigate()
-  const queryString = useQueryParams()
+  const [FeeAll, setFeeAll] = useState([])
 
   const methodsUseForm = useForm({
     defaultValues: {
@@ -101,15 +67,31 @@ function AppointmentsOsAddEdit(props) {
 
   const bookingCurrent = useQuery({
     queryKey: ['bookingOsID', { OrderServiceID: id }],
-    queryFn: () => CalendarAPI.getBookingOsID({ OrderServiceID: id }),
-    onSuccess: ({ data }) => {
-      if (data.Service) {
+    queryFn: async () => {
+      const { data } = await CalendarAPI.getBookingOsID({ OrderServiceID: id })
+      return data
+    },
+    onSuccess: data => {
+      if (data?.Service) {
         let { Service, OrderServiceID } = data
         console.log(Service)
+        setFeeAll(
+          Service?.FeeAll
+            ? Service?.FeeAll.map(x => ({
+                ...x,
+                value: x.RootID,
+                label: x.Title
+              })).filter(x => x.Remain)
+            : []
+        )
         reset({
           ID: OrderServiceID,
           FeeUseds: [],
-          _Attachment: [],
+          _Attachment: Service?.Attachment
+            ? Service?.Attachment.map(x => ({
+                Src: x.Src
+              }))
+            : [],
           UserServices: [],
           MemberIDs: Service?.Member,
           BookDate: Service.BookDate
@@ -128,10 +110,6 @@ function AppointmentsOsAddEdit(props) {
       }
     }
   })
-
-  const onOpenShowing = () => {
-    setIsShowing(true)
-  }
 
   const addBookingMutation = useMutation({
     mutationFn: body => CalendarAPI.addBooking(body)
@@ -157,9 +135,7 @@ function AppointmentsOsAddEdit(props) {
     }
     addBookingMutation.mutate(dataAdd, {
       onSuccess: data => {
-        toast.success(
-          isAddMode ? 'Đặt lịch thành công.' : 'Chỉnh sửa lịch thành công.'
-        )
+        toast.success('Chỉnh sửa lịch thành công.')
         navigate(state?.previousPath || '/calendar')
       },
       onError: error => {
@@ -226,7 +202,7 @@ function AppointmentsOsAddEdit(props) {
           <div className="transition border-b z-[10] border-separator dark:border-dark-separator bg-white dark:bg-dark-aside">
             <div className="flex justify-center px-5 h-[85px] relative">
               <div className="flex items-center justify-center col-span-2 text-3xl font-extrabold transition dark:text-white">
-                {isAddMode ? 'Đặt lịch mới' : 'Chỉnh sửa đặt lịch'}
+                Chỉnh sửa đặt lịch
               </div>
               <div className="absolute top-0 flex items-center justify-center h-full right-5">
                 <div
@@ -277,7 +253,7 @@ function AppointmentsOsAddEdit(props) {
                           />
                         </div>
 
-                        <div className="border border-gray-300 rounded-lg dark:border-graydark-400 p-6">
+                        <div className="p-6 border border-gray-300 rounded-lg dark:border-graydark-400">
                           <div className="grid grid-cols-4 gap-5 mb-5">
                             <div className="col-span-2">
                               <div className="mb-1.5 text-base text-gray-900 font-semibold dark:text-graydark-800">
@@ -376,7 +352,7 @@ function AppointmentsOsAddEdit(props) {
                                     value={null}
                                     className="select-control"
                                     classNamePrefix="select"
-                                    options={[]}
+                                    options={FeeAll}
                                     placeholder="Chọn phụ phí"
                                     noOptionsMessage={() => 'Không có phụ phí'}
                                     {...props}
@@ -458,127 +434,24 @@ function AppointmentsOsAddEdit(props) {
                 isShowing && 'shadow-lg'
               )}
             >
-              <Controller
-                name="MemberIDs"
-                control={control}
-                render={({ field: { ref, ...field }, fieldState }) => (
-                  <MemberList
-                    value={field.value}
-                    onOpen={onOpenShowing}
-                    valueKey={Key}
-                    onChangeKey={e => setKey(e)}
-                    isShowing={isShowing}
-                  />
-                )}
-              />
-              {!isShowing && (
-                <div className="grid grid-cols-2 gap-4 p-5 border-t border-separator dark:border-dark-separator">
-                  {isAddMode ? (
-                    <button
-                      onClick={() =>
-                        navigate(state?.previousPath || '/calendar')
-                      }
-                      type="button"
-                      className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-black transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
-                    >
-                      Hủy
-                    </button>
-                  ) : (
-                    <Controller
-                      name="Status"
-                      control={control}
-                      render={({ field: { ref, ...field }, fieldState }) => (
-                        <Listbox
-                          value={
-                            field.value
-                              ? ListStatus.filter(
-                                  x => x.value === field.value
-                                )[0]
-                              : null
-                          }
-                          onChange={val =>
-                            val?.value
-                              ? field.onChange(val?.value)
-                              : onDeleteBook()
-                          }
-                        >
-                          <div className="relative h-full">
-                            <div className="flex items-center justify-center h-full">
-                              <Listbox.Button
-                                type="button"
-                                className="flex items-center justify-between w-full h-12 px-4 font-bold text-gray-900 bg-white border rounded border-light dark:bg-dark-light dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary"
-                              >
-                                <span
-                                  className={clsx(
-                                    'block text-left truncate',
-                                    field.value &&
-                                      ListStatus.filter(
-                                        x => x.value === field.value
-                                      )[0].className
-                                  )}
-                                >
-                                  {field.value
-                                    ? ListStatus.filter(
-                                        x => x.value === field.value
-                                      )[0].label
-                                    : 'Chưa xác định'}
-                                </span>
-                                <ChevronUpIcon className="w-3.5 ml-2" />
-                              </Listbox.Button>
-                            </div>
-                            <Transition
-                              as={Fragment}
-                              leave="transition ease-in duration-100"
-                              leaveFrom="opacity-100"
-                              leaveTo="opacity-0"
-                            >
-                              <Listbox.Options className="z-[1001] rounded px-0 py-2 border-0 max-w-[200px] w-full bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow absolute bottom-full">
-                                {ListStatus.filter(x =>
-                                  field.value !== 'CHUA_XAC_NHAN'
-                                    ? x.value !== 'CHUA_XAC_NHAN'
-                                    : x.label
-                                ).map((item, index) => (
-                                  <Listbox.Option key={index} value={item}>
-                                    {({ selected }) => (
-                                      <div
-                                        className={clsx(
-                                          'flex items-center px-5 py-3 text-[15px] hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray font-semibold',
-                                          selected &&
-                                            'bg-[#F4F6FA] dark:bg-dark-light',
-                                          item.className
-                                        )}
-                                        key={index}
-                                      >
-                                        <div className="flex-1 truncate">
-                                          {item?.label}
-                                        </div>
-                                        {selected && (
-                                          <div className="flex justify-end w-8">
-                                            <CheckIcon className="w-4 text-current" />
-                                          </div>
-                                        )}
-                                      </div>
-                                    )}
-                                  </Listbox.Option>
-                                ))}
-                              </Listbox.Options>
-                            </Transition>
-                          </div>
-                        </Listbox>
-                      )}
-                    />
-                  )}
-
-                  <Button
-                    loading={addBookingMutation.isLoading}
-                    disabled={addBookingMutation.isLoading}
-                    type="submit"
-                    className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
-                  >
-                    {isAddMode ? 'Đặt lịch ngay' : 'Lưu thay đổi'}
-                  </Button>
-                </div>
-              )}
+              <MemberOs ServiceOs={bookingCurrent?.data?.Service || null} />
+              <div className="grid grid-cols-2 gap-4 p-5 border-t border-separator dark:border-dark-separator">
+                <button
+                  onClick={() => navigate(state?.previousPath || '/calendar')}
+                  type="button"
+                  className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-black transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
+                >
+                  Hủy
+                </button>
+                <Button
+                  loading={addBookingMutation.isLoading}
+                  disabled={addBookingMutation.isLoading}
+                  type="submit"
+                  className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                >
+                  Lưu thay đổi
+                </Button>
+              </div>
             </div>
             <LoadingComponentFull
               bgClassName="bg-white dark:bg-dark-aside z-[10]"

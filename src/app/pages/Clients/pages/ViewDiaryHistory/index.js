@@ -5,6 +5,25 @@ import React from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import MembersAPI from 'src/_ezs/api/members.api'
 
+const initialCare = [
+  {
+    Title: 'Lịch nhắc',
+    Key: 'NotiDates'
+  },
+  {
+    Title: 'Hình ảnh & Clip',
+    Key: 'Attachments'
+  },
+  {
+    Title: 'Lịch nhắc',
+    Key: 'NotiDates'
+  },
+  {
+    Title: 'Ghi chú',
+    Key: 'NotiServices'
+  }
+]
+
 function ViewDiaryHistory(props) {
   const { id } = useParams()
   const { pathname, state } = useLocation()
@@ -18,7 +37,8 @@ function ViewDiaryHistory(props) {
       })
       console.log(data)
       return data
-    }
+    },
+    initialData: initialCare
   })
 
   console.log(resultCare)

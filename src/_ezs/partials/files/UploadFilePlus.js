@@ -7,7 +7,7 @@ import { toast } from 'react-toastify'
 import UploadsAPI from 'src/_ezs/api/uploads.api'
 import { toAbsolutePath, toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 
-const UploadFile = ({
+const UploadFilePlus = ({
   value,
   onChange,
   placeholder,
@@ -18,7 +18,6 @@ const UploadFile = ({
   ...props
 }) => {
   const [completed, setCompleted] = useState(0)
-
   const uploadMutation = useMutation({
     mutationFn: body =>
       UploadsAPI.sendFile(body, progress => {
@@ -64,14 +63,12 @@ const UploadFile = ({
           )}
         >
           <img
-            className="w-8/12"
+            className="w-10/12"
             src={toAbsoluteUrl('/assets/images/files/no-file.png')}
             alt="No Files"
           />
-          <div className="px-2.5 mt-2 text-xs text-gray-500">
-            Kéo tệp hoặc nhấp chuột vào đây.
-          </div>
           <input
+            value={''}
             className="absolute top-0 left-0 z-0 w-full h-full opacity-0 cursor-pointer"
             type="file"
             title=""
@@ -129,8 +126,7 @@ const UploadFile = ({
                 fill="currentFill"
               />
             </svg>
-            <div className="mt-3 text-sm text-gray-600 dark:text-graydark-800">
-              Đang tải ...{' '}
+            <div className="mt-1 text-xs text-gray-600 dark:text-graydark-800">
               <span className="font-medium text-primary">{completed}%</span>
             </div>
           </div>
@@ -143,4 +139,4 @@ const UploadFile = ({
   )
 }
 
-export { UploadFile }
+export { UploadFilePlus }

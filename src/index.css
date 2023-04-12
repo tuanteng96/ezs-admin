@@ -105,3 +105,10 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     border-color: #ffffff;
     display: block;
 }
+
+/* react-viewer */
+body .react-viewer-list > li,
+body .react-viewer-list > li > img {
+    width: auto;
+    margin-left: 0;
+}
