@@ -28,7 +28,9 @@ const CalendarAPI = {
       `/api/v3/mbookadmin?cmd=getbooks&bookIDs=${BookIDs || ''}&osIDs=${
         osIDs || ''
       }`
-    )
+    ),
+  getBookingOsID: body =>
+    http.post(`/api/vcloud/pos@GetOrderServiceID`, JSON.stringify(body))
 }
 
 export default CalendarAPI

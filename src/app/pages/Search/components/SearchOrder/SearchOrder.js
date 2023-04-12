@@ -7,11 +7,18 @@ import { formatArray } from 'src/_ezs/utils/formatArray'
 import { formatString } from 'src/_ezs/utils/formatString'
 import { NotFound } from 'src/_ezs/layout/components/notfound'
 import { Link } from 'react-router-dom'
+import clsx from 'clsx'
+import PerfectScrollbar from 'react-perfect-scrollbar'
 
 import moment from 'moment'
 import 'moment/locale/vi'
 
 moment.locale('vi')
+
+const perfectScrollbarOptions = {
+  wheelSpeed: 2,
+  wheelPropagation: false
+}
 
 const SearchOrder = ({ valueKey }) => {
   const debouncedKey = useDebounce(valueKey, 200)
@@ -38,9 +45,10 @@ const SearchOrder = ({ valueKey }) => {
   })
 
   return (
-    <div
-      className="relative mt-1.5 overflow-auto bg-white dark:bg-dark-app rounded"
-      ref={rootRef}
+    <PerfectScrollbar
+      className="relative mt-1.5 overflow-auto bg-white dark:bg-dark-app rounded scroll"
+      options={perfectScrollbarOptions}
+      containerRef={rootRef}
     >
       {ListOrdersQuery.isLoading &&
         Array(3)
@@ -118,8 +126,16 @@ const SearchOrder = ({ valueKey }) => {
                   </div>
                 </div>
                 <div className="flex flex-col items-end justify-center">
-                  <div className="mb-1 text-sm font-inter text-muted">
-                    Tổng giá trị
+                  <div
+                    className={clsx(
+                      'mb-1 text-sm font-inter',
+                      item?.RemainPay ? 'text-danger font-medium' : 'text-muted'
+                    )}
+                  >
+                    {item?.RemainPay
+                      ? formatString.formatVNDPositive(item?.RemainPay) +
+                        ' (Nợ)'
+                      : 'Tổng đơn'}
                   </div>
                   <div className="truncate font-bold text-[15px] leading-5 dark:text-white">
                     {formatString.formatVND(item.thanhtoan?.tong_gia_tri_dh)}
@@ -157,7 +173,7 @@ const SearchOrder = ({ valueKey }) => {
           )}
         </>
       )}
-    </div>
+    </PerfectScrollbar>
   )
 }
 

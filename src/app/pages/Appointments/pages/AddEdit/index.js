@@ -207,24 +207,22 @@ function AppointmentsAddEdit(props) {
 
   const onSubmit = async values => {
     const dataAdd = {
-      booking: values.booking
-        .map(x => ({
-          ...x,
-          BookDate:
-            moment(x.BookDate).format('YYYY-MM-DD') +
-            ' ' +
-            moment(x.Time).format('HH:mm'),
-          MemberID: values.MemberIDs?.ID,
-          RootIdS: x.RootIdS.map(x => x.value).join(','),
-          UserServiceIDs: x.UserServiceIDs
-            ? x.UserServiceIDs.map(o => o.value).join(',')
-            : '',
-          Status: values?.Status || x.Status,
-          FullName: values?.FullName || '',
-          Phone: values?.Phone || '',
-          IsAnonymous: values?.IsAnonymous
-        }))
-        .filter(x => x.RootIdS)
+      booking: values.booking.map(x => ({
+        ...x,
+        BookDate:
+          moment(x.BookDate).format('YYYY-MM-DD') +
+          ' ' +
+          moment(x.Time).format('HH:mm'),
+        MemberID: values.MemberIDs?.ID,
+        RootIdS: x.RootIdS ? x.RootIdS.map(x => x.value).join(',') : '',
+        UserServiceIDs: x.UserServiceIDs
+          ? x.UserServiceIDs.map(o => o.value).join(',')
+          : '',
+        Status: values?.Status || x.Status,
+        FullName: values?.FullName || '',
+        Phone: values?.Phone || '',
+        IsAnonymous: values?.IsAnonymous
+      }))
     }
     try {
       if (
@@ -544,12 +542,12 @@ function AppointmentsAddEdit(props) {
                                 Dịch vụ
                               </div>
                               <Controller
-                                rules={{
-                                  required:
-                                    fields.length > 1
-                                      ? index < fields.length - 1
-                                      : true
-                                }}
+                                // rules={{
+                                //   required:
+                                //     fields.length > 1
+                                //       ? index < fields.length - 1
+                                //       : true
+                                // }}
                                 name={`booking[${index}].RootIdS`}
                                 control={control}
                                 render={({
@@ -877,12 +875,12 @@ function AppointmentsAddEdit(props) {
                                   watchForm.Status === 'KHACH_KHONG_DEN'
                                 }
                                 type="submit"
-                                className="relative flex items-center justify-center h-12 px-4 font-semibold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70 ml-2"
+                                className="relative flex items-center justify-center h-12 px-4 font-bold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70 ml-2 uppercase text-sm flex-1"
                                 onClick={() => {
                                   field.onChange('KHACH_DEN')
                                 }}
                               >
-                                Khách Check In
+                                Check In
                               </Button>
                             </div>
                           )}

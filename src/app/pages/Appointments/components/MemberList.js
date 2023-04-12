@@ -41,9 +41,8 @@ const MemberList = ({
   useEscape(() => {
     descRef?.current?.blur()
   })
-
   const ListMembersQuery = useInfiniteQuery({
-    queryKey: ['ListMembers', debouncedKey],
+    queryKey: ['ListMembers', { debouncedKey, value }],
     queryFn: async ({ pageParam = 1 }) => {
       const { data } = await MembersAPI.memberSearch({
         Pi: pageParam,
@@ -52,8 +51,10 @@ const MemberList = ({
       })
       return data
     },
-    getNextPageParam: (lastPage, pages) =>
-      lastPage.pi === lastPage.pCount ? undefined : lastPage.pi + 1
+    getNextPageParam: (lastPage, pages) => {
+      return lastPage.pi === lastPage.pCount ? undefined : lastPage.pi + 1
+    },
+    enabled: value === ''
   })
 
   const ListMembers = formatArray.useInfiniteQuery(
@@ -152,32 +153,36 @@ const MemberList = ({
                       </Fragment>
                     )}
                   </Menu.Item>
-                  <Menu.Item>
-                    <div
-                      className="flex items-center px-4 py-3 text-[15px] hover:bg-dangerlight text-danger font-inter transition cursor-pointer font-medium"
-                      onClick={() => {
-                        if (watchForm.IsAnonymous) {
-                          onChangeKey('')
-                        }
-                        onChange('')
-                        setValue('Phone', '')
-                        setValue('FullName', '')
-                        setValue('IsAnonymous', false)
-                        const autoFocus = () => {
-                          if (descRef?.current) {
-                            descRef?.current?.focus()
-                          } else {
-                            setTimeout(() => {
-                              autoFocus()
-                            }, 50)
+                  {onChange && (
+                    <Menu.Item>
+                      <div
+                        className="flex items-center px-4 py-3 text-[15px] hover:bg-dangerlight text-danger font-inter transition cursor-pointer font-medium"
+                        onClick={() => {
+                          if (watchForm.IsAnonymous) {
+                            onChangeKey('')
                           }
-                        }
-                        autoFocus()
-                      }}
-                    >
-                      <div className="flex-1 truncate">Đổi khách đặt lịch</div>
-                    </div>
-                  </Menu.Item>
+                          onChange('')
+                          setValue('Phone', '')
+                          setValue('FullName', '')
+                          setValue('IsAnonymous', false)
+                          const autoFocus = () => {
+                            if (descRef?.current) {
+                              descRef?.current?.focus()
+                            } else {
+                              setTimeout(() => {
+                                autoFocus()
+                              }, 50)
+                            }
+                          }
+                          autoFocus()
+                        }}
+                      >
+                        <div className="flex-1 truncate">
+                          Đổi khách đặt lịch
+                        </div>
+                      </div>
+                    </Menu.Item>
+                  )}
                 </div>
               </Menu.Items>
             </Transition>

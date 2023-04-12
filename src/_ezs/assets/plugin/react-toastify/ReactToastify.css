@@ -144,12 +144,14 @@
     word-break: break-word;
     -ms-flex: 1;
     flex: 1;
+    font-family: 'Mulish';
+    font-weight: 500;
 }
 
 .Toastify__toast-icon {
     -webkit-margin-end: 10px;
     margin-inline-end: 10px;
-    width: 20px;
+    /* width: 20px; */
     -ms-flex-negative: 0;
     flex-shrink: 0;
     display: -ms-flexbox;

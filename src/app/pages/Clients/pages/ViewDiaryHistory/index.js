@@ -21,6 +21,8 @@ function ViewDiaryHistory(props) {
     }
   })
 
+  console.log(resultCare)
+
   return (
     <LayoutGroup key={pathname}>
       <div className="fixed w-full h-full z-[1002] top-0 left-0">

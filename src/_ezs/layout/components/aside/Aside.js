@@ -12,7 +12,6 @@ import {
   TagIcon
 } from '@heroicons/react/24/outline'
 import Tooltip from 'rc-tooltip'
-import { NavLink } from 'react-router-dom'
 import { AsideMenuItem } from './AsideMenuItem'
 
 const AsideMenuList = [
@@ -80,19 +79,19 @@ const Aside = () => {
             trigger={['hover']}
             overlay={
               <div className="px-3 py-2.5 bg-white dark:bg-dark-light rounded-sm shadow-lg text-gray-700 dark:text-graydark-800">
-                Support
+                Hướng dẫn
               </div>
             }
             align={{
               offset: [9, 0]
             }}
           >
-            <NavLink
+            <a
               className="flex items-center justify-center w-12 h-12 transition rounded-md hover:bg-site-aside-hover"
-              to="/9"
+              href="https://huongdan.ezs.vn"
             >
               <QuestionMarkCircleIcon className="w-8 h-8 text-white" />
-            </NavLink>
+            </a>
           </Tooltip>
         </div>
       </div>

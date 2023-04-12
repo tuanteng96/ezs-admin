@@ -16,9 +16,11 @@ import clsx from 'clsx'
 import {
   Checkbox,
   InputDatePickerInline,
+  InputNumber,
   InputTextarea
 } from 'src/_ezs/partials/forms'
-import { SelectProdService, SelectStocks } from 'src/_ezs/partials/select'
+import { SelectStocks } from 'src/_ezs/partials/select'
+import Select from 'react-select'
 import { SelectUserService } from 'src/_ezs/partials/select/SelectUserService'
 import { useAuth } from 'src/_ezs/core/Auth'
 import { Button } from 'src/_ezs/partials/button'
@@ -77,31 +79,13 @@ function AppointmentsOsAddEdit(props) {
   const queryString = useQueryParams()
 
   const methodsUseForm = useForm({
-    defaultValues: state?.formState
-      ? {
-          ...state?.formState,
-          booking: state?.formState.booking
-        }
-      : {
-          MemberIDs: '',
-          AtHome: false,
-          Desc: '',
-          booking: [
-            {
-              BookDate: queryString.date
-                ? moment(queryString.date, 'DD-MM-YYYY').toDate()
-                : new Date(),
-              Time: moment(new Date()).endOf('hour').add(1, 'minutes').toDate(),
-              Desc: '',
-              IsAnonymous: false,
-              MemberID: '',
-              RootIdS: '',
-              Status: 'XAC_NHAN',
-              StockID: CrStocks.ID,
-              UserServiceIDs: ''
-            }
-          ]
-        }
+    defaultValues: {
+      ID: id,
+      FeeUseds: [],
+      _Attachment: [],
+      UserServices: [],
+      MemberIDs: null
+    }
   })
 
   const { control, handleSubmit, watch, reset } = methodsUseForm
@@ -116,52 +100,33 @@ function AppointmentsOsAddEdit(props) {
   useEscape(() => setIsShowing(false))
 
   const bookingCurrent = useQuery({
-    queryKey: ['bookingID', { osIDs: id }],
-    queryFn: () => CalendarAPI.getBookingID({ osIDs: id }),
+    queryKey: ['bookingOsID', { OrderServiceID: id }],
+    queryFn: () => CalendarAPI.getBookingOsID({ OrderServiceID: id }),
     onSuccess: ({ data }) => {
-      if (data?.osList?.length > 0) {
-        let bookingItem = data?.osList[0]
+      if (data.Service) {
+        let { Service, OrderServiceID } = data
+        console.log(Service)
         reset({
-          MemberIDs: bookingItem.member,
-          Desc: bookingItem.os.Desc,
-          booking: [
-            {
-              BookDate: bookingItem.BookDate
-                ? new Date(bookingItem.BookDate)
-                : new Date(),
-              Time: bookingItem.BookDate
-                ? new Date(bookingItem.BookDate)
-                : moment(new Date()).endOf('hour').add(1, 'minutes').toDate(),
-              Desc: '',
-              IsAnonymous: false,
-              MemberID: '',
-              RootIdS:
-                bookingItem.Roots && bookingItem.Roots.length > 0
-                  ? bookingItem.Roots.map(x => ({
-                      ...x,
-                      label: x.Title,
-                      value: x.ID
-                    }))
-                  : [],
-              Status: bookingItem.Status,
-              StockID: CrStocks.ID,
-              UserServiceIDs:
-                bookingItem.UserServices && bookingItem.UserServices.length > 0
-                  ? bookingItem.UserServices.map(x => ({
-                      ...x,
-                      label: x.FullName,
-                      value: x.ID
-                    }))
-                  : []
-            }
-          ]
+          ID: OrderServiceID,
+          FeeUseds: [],
+          _Attachment: [],
+          UserServices: [],
+          MemberIDs: Service?.Member,
+          BookDate: Service.BookDate
+            ? moment(Service.BookDate, 'YYYY-MM-DD').toDate()
+            : moment().toDate(),
+          Time: Service.BookDate
+            ? moment(Service.BookDate, 'YYYY-MM-DD HH:mm').toDate()
+            : moment()
+                .add(5 - (moment().minute() % 5), 'minutes')
+                .toDate(),
+          StockID: Service.StockID
         })
       } else {
-        // toast.warning('Không tìm thấy lịch đã đặt.')
-        // navigate(state?.previousPath || '/calendar')
+        toast.warning('Không tìm thấy lịch đã đặt.')
+        navigate(state?.previousPath || '/calendar')
       }
     }
-    //enabled: Boolean(id) && !(isAddMode || Boolean(state?.formState))
   })
 
   const onOpenShowing = () => {
@@ -277,23 +242,19 @@ function AppointmentsOsAddEdit(props) {
             <div className="relative flex-1 border-r border-separator dark:border-dark-separator z-[10] dark:bg-dark-aside">
               <div className="h-full px-5 overflow-auto py-7 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
                 <div className="max-w-[850px] m-auto">
-                  <ol className="relative mb-10 border-l-2 border-gray-300 border-dashed dark:border-gray-700">
-                    {fields.map((item, index) => (
-                      <li
-                        className="relative pb-10 pl-8 last:pb-0"
-                        key={item.id}
-                      >
+                  <div className="mb-10">
+                    <ol className="relative border-l-2 border-gray-300 border-dashed dark:border-gray-700">
+                      <li className="relative pb-10 pl-8 last:pb-0">
                         <span
                           className={clsx(
-                            "absolute ring-8 ring-white dark:ring-[#1e1e2d] bg-white dark:bg-dark-aside dark:text-white flex items-center justify-center w-7 h-7 font-bold text-[15px] border-2 border-primary text-primary rounded-full top-[100px] -left-[14px] before:w-[2px] before:absolute before:content-[''] before:bg-white dark:before:bg-dark-aside before:right-[12px] before:bottom-[calc(100%+2px)]",
-                            index === 0 && 'before:h-[100px]'
+                            "absolute ring-8 ring-white dark:ring-[#1e1e2d] bg-white dark:bg-dark-aside dark:text-white flex items-center justify-center w-7 h-7 font-bold text-[15px] border-2 border-primary text-primary rounded-full top-[100px] -left-[14px] before:w-[2px] before:absolute before:content-[''] before:bg-white dark:before:bg-dark-aside before:right-[12px] before:bottom-[calc(100%+2px)] before:h-[100px]"
                           )}
                         >
-                          {index + 1}
+                          1
                         </span>
                         <div className="flex items-center justify-between mb-5">
                           <Controller
-                            name={`booking[${index}].BookDate`}
+                            name={`BookDate`}
                             control={control}
                             render={({
                               field: { ref, ...field },
@@ -305,6 +266,7 @@ function AppointmentsOsAddEdit(props) {
                                   iconClassName="w-5 transition ml-2"
                                   value={field.value}
                                   selected={field.value}
+                                  placeholderText="Chọn ngày"
                                   onChange={(e, close) => {
                                     field.onChange(e)
                                     close()
@@ -313,24 +275,16 @@ function AppointmentsOsAddEdit(props) {
                               </>
                             )}
                           />
-                          {fields.length > 1 && (
-                            <div
-                              className="flex items-center justify-center w-8 h-8 text-gray-900 transition rounded-full cursor-pointer bg-light hover:bg-dangerlight hover:text-danger"
-                              onClick={() => remove(index)}
-                            >
-                              <XMarkIcon className="w-5 h-5" />
-                            </div>
-                          )}
                         </div>
 
-                        <div className="p-6 border border-gray-300 rounded-lg dark:border-graydark-400">
-                          <div className="grid grid-cols-4 gap-5">
+                        <div className="border border-gray-300 rounded-lg dark:border-graydark-400 p-6">
+                          <div className="grid grid-cols-4 gap-5 mb-5">
                             <div className="col-span-2">
                               <div className="mb-1.5 text-base text-gray-900 font-semibold dark:text-graydark-800">
                                 Thời gian
                               </div>
                               <Controller
-                                name={`booking[${index}].Time`}
+                                name={`Time`}
                                 control={control}
                                 render={({
                                   field: { ref, ...field },
@@ -343,6 +297,7 @@ function AppointmentsOsAddEdit(props) {
                                     showTimeSelectOnly
                                     dateFormat="HH:mm aa"
                                     timeFormat="HH:mm aa"
+                                    placeholderText="Chọn thời gian"
                                   />
                                 )}
                               />
@@ -352,7 +307,7 @@ function AppointmentsOsAddEdit(props) {
                                 Cơ sở
                               </div>
                               <Controller
-                                name={`booking[${index}].StockID`}
+                                name={`StockID`}
                                 control={control}
                                 render={({
                                   field: { ref, ...field },
@@ -376,65 +331,14 @@ function AppointmentsOsAddEdit(props) {
                                 )}
                               />
                             </div>
-                            <div className="col-span-2">
-                              <div className="mb-1.5 text-base text-gray-900 font-semibold dark:text-graydark-800">
-                                Dịch vụ
-                              </div>
-                              <Controller
-                                rules={{
-                                  required:
-                                    fields.length > 1
-                                      ? index < fields.length - 1
-                                      : true
-                                }}
-                                name={`booking[${index}].RootIdS`}
-                                control={control}
-                                render={({
-                                  field: { ref, ...field },
-                                  fieldState
-                                }) => (
-                                  <SelectProdService
-                                    isMulti
-                                    StockID={watch(`booking[${index}].StockID`)}
-                                    name={field.name}
-                                    className={clsx(
-                                      'select-control',
-                                      fieldState.invalid &&
-                                        'select-control-error'
-                                    )}
-                                    value={field.value}
-                                    onChange={val => {
-                                      field.onChange(val)
-                                      // let isPush = watch(
-                                      //   `booking[${index + 1}].RootIdS`
-                                      // )
-                                      // if (typeof isPush === 'undefined') {
-                                      //   append({
-                                      //     BookDate: new Date(),
-                                      //     Time: moment(new Date())
-                                      //       .endOf('hour')
-                                      //       .add(1, 'minutes')
-                                      //       .toDate(),
-                                      //     Desc: '',
-                                      //     IsAnonymous: false,
-                                      //     MemberID: '',
-                                      //     RootIdS: '',
-                                      //     Status: 'XAC_NHAN',
-                                      //     StockID: CrStocks.ID,
-                                      //     UserServiceIDs: ''
-                                      //   })
-                                      // }
-                                    }}
-                                  />
-                                )}
-                              />
-                            </div>
+                          </div>
+                          <div className="grid grid-cols-4 gap-5">
                             <div className="col-span-2">
                               <div className="mb-1.5 text-base text-gray-900 font-semibold dark:text-graydark-800">
                                 Nhân viên thực hiện
                               </div>
                               <Controller
-                                name={`booking[${index}].UserServiceIDs`}
+                                name={`UserServiceIDs`}
                                 control={control}
                                 render={({
                                   field: { ref, ...field },
@@ -457,11 +361,34 @@ function AppointmentsOsAddEdit(props) {
                                 )}
                               />
                             </div>
+                            <div className="col-span-2">
+                              <div className="mb-1.5 text-base text-gray-900 font-semibold dark:text-graydark-800">
+                                Phụ phí
+                              </div>
+                              <Controller
+                                name={`RootIdS`}
+                                control={control}
+                                render={({
+                                  field: { ref, ...field },
+                                  fieldState
+                                }) => (
+                                  <Select
+                                    value={null}
+                                    className="select-control"
+                                    classNamePrefix="select"
+                                    options={[]}
+                                    placeholder="Chọn phụ phí"
+                                    noOptionsMessage={() => 'Không có phụ phí'}
+                                    {...props}
+                                  />
+                                )}
+                              />
+                            </div>
                           </div>
                         </div>
                       </li>
-                    ))}
-                  </ol>
+                    </ol>
+                  </div>
                   <div className="pl-8">
                     <div>
                       <div className="mb-1.5 text-base text-gray-900 font-inter font-semibold dark:text-graydark-800">
@@ -537,10 +464,6 @@ function AppointmentsOsAddEdit(props) {
                 render={({ field: { ref, ...field }, fieldState }) => (
                   <MemberList
                     value={field.value}
-                    onChange={e => {
-                      field.onChange(e)
-                      setIsShowing(false)
-                    }}
                     onOpen={onOpenShowing}
                     valueKey={Key}
                     onChangeKey={e => setKey(e)}

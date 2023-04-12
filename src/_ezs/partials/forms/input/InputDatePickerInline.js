@@ -16,6 +16,7 @@ const InputDatePickerInline = ({
   valueText,
   iconClassName,
   onChange,
+  placeholderText,
   ...props
 }) => {
   return (
@@ -23,7 +24,9 @@ const InputDatePickerInline = ({
       {({ open }) => (
         <>
           <Popover.Button className={className}>
-            {valueText || moment(value).format('dd, D MMMM, YYYY')}
+            {valueText || value
+              ? moment(value).format('dd, D MMMM, YYYY')
+              : placeholderText}
             <ChevronDownIcon
               className={clsx(
                 iconClassName,
@@ -34,6 +37,7 @@ const InputDatePickerInline = ({
           <Popover.Panel className="z-10 absolute pt-2.5 top-full">
             {({ close }) => (
               <DatePicker
+                placeholderText={placeholderText}
                 onChange={date => {
                   onChange(date, close)
                 }}

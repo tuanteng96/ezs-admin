@@ -342,7 +342,7 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
                   </div>
                   <div class="px-[3px]">-</div>
                   <div class="truncate capitalize pr-1">${
-                    extendedProps.RootTitles || 'Không xác định'
+                    extendedProps.RootTitles || 'Chưa chọn dịch vụ'
                   }</div>
                   <div class="flex text-xs">
                     (<span>${extendedProps?.BookCount?.Done || 0}</span>
@@ -367,7 +367,7 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
             }</span> 
               <div class="flex">
                 <div class="truncate capitalize">${
-                  extendedProps.RootTitles || 'Không xác định'
+                  extendedProps.RootTitles || 'Chưa chọn dịch vụ'
                 }</div>
               <span class="${!extendedProps?.isBook && 'd-none'} pl-1">- ${
               extendedProps?.BookCount?.Done || 0

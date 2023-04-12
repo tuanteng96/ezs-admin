@@ -23,10 +23,10 @@ function ClientViews(props) {
       <ClientViewContent>
         <div className="flex flex-1 h-full">
           <ClientsAside />
-          <div className="h-full p-5">
+          <div className="h-full p-5 flex-1">
             <PerfectScrollbar
               options={perfectScrollbarOptions}
-              className="relative flex flex-col flex-1 h-full overflow-auto scroll"
+              className="relative flex flex-col h-full overflow-auto scroll"
             >
               {/* <div className="h-full border border-[#d5d7da] dark:border-dark-separator rounded-lg flex items-center justify-center flex-col">
             <svg
@@ -87,7 +87,7 @@ function ClientViews(props) {
               để đăng ký buổi lẻ, thẻ liệu trình, thẻ tiền ....
             </div>
           </div> */}
-              <div>
+              <div className="min-h-full flex flex-col">
                 <div className="mb-5 bg-white rounded shadow-sm dark:bg-dark-aside grow last:mb-0">
                   <div className="px-5 py-3.5 font-inter uppercase font-bold border-b border-separator">
                     Dịch vụ đang thực hiện
