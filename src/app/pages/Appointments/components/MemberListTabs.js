@@ -87,18 +87,6 @@ function MemberListTabs({ value, hasIsAnonymous }) {
             </div>
           </div>
           <div className="flex justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
-            <div className="text-gray-500">Họ tên</div>
-            <div className="w-3/5 font-medium text-right">
-              {MemberBooking?.data?.FullName}
-            </div>
-          </div>
-          <div className="flex justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
-            <div className="text-gray-500">Số điện thoại</div>
-            <div className="w-3/5 font-medium text-right">
-              {MemberBooking?.data?.MobilePhone}
-            </div>
-          </div>
-          <div className="flex justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
             <div className="text-gray-500">Cơ sở</div>
             <div className="w-3/5 font-medium text-right">
               {MemberBooking?.data?.Stock?.Title || 'Chưa xác định'}

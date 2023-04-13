@@ -23,6 +23,8 @@ const CalendarAPI = {
     ),
   addBooking: body =>
     http.post(`/api/v3/mbookadmin?cmd=AdminBooking`, JSON.stringify(body)),
+  editBookingOS: body =>
+    http.post(`/api/vcloud/pos@EditOrderServiceID`, JSON.stringify(body)),
   getBookingID: ({ BookIDs, osIDs }) =>
     http.post(
       `/api/v3/mbookadmin?cmd=getbooks&bookIDs=${BookIDs || ''}&osIDs=${
@@ -30,7 +32,9 @@ const CalendarAPI = {
       }`
     ),
   getBookingOsID: body =>
-    http.post(`/api/vcloud/pos@GetOrderServiceID`, JSON.stringify(body))
+    http.post(`/api/vcloud/pos@GetOrderServiceID`, JSON.stringify(body)),
+  deleteBookingOS: body =>
+    http.post(`/services/preview.aspx?cmd=cancel_service`, body)
 }
 
 export default CalendarAPI

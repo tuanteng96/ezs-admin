@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react'
+import React, { useState } from 'react'
 import {
   Controller,
   FormProvider,
@@ -7,7 +7,7 @@ import {
 } from 'react-hook-form'
 import FixedLayout from 'src/_ezs/layout/FixedLayout'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import { PrinterIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
 import {
   Checkbox,
@@ -18,9 +18,7 @@ import {
 import { SelectStocks } from 'src/_ezs/partials/select'
 import Select from 'react-select'
 import { SelectUserService } from 'src/_ezs/partials/select/SelectUserService'
-import { useAuth } from 'src/_ezs/core/Auth'
 import { Button } from 'src/_ezs/partials/button'
-import { Listbox, Transition } from '@headlessui/react'
 import useEscape from 'src/_ezs/hooks/useEscape'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import CalendarAPI from 'src/_ezs/api/calendar.api'
@@ -29,7 +27,7 @@ import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import { MemberOs } from '../../components/MemberOs'
-import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
+import { FeeSalary } from './FeeSalary'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -37,7 +35,6 @@ import 'moment/locale/vi'
 moment.locale('vi')
 
 function AppointmentsOsAddEdit(props) {
-  const { CrStocks } = useAuth()
   const { id } = useParams()
   const [isShowing, setIsShowing] = useState(false)
   const { state } = useLocation()
@@ -45,22 +42,26 @@ function AppointmentsOsAddEdit(props) {
   const [FeeAll, setFeeAll] = useState([])
 
   const methodsUseForm = useForm({
-    defaultValues: {
-      ID: id,
-      FeeUseds: [],
-      _Attachment: [],
-      UserServices: [],
-      MemberIDs: null
-    }
+    defaultValues: state?.formState
+      ? state?.formState
+      : {
+          ID: id,
+          FeeUseds: [],
+          Attachment: [],
+          UserServices: [],
+          MemberIDs: null,
+          Desc: '',
+          IsMemberSet: ''
+        }
   })
 
-  const { control, handleSubmit, watch, reset } = methodsUseForm
+  const { control, handleSubmit, watch, reset, setValue } = methodsUseForm
 
   const watchForm = watch()
 
-  const { fields, remove } = useFieldArray({
+  const { fields } = useFieldArray({
     control,
-    name: 'booking'
+    name: 'UserServices'
   })
 
   useEscape(() => setIsShowing(false))
@@ -74,36 +75,53 @@ function AppointmentsOsAddEdit(props) {
     onSuccess: data => {
       if (data?.Service) {
         let { Service, OrderServiceID } = data
-        console.log(Service)
+
         setFeeAll(
           Service?.FeeAll
             ? Service?.FeeAll.map(x => ({
                 ...x,
-                value: x.RootID,
+                value: x.OrderItemID,
                 label: x.Title
               })).filter(x => x.Remain)
             : []
         )
-        reset({
-          ID: OrderServiceID,
-          FeeUseds: [],
-          _Attachment: Service?.Attachment
-            ? Service?.Attachment.map(x => ({
-                Src: x.Src
-              }))
-            : [],
-          UserServices: [],
-          MemberIDs: Service?.Member,
-          BookDate: Service.BookDate
-            ? moment(Service.BookDate, 'YYYY-MM-DD').toDate()
-            : moment().toDate(),
-          Time: Service.BookDate
-            ? moment(Service.BookDate, 'YYYY-MM-DD HH:mm').toDate()
-            : moment()
-                .add(5 - (moment().minute() % 5), 'minutes')
-                .toDate(),
-          StockID: Service.StockID
-        })
+        if (!state?.formState) {
+          reset({
+            ID: OrderServiceID,
+            FeeUseds: Service?.FeeUseds
+              ? Service?.FeeUseds.map(x => ({
+                  ...x,
+                  label: x.Title,
+                  value: x.RootID
+                }))
+              : [],
+            Attachment: Service?.Attachment
+              ? Service?.Attachment.map(x => ({
+                  Src: x.Src
+                }))
+              : [],
+            UserServices: Service?.UserServices
+              ? Service?.UserServices.map(x => ({
+                  ...x,
+                  label: x.UserName,
+                  value: x.UserID
+                }))
+              : [],
+            MemberIDs: Service?.Member,
+            BookDate: Service.BookDate
+              ? moment(Service.BookDate, 'YYYY-MM-DD').toDate()
+              : moment().toDate(),
+            Time: Service.BookDate
+              ? moment(Service.BookDate, 'YYYY-MM-DD HH:mm').toDate()
+              : moment()
+                  .add(5 - (moment().minute() % 5), 'minutes')
+                  .toDate(),
+            StockID: Service.StockID,
+            Desc: Service?.Desc || '',
+            IsMemberSet: Service?.IsMemberSet,
+            Status: Service?.Status || ''
+          })
+        }
       } else {
         toast.warning('Không tìm thấy lịch đã đặt.')
         navigate(state?.previousPath || '/calendar')
@@ -111,31 +129,61 @@ function AppointmentsOsAddEdit(props) {
     }
   })
 
-  const addBookingMutation = useMutation({
-    mutationFn: body => CalendarAPI.addBooking(body)
+  const editBookOSMutation = useMutation({
+    mutationFn: body => CalendarAPI.editBookingOS(body)
+  })
+
+  const deleteBookOSMutation = useMutation({
+    mutationFn: body => CalendarAPI.deleteBookingOS(body)
   })
 
   const onSubmit = values => {
-    const dataAdd = {
-      booking: values.booking
-        .map(x => ({
-          ...x,
-          BookDate:
-            moment(x.BookDate).format('YYYY-MM-DD') +
-            ' ' +
-            moment(x.Time).format('HH:mm'),
-          MemberID: values.MemberIDs?.ID,
-          RootIdS: x.RootIdS.map(x => x.value).join(','),
-          UserServiceIDs: x.UserServiceIDs
-            ? x.UserServiceIDs.map(o => o.value).join(',')
-            : '',
-          Status: values?.Status || x.Status
-        }))
-        .filter(x => x.RootIdS)
+    const dataEdit = {
+      Service: {
+        ID: values.ID,
+        BookDate:
+          moment(values.BookDate).format('YYYY-MM-DD') +
+          ' ' +
+          moment(values.Time).format('HH:mm'),
+        Desc: values.Desc,
+        IsMemberSet: values.IsMemberSet,
+        FeeUseds: values?.FeeUseds
+          ? values?.FeeUseds.map(x => ({
+              RootID: x.RootID,
+              Title: x.Title,
+              OrderItemID: x.OrderItemID,
+              Qty: 1
+            }))
+          : [],
+        Attachment: values?.Attachment
+          ? values?.Attachment.map(x => ({ Src: x.Src }))
+          : [],
+        UserServices: values?.UserServices
+          ? values?.UserServices.map(x => ({
+              UserID: x.UserID,
+              UserName: x.UserName,
+              Salary: x.Salary,
+              FeeSalary: x.FeeSalary
+                ? x.FeeSalary.map(fee => ({
+                    RootID: fee.RootID,
+                    OrderItemID: fee.OrderItemID,
+                    Value: fee.Value,
+                    OrderServiceFeeID: fee.OrderServiceFeeID
+                  }))
+                : []
+            }))
+          : [],
+        Status: values?.Status || ''
+      }
     }
-    addBookingMutation.mutate(dataAdd, {
+
+    editBookOSMutation.mutate(dataEdit, {
       onSuccess: data => {
-        toast.success('Chỉnh sửa lịch thành công.')
+        toast.success(
+          values?.Status === 'done'
+            ? 'Hoàn thành dịch vụ thành công.'
+            : 'Chỉnh sửa lịch thành công.'
+        )
         navigate(state?.previousPath || '/calendar')
       },
       onError: error => {
@@ -144,24 +192,11 @@ function AppointmentsOsAddEdit(props) {
     })
   }
 
-  const onDeleteBook = () => {
-    const dataDelete = {
-      booking: watchForm.booking
-        .map(x => ({
-          ...x,
-          BookDate:
-            moment(x.BookDate).format('YYYY-MM-DD') +
-            ' ' +
-            moment(x.Time).format('HH:mm'),
-          MemberID: watchForm.MemberIDs?.ID,
-          RootIdS: x.RootIdS.map(x => x.value).join(','),
-          UserServiceIDs: x.UserServiceIDs
-            ? x.UserServiceIDs.map(o => o.value).join(',')
-            : '',
-          Status: 'TU_CHOI'
-        }))
-        .filter(x => x.RootIdS)
-    }
+  const onDeleteBookOs = () => {
+    var bodyFormData = new FormData()
+    bodyFormData.append('cmd', 'cancel_service')
+    bodyFormData.append('OrderServiceID', id)
+
     Swal.fire({
       customClass: {
         confirmButton: 'bg-success'
@@ -175,21 +210,19 @@ function AppointmentsOsAddEdit(props) {
       reverseButtons: true,
       showLoaderOnConfirm: true,
       preConfirm: async () => {
-        const data = await addBookingMutation.mutateAsync(dataDelete)
+        const { data } = await deleteBookOSMutation.mutateAsync(bodyFormData)
         return data
       },
       allowOutsideClick: () => !Swal.isLoading()
     }).then(result => {
       if (result.isConfirmed) {
-        if (!result?.value?.data?.error) {
-          toast.success('Hủy lịch thành công.')
-          navigate(state?.previousPath || '/calendar')
-        } else {
-          toast.error('Xảy ra lỗi không xác định.')
-        }
+        toast.success('Hủy lịch thành công.')
+        navigate(state?.previousPath || '/calendar')
       }
     })
   }
+
+  console.log(bookingCurrent)
 
   return (
     <FixedLayout>
@@ -314,7 +347,10 @@ function AppointmentsOsAddEdit(props) {
                                 Nhân viên thực hiện
                               </div>
                               <Controller
-                                name={`UserServiceIDs`}
+                                name={`UserServices`}
+                                rules={{
+                                  required: true
+                                }}
                                 control={control}
                                 render={({
                                   field: { ref, ...field },
@@ -322,9 +358,39 @@ function AppointmentsOsAddEdit(props) {
                                 }) => (
                                   <SelectUserService
                                     value={field.value}
-                                    onChange={val => field.onChange(val)}
+                                    onChange={val => {
+                                      let count = 0
+                                      const newUserService = [...val].map(
+                                        x => ({
+                                          ...x,
+                                          UserID: x.id,
+                                          UserName: x.label,
+                                          Salary: x?.Salary || '',
+                                          FeeSalary: [
+                                            ...watchForm.FeeUseds
+                                          ].map(fee => {
+                                            if (!fee?.OrderServiceFeeIDs) {
+                                              count = count - 1
+                                            }
+                                            return {
+                                              ...fee,
+                                              Value: '',
+                                              OrderServiceFeeID:
+                                                fee?.OrderServiceFeeIDs
+                                                  ? fee?.OrderServiceFeeIDs[0]
+                                                  : count
+                                            }
+                                          })
+                                        })
+                                      )
+                                      setValue('UserServices', newUserService)
+                                    }}
                                     isMulti
-                                    className="select-control"
+                                    className={clsx(
+                                      'select-control',
+                                      fieldState?.invalid &&
+                                        'select-control-error'
+                                    )}
                                     menuPortalTarget={document.body}
                                     menuPosition="fixed"
                                     styles={{
@@ -342,20 +408,46 @@ function AppointmentsOsAddEdit(props) {
                                 Phụ phí
                               </div>
                               <Controller
-                                name={`RootIdS`}
+                                name={`FeeUseds`}
                                 control={control}
                                 render={({
                                   field: { ref, ...field },
                                   fieldState
                                 }) => (
                                   <Select
-                                    value={null}
+                                    isMulti
+                                    value={field.value}
+                                    onChange={val => {
+                                      field.onChange(val)
+                                      let count = 0
+                                      const newUserService = [
+                                        ...watchForm.UserServices
+                                      ].map(x => ({
+                                        ...x,
+                                        UserID: x.id,
+                                        UserName: x.label,
+                                        Salary: x?.Salary || '',
+                                        FeeSalary: [...val].map(fee => {
+                                          if (!fee?.OrderServiceFeeIDs) {
+                                            count = count - 1
+                                          }
+                                          return {
+                                            ...fee,
+                                            Value: '',
+                                            OrderServiceFeeID:
+                                              fee?.OrderServiceFeeIDs
+                                                ? fee?.OrderServiceFeeIDs[0]
+                                                : count
+                                          }
+                                        })
+                                      }))
+                                      setValue('UserServices', newUserService)
+                                    }}
                                     className="select-control"
                                     classNamePrefix="select"
                                     options={FeeAll}
                                     placeholder="Chọn phụ phí"
                                     noOptionsMessage={() => 'Không có phụ phí'}
-                                    {...props}
                                   />
                                 )}
                               />
@@ -364,6 +456,67 @@ function AppointmentsOsAddEdit(props) {
                         </div>
                       </li>
                     </ol>
+                    {fields && fields.length > 0 && (
+                      <div className="pl-8 mt-5">
+                        <div className="text-xl font-bold font-inter dark:text-white mb-5">
+                          Lương ca nhân viên
+                        </div>
+                        <div
+                          className={clsx(
+                            'grid gap-4',
+                            watchForm.FeeUseds.length > 0
+                              ? 'grid-cols-1'
+                              : `grid-cols-${
+                                  watchForm.UserServices.length > 3
+                                    ? 3
+                                    : watchForm.UserServices.length
+                                }`
+                          )}
+                        >
+                          {fields.map((user, index) => (
+                            <div
+                              className={clsx(
+                                'grid gap-4 border-b border-separator pb-5 dark:border-dark-separator last:border-0 last:pb-0',
+                                watchForm.FeeUseds.length > 0
+                                  ? `grid-cols-${
+                                      watchForm?.FeeUseds?.length < 3
+                                        ? watchForm?.FeeUseds?.length + 1
+                                        : 3
+                                    }`
+                                  : 'grid-cols-1'
+                              )}
+                              key={user.id}
+                            >
+                              <div>
+                                <div className="mb-1.5 text-base text-gray-900 font-semibold dark:text-graydark-800">
+                                  {user.UserName}
+                                </div>
+                                <div>
+                                  <Controller
+                                    name={`UserServices[${index}].Salary`}
+                                    control={control}
+                                    render={({
+                                      field: { ref, ...field },
+                                      fieldState
+                                    }) => (
+                                      <InputNumber
+                                        thousandSeparator={true}
+                                        value={field.value}
+                                        placeholder="Nhập lương ca"
+                                        onValueChange={val =>
+                                          field.onChange(val.floatValue)
+                                        }
+                                      />
+                                    )}
+                                  />
+                                </div>
+                              </div>
+                              <FeeSalary nestIndex={index} />
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                   <div className="pl-8">
                     <div>
@@ -387,7 +540,7 @@ function AppointmentsOsAddEdit(props) {
                     </div>
                     <div className="mt-4">
                       <Controller
-                        name="AtHome"
+                        name="IsMemberSet"
                         control={control}
                         render={({ field: { ref, ...field }, fieldState }) => (
                           <Checkbox
@@ -403,30 +556,6 @@ function AppointmentsOsAddEdit(props) {
                   </div>
                 </div>
               </div>
-              <Transition
-                show={isShowing}
-                enter="transition-opacity duration-75"
-                enterFrom="opacity-0"
-                enterTo="opacity-100"
-                leave="transition-opacity duration-150"
-                leaveFrom="opacity-100"
-                leaveTo="opacity-0"
-              >
-                <div
-                  className="absolute top-0 left-0 w-full h-full bg-black/[.2] dark:bg-black/[.4] flex items-center justify-center cursor-pointer group"
-                  onClick={() => setIsShowing(false)}
-                >
-                  <div className="flex flex-col items-center transition opacity-0 group-hover:opacity-100">
-                    <div className="flex flex-col items-center justify-center bg-white rounded-full w-14 h-14">
-                      <XMarkIcon className="w-5" />
-                      <span className="text-sm font-bold">ESC</span>
-                    </div>
-                    <div className="mt-3 text-sm font-bold text-white uppercase">
-                      Bấm để đóng
-                    </div>
-                  </div>
-                </div>
-              </Transition>
             </div>
             <div
               className={clsx(
@@ -435,23 +564,87 @@ function AppointmentsOsAddEdit(props) {
               )}
             >
               <MemberOs ServiceOs={bookingCurrent?.data?.Service || null} />
-              <div className="grid grid-cols-2 gap-4 p-5 border-t border-separator dark:border-dark-separator">
-                <button
-                  onClick={() => navigate(state?.previousPath || '/calendar')}
-                  type="button"
-                  className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-black transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
-                >
-                  Hủy
-                </button>
-                <Button
-                  loading={addBookingMutation.isLoading}
-                  disabled={addBookingMutation.isLoading}
-                  type="submit"
-                  className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
-                >
-                  Lưu thay đổi
-                </Button>
-              </div>
+              {bookingCurrent?.data?.Service?.Status === 'done' &&
+              moment(
+                bookingCurrent?.data?.Service?.BookDate,
+                'YYYY-MM-DD'
+              ).format('YYYY-MM-DD') !== moment().format('YYYY-MM-DD') ? (
+                <div className="p-5 border-t border-separator dark:border-dark-separator">
+                  <div className="grid grid-cols-2 gap-4">
+                    <button
+                      onClick={() =>
+                        navigate(state?.previousPath || '/calendar')
+                      }
+                      type="button"
+                      className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-black transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
+                    >
+                      Đóng
+                    </button>
+                    <Button
+                      type="submit"
+                      className="relative flex items-center justify-center h-12 px-4 font-semibold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                    >
+                      Thay đổi
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex p-5 border-t border-separator dark:border-dark-separator">
+                  <Button
+                    type="submit"
+                    loading={
+                      editBookOSMutation.isLoading &&
+                      (watchForm?.Status !== 'done' ||
+                        bookingCurrent?.data?.Service?.Status === 'done')
+                    }
+                    disabled={editBookOSMutation.isLoading}
+                    hideText={
+                      editBookOSMutation.isLoading &&
+                      (watchForm?.Status !== 'done' ||
+                        bookingCurrent?.data?.Service?.Status === 'done')
+                    }
+                    className={clsx(
+                      'relative flex items-center justify-center h-12 px-4 font-bold text-white transition rounded bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70',
+                      bookingCurrent?.data?.Service?.Status === 'done' &&
+                        'flex-1'
+                    )}
+                  >
+                    Cập nhập
+                  </Button>
+                  <Button
+                    disabled={editBookOSMutation.isLoading}
+                    type="button"
+                    onClick={onDeleteBookOs}
+                    className="ml-2 relative flex items-center justify-center h-12 px-4 font-bold text-white transition rounded bg-danger hover:bg-dangerhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                  >
+                    Hủy
+                  </Button>
+                  <button
+                    type="button"
+                    className="ml-2 relative flex items-center justify-center h-12 px-4 font-bold text-gray-900 transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
+                  >
+                    <PrinterIcon className="w-5" />
+                  </button>
+                  {bookingCurrent?.data?.Service?.Status !== 'done' && (
+                    <Button
+                      loading={
+                        editBookOSMutation.isLoading &&
+                        watchForm?.Status === 'done'
+                      }
+                      hideText={
+                        editBookOSMutation.isLoading &&
+                        watchForm?.Status === 'done'
+                      }
+                      disabled={editBookOSMutation.isLoading}
+                      type="submit"
+                      className="flex-1 ml-2 relative flex items-center justify-center h-12 px-4 font-bold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                      onClick={() => setValue('Status', 'done')}
+                    >
+                      Hoàn thành
+                    </Button>
+                  )}
+                </div>
+              )}
             </div>
             <LoadingComponentFull
               bgClassName="bg-white dark:bg-dark-aside z-[10]"

@@ -1,12 +1,12 @@
 import clsx from 'clsx'
 import React, { forwardRef } from 'react'
 
-const Button = ({ children, colorSpiner, loading, ...props }) => {
+const Button = ({ children, colorSpiner, loading, hideText, ...props }) => {
   return (
     <button {...props}>
-      {children}
+      <span className={clsx(hideText && 'opacity-0')}>{children}</span>
       {loading && (
-        <div className="ml-3">
+        <div className={clsx(hideText ? 'absolute' : 'ml-3')}>
           <svg
             aria-hidden="true"
             role="status"

@@ -10,14 +10,16 @@ import Viewer from 'react-viewer'
 
 const MemberOs = ({ ServiceOs }) => {
   const { pathname } = useLocation()
-  const { control } = useFormContext()
+  const { control, watch } = useFormContext()
+
+  const watchForm = watch()
 
   const [visible, setVisible] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
 
   const { fields, remove, prepend } = useFieldArray({
     control,
-    name: '_Attachment'
+    name: 'Attachment'
   })
 
   return (
@@ -58,7 +60,7 @@ const MemberOs = ({ ServiceOs }) => {
                       to={`/clients/edit/${ServiceOs?.Member?.ID}`}
                       state={{
                         previousPath: pathname,
-                        formState: null
+                        formState: watchForm
                       }}
                       className="flex items-center px-4 py-3 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray font-medium"
                     >
@@ -97,6 +99,18 @@ const MemberOs = ({ ServiceOs }) => {
             {formatString.formatVND(ServiceOs?.CostBase)}
           </div>
         </div>
+        {ServiceOs?.StaffHis && (
+          <div className="flex flex-col px-6 py-4 border-b border-separator dark:border-dark-separator">
+            <div className="text-gray-500">Chữ ký khách hàng</div>
+            <div className="w-3/5 font-medium text-right mt-2">
+              <img
+                className="max-w-full"
+                src={toAbsolutePath(ServiceOs?.StaffHis)}
+                alt="Chữ ký khách hàng"
+              />
+            </div>
+          </div>
+        )}
         <div className="flex flex-col px-6 py-4">
           <div className="mb-2 text-gray-500">File đính kèm</div>
           <div className="grid grid-cols-5 gap-4">

@@ -388,11 +388,10 @@ function CalendarBody({ queryConfig, MemberBookings, Resources }) {
         const { _def } = event
         const { extendedProps } = _def
         if (extendedProps?.os) {
-          let formState = {}
           navigate(`/appointments/os/${extendedProps.os.ID}`, {
             state: {
               previousPath: pathname + search,
-              formState
+              formState: null
             }
           })
         } else {
