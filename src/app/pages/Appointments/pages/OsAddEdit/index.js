@@ -28,6 +28,7 @@ import Swal from 'sweetalert2'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import { MemberOs } from '../../components/MemberOs'
 import { FeeSalary } from './FeeSalary'
+import _ from 'lodash'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -146,6 +147,7 @@ function AppointmentsOsAddEdit(props) {
   const onSubmit = values => {
     const dataEdit = {
       Service: {
+        ...values,
         ID: values.ID,
         BookDate:
           moment(values.BookDate).format('YYYY-MM-DD') +
@@ -183,30 +185,46 @@ function AppointmentsOsAddEdit(props) {
       }
     }
 
-    let isDateBook =
-      moment(
-        bookingCurrent?.data?.Service?.BookDate,
-        'YYYY-MM-DD HH:mm'
-      ).format('DD-MM-YYYY HH:mm') ===
-      moment(values.BookDate).format('YYYY-MM-DD') +
-        ' ' +
-        moment(values.Time).format('HH:mm')
-    console.log(isDateBook)
-    console.log(bookingCurrent?.data?.Service)
+    let isDateBook = _.isEqual(
+      [
+        moment(
+          bookingCurrent?.data?.Service?.BookDate,
+          'YYYY-MM-DD HH:mm'
+        ).format('DD-MM-YYYY HH:mm')
+      ],
+      [
+        moment(values.BookDate).format('DD-MM-YYYY') +
+          ' ' +
+          moment(values.Time).format('HH:mm')
+      ]
+    )
+    let isStockID = bookingCurrent?.data?.Service?.StockID === values.StockID
+    let isUserServices = _.isEqual(
+      bookingCurrent?.data?.Service?.UserServices.map(x => x.UserID),
+      values?.UserServices?.map(x => x.UserID)
+    )
+    if (
+      values?.Status !== 'done' &&
+      isDateBook &&
+      isStockID &&
+      isUserServices
+    ) {
+      dataEdit.Service.sendNoti = false
+    }
 
-    // editBookOSMutation.mutate(dataEdit, {
-    //   onSuccess: data => {
-    //     toast.success(
-    //       values?.Status === 'done'
-    //         ? 'Hoàn thành dịch vụ thành công.'
-    //         : 'Chỉnh sửa lịch thành công.'
-    //     )
-    //     navigate(state?.previousPath || '/calendar')
-    //   },
-    //   onError: error => {
-    //     console.log(error)
-    //   }
-    // })
+    editBookOSMutation.mutate(dataEdit, {
+      onSuccess: data => {
+        toast.success(
+          values?.Status === 'done'
+            ? 'Hoàn thành dịch vụ thành công.'
+            : 'Chỉnh sửa lịch thành công.'
+        )
+        navigate(state?.previousPath || '/calendar')
+      },
+      onError: error => {
+        console.log(error)
+      }
+    })
   }
 
   const onDeleteBookOs = () => {
