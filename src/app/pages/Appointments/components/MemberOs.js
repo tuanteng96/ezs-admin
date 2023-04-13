@@ -1,19 +1,29 @@
 import { Menu, Transition } from '@headlessui/react'
-import { EllipsisHorizontalIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import {
+  ArrowPathIcon,
+  EllipsisHorizontalIcon,
+  XMarkIcon
+} from '@heroicons/react/24/outline'
 import React, { Fragment, useState } from 'react'
 import { useFieldArray, useFormContext } from 'react-hook-form'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { UploadFilePlus } from 'src/_ezs/partials/files'
 import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
 import { formatString } from 'src/_ezs/utils/formatString'
 import Viewer from 'react-viewer'
+import OsChangeService from './OsChangeService'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'react-toastify'
+import CalendarAPI from 'src/_ezs/api/calendar.api'
 
 const MemberOs = ({ ServiceOs }) => {
+  const queryClient = useQueryClient()
   const { pathname } = useLocation()
   const { control, watch } = useFormContext()
-
+  const { id } = useParams()
   const watchForm = watch()
 
+  const [isOpen, setIsOpen] = useState(false)
   const [visible, setVisible] = useState(false)
   const [activeIndex, setActiveIndex] = useState(0)
 
@@ -21,6 +31,39 @@ const MemberOs = ({ ServiceOs }) => {
     control,
     name: 'Attachment'
   })
+
+  const changeServiceOSMutation = useMutation({
+    mutationFn: body => CalendarAPI.deleteBookingOS(body)
+  })
+
+  const onChangeService = values => {
+    let bodyForm = {
+      osid: id,
+      prodid: ServiceOs.ConvertProdID,
+      rootid: values?.value
+    }
+    changeServiceOSMutation.mutate(bodyForm, {
+      onSuccess: () => {
+        queryClient
+          .invalidateQueries({ queryKey: ['bookingOsID'] })
+          .then(() => {
+            onHide()
+            toast.success('Chuyển đổi dịch vụ thành công.')
+          })
+      },
+      onError: error => {
+        console.log(error)
+      }
+    })
+  }
+
+  const onOpen = () => {
+    setIsOpen(true)
+  }
+
+  const onHide = () => {
+    setIsOpen(false)
+  }
 
   return (
     <>
@@ -83,7 +126,23 @@ const MemberOs = ({ ServiceOs }) => {
         </div>
         <div className="flex justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
           <div className="text-gray-500">Dịch vụ</div>
-          <div className="w-3/5 font-medium text-right">{ServiceOs?.Title}</div>
+          <div className="w-3/5 font-medium text-right">
+            {ServiceOs?.Title}
+            <div
+              className="flex justify-end mt-2 cursor-pointer text-primary"
+              onClick={onOpen}
+            >
+              <ArrowPathIcon className="w-4 mr-1.5" />
+              Thay đổi
+            </div>
+            <OsChangeService
+              isOpen={isOpen}
+              onHide={onHide}
+              ConvertProdID={ServiceOs?.ConvertProdID}
+              onChange={onChangeService}
+              loading={changeServiceOSMutation.isLoading}
+            />
+          </div>
         </div>
         <div className="flex justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
           <div className="text-gray-500">Giá bán</div>
@@ -102,7 +161,7 @@ const MemberOs = ({ ServiceOs }) => {
         {ServiceOs?.StaffHis && (
           <div className="flex flex-col px-6 py-4 border-b border-separator dark:border-dark-separator">
             <div className="text-gray-500">Chữ ký khách hàng</div>
-            <div className="w-3/5 font-medium text-right mt-2">
+            <div className="w-3/5 mt-2 font-medium text-right">
               <img
                 className="max-w-full"
                 src={toAbsolutePath(ServiceOs?.StaffHis)}

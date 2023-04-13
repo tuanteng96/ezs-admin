@@ -35,7 +35,12 @@ const CalendarAPI = {
     http.post(`/api/vcloud/pos@GetOrderServiceID`, JSON.stringify(body)),
   deleteBookingOS: body =>
     http.post(`/services/preview.aspx?cmd=cancel_service`, body),
-  resetBookingOS: body => http.post(`/api/v3/orderservice?cmd=reset_book`, body)
+  resetBookingOS: body =>
+    http.post(`/api/v3/orderservice?cmd=reset_book`, body),
+  bookOsSelected: prodid =>
+    http.post(`/api/gl/select2?cmd=prod&selected=${prodid}`),
+  bookOsChangeService: body =>
+    http.post(`/api/v3/OrderService@DoConvert`, JSON.stringify(body))
 }
 
 export default CalendarAPI

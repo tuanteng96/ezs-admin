@@ -6,6 +6,10 @@ const ProdsAPI = {
       `/api/v3/mbook?cmd=getroot&memberid=${
         MemberID || ''
       }&ps=${Ps}&pi=${Pi}&key=${Key || ''}&stockid=${StockID || ''}`
+    ),
+  getListProdOs: () =>
+    http.get(
+      `/api/gl/select2?cmd=prod&service_1=1&ignore_all=1&includeSource=1&_type=query`
     )
 }
 

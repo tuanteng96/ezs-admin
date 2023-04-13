@@ -27,8 +27,8 @@ import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import { MemberOs } from '../../components/MemberOs'
-import { FeeSalary } from './FeeSalary'
 import _ from 'lodash'
+import { FeeSalary } from '../../components/FeeSalary'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -50,7 +50,6 @@ function AppointmentsOsAddEdit(props) {
           FeeUseds: [],
           Attachment: [],
           UserServices: [],
-          MemberIDs: null,
           Desc: '',
           IsMemberSet: '',
           sendNoti: true
@@ -77,7 +76,7 @@ function AppointmentsOsAddEdit(props) {
     onSuccess: data => {
       if (data?.Service) {
         let { Service, OrderServiceID } = data
-
+        console.log(Service)
         setFeeAll(
           Service?.FeeAll
             ? Service?.FeeAll.map(x => ({
@@ -109,7 +108,6 @@ function AppointmentsOsAddEdit(props) {
                   value: x.UserID
                 }))
               : [],
-            MemberIDs: Service?.Member,
             BookDate: Service.BookDate
               ? moment(Service.BookDate, 'YYYY-MM-DD').toDate()
               : moment().toDate(),
@@ -527,7 +525,7 @@ function AppointmentsOsAddEdit(props) {
                     </ol>
                     {fields && fields.length > 0 && (
                       <div className="pl-8 mt-5">
-                        <div className="text-xl font-bold font-inter dark:text-white mb-5">
+                        <div className="mb-5 text-xl font-bold font-inter dark:text-white">
                           Lương ca nhân viên
                         </div>
                         <div
@@ -545,20 +543,20 @@ function AppointmentsOsAddEdit(props) {
                           {fields.map((user, index) => (
                             <div
                               className={clsx(
-                                'grid gap-4 border-b border-separator pb-5 dark:border-dark-separator last:border-0 last:pb-0',
+                                'grid gap-4',
                                 watchForm.FeeUseds.length > 0
                                   ? `grid-cols-${
                                       watchForm?.FeeUseds?.length < 3
                                         ? watchForm?.FeeUseds?.length + 1
                                         : 3
-                                    }`
+                                    } border-b border-separator pb-5 dark:border-dark-separator last:border-0 last:pb-0`
                                   : 'grid-cols-1'
                               )}
                               key={user.id}
                             >
                               <div>
                                 <div className="mb-1.5 text-base text-gray-900 font-semibold dark:text-graydark-800">
-                                  {user.UserName}
+                                  {user.UserName || 'Chưa xác định'}
                                 </div>
                                 <div>
                                   <Controller
@@ -660,13 +658,13 @@ function AppointmentsOsAddEdit(props) {
                         disabled={editBookOSMutation.isLoading}
                         type="button"
                         onClick={onDeleteBookOs}
-                        className="ml-2 relative flex items-center justify-center h-12 px-4 font-bold text-white transition rounded bg-danger hover:bg-dangerhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                        className="relative flex items-center justify-center h-12 px-4 ml-2 font-bold text-white transition rounded bg-danger hover:bg-dangerhv focus:outline-none focus:shadow-none disabled:opacity-70"
                       >
                         Hủy
                       </Button>
                       <button
                         type="button"
-                        className="ml-2 relative flex items-center justify-center h-12 px-4 font-bold text-gray-900 transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
+                        className="relative flex items-center justify-center h-12 px-4 ml-2 font-bold text-gray-900 transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
                       >
                         <PrinterIcon className="w-5" />
                       </button>
@@ -681,7 +679,7 @@ function AppointmentsOsAddEdit(props) {
                         }
                         disabled={editBookOSMutation.isLoading}
                         type="submit"
-                        className="flex-1 ml-2 relative flex items-center justify-center h-12 px-4 font-bold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                        className="relative flex items-center justify-center flex-1 h-12 px-4 ml-2 font-bold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
                         onClick={() => setValue('Status', 'done')}
                       >
                         Hoàn thành
@@ -689,7 +687,7 @@ function AppointmentsOsAddEdit(props) {
                     </>
                   )}
                   {bookingCurrent?.data?.Service?.Status === 'done' && (
-                    <div className="grid grid-cols-2 gap-4 w-full">
+                    <div className="grid w-full grid-cols-2 gap-4">
                       <button
                         onClick={() =>
                           navigate(state?.previousPath || '/calendar')
