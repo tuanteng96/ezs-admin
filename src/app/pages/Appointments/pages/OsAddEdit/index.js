@@ -51,7 +51,8 @@ function AppointmentsOsAddEdit(props) {
           UserServices: [],
           MemberIDs: null,
           Desc: '',
-          IsMemberSet: ''
+          IsMemberSet: '',
+          sendNoti: true
         }
   })
 
@@ -119,7 +120,8 @@ function AppointmentsOsAddEdit(props) {
             StockID: Service.StockID,
             Desc: Service?.Desc || '',
             IsMemberSet: Service?.IsMemberSet,
-            Status: Service?.Status || ''
+            Status: Service?.Status || '',
+            sendNoti: true
           })
         }
       } else {
@@ -135,6 +137,10 @@ function AppointmentsOsAddEdit(props) {
 
   const deleteBookOSMutation = useMutation({
     mutationFn: body => CalendarAPI.deleteBookingOS(body)
+  })
+
+  const resetBookOSMutation = useMutation({
+    mutationFn: body => CalendarAPI.resetBookingOS(body)
   })
 
   const onSubmit = values => {
@@ -177,19 +183,30 @@ function AppointmentsOsAddEdit(props) {
       }
     }
 
-    editBookOSMutation.mutate(dataEdit, {
-      onSuccess: data => {
-        toast.success(
-          values?.Status === 'done'
-            ? 'Hoàn thành dịch vụ thành công.'
-            : 'Chỉnh sửa lịch thành công.'
-        )
-        navigate(state?.previousPath || '/calendar')
-      },
-      onError: error => {
-        console.log(error)
-      }
-    })
+    let isDateBook =
+      moment(
+        bookingCurrent?.data?.Service?.BookDate,
+        'YYYY-MM-DD HH:mm'
+      ).format('DD-MM-YYYY HH:mm') ===
+      moment(values.BookDate).format('YYYY-MM-DD') +
+        ' ' +
+        moment(values.Time).format('HH:mm')
+    console.log(isDateBook)
+    console.log(bookingCurrent?.data?.Service)
+
+    // editBookOSMutation.mutate(dataEdit, {
+    //   onSuccess: data => {
+    //     toast.success(
+    //       values?.Status === 'done'
+    //         ? 'Hoàn thành dịch vụ thành công.'
+    //         : 'Chỉnh sửa lịch thành công.'
+    //     )
+    //     navigate(state?.previousPath || '/calendar')
+    //   },
+    //   onError: error => {
+    //     console.log(error)
+    //   }
+    // })
   }
 
   const onDeleteBookOs = () => {
@@ -222,7 +239,41 @@ function AppointmentsOsAddEdit(props) {
     })
   }
 
-  console.log(bookingCurrent)
+  const onResetBookOs = () => {
+    var bodyFormData = new FormData()
+    bodyFormData.append('osid', id)
+
+    Swal.fire({
+      customClass: {
+        confirmButton: 'bg-success'
+      },
+      title: 'Xác nhận chỉnh sửa ?',
+      html: `Bạn chắc chắn muốn chỉnh sửa lịch này ? Thông tin buổi dịch vụ sẽ được Reset. Bạn phải đặt lịch lại ?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Đồng ý',
+      cancelButtonText: 'Đóng',
+      reverseButtons: true,
+      showLoaderOnConfirm: true,
+      preConfirm: async () => {
+        const { data } = await resetBookOSMutation.mutateAsync(bodyFormData)
+        return data
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then(result => {
+      if (result.isConfirmed) {
+        toast.success('Reset lịch thành công.')
+        navigate(state?.previousPath || '/calendar')
+      }
+    })
+  }
+
+  const isModeChange =
+    bookingCurrent?.data?.Service?.Status !== 'done' ||
+    (bookingCurrent?.data?.Service?.Status === 'done' &&
+      moment(bookingCurrent?.data?.Service?.BookDate, 'YYYY-MM-DD').format(
+        'YYYY-MM-DD'
+      ) === moment().format('YYYY-MM-DD'))
 
   return (
     <FixedLayout>
@@ -564,91 +615,87 @@ function AppointmentsOsAddEdit(props) {
               )}
             >
               <MemberOs ServiceOs={bookingCurrent?.data?.Service || null} />
-              {bookingCurrent?.data?.Service?.Status === 'done' &&
-              moment(
-                bookingCurrent?.data?.Service?.BookDate,
-                'YYYY-MM-DD'
-              ).format('YYYY-MM-DD') !== moment().format('YYYY-MM-DD') ? (
-                <div className="p-5 border-t border-separator dark:border-dark-separator">
-                  <div className="grid grid-cols-2 gap-4">
-                    <button
-                      onClick={() =>
-                        navigate(state?.previousPath || '/calendar')
-                      }
-                      type="button"
-                      className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-black transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
-                    >
-                      Đóng
-                    </button>
-                    <Button
-                      type="submit"
-                      className="relative flex items-center justify-center h-12 px-4 font-semibold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
-                    >
-                      Thay đổi
-                    </Button>
-                  </div>
-                </div>
-              ) : (
+              {isModeChange && (
                 <div className="flex p-5 border-t border-separator dark:border-dark-separator">
-                  <Button
-                    type="submit"
-                    loading={
-                      editBookOSMutation.isLoading &&
-                      (watchForm?.Status !== 'done' ||
-                        bookingCurrent?.data?.Service?.Status === 'done')
-                    }
-                    disabled={editBookOSMutation.isLoading}
-                    hideText={
-                      editBookOSMutation.isLoading &&
-                      (watchForm?.Status !== 'done' ||
-                        bookingCurrent?.data?.Service?.Status === 'done')
-                    }
-                    className={clsx(
-                      'relative flex items-center justify-center h-12 px-4 font-bold text-white transition rounded bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70',
-                      bookingCurrent?.data?.Service?.Status === 'done' &&
-                        'flex-1'
-                    )}
-                  >
-                    Cập nhập
-                  </Button>
-                  <Button
-                    disabled={editBookOSMutation.isLoading}
-                    type="button"
-                    onClick={onDeleteBookOs}
-                    className="ml-2 relative flex items-center justify-center h-12 px-4 font-bold text-white transition rounded bg-danger hover:bg-dangerhv focus:outline-none focus:shadow-none disabled:opacity-70"
-                  >
-                    Hủy
-                  </Button>
-                  <button
-                    type="button"
-                    className="ml-2 relative flex items-center justify-center h-12 px-4 font-bold text-gray-900 transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
-                  >
-                    <PrinterIcon className="w-5" />
-                  </button>
                   {bookingCurrent?.data?.Service?.Status !== 'done' && (
-                    <Button
-                      loading={
-                        editBookOSMutation.isLoading &&
-                        watchForm?.Status === 'done'
-                      }
-                      hideText={
-                        editBookOSMutation.isLoading &&
-                        watchForm?.Status === 'done'
-                      }
-                      disabled={editBookOSMutation.isLoading}
-                      type="submit"
-                      className="flex-1 ml-2 relative flex items-center justify-center h-12 px-4 font-bold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
-                      onClick={() => setValue('Status', 'done')}
-                    >
-                      Hoàn thành
-                    </Button>
+                    <>
+                      <Button
+                        type="submit"
+                        loading={
+                          editBookOSMutation.isLoading &&
+                          watchForm?.Status !== 'done'
+                        }
+                        disabled={editBookOSMutation.isLoading}
+                        hideText={
+                          editBookOSMutation.isLoading &&
+                          watchForm?.Status !== 'done'
+                        }
+                        className={clsx(
+                          'relative flex items-center justify-center h-12 px-4 font-bold text-white transition rounded bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70',
+                          bookingCurrent?.data?.Service?.Status === 'done' &&
+                            'flex-1'
+                        )}
+                      >
+                        Cập nhập
+                      </Button>
+                      <Button
+                        disabled={editBookOSMutation.isLoading}
+                        type="button"
+                        onClick={onDeleteBookOs}
+                        className="ml-2 relative flex items-center justify-center h-12 px-4 font-bold text-white transition rounded bg-danger hover:bg-dangerhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                      >
+                        Hủy
+                      </Button>
+                      <button
+                        type="button"
+                        className="ml-2 relative flex items-center justify-center h-12 px-4 font-bold text-gray-900 transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
+                      >
+                        <PrinterIcon className="w-5" />
+                      </button>
+                      <Button
+                        loading={
+                          editBookOSMutation.isLoading &&
+                          watchForm?.Status === 'done'
+                        }
+                        hideText={
+                          editBookOSMutation.isLoading &&
+                          watchForm?.Status === 'done'
+                        }
+                        disabled={editBookOSMutation.isLoading}
+                        type="submit"
+                        className="flex-1 ml-2 relative flex items-center justify-center h-12 px-4 font-bold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                        onClick={() => setValue('Status', 'done')}
+                      >
+                        Hoàn thành
+                      </Button>
+                    </>
+                  )}
+                  {bookingCurrent?.data?.Service?.Status === 'done' && (
+                    <div className="grid grid-cols-2 gap-4 w-full">
+                      <button
+                        onClick={() =>
+                          navigate(state?.previousPath || '/calendar')
+                        }
+                        type="button"
+                        className="relative flex items-center justify-center w-full h-12 px-4 font-bold text-black transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
+                      >
+                        Đóng
+                      </button>
+                      <Button
+                        type="button"
+                        className="relative flex items-center justify-center h-12 px-4 font-semibold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                        onClick={onResetBookOs}
+                      >
+                        Chỉnh sửa lịch
+                      </Button>
+                    </div>
                   )}
                 </div>
               )}
             </div>
             <LoadingComponentFull
               bgClassName="bg-white dark:bg-dark-aside z-[10]"
-              loading={bookingCurrent.loading}
+              loading={bookingCurrent.loading || !bookingCurrent.data}
             />
           </div>
         </form>
