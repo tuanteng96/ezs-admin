@@ -4,7 +4,13 @@ import { useQuery } from '@tanstack/react-query'
 import UsersAPI from 'src/_ezs/api/users.api'
 import { toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 
-const SelectUserService = ({ value, StockID, isSome = false, ...props }) => {
+const SelectUserService = ({
+  value,
+  StockID,
+  isSome = false,
+  StockRoles,
+  ...props
+}) => {
   const ListUsers = useQuery({
     queryKey: ['ListUserService'],
     queryFn: async () => {
@@ -40,11 +46,20 @@ const SelectUserService = ({ value, StockID, isSome = false, ...props }) => {
           }
         }
       }
+
       return {
-        data: newData,
+        data: newData.filter(x =>
+          StockRoles ? StockRoles.some(s => s.value === x.groupid) : !StockRoles
+        ),
         dataList:
           data?.data?.data?.length > 0
-            ? data?.data?.data.map(x => ({ ...x, value: x.id, label: x.text }))
+            ? data?.data?.data
+                .map(x => ({ ...x, value: x.id, label: x.text }))
+                .filter(x =>
+                  StockRoles
+                    ? StockRoles.some(s => s.value === x.value)
+                    : !StockRoles
+                )
             : []
       }
     },

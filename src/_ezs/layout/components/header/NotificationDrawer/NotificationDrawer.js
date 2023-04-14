@@ -21,6 +21,7 @@ import { NotificationDrawerTab } from './NotificationDrawerTab'
 import { NotFound } from '../../notfound'
 import clsx from 'clsx'
 import useEscape from 'src/_ezs/hooks/useEscape'
+import { rolesAccess } from 'src/_ezs/utils/rolesAccess'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -79,6 +80,11 @@ const NotificationDrawer = props => {
     To: ''
   })
 
+  const { calendar } = rolesAccess({
+    rightsSum: auth.rightsSum,
+    CrStocks: CrStocks
+  })
+
   const { data, isLoading } = useQuery({
     queryKey: ['Notifications', { ...filters, StockID: CrStocks.ID }],
     queryFn: () =>
@@ -93,7 +99,7 @@ const NotificationDrawer = props => {
     onSuccess: () => {
       isShowingFilter && setIsShowingFilter(false)
     },
-    enabled: isShowing && CrStocks?.ID > 0
+    enabled: isShowing && CrStocks?.ID > 0 && calendar.hasRight
   })
 
   const onHideShowing = () => {
@@ -105,20 +111,23 @@ const NotificationDrawer = props => {
 
   return (
     <>
-      <div
-        onClick={() => setIsShowing(true)}
-        className="relative flex items-center justify-center text-gray-700 transition rounded cursor-pointer dark:text-dark-muted w-11 h-11 hover:bg-light dark:hover:bg-dark-light hover:text-primary"
-      >
-        {auth?.Present?.CAN_XU_LY[CrStocks?.ID] > 0 && (
-          <div className="w-1.5 h-1.5 bg-success rounded-full top-0 animate-blink absolute"></div>
-        )}
-        <BellAlertIcon
-          className={clsx(
-            'w-6 h-6',
-            auth?.Present?.CAN_XU_LY[CrStocks?.ID] > 0 && 'animate-ring-bell'
+      {calendar.hasRight && (
+        <div
+          onClick={() => setIsShowing(true)}
+          className="relative flex items-center justify-center text-gray-700 transition rounded cursor-pointer dark:text-dark-muted w-11 h-11 hover:bg-light dark:hover:bg-dark-light hover:text-primary"
+        >
+          {auth?.Present?.CAN_XU_LY[CrStocks?.ID] > 0 && (
+            <div className="w-1.5 h-1.5 bg-success rounded-full top-0 animate-blink absolute"></div>
           )}
-        />
-      </div>
+          <BellAlertIcon
+            className={clsx(
+              'w-6 h-6',
+              auth?.Present?.CAN_XU_LY[CrStocks?.ID] > 0 && 'animate-ring-bell'
+            )}
+          />
+        </div>
+      )}
+
       <Transition show={isShowing}>
         <div className="fixed w-full h-full z-[1002] top-0 left-0">
           <Transition.Child

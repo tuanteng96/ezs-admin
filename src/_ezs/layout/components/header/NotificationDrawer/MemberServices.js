@@ -6,7 +6,6 @@ import 'moment/locale/vi'
 
 moment.locale('vi')
 const MemberServices = ({ data }) => {
-  console.log(data)
   return (
     <div className="p-6 mb-4 bg-white rounded shadow-sm dark:bg-dark-aside">
       <div className="flex justify-between mb-1.5">

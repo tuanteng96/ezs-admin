@@ -7,8 +7,11 @@ import StocksAPI from 'src/_ezs/api/stocks.api'
 import { useAuth } from 'src/_ezs/core/Auth'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import { DropdownStocksItem } from './DropdownStocksItem'
+import { useMatch, useNavigate } from 'react-router-dom'
 
 const DropdownStocks = () => {
+  const isUnauthorized = useMatch('/unauthorized')
+  const navigate = useNavigate()
   const { CrStocks, Stocks, saveStocks } = useAuth()
   const { updateLoadingContent } = useLayout()
 
@@ -28,6 +31,7 @@ const DropdownStocks = () => {
         } else {
           toast.success('Chuyển đổi cơ sở thành công.')
           saveStocks(stock)
+          if (isUnauthorized) navigate('/')
         }
         updateLoadingContent(false)
       },

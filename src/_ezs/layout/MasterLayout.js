@@ -19,30 +19,45 @@ const MasterLayout = () => {
   }, [pathname, queryConfig])
 
   const keydownHandler = e => {
-    if (e.keyCode === 112) {
-      e.preventDefault()
-      navigate(
-        `/search?type=${queryConfig.type === 'order' ? 'member' : 'order'}`,
-        {
-          state: {
-            previousPath: pathname === '/search' ? '/' : pathname + search
-          }
-        }
-      )
+    if (!e.ctrlKey && !e.metaKey) {
+      switch (e.keyCode) {
+        case 112:
+          e.preventDefault()
+          navigate(
+            `/search?type=${queryConfig.type === 'order' ? 'member' : 'order'}`,
+            {
+              state: {
+                previousPath: pathname === '/search' ? '/' : pathname + search
+              }
+            }
+          )
+          return
+        case 113:
+          e.preventDefault()
+          navigate(`/clients/add`, {
+            state: {
+              previousPath: pathname + search
+            }
+          })
+          return
+        case 114:
+          e.preventDefault()
+          navigate(`/appointments/new`, {
+            state: {
+              previousPath: pathname + search
+            }
+          })
+          return
+        default:
+          return
+      }
     }
+
     if (e.ctrlKey || e.metaKey) {
       // switch (String.fromCharCode(e.which).toLowerCase()) {
       //   case 'o':
       //     e.preventDefault()
       //     navigate('/search?type=order', {
-      //       state: {
-      //         previousPath: pathname === '/search' ? '/' : pathname + search
-      //       }
-      //     })
-      //     return false
-      //   case 'm':
-      //     e.preventDefault()
-      //     navigate('/search?type=member', {
       //       state: {
       //         previousPath: pathname === '/search' ? '/' : pathname + search
       //       }

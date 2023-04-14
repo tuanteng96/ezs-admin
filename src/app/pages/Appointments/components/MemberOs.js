@@ -15,6 +15,7 @@ import OsChangeService from './OsChangeService'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
 import CalendarAPI from 'src/_ezs/api/calendar.api'
+import clsx from 'clsx'
 
 const MemberOs = ({ ServiceOs }) => {
   const queryClient = useQueryClient()
@@ -33,14 +34,14 @@ const MemberOs = ({ ServiceOs }) => {
   })
 
   const changeServiceOSMutation = useMutation({
-    mutationFn: body => CalendarAPI.deleteBookingOS(body)
+    mutationFn: body => CalendarAPI.bookOsChangeService(body)
   })
 
   const onChangeService = values => {
     let bodyForm = {
       osid: id,
       prodid: ServiceOs.ConvertProdID,
-      rootid: values?.value
+      rootid: values?.rootid?.value
     }
     changeServiceOSMutation.mutate(bodyForm, {
       onSuccess: () => {
@@ -127,21 +128,24 @@ const MemberOs = ({ ServiceOs }) => {
         <div className="flex justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
           <div className="text-gray-500">Dịch vụ</div>
           <div className="w-3/5 font-medium text-right">
-            {ServiceOs?.Title}
-            <div
-              className="flex justify-end mt-2 cursor-pointer text-primary"
-              onClick={onOpen}
-            >
-              <ArrowPathIcon className="w-4 mr-1.5" />
-              Thay đổi
-            </div>
-            <OsChangeService
-              isOpen={isOpen}
-              onHide={onHide}
-              ConvertProdID={ServiceOs?.ConvertProdID}
-              onChange={onChangeService}
-              loading={changeServiceOSMutation.isLoading}
-            />
+            {ServiceOs?.ProdService2 || ServiceOs?.ProdTitle}
+            {ServiceOs?.ConvertAddFeeID > 0 && (
+              <>
+                <div
+                  className="flex justify-end mt-1.5 cursor-pointer text-primary"
+                  onClick={onOpen}
+                >
+                  <ArrowPathIcon className="w-4 mr-1.5" />
+                  Thay đổi
+                </div>
+                <OsChangeService
+                  isOpen={isOpen}
+                  onHide={onHide}
+                  onChange={onChangeService}
+                  loading={changeServiceOSMutation.isLoading}
+                />
+              </>
+            )}
           </div>
         </div>
         <div className="flex justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
@@ -158,15 +162,54 @@ const MemberOs = ({ ServiceOs }) => {
             {formatString.formatVND(ServiceOs?.CostBase)}
           </div>
         </div>
+        {ServiceOs?.Rate > 0 && (
+          <div className="flex justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
+            <div className="text-gray-500">Đánh giá</div>
+            <div className="w-3/5 font-medium text-right">
+              <div className="flex items-center justify-end">
+                {Array(5)
+                  .fill()
+                  .map((_, index) => (
+                    <svg
+                      aria-hidden="true"
+                      className={clsx(
+                        'w-5 h-5',
+                        index + 1 > ServiceOs.Rate
+                          ? 'text-gray-300 dark:text-gray-500'
+                          : 'text-warning'
+                      )}
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                      xmlns="http://www.w3.org/2000/svg"
+                      key={index}
+                    >
+                      <title>{index + 1}</title>
+                      <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                    </svg>
+                  ))}
+              </div>
+            </div>
+          </div>
+        )}
+        {ServiceOs?.RateNote && (
+          <div className="flex justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
+            <div className="text-gray-500">Ghi chú</div>
+            <div className="w-3/5 font-medium text-right">
+              {ServiceOs?.RateNote}
+            </div>
+          </div>
+        )}
         {ServiceOs?.StaffHis && (
           <div className="flex flex-col px-6 py-4 border-b border-separator dark:border-dark-separator">
             <div className="text-gray-500">Chữ ký khách hàng</div>
             <div className="w-3/5 mt-2 font-medium text-right">
-              <img
-                className="max-w-full"
-                src={toAbsolutePath(ServiceOs?.StaffHis)}
-                alt="Chữ ký khách hàng"
-              />
+              <div className="border border-separator dark:border-dark-separator rounded p-5">
+                <img
+                  className="max-w-full"
+                  src={toAbsolutePath(ServiceOs?.StaffHis)}
+                  alt="Chữ ký khách hàng"
+                />
+              </div>
             </div>
           </div>
         )}

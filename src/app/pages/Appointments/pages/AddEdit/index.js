@@ -33,10 +33,11 @@ import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
 import useQueryParams from 'src/_ezs/hooks/useQueryParams'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
+import MembersAPI from 'src/_ezs/api/members.api'
+import { rolesAccess } from 'src/_ezs/utils/rolesAccess'
 
 import moment from 'moment'
 import 'moment/locale/vi'
-import MembersAPI from 'src/_ezs/api/members.api'
 
 moment.locale('vi')
 
@@ -64,7 +65,7 @@ const ListStatus = [
 ]
 
 function AppointmentsAddEdit(props) {
-  const { CrStocks } = useAuth()
+  const { CrStocks, auth } = useAuth()
   const { state } = useLocation()
   const navigate = useNavigate()
   const isAddMode = useMatch('/appointments/new')
@@ -73,6 +74,11 @@ function AppointmentsAddEdit(props) {
   const [Key, setKey] = useState('')
   const [isShowing, setIsShowing] = useState(false)
   const queryString = useQueryParams()
+
+  const { calendar } = rolesAccess({
+    rightsSum: auth.rightsSum,
+    CrStocks: CrStocks
+  })
 
   const methodsUseForm = useForm({
     defaultValues: state?.formState
@@ -502,8 +508,8 @@ function AppointmentsAddEdit(props) {
                                     onChange={field.onChange}
                                     showTimeSelect
                                     showTimeSelectOnly
-                                    dateFormat="HH:mm aa"
-                                    timeFormat="HH:mm aa"
+                                    dateFormat="HH:mm"
+                                    timeFormat="HH:mm"
                                   />
                                 )}
                               />
@@ -520,6 +526,7 @@ function AppointmentsAddEdit(props) {
                                   fieldState
                                 }) => (
                                   <SelectStocks
+                                    StockRoles={calendar.StockRoles}
                                     value={field.value}
                                     onChange={val =>
                                       field.onChange(val?.value || '')
@@ -602,6 +609,7 @@ function AppointmentsAddEdit(props) {
                                   fieldState
                                 }) => (
                                   <SelectUserService
+                                    StockRoles={calendar.StockRoles}
                                     value={field.value}
                                     onChange={val => field.onChange(val)}
                                     isMulti

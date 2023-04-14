@@ -11,18 +11,18 @@ import * as yup from 'yup'
 import Select from 'react-select'
 import { useQuery } from '@tanstack/react-query'
 import ProdsAPI from 'src/_ezs/api/prods.api'
-import CalendarAPI from 'src/_ezs/api/calendar.api'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
+import clsx from 'clsx'
 
 const schemaUser = yup
   .object({
-    rootid: yup.string().required('Vui lòng chọn dịch vụ')
+    rootid: yup.object().required('Vui lòng chọn dịch vụ')
   })
   .required()
 
 function OsChangeService({ isOpen, onHide, onChange, ConvertProdID, loading }) {
   const [ListProds, setListProds] = useState([])
-  const { control, handleSubmit, setValue } = useForm({
+  const { control, handleSubmit } = useForm({
     defaultValues: {
       rootid: ''
     },
@@ -30,28 +30,19 @@ function OsChangeService({ isOpen, onHide, onChange, ConvertProdID, loading }) {
   })
 
   const OsRegimen = useQuery({
-    queryKey: ['OsRegimen', ConvertProdID],
+    queryKey: ['OsRegimen'],
     queryFn: async () => {
-      const selected = await CalendarAPI.bookOsSelected(ConvertProdID)
       const ListProd = await ProdsAPI.getListProdOs()
       return {
-        selected:
-          selected?.data?.data?.length > 0 ? selected?.data?.data[0] : null,
         ListProd: ListProd?.data?.data || []
       }
     },
-    onSuccess: ({ ListProd, selected }) => {
-      setValue(
-        'rootid',
-        selected
-          ? { ...selected, label: selected.text, value: selected.id }
-          : null
-      )
+    onSuccess: ({ ListProd }) => {
       setListProds(() =>
         ListProd.map(x => ({ ...x, label: x.text, value: x.id }))
       )
     },
-    enabled: !!ConvertProdID && isOpen
+    enabled: isOpen
   })
 
   const onSubmit = event => {
@@ -113,7 +104,10 @@ function OsChangeService({ isOpen, onHide, onChange, ConvertProdID, loading }) {
                             onChange={val => {
                               field.onChange(val)
                             }}
-                            className="select-control"
+                            className={clsx(
+                              'select-control',
+                              fieldState.invalid && 'select-control-error'
+                            )}
                             classNamePrefix="select"
                             options={ListProds}
                             placeholder="Chọn dịch vụ"

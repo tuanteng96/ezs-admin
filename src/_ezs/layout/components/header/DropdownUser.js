@@ -25,13 +25,17 @@ const DropdownUser = () => {
                 <div className="py-4">
                   <div className="px-4">
                     <div className="flex items-center pt-1 pb-2">
-                      <Avatar classes="w-12 h-12" />
-                      <div className="flex-1 pl-3">
-                        <div className="text-lg font-semibold truncate font-inter text-site-color dark:text-white">
-                          {auth?.User?.FullName || 'Chưa cập nhập'}
-                        </div>
-                        <div className="text-sm dark:text-dark-muted">
-                          {auth?.User?.Phone || 'Chưa cập nhập'}
+                      <div className="w-12">
+                        <Avatar classes="w-12 h-12" />
+                      </div>
+                      <div className="flex-1 pl-3 overflow-hidden">
+                        <div className="w-full">
+                          <div className="text-lg font-semibold truncate font-inter text-site-color dark:text-white">
+                            {auth?.User?.FullName || 'Chưa cập nhập'}
+                          </div>
+                          <div className="text-sm dark:text-dark-muted">
+                            {auth?.User?.Phone || 'Chưa cập nhập'}
+                          </div>
                         </div>
                       </div>
                     </div>
