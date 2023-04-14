@@ -25,6 +25,7 @@ function ReactBaseTable({
   components,
   maxHeight,
   wrapClassName,
+  emptyRenderer,
   ...props
 }) {
   //const tableRef = useRef(null)
@@ -66,7 +67,9 @@ function ReactBaseTable({
               />
             )}
             emptyRenderer={() =>
-              !loading && (
+              !loading && emptyRenderer ? (
+                emptyRenderer
+              ) : (
                 <div className="flex flex-col items-center justify-center h-full dark:bg-dark-aside">
                   <img
                     className="w-auto max-w-[350px]"

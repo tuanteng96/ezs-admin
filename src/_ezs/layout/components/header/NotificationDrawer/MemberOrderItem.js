@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { formatString } from 'src/_ezs/utils/formatString'
-import { createPortal } from 'react-dom'
 import ViewOrderDetail from 'src/app/pages/Clients/pages/ViewOrderDetail'
+import { useLocation } from 'react-router'
+import { FloatingPortal } from '@floating-ui/react'
 
 import moment from 'moment'
 import 'moment/locale/vi'
-import { useLocation } from 'react-router'
 
 moment.locale('vi')
 
@@ -27,11 +27,11 @@ const MemberOrderItemBtn = ({ OrderID }) => {
       >
         Xem đơn hàng
       </button>
-      {isOpen &&
-        createPortal(
-          <ViewOrderDetail OrderID={OrderID} onHide={() => setIsOpen(false)} />,
-          document.body
-        )}
+      {isOpen && (
+        <FloatingPortal>
+          <ViewOrderDetail OrderID={OrderID} onHide={() => setIsOpen(false)} />
+        </FloatingPortal>
+      )}
     </>
   )
 }

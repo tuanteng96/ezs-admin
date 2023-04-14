@@ -16,6 +16,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
 import CalendarAPI from 'src/_ezs/api/calendar.api'
 import clsx from 'clsx'
+import { OsMaterials } from './OsMaterials'
 
 const MemberOs = ({ ServiceOs }) => {
   const queryClient = useQueryClient()
@@ -162,6 +163,7 @@ const MemberOs = ({ ServiceOs }) => {
             {formatString.formatVND(ServiceOs?.CostBase)}
           </div>
         </div>
+        <OsMaterials />
         {ServiceOs?.Rate > 0 && (
           <div className="flex justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
             <div className="text-gray-500">Đánh giá</div>
@@ -203,7 +205,7 @@ const MemberOs = ({ ServiceOs }) => {
           <div className="flex flex-col px-6 py-4 border-b border-separator dark:border-dark-separator">
             <div className="text-gray-500">Chữ ký khách hàng</div>
             <div className="w-3/5 mt-2 font-medium text-right">
-              <div className="border border-separator dark:border-dark-separator rounded p-5">
+              <div className="p-5 border rounded border-separator dark:border-dark-separator">
                 <img
                   className="max-w-full"
                   src={toAbsolutePath(ServiceOs?.StaffHis)}
