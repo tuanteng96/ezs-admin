@@ -1,19 +1,50 @@
 import { FloatingPortal } from '@floating-ui/react'
 import { Dialog } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
+import { useQuery } from '@tanstack/react-query'
 import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
-import React, { useMemo, useState } from 'react'
-import { useForm } from 'react-hook-form'
+import React, { useEffect, useMemo, useState } from 'react'
+import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import Select from 'react-select'
+import ProdsAPI from 'src/_ezs/api/prods.api'
 import { Button } from 'src/_ezs/partials/button'
+import { InputNumber } from 'src/_ezs/partials/forms'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 
-const OsMaterials = props => {
+const OsMaterials = ({ initialValues, onChange }) => {
   const [isOpen, setIsOpen] = useState(false)
 
-  const { control, handleSubmit } = useForm({
+  const { control, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
-      rootid: ''
+      StockItems: []
     }
+  })
+
+  const watchForm = watch()
+
+  const { fields, prepend, remove } = useFieldArray({
+    control,
+    name: 'StockItems'
+  })
+
+  useEffect(() => {
+    if (isOpen) setValue('StockItems', initialValues)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen])
+
+  const OsMaterials = useQuery({
+    queryKey: ['OsMaterialsID'],
+    queryFn: async () => {
+      const { data } = await ProdsAPI.getProdId(3298)
+      return data?.data
+        ? data?.data.map(x => ({
+            ...x,
+            label: x.text,
+            value: x.id
+          }))
+        : []
+    },
+    enabled: isOpen
   })
 
   const onOpen = () => {
@@ -34,8 +65,8 @@ const OsMaterials = props => {
       }
     }
 
-    return handleSubmit(async values => {
-      console.log(values)
+    return handleSubmit(values => {
+      onChange(values, onHide)
     })(event)
   }
 
@@ -47,32 +78,53 @@ const OsMaterials = props => {
         dataKey: 'ID',
         width: 60,
         sortable: false,
-        align: 'center'
+        align: 'center',
+        cellRenderer: ({ rowIndex }) => rowIndex + 1
       },
       {
-        key: 'TypeText',
+        key: 'ProdTitle',
         title: 'Nguyên vật liệu',
-        dataKey: 'TypeText',
-        cellRenderer: ({ rowData }) => <div>a</div>,
-        width: 280,
+        dataKey: 'ProdTitle',
+        cellRenderer: ({ rowData }) => <div>{rowData?.ProdTitle}</div>,
+        width: 290,
         sortable: false
         //align: 'center',
       },
       {
-        key: 'TypeText1',
+        key: 'Qty',
         title: 'Số lượng',
-        dataKey: 'TypeText1',
-        cellRenderer: ({ rowData }) => <div>a</div>,
-        width: 190,
+        dataKey: 'Qty',
+        cellRenderer: ({ rowIndex }) => (
+          <Controller
+            name={`StockItems[${rowIndex}].Qty`}
+            control={control}
+            render={({ field: { ref, ...field }, fieldState }) => (
+              <>
+                <InputNumber
+                  className="px-3 py-2.5"
+                  placeholder="Nhập SL"
+                  value={field.value}
+                  onValueChange={val => {
+                    field.onChange(val.floatValue || '')
+                  }}
+                  allowNegative={false}
+                />
+              </>
+            )}
+          />
+        ),
+        width: 120,
         sortable: false
-        //align: 'center',
       },
       {
-        key: 'TypeText2',
+        key: '#',
         title: '#',
-        dataKey: 'TypeText2',
-        cellRenderer: ({ rowData }) => (
-          <div className="px-2.5 h-6 flex items-center text-[13px] text-white rounded cursor-pointer bg-danger hover:bg-dangerhv">
+        dataKey: '#',
+        cellRenderer: ({ rowIndex }) => (
+          <div
+            className="px-2.5 h-6 flex items-center text-[13px] text-white rounded cursor-pointer bg-danger hover:bg-dangerhv"
+            onClick={() => remove(rowIndex)}
+          >
             Xóa
           </div>
         ),
@@ -82,7 +134,7 @@ const OsMaterials = props => {
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [fields]
   )
 
   return (
@@ -93,7 +145,11 @@ const OsMaterials = props => {
           className="w-3/5 font-medium text-right cursor-pointer text-primary"
           onClick={onOpen}
         >
-          Thêm mới
+          {initialValues && initialValues.length > 0 ? (
+            <span>{initialValues.length} Nguyên vật liệu</span>
+          ) : (
+            'Thêm mới'
+          )}
         </div>
       </div>
 
@@ -113,12 +169,12 @@ const OsMaterials = props => {
                   className="fixed inset-0 flex items-center justify-center z-[1010]"
                 >
                   <motion.div
-                    className="absolute flex flex-col justify-center h-full py-8"
+                    className="absolute flex flex-col justify-center h-full py-10"
                     initial={{ opacity: 0, top: '60%' }}
                     animate={{ opacity: 1, top: 'auto' }}
                     exit={{ opacity: 0, top: '60%' }}
                   >
-                    <Dialog.Panel className="bg-white dark:bg-dark-aside max-w-full w-[650px] max-h-full rounded shadow-lg flex flex-col">
+                    <Dialog.Panel className="bg-white dark:bg-dark-aside max-w-full w-[600px] h-full rounded shadow-lg flex flex-col">
                       <Dialog.Title className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
                         <div className="text-2xl font-bold">
                           Nguyên vật liệu
@@ -130,20 +186,50 @@ const OsMaterials = props => {
                           <XMarkIcon className="w-8" />
                         </div>
                       </Dialog.Title>
-                      <div className="relative p-5 overflow-auto grow">
-                        <ReactBaseTable
-                          wrapClassName="h-[300px]"
-                          rowKey="ID"
-                          columns={columns}
-                          data={[{}]}
-                          estimatedRowHeight={50}
-                          emptyRenderer={
-                            <div className="flex items-center justify-center h-full">
-                              Không có Nguyên vật liệu
-                            </div>
+                      <div className="pt-5 px-5">
+                        <Select
+                          isClearable
+                          value={null}
+                          isDisabled={OsMaterials.isLoading}
+                          isLoading={OsMaterials.isLoading}
+                          className="select-control"
+                          classNamePrefix="select"
+                          onChange={val =>
+                            val &&
+                            prepend({
+                              ...val,
+                              ProdTitle: val.text,
+                              ProdID: val.id,
+                              Qty: 1
+                            })
                           }
+                          options={
+                            OsMaterials?.data
+                              ? OsMaterials?.data.filter(
+                                  x =>
+                                    x.value !== -1 &&
+                                    !watchForm.StockItems.some(
+                                      s => s.ProdID === x.value
+                                    )
+                                )
+                              : []
+                          }
+                          placeholder="Chọn nguyên vật liệu"
+                          noOptionsMessage={() => 'Không có dữ liệu'}
                         />
                       </div>
+                      <ReactBaseTable
+                        wrapClassName="relative p-5 overflow-auto grow"
+                        rowKey="id"
+                        columns={columns}
+                        data={fields}
+                        estimatedRowHeight={50}
+                        emptyRenderer={
+                          <div className="flex items-center justify-center h-full">
+                            Không có Nguyên vật liệu
+                          </div>
+                        }
+                      />
                       <div className="flex justify-end p-5 border-t border-separator dark:border-dark-separator">
                         <Button
                           type="button"

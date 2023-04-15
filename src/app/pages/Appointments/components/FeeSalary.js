@@ -25,7 +25,8 @@ const FeeSalary = ({ nestIndex }) => {
                     thousandSeparator={true}
                     value={field.value}
                     placeholder="Nhập số tiền"
-                    onValueChange={val => field.onChange(val.floatValue)}
+                    onValueChange={val => field.onChange(val.floatValue || '')}
+                    allowNegative={false}
                   />
                 )}
               />

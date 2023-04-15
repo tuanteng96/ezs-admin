@@ -86,7 +86,6 @@ function AppointmentsOsAddEdit(props) {
     onSuccess: data => {
       if (data?.Service) {
         let { Service, OrderServiceID } = data
-        console.log(Service)
         setFeeAll(
           Service?.FeeAll
             ? Service?.FeeAll.map(x => ({
@@ -99,6 +98,9 @@ function AppointmentsOsAddEdit(props) {
         if (!state?.formState) {
           reset({
             ID: OrderServiceID,
+            StockItems: Service?.StockItems
+              ? Service?.StockItems.map(x => ({ ...x, Qty: Math.abs(x.Qty) }))
+              : [],
             FeeUseds: Service?.FeeUseds
               ? Service?.FeeUseds.map(x => ({
                   ...x,
@@ -190,6 +192,12 @@ function AppointmentsOsAddEdit(props) {
                     OrderServiceFeeID: fee.OrderServiceFeeID
                   }))
                 : []
+            }))
+          : [],
+        StockItems: values?.StockItems
+          ? values?.StockItems.map(x => ({
+              ProdID: x.ProdID,
+              Qty: -Math.abs(x.Qty)
             }))
           : [],
         Status: values?.Status || ''
@@ -603,8 +611,9 @@ function AppointmentsOsAddEdit(props) {
                                         value={field.value}
                                         placeholder="Nhập lương ca"
                                         onValueChange={val =>
-                                          field.onChange(val.floatValue)
+                                          field.onChange(val.floatValue || '')
                                         }
+                                        allowNegative={false}
                                       />
                                     )}
                                   />

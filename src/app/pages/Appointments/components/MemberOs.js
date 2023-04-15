@@ -21,7 +21,7 @@ import { OsMaterials } from './OsMaterials'
 const MemberOs = ({ ServiceOs }) => {
   const queryClient = useQueryClient()
   const { pathname } = useLocation()
-  const { control, watch } = useFormContext()
+  const { control, watch, setValue } = useFormContext()
   const { id } = useParams()
   const watchForm = watch()
 
@@ -163,7 +163,13 @@ const MemberOs = ({ ServiceOs }) => {
             {formatString.formatVND(ServiceOs?.CostBase)}
           </div>
         </div>
-        <OsMaterials />
+        <OsMaterials
+          initialValues={watchForm?.StockItems}
+          onChange={(val, onClose) => {
+            setValue('StockItems', val.StockItems)
+            onClose()
+          }}
+        />
         {ServiceOs?.Rate > 0 && (
           <div className="flex justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
             <div className="text-gray-500">Đánh giá</div>

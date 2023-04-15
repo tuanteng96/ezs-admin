@@ -129,9 +129,10 @@ function AddWallet({ onHide, isOpen }) {
                           <InputNumber
                             placeholder="Nhập số tiền"
                             thousandSeparator={true}
+                            allowNegative={false}
                             value={field.value}
                             onValueChange={val =>
-                              field.onChange(val.floatValue)
+                              field.onChange(val.floatValue || '')
                             }
                             errorMessageForce={fieldState?.invalid}
                             errorMessage={fieldState?.error?.message}

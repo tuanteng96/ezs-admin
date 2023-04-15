@@ -10,6 +10,10 @@ const ProdsAPI = {
   getListProdOs: () =>
     http.get(
       `/api/gl/select2?cmd=prod&service_1=1&ignore_all=1&includeSource=1&_type=query`
+    ),
+  getProdId: ID =>
+    http.get(
+      `/api/gl/select2?cmd=prod&cateids=${ID}&includeSource=1&_type=query`
     )
 }
 
