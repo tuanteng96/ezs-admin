@@ -10,6 +10,7 @@ import 'react-texty/styles.css'
 import './index.css'
 
 import { EzsSplashScreenProvider } from './_ezs/core/EzsSplashScreen'
+import { HelmetProvider } from 'react-helmet-async'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -19,16 +20,20 @@ const queryClient = new QueryClient({
   }
 })
 
+const helmetContext = {}
+
 const root = ReactDOM.createRoot(document.getElementById('root'))
 root.render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <EzsSplashScreenProvider>
-        <AuthProvider>
-          <AppRoutes />
-        </AuthProvider>
-      </EzsSplashScreenProvider>
-    </QueryClientProvider>
+    <HelmetProvider context={helmetContext}>
+      <QueryClientProvider client={queryClient}>
+        <EzsSplashScreenProvider>
+          <AuthProvider>
+            <AppRoutes />
+          </AuthProvider>
+        </EzsSplashScreenProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
   </React.StrictMode>
 )
 

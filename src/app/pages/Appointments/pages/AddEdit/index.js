@@ -35,6 +35,7 @@ import useQueryParams from 'src/_ezs/hooks/useQueryParams'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import MembersAPI from 'src/_ezs/api/members.api'
 import { rolesAccess } from 'src/_ezs/utils/rolesAccess'
+import { SEO } from 'src/_ezs/core/SEO'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -329,6 +330,7 @@ function AppointmentsAddEdit(props) {
 
   return (
     <FixedLayout>
+      <SEO title={isAddMode ? 'Đặt lịch mới' : 'Chỉnh sửa đặt lịch'} />
       <FormProvider {...methodsUseForm}>
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -433,7 +435,7 @@ function AppointmentsAddEdit(props) {
                                                 )[0].label
                                               : 'Chưa xác định'}
                                           </span>
-                                          <ChevronDownIcon className="w-4 ml-2 mt-1" />
+                                          <ChevronDownIcon className="w-4 mt-1 ml-2" />
                                         </Listbox.Button>
                                       </div>
                                       <Transition
@@ -829,7 +831,7 @@ function AppointmentsAddEdit(props) {
                                 <Popover className="relative">
                                   <Popover.Button
                                     as={ButtonAs}
-                                    className="relative flex items-center justify-center h-12 px-4 font-semibold text-white transition rounded bg-danger hover:bg-danger focus:outline-none focus:shadow-none disabled:opacity-70 ml-2"
+                                    className="relative flex items-center justify-center h-12 px-4 ml-2 font-semibold text-white transition rounded bg-danger hover:bg-danger focus:outline-none focus:shadow-none disabled:opacity-70"
                                     loading={
                                       field.value === 'KHACH_KHONG_DEN' &&
                                       addBookingMutation.isLoading
@@ -883,7 +885,7 @@ function AppointmentsAddEdit(props) {
                                   watchForm.Status === 'KHACH_KHONG_DEN'
                                 }
                                 type="submit"
-                                className="relative flex items-center justify-center h-12 px-4 font-bold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70 ml-2 uppercase text-sm flex-1"
+                                className="relative flex items-center justify-center flex-1 h-12 px-4 ml-2 text-sm font-bold text-white uppercase transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
                                 onClick={() => {
                                   field.onChange('KHACH_DEN')
                                 }}

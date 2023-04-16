@@ -21,7 +21,7 @@ import { toast } from 'react-toastify'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import clsx from 'clsx'
 import Swal from 'sweetalert2'
-
+import { SEO } from 'src/_ezs/core/SEO'
 import moment from 'moment'
 import 'moment/locale/vi'
 
@@ -277,6 +277,7 @@ function ClientAddEdit(props) {
 
   return (
     <FixedLayout>
+      <SEO title={isAddMode ? 'Thêm mới khách hàng' : 'Chỉnh sửa khách hàng'} />
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="relative flex flex-col h-full"

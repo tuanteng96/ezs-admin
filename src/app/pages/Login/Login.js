@@ -11,6 +11,7 @@ import clsx from 'clsx'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline'
+import { SEO } from 'src/_ezs/core/SEO'
 
 const schemaLogin = yup
   .object({
@@ -62,6 +63,7 @@ function Login() {
 
   return (
     <div className="max-w-[420px] w-full">
+      <SEO title="Đăng nhập tài khoản" />
       <div className="flex items-center justify-center mb-8">
         <img
           className="w-24"

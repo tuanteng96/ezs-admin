@@ -9,6 +9,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import clsx from 'clsx'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
+import { SEO } from 'src/_ezs/core/SEO'
 
 const schemaForgot = yup
   .object({
@@ -49,6 +50,7 @@ function Forgot() {
 
   return (
     <div className="max-w-[420px] w-full">
+      <SEO title="Quên mật khẩu" />
       <div className="flex items-center justify-center mb-8">
         <img
           className="w-24"

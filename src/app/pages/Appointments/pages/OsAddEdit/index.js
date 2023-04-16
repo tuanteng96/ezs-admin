@@ -32,7 +32,7 @@ import { FeeSalary } from '../../components/FeeSalary'
 import { OsSalaryMethod } from '../../components/OsSalaryMethod'
 import { useAuth } from 'src/_ezs/core/Auth'
 import { rolesAccess } from 'src/_ezs/utils/rolesAccess'
-
+import { SEO } from 'src/_ezs/core/SEO'
 import moment from 'moment'
 import 'moment/locale/vi'
 
@@ -315,6 +315,7 @@ function AppointmentsOsAddEdit(props) {
 
   return (
     <FixedLayout>
+      <SEO title="Chỉnh sửa buổi dịch vụ" />
       <FormProvider {...methodsUseForm}>
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -646,7 +647,7 @@ function AppointmentsOsAddEdit(props) {
                         )}
                       />
                     </div>
-                    <div className="mt-4 flex items-center">
+                    <div className="flex items-center mt-4">
                       <Controller
                         name="IsMemberSet"
                         control={control}
@@ -660,7 +661,7 @@ function AppointmentsOsAddEdit(props) {
                           />
                         )}
                       />
-                      <div className="w-full flex justify-end">
+                      <div className="flex justify-end w-full">
                         <Controller
                           name="AutoSalaryMethod"
                           control={control}

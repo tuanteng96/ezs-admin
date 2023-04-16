@@ -7,7 +7,7 @@ import CalendarAPI from 'src/_ezs/api/calendar.api'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import { useAuth } from 'src/_ezs/core/Auth'
 import UsersAPI from 'src/_ezs/api/users.api'
-
+import { SEO } from 'src/_ezs/core/SEO'
 import moment from 'moment'
 import 'moment/locale/vi'
 
@@ -201,6 +201,7 @@ function Home(props) {
 
   return (
     <div className="flex flex-col h-full">
+      <SEO title="Bảng lịch" />
       <CalendarHeader queryConfig={queryConfig} />
       <div className="bg-white dark:bg-dark-aside h-[calc(100%-77px)] relative">
         <CalendarBody
