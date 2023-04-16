@@ -96,24 +96,33 @@ const OsMaterials = ({ initialValues, onChange }) => {
         dataKey: 'Qty',
         cellRenderer: ({ rowIndex }) => (
           <Controller
+            rules={{
+              required: true
+            }}
             name={`StockItems[${rowIndex}].Qty`}
             control={control}
             render={({ field: { ref, ...field }, fieldState }) => (
               <>
                 <InputNumber
                   className="px-3 py-2.5"
+                  errorMessageForce={fieldState.invalid}
                   placeholder="Nhập SL"
                   value={field.value}
                   onValueChange={val => {
                     field.onChange(val.floatValue || '')
                   }}
                   allowNegative={false}
+                  isAllowed={inputObj => {
+                    const { floatValue } = inputObj
+                    if (floatValue < 1) return
+                    return true
+                  }}
                 />
               </>
             )}
           />
         ),
-        width: 120,
+        width: 150,
         sortable: false
       },
       {
@@ -148,7 +157,7 @@ const OsMaterials = ({ initialValues, onChange }) => {
           {initialValues && initialValues.length > 0 ? (
             <span>{initialValues.length} Nguyên vật liệu</span>
           ) : (
-            'Thêm mới'
+            'Thêm'
           )}
         </div>
       </div>
@@ -174,7 +183,7 @@ const OsMaterials = ({ initialValues, onChange }) => {
                     animate={{ opacity: 1, top: 'auto' }}
                     exit={{ opacity: 0, top: '60%' }}
                   >
-                    <Dialog.Panel className="bg-white dark:bg-dark-aside max-w-full w-[600px] h-full rounded shadow-lg flex flex-col">
+                    <Dialog.Panel className="bg-white dark:bg-dark-aside max-w-full w-[625px] h-full rounded shadow-lg flex flex-col">
                       <Dialog.Title className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
                         <div className="text-2xl font-bold">
                           Nguyên vật liệu
@@ -186,7 +195,7 @@ const OsMaterials = ({ initialValues, onChange }) => {
                           <XMarkIcon className="w-8" />
                         </div>
                       </Dialog.Title>
-                      <div className="pt-5 px-5">
+                      <div className="px-5 pt-5">
                         <Select
                           isClearable
                           value={null}

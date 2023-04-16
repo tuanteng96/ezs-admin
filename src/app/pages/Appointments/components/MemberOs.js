@@ -163,13 +163,15 @@ const MemberOs = ({ ServiceOs }) => {
             {formatString.formatVND(ServiceOs?.CostBase)}
           </div>
         </div>
-        <OsMaterials
-          initialValues={watchForm?.StockItems}
-          onChange={(val, onClose) => {
-            setValue('StockItems', val.StockItems)
-            onClose()
-          }}
-        />
+        {ServiceOs?.Status === 'done' && (
+          <OsMaterials
+            initialValues={watchForm?.StockItems}
+            onChange={(val, onClose) => {
+              setValue('StockItems', val.StockItems)
+              onClose()
+            }}
+          />
+        )}
         {ServiceOs?.Rate > 0 && (
           <div className="flex justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
             <div className="text-gray-500">Đánh giá</div>
