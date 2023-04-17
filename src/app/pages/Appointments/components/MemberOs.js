@@ -17,6 +17,7 @@ import { toast } from 'react-toastify'
 import CalendarAPI from 'src/_ezs/api/calendar.api'
 import clsx from 'clsx'
 import { OsMaterials } from './OsMaterials'
+import { MemberOsSignature } from './MemberOsSignature'
 
 const MemberOs = ({ ServiceOs }) => {
   const queryClient = useQueryClient()
@@ -209,20 +210,7 @@ const MemberOs = ({ ServiceOs }) => {
             </div>
           </div>
         )}
-        {ServiceOs?.StaffHis && (
-          <div className="flex flex-col px-6 py-4 border-b border-separator dark:border-dark-separator">
-            <div className="text-gray-500">Chữ ký khách hàng</div>
-            <div className="w-3/5 mt-2 font-medium text-right">
-              <div className="p-5 border rounded border-separator dark:border-dark-separator">
-                <img
-                  className="max-w-full"
-                  src={toAbsolutePath(ServiceOs?.StaffHis)}
-                  alt="Chữ ký khách hàng"
-                />
-              </div>
-            </div>
-          </div>
-        )}
+        {ServiceOs?.StaffHis && <MemberOsSignature ServiceOs={ServiceOs} />}
         <div className="flex flex-col px-6 py-4">
           <div className="mb-2 text-gray-500">File đính kèm</div>
           <div className="grid grid-cols-5 gap-4">

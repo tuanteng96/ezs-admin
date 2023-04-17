@@ -7,9 +7,16 @@ import { DropdownStocks } from './DropdownStocks'
 import { NotificationDrawer } from './NotificationDrawer'
 import { DropdownCheckin } from './DropdownCheckin'
 import { Link, useLocation } from 'react-router-dom'
+import { rolesAccess } from 'src/_ezs/utils/rolesAccess'
+import { useAuth } from 'src/_ezs/core/Auth'
 
 const Header = () => {
   const { pathname, search } = useLocation()
+  const { CrStocks, auth } = useAuth()
+  const { calendar } = rolesAccess({
+    rightsSum: auth.rightsSum,
+    CrStocks: CrStocks
+  })
 
   return (
     <div className="h-[70px] bg-white dark:bg-dark-aside fixed w-full top-0 left-0 z-[1001] flex justify-between pr-4 transition">
@@ -28,15 +35,18 @@ const Header = () => {
           <DropdownCheckin />
         </div>
         <div className="flex items-center">
-          <div>
-            <Link
-              to="/search"
-              state={{ previousPath: pathname + search }}
-              className="flex items-center justify-center text-gray-700 transition rounded cursor-pointer dark:text-dark-muted w-11 h-11 hover:bg-light dark:hover:bg-dark-light hover:text-primary"
-            >
-              <MagnifyingGlassIcon className="w-6 h-6" />
-            </Link>
-          </div>
+          {calendar.hasRight && (
+            <div>
+              <Link
+                to="/search"
+                state={{ previousPath: pathname + search }}
+                className="flex items-center justify-center text-gray-700 transition rounded cursor-pointer dark:text-dark-muted w-11 h-11 hover:bg-light dark:hover:bg-dark-light hover:text-primary"
+              >
+                <MagnifyingGlassIcon className="w-6 h-6" />
+              </Link>
+            </div>
+          )}
+
           <div className="ml-1">
             <NotificationDrawer />
           </div>

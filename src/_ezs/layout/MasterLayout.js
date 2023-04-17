@@ -24,7 +24,9 @@ const MasterLayout = () => {
         case 112:
           e.preventDefault()
           navigate(
-            `/search?type=${queryConfig.type === 'order' ? 'member' : 'order'}`,
+            `/search?type=${
+              queryConfig.type === 'member' ? 'order' : 'member'
+            }`,
             {
               state: {
                 previousPath: pathname === '/search' ? '/' : pathname + search

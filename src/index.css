@@ -106,9 +106,16 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     display: block;
 }
 
+
 /* react-viewer */
-body .react-viewer-list > li,
-body .react-viewer-list > li > img {
+
+body .react-viewer.bg-white .react-viewer-image {
+    background-color: #fff;
+    padding: 30px;
+}
+
+body .react-viewer-list>li,
+body .react-viewer-list>li>img {
     width: auto;
     margin-left: 0;
 }
