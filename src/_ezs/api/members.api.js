@@ -1,6 +1,10 @@
 import http from 'src/_ezs/utils/http'
 
 const MembersAPI = {
+  memberChangePhone: body =>
+    http.post(`/services/preview.aspx?cmd=chang_phone`, body),
+  memberChangeEmail: body =>
+    http.post(`/services/preview.aspx?cmd=chang_email`, body),
   memberOnCheckin: body => http.post(`services/preview.aspx?cmd=checkin`, body),
   memberCheckin: ({ StockID, Key, Type = '' }) =>
     http.get(

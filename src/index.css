@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 :root {
     --ezs-body-bg: #f5f8fa;
     --ezs-body-color: #181C32;
@@ -87,8 +88,9 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     content: "";
     border-color: transparent;
     border-style: solid;
-    border-width: 0 2px 2px 0/*rtl:ignore*/
-    !important;
+    border-width: 0 2px 2px 0
+        /*rtl:ignore*/
+        !important;
     -webkit-transform: rotate(45deg);
     /*rtl:ignore*/
     transform: rotate(45deg);
