@@ -1,6 +1,7 @@
 :root {
     --select-bg-item-hover: #f4f6fa;
     --select-color-item: #3F4254;
+    --select-color-item-placeholder: #b5bbd3;
     --select-border-color: #d5d7da;
     --select-disabled-color: #f4f4f4;
     --select-bg: #fff;
@@ -105,13 +106,17 @@ html.dark {
 
 .select__menu-portal .select__input-container,
 .select__menu-portal .select__value-container .select__single-value,
-.select__menu-portal .select__value-container .select__placeholder,
 .select__menu-portal .select__menu-notice.select__menu-notice--no-options,
 .select-control .select__input-container,
 .select-control .select__value-container .select__single-value,
-.select-control .select__value-container .select__placeholder,
 .select-control .select__menu-notice.select__menu-notice--no-options {
     color: var(--select-color-item);
+    font-weight: 500;
+}
+
+.select__menu-portal .select__value-container .select__placeholder,
+.select-control .select__value-container .select__placeholder {
+    color: var(--select-color-item-placeholder);
     font-weight: 500;
 }
 

@@ -3,7 +3,6 @@ import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useMutation } from '@tanstack/react-query'
 import clsx from 'clsx'
 import React, { useState } from 'react'
-import { toast } from 'react-toastify'
 import UploadsAPI from 'src/_ezs/api/uploads.api'
 import { toAbsolutePath, toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 
@@ -25,23 +24,19 @@ const UploadFilePlus = ({
       })
   })
 
-  const handleFileChange = event => {
+  const handleFileChange = async event => {
     const files = event.target.files
-    var bodyFormData = new FormData()
-    bodyFormData.append('file', files[0])
+    const filesArr = Object.values(files)
 
-    uploadMutation.mutate(bodyFormData, {
-      onSuccess: ({ data }) => {
-        if (data?.error) {
-          toast.error(data.error)
-        } else {
-          onChange(data.data)
-        }
-      },
-      onError: error => {
-        console.log(error)
-      }
-    })
+    const result = await Promise.all(
+      filesArr.map(async file => {
+        var bodyFormData = new FormData()
+        bodyFormData.append(file.name, file)
+        let { data } = await uploadMutation.mutateAsync(bodyFormData)
+        return data
+      })
+    )
+    result.map(x => onChange(x.data))
   }
 
   return (
@@ -68,7 +63,7 @@ const UploadFilePlus = ({
             alt="No Files"
           />
           <input
-            value={''}
+            value=""
             className="absolute top-0 left-0 z-0 w-full h-full opacity-0 cursor-pointer"
             type="file"
             title=""

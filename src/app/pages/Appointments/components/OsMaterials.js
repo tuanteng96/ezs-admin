@@ -91,6 +91,15 @@ const OsMaterials = ({ initialValues, onChange }) => {
         //align: 'center',
       },
       {
+        key: 'StockUnit',
+        title: 'Đơn vị',
+        dataKey: 'StockUnit',
+        cellRenderer: ({ rowData }) => <div>{rowData?.source?.StockUnit}</div>,
+        width: 100,
+        sortable: false
+        //align: 'center',
+      },
+      {
         key: 'Qty',
         title: 'Số lượng',
         dataKey: 'Qty',
@@ -106,7 +115,7 @@ const OsMaterials = ({ initialValues, onChange }) => {
                 <InputNumber
                   className="px-3 py-2.5"
                   errorMessageForce={fieldState.invalid}
-                  placeholder="Nhập SL"
+                  placeholder="SL"
                   value={field.value}
                   onValueChange={val => {
                     field.onChange(val.floatValue || '')
@@ -122,7 +131,7 @@ const OsMaterials = ({ initialValues, onChange }) => {
             )}
           />
         ),
-        width: 150,
+        width: 100,
         sortable: false
       },
       {
@@ -183,7 +192,7 @@ const OsMaterials = ({ initialValues, onChange }) => {
                     animate={{ opacity: 1, top: 'auto' }}
                     exit={{ opacity: 0, top: '60%' }}
                   >
-                    <Dialog.Panel className="bg-white dark:bg-dark-aside max-w-full w-[625px] h-full rounded shadow-lg flex flex-col">
+                    <Dialog.Panel className="bg-white dark:bg-dark-aside max-w-full w-[675px] h-full rounded shadow-lg flex flex-col">
                       <Dialog.Title className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
                         <div className="text-2xl font-bold">
                           Nguyên vật liệu

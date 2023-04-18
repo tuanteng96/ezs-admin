@@ -11,6 +11,10 @@ module.exports = withMT({
     container: {
       center: true
     },
+    screens: {
+      print: { raw: 'print' },
+      screen: { raw: 'screen' }
+    },
     // fontSize: {
     //   // 'sm': '0.938rem'
     // },
@@ -205,7 +209,7 @@ module.exports = withMT({
           }
         },
         blinker: {
-          "50%": {
+          '50%': {
             opacity: 0
           }
         }
@@ -217,7 +221,9 @@ module.exports = withMT({
       }
     }
   },
-  plugins: [require('tailwind-scrollbar')({
-    nocompatible: true
-  })]
+  plugins: [
+    require('tailwind-scrollbar')({
+      nocompatible: true
+    })
+  ]
 })

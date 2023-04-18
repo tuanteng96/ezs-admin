@@ -7,7 +7,7 @@ import {
 } from 'react-hook-form'
 import FixedLayout from 'src/_ezs/layout/FixedLayout'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { PrinterIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { XMarkIcon } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
 import {
   Checkbox,
@@ -33,6 +33,7 @@ import { OsSalaryMethod } from '../../components/OsSalaryMethod'
 import { useAuth } from 'src/_ezs/core/Auth'
 import { rolesAccess } from 'src/_ezs/utils/rolesAccess'
 import { SEO } from 'src/_ezs/core/SEO'
+import { OsPrint } from '../../components/OsPrint'
 import moment from 'moment'
 import 'moment/locale/vi'
 
@@ -102,10 +103,10 @@ function AppointmentsOsAddEdit(props) {
               ? Service?.StockItems.map(x => ({ ...x, Qty: Math.abs(x.Qty) }))
               : [],
             FeeUseds: Service?.FeeUseds
-              ? Service?.FeeUseds.map(x => ({
+              ? Service?.FeeUseds.map((x, idx) => ({
                   ...x,
                   label: x.Title,
-                  value: x.RootID
+                  value: x.RootID + idx
                 }))
               : [],
             Attachment: Service?.Attachment
@@ -133,9 +134,7 @@ function AppointmentsOsAddEdit(props) {
             IsMemberSet: Service?.IsMemberSet,
             Status: Service?.Status || '',
             sendNoti: true,
-            AutoSalaryMethod: Service?.AutoSalaryMethod
-              ? Number(Service?.AutoSalaryMethod)
-              : 1
+            AutoSalaryMethod: Number(Service?.AutoSalaryMethod)
           })
         }
       } else {
@@ -374,22 +373,28 @@ function AppointmentsOsAddEdit(props) {
                               </>
                             )}
                           />
-                          <div>
-                            {bookingCurrent?.data?.Service?.Status ===
-                              'done' && (
-                              <span className="font-bold text-primary">
-                                Thực hiện xong
+
+                          {bookingCurrent?.data?.Service?.Status === 'done' && (
+                            <div className="px-3 py-2 rounded flex items-center border border-separator">
+                              <span className="font-semibold text-[#92929e]">
+                                Thực hiện xong <span className="pl-1.5">✔</span>
                               </span>
-                            )}
-                            {bookingCurrent?.data?.Service?.Status !== 'done' &&
-                              bookingCurrent?.data?.Service?.UserServices &&
-                              bookingCurrent?.data?.Service?.UserServices
-                                .length > 0 && (
-                                <span className="font-bold text-warning">
+                            </div>
+                          )}
+                          {bookingCurrent?.data?.Service?.Status !== 'done' &&
+                            bookingCurrent?.data?.Service?.UserServices &&
+                            bookingCurrent?.data?.Service?.UserServices.length >
+                              0 && (
+                              <div className="px-3 py-2 rounded flex items-center border border-separator">
+                                <span className="absolute top-0 right-0 flex w-3 h-3 -mt-1 -mr-1">
+                                  <span className="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping bg-warning"></span>
+                                  <span className="relative inline-flex w-3 h-3 border border-white rounded-full bg-warning"></span>
+                                </span>
+                                <span className="font-semibold text-warning">
                                   Đang thực hiện
                                 </span>
-                              )}
-                          </div>
+                              </div>
+                            )}
                         </div>
 
                         <div className="p-6 border border-gray-300 rounded-lg dark:border-graydark-400">
@@ -448,6 +453,7 @@ function AppointmentsOsAddEdit(props) {
                               />
                             </div>
                           </div>
+
                           <div className="grid grid-cols-4 gap-5">
                             <div className="col-span-2">
                               <div className="mb-1.5 text-base text-gray-900 font-semibold dark:text-graydark-800">
@@ -468,6 +474,7 @@ function AppointmentsOsAddEdit(props) {
                                     value={field.value}
                                     onChange={val => {
                                       let count = 0
+
                                       const newUserService = [...val].map(
                                         x => ({
                                           ...x,
@@ -528,11 +535,12 @@ function AppointmentsOsAddEdit(props) {
                                     onChange={val => {
                                       field.onChange(val)
                                       let count = 0
+
                                       const newUserService = [
                                         ...watchForm.UserServices
                                       ].map(x => ({
                                         ...x,
-                                        UserID: x.id,
+                                        UserID: x.value,
                                         UserName: x.label,
                                         Salary: x?.Salary || '',
                                         FeeSalary: [...val].map(fee => {
@@ -692,10 +700,7 @@ function AppointmentsOsAddEdit(props) {
                 <div className="flex p-5 border-t border-separator dark:border-dark-separator">
                   <Button
                     type="submit"
-                    loading={
-                      editBookOSMutation.isLoading &&
-                      watchForm?.Status !== 'done'
-                    }
+                    loading={editBookOSMutation.isLoading}
                     disabled={editBookOSMutation.isLoading}
                     hideText={
                       editBookOSMutation.isLoading &&
@@ -717,12 +722,7 @@ function AppointmentsOsAddEdit(props) {
                   >
                     Hủy
                   </Button>
-                  <button
-                    type="button"
-                    className="relative flex items-center justify-center h-12 px-4 ml-2 font-bold text-gray-900 transition border border-gray-400 rounded dark:text-white hover:border-gray-900 dark:hover:border-white focus:outline-none focus:shadow-none disabled:opacity-70"
-                  >
-                    <PrinterIcon className="w-5" />
-                  </button>
+                  <OsPrint />
                   {bookingCurrent?.data?.Service?.Status !== 'done' && (
                     <Button
                       loading={

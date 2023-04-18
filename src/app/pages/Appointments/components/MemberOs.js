@@ -239,6 +239,7 @@ const MemberOs = ({ ServiceOs }) => {
                 width="w-full"
                 height="h-full"
                 onChange={val => prepend({ Src: val })}
+                multiple
               />
             </div>
           </div>

@@ -659,7 +659,7 @@ function AppointmentsAddEdit(props) {
                   )}
                   <div className="pl-8">
                     <div>
-                      <div className="mb-1.5 text-base text-gray-900 font-inter font-semibold dark:text-graydark-800">
+                      <div className="mb-1.5 text-base text-gray-900 font-inter dark:text-graydark-800">
                         Ghi chú đặt lịch
                       </div>
                       <Controller

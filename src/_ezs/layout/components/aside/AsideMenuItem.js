@@ -1,9 +1,11 @@
 import clsx from 'clsx'
 import Tooltip from 'rc-tooltip'
 import React from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 
-const AsideMenuItem = ({ to, title, icon }) => {
+const AsideMenuItem = ({ to, title, icon, actives }) => {
+  const { pathname } = useLocation()
+  const hasActive = actives && actives.some(x => pathname.includes(x))
   return (
     <Tooltip
       overlayClassName="text-white dark:text-dark-light"
@@ -23,7 +25,7 @@ const AsideMenuItem = ({ to, title, icon }) => {
         className={({ isActive }) =>
           clsx(
             'flex items-center justify-center w-12 h-12 mb-3 rounded-md transition',
-            isActive ? 'bg-primary' : 'hover:bg-site-aside-hover'
+            isActive || hasActive ? 'bg-primary' : 'hover:bg-site-aside-hover'
           )
         }
       >

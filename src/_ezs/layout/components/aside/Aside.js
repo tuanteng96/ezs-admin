@@ -23,7 +23,8 @@ const AsideMenuList = [
   {
     to: '/calendar',
     icon: () => <CalendarIcon className="w-8 h-8 text-white" />,
-    title: 'Calendar'
+    title: 'Calendar',
+    actives: ['/clients/']
   },
   {
     to: '/sale',
@@ -31,7 +32,7 @@ const AsideMenuList = [
     title: 'Sales'
   },
   {
-    to: '/clients',
+    to: '/clients1',
     icon: () => <FaceSmileIcon className="w-8 h-8 text-white" />,
     title: 'Clients'
   },

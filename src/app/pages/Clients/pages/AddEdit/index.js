@@ -22,10 +22,7 @@ import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/Loading
 import clsx from 'clsx'
 import Swal from 'sweetalert2'
 import { SEO } from 'src/_ezs/core/SEO'
-import {
-  ClientFieldEmail,
-  ClientFieldPhone
-} from '../../components/ClientsField'
+import { ClientFieldPhone } from '../../components/ClientsField'
 import moment from 'moment'
 import 'moment/locale/vi'
 
@@ -401,7 +398,22 @@ function ClientAddEdit(props) {
                       <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                         Email
                       </div>
-                      <ClientFieldEmail isAddMode={isAddMode} />
+                      <Controller
+                        name="Email"
+                        control={control}
+                        render={({ field: { ref, ...field }, fieldState }) => (
+                          <div className="relative">
+                            <Input
+                              placeholder="Nhập Email"
+                              type="text"
+                              errorMessageForce={fieldState?.invalid}
+                              errorMessage={fieldState?.error?.message}
+                              {...field}
+                              autoComplete="Emails"
+                            />
+                          </div>
+                        )}
+                      />
                     </div>
                   </div>
                 </div>

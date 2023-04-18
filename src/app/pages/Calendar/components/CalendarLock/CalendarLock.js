@@ -39,13 +39,21 @@ const CalendarLock = props => {
       let initialValue = []
       if (data) {
         const ListLock = JSON.parse(data)
+
         initialValue = ListLock.map(x => ({
           ...x,
           ListDisable:
             x.ListDisable && x.ListDisable.length > 0
-              ? x.ListDisable.filter(item =>
-                  moment().isSameOrBefore(item.Date, 'day')
-                )
+              ? x.ListDisable.filter(item => {
+                  let dateDisable = moment(item.Date, 'DD/MM/YYYY').format(
+                    'YYYY/MM/DD'
+                  )
+                  let dateCurrent = moment(new Date()).format('YYYY/MM/DD')
+                  return (
+                    !item.Date ||
+                    moment(dateCurrent).isSameOrBefore(dateDisable)
+                  )
+                })
                   .map(item => ({
                     ...item,
                     Date: moment(item.Date, 'DD/MM/YYYY').toDate(),
