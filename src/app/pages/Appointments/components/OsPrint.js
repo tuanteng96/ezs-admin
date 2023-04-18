@@ -15,7 +15,6 @@ const OsPrint = props => {
   const btnRef = useRef(null)
   const handleOnBeforeGetContent = useCallback(() => {
     console.log('`onBeforeGetContent` called')
-
     return new Promise(resolve => {
       onBeforeGetContentResolve.current = resolve
       resolve()
