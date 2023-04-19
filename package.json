@@ -29,6 +29,7 @@
         "perfect-scrollbar": "^1.5.5",
         "rc-tooltip": "^6.0.1",
         "react": "^18.2.0",
+        "react-barcode": "^1.4.6",
         "react-base-table": "^1.13.4",
         "react-datepicker": "^4.10.0",
         "react-dom": "^18.2.0",

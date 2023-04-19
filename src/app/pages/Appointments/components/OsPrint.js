@@ -4,8 +4,20 @@ import ReactToPrint from 'react-to-print'
 import { PrinterOs } from 'src/_ezs/partials/printer'
 
 const pagePrintStyle = `
+  @media print and (width: 21cm) and (height: 29.7cm) {
+     @page {
+        margin: 25px !important;
+     }
+  } 
   @page {
     size: auto;
+  }
+  @media print {
+    html,
+    body {
+      height: initial!important;
+      overflow: initial!important;
+    }
   }
 `
 
@@ -54,7 +66,9 @@ const OsPrint = props => {
         removeAfterPrint
         pageStyle={pagePrintStyle}
       />
-      <PrinterOs ref={componentRef} />
+      <div className="hidden">
+        <PrinterOs ref={componentRef} />
+      </div>
     </>
   )
 }
