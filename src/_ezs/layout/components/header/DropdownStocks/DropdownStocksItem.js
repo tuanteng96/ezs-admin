@@ -6,7 +6,7 @@ const DropdownStocksItem = ({ item, selected }) => {
   return (
     <div
       className={clsx(
-        'flex items-center px-5 py-3 text-sm hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray',
+        'flex items-center px-5 py-3 text-sm hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-dark-gray font-medium',
         selected
           ? 'bg-[#F4F6FA] text-primary dark:text-primary dark:bg-dark-light'
           : 'text-site-color'

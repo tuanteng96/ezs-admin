@@ -57,7 +57,7 @@ const Avatar = ({ classes, bgStatus }) => {
       {!auth?.User?.Avatar && (
         <div
           className={clsx(
-            'flex items-center justify-center text-sm font-bold rounded cursor-pointer bg-primarylight text-primary font-inter',
+            'flex items-center justify-center font-bold rounded cursor-pointer bg-primarylight text-primary font-inter uppercase',
             classes && classes
           )}
         >

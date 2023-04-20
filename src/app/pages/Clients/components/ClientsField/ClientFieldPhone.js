@@ -113,12 +113,14 @@ const ClientFieldPhone = ({ isAddMode }) => {
               disabled={!isAddMode}
               {...field}
             />
-            <div
-              className="absolute top-0 right-0 z-10 flex items-center justify-center w-12 h-full cursor-pointer"
-              onClick={onOpen}
-            >
-              <PencilIcon className="w-4" />
-            </div>
+            {!isAddMode && (
+              <div
+                className="absolute top-0 right-0 z-10 flex items-center justify-center w-12 h-full cursor-pointer"
+                onClick={onOpen}
+              >
+                <PencilIcon className="w-4" />
+              </div>
+            )}
           </div>
         )}
       />

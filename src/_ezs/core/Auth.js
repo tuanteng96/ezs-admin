@@ -20,22 +20,33 @@ const AuthProvider = ({ children }) => {
     getLocalStorage('access_token')
   )
   const [CrStocks, setCrStocks] = useState(getLocalStorage('access_stock'))
+  const [StockRights, setStockRights] = useState(null)
   const [Stocks, setStocks] = useState(null)
 
   const saveAuth = ({ auth, token }) => {
     if (auth) {
       let newStocks = auth.Stocks
         ? auth.Stocks.filter(x => x.ParentID !== 0).map(x => ({
-            ...x,
+            Title: x.Title,
+            ID: x.ID,
             value: x.ID,
             label: x.Title
           }))
         : []
+      let newStocksRights = auth.StockRights
+        ? auth.StockRights.map(x => ({
+            Title: x.Title,
+            ID: x.ID,
+            value: x.ID,
+            label: x.Title
+          }))
+        : null
       let newCrStock = !CrStocks
-        ? newStocks[0]
-        : newStocks.filter(x => x.ID === CrStocks.ID)[0]
+        ? newStocksRights[0]
+        : newStocksRights.filter(x => x.ID === CrStocks.ID)[0]
 
       setStocks(newStocks)
+      setStockRights(newStocksRights)
       setCrStocks(newCrStock)
       storeLocalStorage(newCrStock, 'access_stock')
       setAuth(auth)
@@ -66,6 +77,7 @@ const AuthProvider = ({ children }) => {
         logout,
         CrStocks,
         Stocks,
+        StockRights,
         saveStocks
       }}
     >

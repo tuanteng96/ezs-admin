@@ -30,7 +30,7 @@ const DropdownUser = () => {
                       </div>
                       <div className="flex-1 pl-3 overflow-hidden">
                         <div className="w-full">
-                          <div className="text-lg font-semibold truncate font-inter text-site-color dark:text-white">
+                          <div className="text-lg font-semibold truncate font-inter text-site-color dark:text-white capitalize">
                             {auth?.User?.FullName || 'Chưa cập nhập'}
                           </div>
                           <div className="text-sm dark:text-dark-muted">
