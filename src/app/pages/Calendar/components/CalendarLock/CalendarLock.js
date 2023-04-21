@@ -40,46 +40,47 @@ const CalendarLock = props => {
       if (data) {
         const ListLock = JSON.parse(data)
 
-        initialValue = ListLock.map(x => ({
-          ...x,
-          ListDisable:
-            x.ListDisable && x.ListDisable.length > 0
-              ? x.ListDisable.filter(item => {
-                  let dateDisable = moment(item.Date, 'DD/MM/YYYY').format(
-                    'YYYY/MM/DD'
-                  )
-                  let dateCurrent = moment(new Date()).format('YYYY/MM/DD')
-                  return (
-                    !item.Date ||
-                    moment(dateCurrent).isSameOrBefore(dateDisable)
-                  )
-                })
-                  .map(item => ({
-                    ...item,
-                    Date: moment(item.Date, 'DD/MM/YYYY').toDate(),
-                    TimeClose:
-                      item.TimeClose && item.TimeClose.length > 0
-                        ? item.TimeClose.map(time => ({
-                            Start: time.Start
-                              ? moment(time.Start, 'HH:mm').toDate()
-                              : null,
-                            End: time.End
-                              ? moment(time.End, 'HH:mm').toDate()
-                              : null
-                          }))
-                        : [{ Start: null, End: null }]
-                  }))
-                  .sort(
-                    (a, b) =>
-                      moment(a.Date).valueOf() - moment(b.Date).valueOf()
-                  )
-              : [
-                  {
-                    Date: null,
-                    TimeClose: [{ Start: null, End: null }]
-                  }
-                ]
-        }))
+        initialValue = ListLock.map(x => {
+          const newListDisable =
+            x.ListDisable &&
+            x.ListDisable.length > 0 &&
+            x.ListDisable.filter(item => {
+              let dateDisable = moment(item.Date, 'DD/MM/YYYY')
+              let dateCurrent = moment(new Date())
+
+              return !item.Date || dateCurrent.diff(dateDisable, 'days') < 8
+            })
+              .map(item => ({
+                ...item,
+                Date: moment(item.Date, 'DD/MM/YYYY').toDate(),
+                TimeClose:
+                  item.TimeClose && item.TimeClose.length > 0
+                    ? item.TimeClose.map(time => ({
+                        Start: time.Start
+                          ? moment(time.Start, 'HH:mm').toDate()
+                          : null,
+                        End: time.End
+                          ? moment(time.End, 'HH:mm').toDate()
+                          : null
+                      }))
+                    : [{ Start: null, End: null }]
+              }))
+              .sort(
+                (a, b) => moment(a.Date).valueOf() - moment(b.Date).valueOf()
+              )
+          return {
+            ...x,
+            ListDisable:
+              newListDisable.length > 0
+                ? newListDisable
+                : [
+                    {
+                      Date: null,
+                      TimeClose: [{ Start: null, End: null }]
+                    }
+                  ]
+          }
+        })
       } else {
         initialValue = Stocks
           ? Stocks.map(x => ({
@@ -93,6 +94,7 @@ const CalendarLock = props => {
             }))
           : []
       }
+
       setValue('ListLocks', initialValue)
     },
     enabled: isOpen
@@ -138,6 +140,7 @@ const CalendarLock = props => {
           TimeClose: newTimeClose.filter(time => time.Start && time.End)
         }
       }).filter(x => x.Date)
+
       return {
         ...Stock,
         ListDisable: newListDisable

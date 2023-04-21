@@ -31,7 +31,7 @@ const OsSalaryMethod = ({ value, onChange }) => {
               {({ selected }) => (
                 <div
                   className={clsx(
-                    'flex items-center px-4 py-3 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary transition cursor-pointer dark:hover:text-primary dark:text-dark-gray font-medium',
+                    'flex items-center px-4 py-3 text-[15px] hover:bg-light dark:hover:bg-dark-light hover:text-primary transition cursor-pointer dark:hover:text-primary dark:text-dark-gray font-semibold',
                     selected &&
                       'text-primary bg-light dark:text-primary dark:bg-dark-light'
                   )}

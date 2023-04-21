@@ -62,7 +62,6 @@ function AppointmentsOsAddEdit(props) {
           UserServices: [],
           Desc: '',
           IsMemberSet: '',
-          sendNoti: true,
           AutoSalaryMethod: 1
         }
   })
@@ -89,11 +88,11 @@ function AppointmentsOsAddEdit(props) {
         let { Service, OrderServiceID } = data
         setFeeAll(
           Service?.FeeAll
-            ? Service?.FeeAll.map(x => ({
+            ? Service?.FeeAll.map((x, idx) => ({
                 ...x,
-                value: x.OrderItemID,
+                value: x.RootID + idx,
                 label: x.Title
-              })).filter(x => x.Remain)
+              })).filter(x => x.Remain > 0)
             : []
         )
         if (!state?.formState) {
@@ -133,7 +132,6 @@ function AppointmentsOsAddEdit(props) {
             Desc: Service?.Desc || '',
             IsMemberSet: Service?.IsMemberSet,
             Status: Service?.Status || '',
-            sendNoti: true,
             AutoSalaryMethod: Number(Service?.AutoSalaryMethod)
           })
         }
@@ -158,6 +156,7 @@ function AppointmentsOsAddEdit(props) {
 
   const onSubmit = values => {
     const dataEdit = {
+      sendNoti: true,
       Service: {
         ...values,
         ID: values.ID,
@@ -227,7 +226,7 @@ function AppointmentsOsAddEdit(props) {
       isStockID &&
       isUserServices
     ) {
-      dataEdit.Service.sendNoti = false
+      dataEdit.sendNoti = false
     }
 
     editBookOSMutation.mutate(dataEdit, {
@@ -375,8 +374,8 @@ function AppointmentsOsAddEdit(props) {
                           />
 
                           {bookingCurrent?.data?.Service?.Status === 'done' && (
-                            <div className="px-3 py-2 rounded flex items-center border border-separator">
-                              <span className="font-semibold text-[#92929e]">
+                            <div className="px-3 py-2 rounded flex items-center border border-separator dark:border-dark-separator">
+                              <span className="font-semibold text-[#92929e] dark:text-gray-300">
                                 Thực hiện xong <span className="pl-1.5">✔</span>
                               </span>
                             </div>
@@ -385,12 +384,12 @@ function AppointmentsOsAddEdit(props) {
                             bookingCurrent?.data?.Service?.UserServices &&
                             bookingCurrent?.data?.Service?.UserServices.length >
                               0 && (
-                              <div className="px-3 py-2 rounded flex items-center border border-separator">
+                              <div className="px-3 py-2 rounded flex items-center border border-[#8950fc]">
                                 <span className="absolute top-0 right-0 flex w-3 h-3 -mt-1 -mr-1">
-                                  <span className="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping bg-warning"></span>
-                                  <span className="relative inline-flex w-3 h-3 border border-white rounded-full bg-warning"></span>
+                                  <span className="absolute inline-flex w-full h-full rounded-full opacity-75 animate-ping bg-[#8950fc]"></span>
+                                  <span className="relative inline-flex w-3 h-3 border border-white rounded-full bg-[#8950fc]"></span>
                                 </span>
-                                <span className="font-semibold text-warning">
+                                <span className="font-semibold text-[#8950fc]">
                                   Đang thực hiện
                                 </span>
                               </div>
@@ -480,7 +479,7 @@ function AppointmentsOsAddEdit(props) {
                                           ...x,
                                           UserID: x.value,
                                           UserName: x.label,
-                                          Salary: x?.Salary || '',
+                                          Salary: null,
                                           FeeSalary: [
                                             ...watchForm.FeeUseds
                                           ].map(fee => {
@@ -542,7 +541,7 @@ function AppointmentsOsAddEdit(props) {
                                         ...x,
                                         UserID: x.value,
                                         UserName: x.label,
-                                        Salary: x?.Salary || '',
+                                        Salary: null,
                                         FeeSalary: [...val].map(fee => {
                                           if (!fee?.OrderServiceFeeIDs) {
                                             count = count - 1
