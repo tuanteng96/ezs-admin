@@ -40,7 +40,9 @@ const CalendarAPI = {
   bookOsSelected: prodid =>
     http.post(`/api/gl/select2?cmd=prod&selected=${prodid}`),
   bookOsChangeService: body =>
-    http.post(`/api/v3/OrderService@DoConvert`, JSON.stringify(body))
+    http.post(`/api/v3/OrderService@DoConvert`, JSON.stringify(body)),
+  getPreviewOsID: body =>
+    http.post(`/api/vcloud/pos@PreviewOSSalary`, JSON.stringify(body))
 }
 
 export default CalendarAPI

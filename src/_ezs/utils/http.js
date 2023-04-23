@@ -9,7 +9,7 @@ class Http {
     this.accessStock = getLocalStorage('access_stock')
     this.instance = axios.create({
       baseURL: process.env.REACT_APP_API_URL,
-      timeout: 10000,
+      timeout: 50000,
       headers: {
         'content-type': 'text/plain'
       }

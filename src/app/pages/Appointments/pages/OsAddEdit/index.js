@@ -150,9 +150,9 @@ function AppointmentsOsAddEdit(props) {
     mutationFn: body => CalendarAPI.deleteBookingOS(body)
   })
 
-  // const resetBookOSMutation = useMutation({
-  //   mutationFn: body => CalendarAPI.resetBookingOS(body)
-  // })
+  const previewOSMutation = useMutation({
+    mutationFn: body => CalendarAPI.getPreviewOsID(body)
+  })
 
   const onSubmit = values => {
     const dataEdit = {
@@ -245,6 +245,43 @@ function AppointmentsOsAddEdit(props) {
     })
   }
 
+  const onPreviewUpdate = values => {
+    const dataPreview = {
+      AutoSalaryMethod: 0,
+      Service: {
+        ID: watchForm.ID,
+        UserServices: values
+          ? values.map(x => ({
+              UserID: x.UserID,
+              UserName: x.UserName,
+              Salary: x.Salary,
+              FeeSalary: x.FeeSalary
+                ? x.FeeSalary.map(fee => ({
+                    RootID: fee.RootID,
+                    OrderItemID: fee.OrderItemID,
+                    Value: fee.Value,
+                    OrderServiceFeeID: fee.OrderServiceFeeID
+                  }))
+                : []
+            }))
+          : []
+      }
+    }
+    previewOSMutation.mutate(dataPreview, {
+      onSuccess: ({ data }) => {
+        if (data.Service) {
+          let newUserService = data.Service.UserServices.map(x => ({
+            ...x,
+            label: x.UserName,
+            value: x.UserID
+          }))
+          setValue('UserServices', newUserService)
+        }
+      },
+      onError: err => console.log(err)
+    })
+  }
+
   const onDeleteBookOs = () => {
     var bodyFormData = new FormData()
     bodyFormData.append('cmd', 'cancel_service')
@@ -274,35 +311,6 @@ function AppointmentsOsAddEdit(props) {
       }
     })
   }
-
-  // const onResetBookOs = () => {
-  //   var bodyFormData = new FormData()
-  //   bodyFormData.append('osid', id)
-
-  //   Swal.fire({
-  //     customClass: {
-  //       confirmButton: 'bg-success'
-  //     },
-  //     title: 'Xác nhận chỉnh sửa ?',
-  //     html: `Bạn chắc chắn muốn chỉnh sửa lịch này ? Thông tin buổi dịch vụ sẽ được Reset. Bạn phải đặt lịch lại ?`,
-  //     icon: 'warning',
-  //     showCancelButton: true,
-  //     confirmButtonText: 'Đồng ý',
-  //     cancelButtonText: 'Đóng',
-  //     reverseButtons: true,
-  //     showLoaderOnConfirm: true,
-  //     preConfirm: async () => {
-  //       const { data } = await resetBookOSMutation.mutateAsync(bodyFormData)
-  //       return data
-  //     },
-  //     allowOutsideClick: () => !Swal.isLoading()
-  //   }).then(result => {
-  //     if (result.isConfirmed) {
-  //       toast.success('Reset lịch thành công.')
-  //       navigate(state?.previousPath || '/calendar')
-  //     }
-  //   })
-  // }
 
   const isModeChange =
     bookingCurrent?.data?.Service?.Status !== 'done' ||
@@ -374,7 +382,7 @@ function AppointmentsOsAddEdit(props) {
                           />
 
                           {bookingCurrent?.data?.Service?.Status === 'done' && (
-                            <div className="px-3 py-2 rounded flex items-center border border-separator dark:border-dark-separator">
+                            <div className="flex items-center px-3 py-2 border rounded border-separator dark:border-dark-separator">
                               <span className="font-semibold text-[#92929e] dark:text-gray-300">
                                 Thực hiện xong <span className="pl-1.5">✔</span>
                               </span>
@@ -498,6 +506,7 @@ function AppointmentsOsAddEdit(props) {
                                         })
                                       )
                                       setValue('UserServices', newUserService)
+                                      onPreviewUpdate(newUserService)
                                     }}
                                     isMulti
                                     className={clsx(
@@ -557,6 +566,7 @@ function AppointmentsOsAddEdit(props) {
                                         })
                                       }))
                                       setValue('UserServices', newUserService)
+                                      onPreviewUpdate(newUserService)
                                     }}
                                     className="select-control"
                                     classNamePrefix="select"
@@ -615,6 +625,8 @@ function AppointmentsOsAddEdit(props) {
                                       fieldState
                                     }) => (
                                       <InputNumber
+                                        loading={previewOSMutation.isLoading}
+                                        disabled={previewOSMutation.isLoading}
                                         thousandSeparator={true}
                                         value={field.value}
                                         placeholder="Nhập lương ca"
