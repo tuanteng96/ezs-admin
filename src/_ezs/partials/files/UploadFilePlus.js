@@ -12,8 +12,8 @@ const UploadFilePlus = ({
   placeholder,
   errorMessage,
   errorMessageForce,
-  width = 'w-160px',
-  height = 'h-160x',
+  width = 'w-[160px]',
+  height = 'h-[160px]',
   ...props
 }) => {
   const [completed, setCompleted] = useState(0)

@@ -4,11 +4,17 @@ import { useQuery } from '@tanstack/react-query'
 import UsersAPI from 'src/_ezs/api/users.api'
 import { toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 
-const SelectUserAdmin = ({ value, ...props }) => {
+const SelectUserAdmin = ({
+  value,
+  isSome = false,
+  StockID,
+  StockRoles,
+  ...props
+}) => {
   const ListUsers = useQuery({
     queryKey: ['ListUserAdmin'],
     queryFn: async () => {
-      const data = await UsersAPI.listSelect()
+      const data = await UsersAPI.listSelect({ StockID: StockID || 0 })
       let newData = []
       if (data?.data?.data) {
         for (let key of data?.data?.data) {
@@ -38,9 +44,19 @@ const SelectUserAdmin = ({ value, ...props }) => {
         }
       }
       return {
-        List: newData,
-        ListCurrent:
-          data?.data?.data.map(x => ({ label: x.text, value: x.id })) || []
+        data: newData.filter(x =>
+          StockRoles ? StockRoles.some(s => s.value === x.groupid) : !StockRoles
+        ),
+        dataList:
+          data?.data?.data?.length > 0
+            ? data?.data?.data
+                .map(x => ({ ...x, value: x.id, label: x.text }))
+                .filter(x =>
+                  StockRoles
+                    ? StockRoles.some(s => s.value === x.value)
+                    : !StockRoles
+                )
+            : []
       }
     },
     onSuccess: () => {}
@@ -51,13 +67,18 @@ const SelectUserAdmin = ({ value, ...props }) => {
       <Select
         isLoading={ListUsers.isLoading}
         value={
-          ListUsers?.data?.ListCurrent?.filter(
-            x => Number(x.value) === Number(value)
-          ) || null
+          isSome
+            ? ListUsers?.data?.dataList && ListUsers?.data?.dataList.length > 0
+              ? ListUsers?.data?.dataList.filter(
+                  x => value && value.some(k => Number(k) === x.value)
+                )
+              : null
+            : value
         }
         classNamePrefix="select"
-        options={ListUsers?.data?.List || []}
+        options={ListUsers?.data?.data || []}
         placeholder="Chọn nhân viên"
+        noOptionsMessage={() => 'Không có dữ liệu'}
         {...props}
       />
     </div>
