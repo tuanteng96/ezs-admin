@@ -260,7 +260,8 @@ function AppointmentsOsAddEdit(props) {
                     RootID: fee.RootID,
                     OrderItemID: fee.OrderItemID,
                     Value: fee.Value,
-                    OrderServiceFeeID: fee.OrderServiceFeeID
+                    OrderServiceFeeID: fee.OrderServiceFeeID,
+                    Title: fee.Title
                   }))
                 : []
             }))
@@ -273,7 +274,16 @@ function AppointmentsOsAddEdit(props) {
           let newUserService = data.Service.UserServices.map(x => ({
             ...x,
             label: x.UserName,
-            value: x.UserID
+            value: x.UserID,
+            FeeSalary: x.FeeSalary
+              ? x.FeeSalary.map(fee => ({
+                  Title: fee.Title,
+                  RootID: fee.RootID,
+                  OrderItemID: fee.OrderItemID,
+                  Value: fee.Value,
+                  OrderServiceFeeID: fee.OrderServiceFeeID
+                }))
+              : []
           }))
           setValue('UserServices', newUserService)
         }

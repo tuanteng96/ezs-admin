@@ -9,6 +9,7 @@ const SelectUserAdmin = ({
   isSome = false,
   StockID,
   StockRoles,
+  allOption = [],
   ...props
 }) => {
   const ListUsers = useQuery({
@@ -69,14 +70,16 @@ const SelectUserAdmin = ({
         value={
           isSome
             ? ListUsers?.data?.dataList && ListUsers?.data?.dataList.length > 0
-              ? ListUsers?.data?.dataList.filter(
+              ? [...allOption, ...ListUsers?.data?.dataList].filter(
                   x => value && value.some(k => Number(k) === x.value)
                 )
               : null
             : value
         }
         classNamePrefix="select"
-        options={ListUsers?.data?.data || []}
+        options={
+          ListUsers?.data?.data ? [...allOption, ...ListUsers?.data?.data] : []
+        }
         placeholder="Chọn nhân viên"
         noOptionsMessage={() => 'Không có dữ liệu'}
         {...props}

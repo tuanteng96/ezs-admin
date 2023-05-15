@@ -2,6 +2,7 @@
     "name": "ezs-admin",
     "version": "0.1.0",
     "private": true,
+    "_homepage": "/v2/",
     "dependencies": {
         "@floating-ui/react": "^0.22.3",
         "@fullcalendar/core": "^6.1.5",
@@ -44,9 +45,7 @@
         "react-router-dom": "^6.9.0",
         "react-scripts": "5.0.1",
         "react-select": "^5.7.2",
-        "react-tailwindcss-datepicker": "^1.5.1",
         "react-texty": "^0.6.0",
-        "react-to-print": "^2.14.12",
         "react-toastify": "^9.1.1",
         "react-topbar-progress-indicator": "^4.1.1",
         "react-uuid": "^2.0.0",
@@ -60,6 +59,7 @@
         "build": "react-scripts build",
         "test": "react-scripts test",
         "eject": "react-scripts eject",
+        "analyze": "craco build",
         "lint": "eslint --ext js,jsx src/",
         "lint:fix": "eslint --fix --ext js,jsx src/",
         "prettier": "prettier --check \"src/**/(**.jsx|*.js|*.scss|*.css)\"",
@@ -84,11 +84,14 @@
         ]
     },
     "devDependencies": {
+        "@craco/craco": "^7.1.0",
         "eslint-config-prettier": "^8.5.0",
         "eslint-plugin-prettier": "^4.0.0",
         "prettier": "^2.6.2",
         "sass": "1.51.0",
+        "serve": "^14.2.0",
         "tailwind-scrollbar": "^3.0.0",
-        "tailwindcss": "^3.2.7"
+        "tailwindcss": "^3.2.7",
+        "webpack-bundle-analyzer": "^4.8.0"
     }
 }

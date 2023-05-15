@@ -1,4 +1,3 @@
-import { ThemeProvider } from '@material-tailwind/react'
 import { createContext, useContext, useState } from 'react'
 
 const LayoutContext = createContext()
@@ -14,14 +13,10 @@ const LayoutProvider = ({ children }) => {
     setLoadingContent(loading)
   }
 
-  const customTheme = {}
-
   return (
-    <ThemeProvider value={customTheme}>
-      <LayoutContext.Provider value={{ loadingContent, updateLoadingContent }}>
-        {children}
-      </LayoutContext.Provider>
-    </ThemeProvider>
+    <LayoutContext.Provider value={{ loadingContent, updateLoadingContent }}>
+      {children}
+    </LayoutContext.Provider>
   )
 }
 
