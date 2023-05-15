@@ -15,7 +15,7 @@ import {
 import { InputDatePickerInline } from 'src/_ezs/partials/forms'
 import clsx from 'clsx'
 import { CalendarFilters } from '../CalendarFilters/CalendarFilters'
-import { isEmpty, omitBy } from 'lodash'
+import { isEmpty, omitBy } from 'lodash-es'
 import useEscape from 'src/_ezs/hooks/useEscape'
 import { CalendarLock } from '../CalendarLock/CalendarLock'
 

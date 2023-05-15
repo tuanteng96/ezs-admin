@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { toast } from 'react-toastify'
 import { useMutation } from '@tanstack/react-query'
 import OrdersAPI from 'src/_ezs/api/orders'
-import { LayoutGroup, motion, AnimatePresence } from 'framer-motion'
+import { LayoutGroup, m, AnimatePresence } from 'framer-motion'
 import { Dialog } from '@headlessui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { Button } from 'src/_ezs/partials/button'
@@ -72,18 +72,18 @@ const BtnChangeMember = ({ className, OrderID, children }) => {
       <AnimatePresence>
         <LayoutGroup key={isOpen}>
           <Dialog open={isOpen} onClose={onHide}>
-            <motion.div
+            <m.div
               className="fixed inset-0 bg-black/[.2] dark:bg-black/[.4] z-[1003]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-            ></motion.div>
+            ></m.div>
             <form
               onSubmit={handleSubmit(onSubmit)}
               className="fixed inset-0 flex items-center justify-center z-[1003]"
               autoComplete="off"
             >
-              <motion.div
+              <m.div
                 className="flex flex-col justify-center h-full py-8"
                 initial={{ opacity: 0, top: '60%' }}
                 animate={{ opacity: 1, top: 'auto' }}
@@ -159,7 +159,7 @@ const BtnChangeMember = ({ className, OrderID, children }) => {
                     </Button>
                   </div>
                 </Dialog.Panel>
-              </motion.div>
+              </m.div>
             </form>
           </Dialog>
         </LayoutGroup>

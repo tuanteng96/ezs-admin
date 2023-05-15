@@ -10,7 +10,7 @@ import { useAuth } from 'src/_ezs/core/Auth'
 import Select from 'react-select'
 import { createSearchParams, useNavigate } from 'react-router-dom'
 import { Checkbox } from 'src/_ezs/partials/forms'
-import { isEmpty, omitBy } from 'lodash'
+import { isEmpty, omitBy } from 'lodash-es'
 
 const StatusMembers = [
   {

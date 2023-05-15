@@ -12,7 +12,7 @@ import {
   useLocation,
   useNavigate
 } from 'react-router-dom'
-import { isEmpty, omitBy } from 'lodash'
+import { isEmpty, omitBy } from 'lodash-es'
 import clsx from 'clsx'
 import { formatString } from 'src/_ezs/utils/formatString'
 import { useAuth } from 'src/_ezs/core/Auth'

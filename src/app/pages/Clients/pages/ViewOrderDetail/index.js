@@ -1,6 +1,6 @@
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useQuery } from '@tanstack/react-query'
-import { LayoutGroup, motion, AnimatePresence } from 'framer-motion'
+import { LayoutGroup, m, AnimatePresence } from 'framer-motion'
 import React from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import OrdersAPI from 'src/_ezs/api/orders'
@@ -66,7 +66,7 @@ function ViewOrderDetail({ OrderID, onHide }) {
     <AnimatePresence>
       <LayoutGroup key={pathname}>
         <div className="fixed w-full h-full z-[1002] top-0 left-0">
-          <motion.div
+          <m.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -79,8 +79,8 @@ function ViewOrderDetail({ OrderID, onHide }) {
                   : navigate(state?.previousPath || `/clients/${id}/orders`)
               }
             ></div>
-          </motion.div>
-          <motion.div
+          </m.div>
+          <m.div
             className="absolute top-0 right-0 z-10 flex w-full h-full bg-white max-w-7xl dark:bg-dark-aside"
             initial={{ x: '100%' }}
             transition={{
@@ -462,7 +462,7 @@ function ViewOrderDetail({ OrderID, onHide }) {
               </div>
               <LoadingComponentFull loading={resultOrder.isLoading} />
             </div>
-          </motion.div>
+          </m.div>
         </div>
       </LayoutGroup>
     </AnimatePresence>

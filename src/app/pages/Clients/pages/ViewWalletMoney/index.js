@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router'
-import { motion, LayoutGroup } from 'framer-motion'
+import { m, LayoutGroup } from 'framer-motion'
 import { Tab } from '@headlessui/react'
 import {
   CreditCardIcon,
@@ -78,13 +78,13 @@ function ViewWalletMoney(props) {
   return (
     <LayoutGroup key={pathname}>
       <div className="fixed w-full h-full z-[1002] top-0 left-0">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <div
             className="absolute w-full h-full top-0 left bg-black/[.2] dark:bg-black/[.4]"
             onClick={() => navigate(-1)}
           ></div>
-        </motion.div>
-        <motion.div
+        </m.div>
+        <m.div
           className="absolute top-0 right-0 z-10 flex w-full h-full bg-white max-w-7xl dark:bg-dark-aside"
           initial={{ x: '100%' }}
           transition={{
@@ -148,7 +148,7 @@ function ViewWalletMoney(props) {
               </Tab.Panel>
             </Tab.Panels>
           </Tab.Group>
-        </motion.div>
+        </m.div>
       </div>
       <AddWallet isOpen={isOpen} onHide={onHideAddWallet} />
     </LayoutGroup>

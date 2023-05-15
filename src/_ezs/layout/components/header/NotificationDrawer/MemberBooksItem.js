@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Button } from 'src/_ezs/partials/button'
-import { LayoutGroup, motion, AnimatePresence } from 'framer-motion'
+import { LayoutGroup, m, AnimatePresence } from 'framer-motion'
 import { Controller, useForm } from 'react-hook-form'
 import { InputTextarea } from 'src/_ezs/partials/forms'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
@@ -100,18 +100,18 @@ const MemberBooksEdit = ({ isOpen, isCancel, onHide, data }) => {
     <AnimatePresence>
       <LayoutGroup key={isOpen}>
         <Dialog open={isOpen} onClose={onHide}>
-          <motion.div
+          <m.div
             className="fixed inset-0 bg-black/[.2] dark:bg-black/[.4] z-[1003]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-          ></motion.div>
+          ></m.div>
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="fixed inset-0 flex items-center justify-center z-[1003]"
             autoComplete="off"
           >
-            <motion.div
+            <m.div
               className="absolute flex flex-col justify-center h-full py-8"
               initial={{ opacity: 0, top: '60%' }}
               animate={{ opacity: 1, top: 'auto' }}
@@ -130,12 +130,12 @@ const MemberBooksEdit = ({ isOpen, isCancel, onHide, data }) => {
                   </div>
                 </Dialog.Title>
                 <div className="p-5 overflow-auto grow" tabIndex={0}>
-                  <div className="text-sm border-b border-separator dark:border-dark-separator pb-2 mb-3">
+                  <div className="pb-2 mb-3 text-sm border-b border-separator dark:border-dark-separator">
                     <div className="flex mb-1">
                       <div className="font-medium mb-px text-muted2 w-[120px]">
                         Dịch vụ
                       </div>
-                      <div className="capitalize font-bold pl-1 flex-1">
+                      <div className="flex-1 pl-1 font-bold capitalize">
                         {data?.RootTitles}
                       </div>
                     </div>
@@ -143,7 +143,7 @@ const MemberBooksEdit = ({ isOpen, isCancel, onHide, data }) => {
                       <div className="font-medium mb-px text-muted2 w-[120px]">
                         Khách hàng
                       </div>
-                      <div className="capitalize font-bold pl-1 flex-1">
+                      <div className="flex-1 pl-1 font-bold capitalize">
                         {data?.Member?.FullName || 'Chưa xác đinh'}
                       </div>
                     </div>
@@ -151,7 +151,7 @@ const MemberBooksEdit = ({ isOpen, isCancel, onHide, data }) => {
                       <div className="font-medium mb-px text-muted2 w-[120px]">
                         Nhân viên
                       </div>
-                      <div className="capitalize font-bold pl-1 flex-1">
+                      <div className="flex-1 pl-1 font-bold capitalize">
                         {data?.UserServices && data?.UserServices.length > 0
                           ? data?.UserServices.map(x => x.FullName).join(', ')
                           : 'Chưa có'}
@@ -162,7 +162,7 @@ const MemberBooksEdit = ({ isOpen, isCancel, onHide, data }) => {
                         <div className="font-medium mb-px text-muted2 w-[120px]">
                           Thực hiện
                         </div>
-                        <div className="capitalize font-bold pl-1 flex-1">
+                        <div className="flex-1 pl-1 font-bold capitalize">
                           tại nhà
                         </div>
                       </div>
@@ -172,7 +172,7 @@ const MemberBooksEdit = ({ isOpen, isCancel, onHide, data }) => {
                         <div className="font-medium mb-px text-muted2 w-[120px]">
                           Ghi chú
                         </div>
-                        <div className="capitalize font-bold pl-1 flex-1">
+                        <div className="flex-1 pl-1 font-bold capitalize">
                           {data?.Desc}
                         </div>
                       </div>
@@ -197,7 +197,7 @@ const MemberBooksEdit = ({ isOpen, isCancel, onHide, data }) => {
                   </div> */}
                   <div className="mb-3.5">
                     <div className="font-semibold">Thời gian</div>
-                    <div className="mt-1 grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-2 gap-4 mt-1">
                       <Controller
                         name="bookdate"
                         control={control}
@@ -269,7 +269,7 @@ const MemberBooksEdit = ({ isOpen, isCancel, onHide, data }) => {
                   </Button>
                 </div>
               </Dialog.Panel>
-            </motion.div>
+            </m.div>
           </form>
         </Dialog>
       </LayoutGroup>

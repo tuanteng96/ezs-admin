@@ -1,6 +1,6 @@
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useQuery } from '@tanstack/react-query'
-import { LayoutGroup, motion } from 'framer-motion'
+import { LayoutGroup, m } from 'framer-motion'
 import React from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import MembersAPI from 'src/_ezs/api/members.api'
@@ -46,13 +46,13 @@ function ViewDiaryHistory(props) {
   return (
     <LayoutGroup key={pathname}>
       <div className="fixed w-full h-full z-[1002] top-0 left-0">
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+        <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <div
             className="absolute w-full h-full top-0 left bg-black/[.2] dark:bg-black/[.4]"
             onClick={() => navigate(state?.previousPath || `/clients/${id}`)}
           ></div>
-        </motion.div>
-        <motion.div
+        </m.div>
+        <m.div
           className="absolute top-0 right-0 z-10 flex w-full h-full max-w-3xl bg-white dark:bg-dark-aside"
           initial={{ x: '100%' }}
           transition={{
@@ -76,7 +76,7 @@ function ViewDiaryHistory(props) {
             </div>
           </div>
           <div className="flex-1 bg-site-app dark:bg-dark-app">a</div>
-        </motion.div>
+        </m.div>
       </div>
     </LayoutGroup>
   )

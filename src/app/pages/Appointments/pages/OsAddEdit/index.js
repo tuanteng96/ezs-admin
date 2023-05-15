@@ -27,7 +27,7 @@ import { toast } from 'react-toastify'
 import Swal from 'sweetalert2'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import { MemberOs } from '../../components/MemberOs'
-import _ from 'lodash'
+import { isEqual } from 'lodash-es'
 import { FeeSalary } from '../../components/FeeSalary'
 import { OsSalaryMethod } from '../../components/OsSalaryMethod'
 import { useAuth } from 'src/_ezs/core/Auth'
@@ -202,7 +202,7 @@ function AppointmentsOsAddEdit(props) {
       }
     }
 
-    let isDateBook = _.isEqual(
+    let isDateBook = isEqual(
       [
         moment(
           bookingCurrent?.data?.Service?.BookDate,
@@ -216,7 +216,7 @@ function AppointmentsOsAddEdit(props) {
       ]
     )
     let isStockID = bookingCurrent?.data?.Service?.StockID === values.StockID
-    let isUserServices = _.isEqual(
+    let isUserServices = isEqual(
       bookingCurrent?.data?.Service?.UserServices.map(x => x.UserID),
       values?.UserServices?.map(x => x.UserID)
     )
