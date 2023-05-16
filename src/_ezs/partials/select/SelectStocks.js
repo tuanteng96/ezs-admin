@@ -10,7 +10,6 @@ const SelectStocks = ({
   ...props
 }) => {
   const { Stocks } = useAuth()
-
   return (
     <div>
       <Select

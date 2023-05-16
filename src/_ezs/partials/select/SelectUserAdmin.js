@@ -15,7 +15,7 @@ const SelectUserAdmin = ({
   const ListUsers = useQuery({
     queryKey: ['ListUserAdmin'],
     queryFn: async () => {
-      const data = await UsersAPI.listSelect({ StockID: StockID || 0 })
+      const data = await UsersAPI.listFull({ StockID: StockID || 0 })
       let newData = []
       if (data?.data?.data) {
         for (let key of data?.data?.data) {

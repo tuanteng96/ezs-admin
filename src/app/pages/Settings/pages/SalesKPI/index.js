@@ -1,9 +1,8 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   ChevronDoubleDownIcon,
   ChevronRightIcon,
-  PlusSmallIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline'
 import {
@@ -20,10 +19,9 @@ import { UserKPI } from './components/UserKPI/UserKPI'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import SettingsAPI from 'src/_ezs/api/settings.api'
 import { toast } from 'react-toastify'
-import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
 import Select from 'react-select'
-import { useState } from 'react'
+import { toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 
 function SalesKPI(props) {
   const { kpi_doanhso } = useRoles('kpi_doanhso')
@@ -31,26 +29,26 @@ function SalesKPI(props) {
   const methods = useForm({
     defaultValues: {
       updateList: [
-        {
-          UserID: '',
-          Configs: [
-            {
-              StockIDs: '',
-              UserIDs: '',
-              Threshold1: '',
-              Threshold2: '',
-              ProdTypes: '',
-              BonusList: ''
-            }
-          ]
-        }
+        // {
+        //   UserID: '',
+        //   Configs: [
+        //     {
+        //       StockIDs: '',
+        //       UserIDs: '',
+        //       Threshold1: '',
+        //       Threshold2: '',
+        //       ProdTypes: '',
+        //       BonusList: ''
+        //     }
+        //   ]
+        // }
       ]
     }
   })
 
   const { control, handleSubmit, setValue } = methods
 
-  const { fields, remove, insert, append } = useFieldArray({
+  const { fields, remove, append } = useFieldArray({
     control,
     name: 'updateList'
   })
@@ -82,34 +80,11 @@ function SalesKPI(props) {
                   // StockIDs: x.StockIDs ? x.StockIDs.split(',') : '',
                   // ProdTypes: x.ProdTypes ? x.ProdTypes.split(',') : ''
                 }))
-              : [
-                  {
-                    StockIDs: '',
-                    UserIDs: '',
-                    Threshold1: '',
-                    Threshold2: '',
-                    ProdTypes: '',
-                    BonusList: ''
-                  }
-                ]
+              : []
         }))
         setValue('updateList', newValues)
       } else {
-        setValue('updateList', [
-          {
-            UserID: '',
-            Configs: [
-              {
-                StockIDs: '',
-                UserIDs: '',
-                Threshold1: '',
-                Threshold2: '',
-                ProdTypes: '',
-                BonusList: ''
-              }
-            ]
-          }
-        ])
+        setValue('updateList', [])
       }
     },
     enabled: kpi_doanhso.StockRoles && kpi_doanhso.StockRoles.length > 0
@@ -159,7 +134,7 @@ function SalesKPI(props) {
       <FormProvider {...methods}>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="max-w-screen-xl 2xl:max-w-screen-2xl py-10 m-auto"
+          className="max-w-screen-xl py-10 m-auto 2xl:max-w-screen-2xl"
         >
           <div className="flex items-end justify-between mb-8">
             <div>
@@ -187,7 +162,7 @@ function SalesKPI(props) {
             </div>
             <div className="flex">
               <Select
-                className="select-control w-64 mr-2"
+                className="w-64 mr-2 select-control"
                 classNamePrefix="select"
                 isLoading={false}
                 isClearable
@@ -209,7 +184,7 @@ function SalesKPI(props) {
                         UserIDs: '',
                         Threshold1: '',
                         Threshold2: '',
-                        ProdTypes: '',
+                        ProdTypes: [{ value: -1, label: 'Tất cả' }],
                         BonusList: ''
                       }
                     ]
@@ -228,95 +203,144 @@ function SalesKPI(props) {
               </Button>
             </div>
           </div>
-          {fields &&
-            fields.map((item, index) => (
-              <Disclosure
-                as="div"
-                className="border border-gray-200 mb-5 last:mb-0 rounded-md shadow-sm"
-                key={item.id}
-              >
-                {({ open }) => (
-                  <>
-                    <div
-                      className={clsx(
-                        'flex justify-between p-4 hover:bg-gray-100',
-                        open && 'bg-gray-100'
-                      )}
-                    >
-                      <div className="flex">
-                        <Controller
-                          name={`updateList[${index}].UserID`}
-                          control={control}
-                          render={({
-                            field: { ref, ...field },
-                            fieldState
-                          }) => (
-                            <SelectUserAdmin
-                              StockRoles={kpi_doanhso?.StockRoles}
-                              isClearable
-                              value={field.value}
-                              onChange={val => {
-                                field.onChange(val)
-                                setValue(`updateList[${index}].Configs`, [
-                                  {
-                                    StockIDs: '',
-                                    UserIDs: val?.value ? [val?.value] : '',
-                                    Threshold1: '',
-                                    Threshold2: '',
-                                    ProdTypes: '',
-                                    BonusList: ''
-                                  }
-                                ])
-                              }}
-                              className="select-control w-80"
-                              menuPortalTarget={document.body}
-                              menuPosition="fixed"
-                              styles={{
-                                menuPortal: base => ({
-                                  ...base,
-                                  zIndex: 9999
-                                })
-                              }}
-                              allOption={
-                                kpi_doanhso.IsStocks
-                                  ? [{ value: -1, label: 'Tất cả' }]
-                                  : ''
-                              }
-                            />
-                          )}
-                        />
-                        <div className="flex items-center ml-4">
-                          <button
-                            className="w-8 h-8 flex justify-center items-center text-white rounded-full cursor-pointer bg-danger hover:bg-dangerhv ml-1.5"
-                            type="button"
-                            onClick={() => remove(index)}
-                          >
-                            <XMarkIcon className="w-5" />
-                          </button>
-                        </div>
+          {isLoading && (
+            <div>
+              {Array(3)
+                .fill()
+                .map((_, index) => (
+                  <div
+                    className="mb-5 border border-gray-200 rounded-md shadow-sm last:mb-0"
+                    key={index}
+                  >
+                    <div className="flex justify-between p-4 animate-pulse">
+                      <div>
+                        <div className="h-[50px] bg-gray-200 rounded-sm dark:bg-gray-700 w-72"></div>
                       </div>
-                      <Disclosure.Button className="w-16 flex justify-center items-center">
-                        <ChevronDoubleDownIcon
-                          className={clsx(
-                            'w-5 transition-all',
-                            open && 'rotate-180'
-                          )}
-                        />
-                      </Disclosure.Button>
+                      <ChevronDoubleDownIcon className="w-5" />
                     </div>
-                    <Disclosure.Panel>
-                      <UserKPI indexUser={index} />
-                    </Disclosure.Panel>
-                  </>
-                )}
-              </Disclosure>
-            ))}
+                  </div>
+                ))}
+            </div>
+          )}
+          {!isLoading && (
+            <>
+              {fields &&
+                fields.map((item, index) => (
+                  <Disclosure
+                    as="div"
+                    className="mb-5 border border-gray-200 rounded-md shadow-sm last:mb-0"
+                    key={item.id}
+                  >
+                    {({ open }, ...a) => (
+                      <>
+                        <div
+                          className={clsx(
+                            'flex justify-between p-4 hover:bg-gray-100',
+                            open && 'bg-gray-100'
+                          )}
+                        >
+                          <div className="flex">
+                            <Controller
+                              name={`updateList[${index}].UserID`}
+                              control={control}
+                              render={({
+                                field: { ref, ...field },
+                                fieldState
+                              }) => (
+                                <SelectUserAdmin
+                                  StockRoles={kpi_doanhso?.StockRolesAll}
+                                  isClearable
+                                  value={field.value}
+                                  onChange={val => {
+                                    field.onChange(val)
+                                    setValue(`updateList[${index}].Configs`, [
+                                      {
+                                        StockIDs: '',
+                                        UserIDs:
+                                          val?.value &&
+                                          val?.value !== -1 &&
+                                          val?.value !== -2
+                                            ? [val?.value]
+                                            : '',
+                                        Threshold1: '',
+                                        Threshold2: '',
+                                        ProdTypes: [
+                                          { value: -1, label: 'Tất cả' }
+                                        ],
+                                        BonusList: ''
+                                      }
+                                    ])
+                                  }}
+                                  className="select-control w-80"
+                                  menuPortalTarget={document.body}
+                                  menuPosition="fixed"
+                                  styles={{
+                                    menuPortal: base => ({
+                                      ...base,
+                                      zIndex: 9999
+                                    })
+                                  }}
+                                  allOption={
+                                    kpi_doanhso.IsStocks
+                                      ? [
+                                          {
+                                            value: -1,
+                                            label: 'Tất cả hệ thống'
+                                          },
+                                          {
+                                            value: -2,
+                                            label: 'Theo cơ sở'
+                                          }
+                                        ]
+                                      : [
+                                          {
+                                            value: -2,
+                                            label: 'Theo cơ sở'
+                                          }
+                                        ]
+                                  }
+                                />
+                              )}
+                            />
+                            <div className="flex items-center ml-2">
+                              <button
+                                className="w-8 h-8 flex justify-center items-center text-white rounded-full cursor-pointer bg-danger hover:bg-dangerhv ml-1.5"
+                                type="button"
+                                onClick={() => remove(index)}
+                              >
+                                <XMarkIcon className="w-5" />
+                              </button>
+                            </div>
+                          </div>
+                          <Disclosure.Button className="flex items-center justify-center w-16">
+                            <ChevronDoubleDownIcon
+                              className={clsx(
+                                'w-5 transition-all',
+                                open && 'rotate-180'
+                              )}
+                            />
+                          </Disclosure.Button>
+                        </div>
+                        <Disclosure.Panel>
+                          <UserKPI indexUser={index} />
+                        </Disclosure.Panel>
+                      </>
+                    )}
+                  </Disclosure>
+                ))}
+              {(!fields || fields.length === 0) && (
+                <div className="flex flex-col items-center justify-center pt-10">
+                  <img
+                    className="max-w-sm"
+                    src={toAbsoluteUrl('/assets/svg/sketchy/5.png')}
+                    alt="Chưa có cấu hình"
+                  />
+                </div>
+              )}
+            </>
+          )}
         </form>
       </FormProvider>
-      <LoadingComponentFull
-        bgClassName="bg-white dark:bg-dark-aside border-t border-separator dark:border-[#393945]"
-        loading={isLoading}
-      />
     </div>
   )
 }

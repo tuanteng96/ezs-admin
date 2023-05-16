@@ -32,6 +32,9 @@ const getHasRole = (Roles, CrStocks) => {
   return {
     hasRight,
     StockRoles,
+    StockRolesAll: Roles?.IsAllStock
+      ? [{ label: 'Hệ thống', value: 0 }, ...StockRoles]
+      : StockRoles,
     IsStocks: Roles?.IsAllStock || false
   }
 }

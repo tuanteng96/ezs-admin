@@ -16,6 +16,7 @@ function UserKPI({ indexUser }) {
     name: `updateList[${indexUser}].Configs`
   })
   const watchConfigs = watch() //`updateList[${indexUser}].Configs`, fields
+  const watchUserID = watch(`updateList[${indexUser}].UserID`)
 
   const columns = useMemo(
     () => [
@@ -30,18 +31,23 @@ function UserKPI({ indexUser }) {
             render={({ field: { ref, ...field }, fieldState }) => (
               <SelectStocks
                 StockRoles={kpi_doanhso?.StockRoles}
-                isMulti
+                isMulti={watchUserID?.value !== -2}
                 isClearable
+                isDisabled={watchUserID?.value === -1}
                 value={field.value}
                 onChange={val => {
-                  const valIndex = val && val.findIndex(x => x.value === -1)
-                  field.onChange(
-                    valIndex > -1 && valIndex === val.length - 1
-                      ? [val[valIndex]]
-                      : val
-                      ? val.filter(x => x.value !== -1)
-                      : ''
-                  )
+                  if (watchUserID?.value !== -2) {
+                    const valIndex = val && val.findIndex(x => x.value === -1)
+                    field.onChange(
+                      valIndex > -1 && valIndex === val.length - 1
+                        ? [val[valIndex]]
+                        : val
+                        ? val.filter(x => x.value !== -1)
+                        : ''
+                    )
+                  } else {
+                    field.onChange(val ? [val?.value] : '')
+                  }
                 }}
                 className="w-full select-control"
                 menuPosition="fixed"
@@ -53,7 +59,9 @@ function UserKPI({ indexUser }) {
                 }}
                 menuPortalTarget={document.body}
                 allOption={
-                  kpi_doanhso.IsStocks ? [{ value: -1, label: 'Tất cả' }] : ''
+                  kpi_doanhso.IsStocks && watchUserID?.value !== -2
+                    ? [{ value: -1, label: 'Tất cả' }]
+                    : ''
                 }
               />
             )}
@@ -73,7 +81,7 @@ function UserKPI({ indexUser }) {
             control={control}
             render={({ field: { ref, ...field }, fieldState }) => (
               <SelectUserAdmin
-                StockRoles={kpi_doanhso?.StockRoles}
+                StockRoles={kpi_doanhso?.StockRolesAll}
                 allOption={
                   kpi_doanhso.IsStocks ? [{ value: -1, label: 'Tất cả' }] : ''
                 }
@@ -256,7 +264,7 @@ function UserKPI({ indexUser }) {
         cellRenderer: ({ rowIndex }) => (
           <>
             <div
-              className="px-3 h-10 text-sm flex items-center text-success hover:text-white rounded cursor-pointer bg-successlight hover:bg-successhv mx-1"
+              className="flex items-center h-10 px-3 mx-1 text-sm rounded cursor-pointer text-success hover:text-white bg-successlight hover:bg-successhv"
               onClick={() =>
                 insert(rowIndex + 1, {
                   StockIDs: '',
@@ -272,7 +280,7 @@ function UserKPI({ indexUser }) {
               Thêm
             </div>
             <div
-              className="px-3 h-10 text-sm flex items-center text-danger hover:text-white rounded cursor-pointer bg-dangerlight hover:bg-dangerhv mx-1"
+              className="flex items-center h-10 px-3 mx-1 text-sm rounded cursor-pointer text-danger hover:text-white bg-dangerlight hover:bg-dangerhv"
               onClick={() => remove(rowIndex)}
             >
               Xóa
