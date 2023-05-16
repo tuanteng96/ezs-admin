@@ -216,7 +216,7 @@ function SalesKPI(props) {
                   })
                 }
               >
-                Thêm nhân viên
+                Thêm mới
               </Button>
               <Button
                 type="sumbit"
@@ -287,35 +287,12 @@ function SalesKPI(props) {
                         />
                         <div className="flex items-center ml-4">
                           <button
-                            className="w-8 h-8 flex justify-center items-center text-white rounded-full cursor-pointer bg-success hover:bg-successhv"
+                            className="w-8 h-8 flex justify-center items-center text-white rounded-full cursor-pointer bg-danger hover:bg-dangerhv ml-1.5"
                             type="button"
-                            onClick={() =>
-                              insert(index + 1, {
-                                UserID: '',
-                                Configs: [
-                                  {
-                                    StockIDs: '',
-                                    UserIDs: '',
-                                    Threshold1: '',
-                                    Threshold2: '',
-                                    ProdTypes: '',
-                                    BonusList: ''
-                                  }
-                                ]
-                              })
-                            }
+                            onClick={() => remove(index)}
                           >
-                            <PlusSmallIcon className="w-6" />
+                            <XMarkIcon className="w-5" />
                           </button>
-                          {fields.length > 1 && (
-                            <button
-                              className="w-8 h-8 flex justify-center items-center text-white rounded-full cursor-pointer bg-danger hover:bg-dangerhv ml-1.5"
-                              type="button"
-                              onClick={() => remove(index)}
-                            >
-                              <XMarkIcon className="w-5" />
-                            </button>
-                          )}
                         </div>
                       </div>
                       <Disclosure.Button className="w-16 flex justify-center items-center">
