@@ -315,8 +315,7 @@ function CalendarFilters({ isFilters, onHideFilters, queryConfig }) {
                 control={control}
                 render={({ field: { ref, ...field }, fieldState }) => (
                   <Select
-                    classIcon="far fa-user-check"
-                    className="select-control mb-8px"
+                    className="select-control"
                     classNamePrefix="select"
                     isLoading={false}
                     isClearable
@@ -338,8 +337,7 @@ function CalendarFilters({ isFilters, onHideFilters, queryConfig }) {
                 control={control}
                 render={({ field: { ref, ...field }, fieldState }) => (
                   <Select
-                    classIcon="far fa-user-check"
-                    className="select-control mb-8px"
+                    className="select-control"
                     classNamePrefix="select"
                     isLoading={false}
                     isClearable
@@ -361,8 +359,7 @@ function CalendarFilters({ isFilters, onHideFilters, queryConfig }) {
                 control={control}
                 render={({ field: { ref, ...field }, fieldState }) => (
                   <Select
-                    classIcon="far fa-user-check"
-                    className="select-control mb-8px"
+                    className="select-control"
                     classNamePrefix="select"
                     isLoading={false}
                     isClearable

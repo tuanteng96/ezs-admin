@@ -17,11 +17,17 @@ import { Button } from 'src/_ezs/partials/button'
 import { Disclosure } from '@headlessui/react'
 import clsx from 'clsx'
 import { UserKPI } from './components/UserKPI/UserKPI'
-import { useMutation } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import SettingsAPI from 'src/_ezs/api/settings.api'
 import { toast } from 'react-toastify'
+import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
+import Select from 'react-select'
+import { useState } from 'react'
 
 function SalesKPI(props) {
+  const { kpi_doanhso } = useRoles('kpi_doanhso')
+  const [filters, setFilters] = useState()
   const methods = useForm({
     defaultValues: {
       updateList: [
@@ -44,9 +50,69 @@ function SalesKPI(props) {
 
   const { control, handleSubmit, setValue } = methods
 
-  const { fields, remove, insert } = useFieldArray({
+  const { fields, remove, insert, append } = useFieldArray({
     control,
     name: 'updateList'
+  })
+
+  const { isLoading } = useQuery({
+    queryKey: [
+      'ListSalesKPIs',
+      { StockRoles: kpi_doanhso.StockRoles, filters }
+    ],
+    queryFn: async () => {
+      const data = await SettingsAPI.getSalesKPI({
+        StockIDs: !filters
+          ? kpi_doanhso.StockRoles.map(x => x.value)
+          : [filters.value]
+      })
+      return data
+    },
+    onSuccess: ({ data }) => {
+      if (data && data.list && data.list.length > 0) {
+        const newValues = data.list.map(item => ({
+          UserID: {
+            label: item.UserName,
+            value: item.UserID
+          },
+          Configs:
+            item.Configs && item.Configs.length > 0
+              ? item.Configs.map(x => ({
+                  ...x
+                  // StockIDs: x.StockIDs ? x.StockIDs.split(',') : '',
+                  // ProdTypes: x.ProdTypes ? x.ProdTypes.split(',') : ''
+                }))
+              : [
+                  {
+                    StockIDs: '',
+                    UserIDs: '',
+                    Threshold1: '',
+                    Threshold2: '',
+                    ProdTypes: '',
+                    BonusList: ''
+                  }
+                ]
+        }))
+        setValue('updateList', newValues)
+      } else {
+        setValue('updateList', [
+          {
+            UserID: '',
+            Configs: [
+              {
+                StockIDs: '',
+                UserIDs: '',
+                Threshold1: '',
+                Threshold2: '',
+                ProdTypes: '',
+                BonusList: ''
+              }
+            ]
+          }
+        ])
+      }
+    },
+    enabled: kpi_doanhso.StockRoles && kpi_doanhso.StockRoles.length > 0
   })
 
   const updateKPIMutation = useMutation({
@@ -56,24 +122,26 @@ function SalesKPI(props) {
   const onSubmit = values => {
     const dataUpdate = {
       updateList: values?.updateList
-        ? values?.updateList.map(item => ({
-            ...item,
-            UserID: item?.UserID?.value || '',
-            UserName: item?.UserID?.label || '',
-            Configs: item.Configs
-              ? item.Configs.map(config => ({
-                  ...config,
-                  UserIDs: config?.UserIDs ? config?.UserIDs.join(',') : '',
-                  StockIDs: config?.StockIDs
-                    ? config?.StockIDs.map(x => x.value).join(',')
-                    : '',
-                  ProdTypes: config?.ProdTypes
-                    ? config?.ProdTypes.map(x => x.value).join(',')
-                    : ''
-                }))
-              : []
-          }))
-        : []
+        ? values?.updateList
+            .map(item => ({
+              ...item,
+              UserID: item?.UserID?.value || '',
+              UserName: item?.UserID?.label || '',
+              Configs: item.Configs
+                ? item.Configs.map(config => ({
+                    ...config
+                    // StockIDs: config?.StockIDs
+                    //   ? config?.StockIDs.map(x => x.value).join(',')
+                    //   : '',
+                    // ProdTypes: config?.ProdTypes
+                    //   ? config?.ProdTypes.map(x => x.value).join(',')
+                    //   : ''
+                  }))
+                : []
+            }))
+            .filter(x => x.UserID)
+        : [],
+      StockIDs: kpi_doanhso.StockRoles.map(x => x.value)
     }
 
     updateKPIMutation.mutate(dataUpdate, {
@@ -117,10 +185,42 @@ function SalesKPI(props) {
               </nav>
               <div className="text-3xl font-extrabold">KPI Doanh số</div>
             </div>
-            <div>
+            <div className="flex">
+              <Select
+                className="select-control w-64 mr-2"
+                classNamePrefix="select"
+                isLoading={false}
+                isClearable
+                isSearchable
+                placeholder="Lọc theo cơ sở"
+                options={kpi_doanhso.StockRoles}
+                value={filters}
+                onChange={val => setFilters(val)}
+              />
+              <Button
+                type="button"
+                className="relative flex items-center h-[50px] px-4 font-medium text-white transition rounded shadow-lg bg-success hover:bg-success focus:outline-none focus:shadow-none disabled:opacity-70 mr-2"
+                onClick={() =>
+                  append({
+                    UserID: '',
+                    Configs: [
+                      {
+                        StockIDs: '',
+                        UserIDs: '',
+                        Threshold1: '',
+                        Threshold2: '',
+                        ProdTypes: '',
+                        BonusList: ''
+                      }
+                    ]
+                  })
+                }
+              >
+                Thêm nhân viên
+              </Button>
               <Button
                 type="sumbit"
-                className="relative flex items-center h-12 px-4 font-medium text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                className="relative flex items-center h-[50px] px-4 font-medium text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
                 loading={updateKPIMutation.isLoading}
                 disabled={updateKPIMutation.isLoading}
               >
@@ -152,6 +252,7 @@ function SalesKPI(props) {
                             fieldState
                           }) => (
                             <SelectUserAdmin
+                              StockRoles={kpi_doanhso?.StockRoles}
                               isClearable
                               value={field.value}
                               onChange={val => {
@@ -176,7 +277,11 @@ function SalesKPI(props) {
                                   zIndex: 9999
                                 })
                               }}
-                              allOption={[{ value: -1, label: 'Tất cả' }]}
+                              allOption={
+                                kpi_doanhso.IsStocks
+                                  ? [{ value: -1, label: 'Tất cả' }]
+                                  : ''
+                              }
                             />
                           )}
                         />
@@ -231,6 +336,10 @@ function SalesKPI(props) {
             ))}
         </form>
       </FormProvider>
+      <LoadingComponentFull
+        bgClassName="bg-white dark:bg-dark-aside border-t border-separator dark:border-[#393945]"
+        loading={isLoading}
+      />
     </div>
   )
 }

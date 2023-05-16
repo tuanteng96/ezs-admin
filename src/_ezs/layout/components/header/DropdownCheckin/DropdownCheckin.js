@@ -10,7 +10,7 @@ import useDebounce from 'src/_ezs/hooks/useDebounce'
 import { DropdownCheckinFilter } from './DropdownCheckinFilter'
 import useEscape from 'src/_ezs/hooks/useEscape'
 import { useLocation } from 'react-router'
-import { rolesAccess } from 'src/_ezs/utils/rolesAccess'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 
 const DropdownCheckin = props => {
   const { CrStocks, auth } = useAuth()
@@ -23,11 +23,7 @@ const DropdownCheckin = props => {
   })
 
   const debouncedKey = useDebounce(key, 300)
-
-  const { calendar } = rolesAccess({
-    rightsSum: auth.rightsSum,
-    CrStocks: CrStocks
-  })
+  const { pos_mng } = useRoles(['pos_mng'])
 
   useEffect(() => {
     isShowing && onHideShowing()
@@ -55,13 +51,13 @@ const DropdownCheckin = props => {
     },
     onSuccess: () => {},
     enabled:
-      calendar.hasRight &&
+      pos_mng.hasRight &&
       ((isShowing && CrStocks?.ID > 0) || Boolean(debouncedKey))
   })
 
   return (
     <>
-      {calendar.hasRight && auth?.Present?.CHECKIN[CrStocks?.ID] > 0 && (
+      {pos_mng.hasRight && auth?.Present?.CHECKIN[CrStocks?.ID] > 0 && (
         <button
           type="button"
           className="relative flex items-center px-4 text-sm font-medium text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-11 focus:outline-none focus:shadow-none text"

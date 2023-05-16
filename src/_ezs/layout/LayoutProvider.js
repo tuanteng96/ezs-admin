@@ -8,13 +8,16 @@ const useLayout = () => {
 
 const LayoutProvider = ({ children }) => {
   const [loadingContent, setLoadingContent] = useState(false)
+  const [LayoutIframe] = useState(window?.top?.token)
 
   const updateLoadingContent = loading => {
     setLoadingContent(loading)
   }
 
   return (
-    <LayoutContext.Provider value={{ loadingContent, updateLoadingContent }}>
+    <LayoutContext.Provider
+      value={{ loadingContent, updateLoadingContent, LayoutIframe }}
+    >
       {children}
     </LayoutContext.Provider>
   )

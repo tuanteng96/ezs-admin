@@ -3,8 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { MasterLayout } from 'src/_ezs/layout/MasterLayout'
 import SuspensedView from './SuspensedView'
 import { RoleAccess } from 'src/_ezs/layout/RoleAccess'
-import { useAuth } from 'src/_ezs/core/Auth'
-import { rolesAccess } from 'src/_ezs/utils/rolesAccess'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 
 const ProfilePage = lazy(() => import('../pages/Profile'))
 const DashboardPage = lazy(() => import('../pages/Dashboard'))
@@ -16,12 +15,7 @@ const SearchPage = lazy(() => import('../pages/Search'))
 const UnauthorizedPage = lazy(() => import('../pages/Unauthorized'))
 
 function PrivateRoutes(props) {
-  const { auth, CrStocks } = useAuth()
-  const { calendar } = rolesAccess({
-    rightsSum: auth.rightsSum,
-    CrStocks: CrStocks
-  })
-
+  const { pos_mng } = useRoles(['pos_mng'])
   return (
     <Routes>
       <Route element={<MasterLayout />}>
@@ -43,7 +37,7 @@ function PrivateRoutes(props) {
             </SuspensedView>
           }
         />
-        <Route element={<RoleAccess roles={calendar.hasRight} />}>
+        <Route element={<RoleAccess roles={pos_mng.hasRight} />}>
           <Route
             path="calendar/*"
             element={
@@ -62,7 +56,7 @@ function PrivateRoutes(props) {
             </SuspensedView>
           }
         />
-        <Route element={<RoleAccess roles={calendar.hasRight} />}>
+        <Route element={<RoleAccess roles={pos_mng.hasRight} />}>
           <Route
             path="appointments/*"
             element={

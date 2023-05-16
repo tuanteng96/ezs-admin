@@ -17,7 +17,7 @@ const useAuth = () => {
 const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState(null)
   const [accessToken, setAccessToken] = useState(
-    getLocalStorage('access_token')
+    getLocalStorage('access_token') || window?.parent?.token || null
   )
   const [CrStocks, setCrStocks] = useState(getLocalStorage('access_stock'))
   const [StockRights, setStockRights] = useState(null)

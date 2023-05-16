@@ -4,11 +4,15 @@ import { Aside } from './components/aside/Aside'
 import { Content } from './components/Content'
 import { Header } from './components/header/header'
 import useQueryParams from '../hooks/useQueryParams'
+import clsx from 'clsx'
+import { useLayout } from './LayoutProvider'
 
 const MasterLayout = () => {
   const navigate = useNavigate()
   const { pathname, search } = useLocation()
   const queryConfig = useQueryParams()
+
+  const { LayoutIframe } = useLayout()
 
   useEffect(() => {
     document.addEventListener('keydown', keydownHandler)
@@ -73,9 +77,15 @@ const MasterLayout = () => {
 
   return (
     <div className="h-full transition bg-site-app dark:bg-dark-app dark:text-dark-muted">
-      <Header />
-      <Aside />
-      <div className="w-full h-full pt-[70px] pl-[72px]">
+      {!LayoutIframe && <Header />}
+      {!LayoutIframe && <Aside />}
+      <div
+        id="wrapper"
+        className={clsx(
+          '"w-full h-full',
+          !LayoutIframe && 'pt-[70px] pl-[72px]'
+        )}
+      >
         <Content>
           <Outlet />
         </Content>

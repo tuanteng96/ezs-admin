@@ -21,7 +21,7 @@ import { NotificationDrawerTab } from './NotificationDrawerTab'
 import { NotFound } from '../../notfound'
 import clsx from 'clsx'
 import useEscape from 'src/_ezs/hooks/useEscape'
-import { rolesAccess } from 'src/_ezs/utils/rolesAccess'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -80,10 +80,7 @@ const NotificationDrawer = props => {
     To: ''
   })
 
-  const { calendar } = rolesAccess({
-    rightsSum: auth.rightsSum,
-    CrStocks: CrStocks
-  })
+  const { pos_mng } = useRoles(['pos_mng'])
 
   const { data, isLoading } = useQuery({
     queryKey: ['Notifications', { ...filters, StockID: CrStocks.ID }],
@@ -99,7 +96,7 @@ const NotificationDrawer = props => {
     onSuccess: () => {
       isShowingFilter && setIsShowingFilter(false)
     },
-    enabled: isShowing && CrStocks?.ID > 0 && calendar.hasRight
+    enabled: isShowing && CrStocks?.ID > 0 && pos_mng.hasRight
   })
 
   const onHideShowing = () => {
@@ -111,7 +108,7 @@ const NotificationDrawer = props => {
 
   return (
     <>
-      {calendar.hasRight && (
+      {pos_mng.hasRight && (
         <div
           onClick={() => setIsShowing(true)}
           className="relative flex items-center justify-center text-gray-700 transition rounded cursor-pointer dark:text-dark-muted w-11 h-11 hover:bg-light dark:hover:bg-dark-light hover:text-primary"

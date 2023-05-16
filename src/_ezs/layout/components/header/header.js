@@ -7,19 +7,17 @@ import { DropdownStocks } from './DropdownStocks'
 import { NotificationDrawer } from './NotificationDrawer'
 import { DropdownCheckin } from './DropdownCheckin'
 import { Link, useLocation } from 'react-router-dom'
-import { rolesAccess } from 'src/_ezs/utils/rolesAccess'
-import { useAuth } from 'src/_ezs/core/Auth'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 
 const Header = () => {
   const { pathname, search } = useLocation()
-  const { CrStocks, auth } = useAuth()
-  const { calendar } = rolesAccess({
-    rightsSum: auth.rightsSum,
-    CrStocks: CrStocks
-  })
+  const { pos_mng } = useRoles(['pos_mng'])
 
   return (
-    <div className="h-[70px] bg-white dark:bg-dark-aside fixed w-full top-0 left-0 z-[1001] flex justify-between pr-4 transition">
+    <div
+      id="header"
+      className="h-[70px] bg-white dark:bg-dark-aside fixed w-full top-0 left-0 z-[1001] flex justify-between pr-4 transition"
+    >
       <div className="flex items-center justify-center w-[72px] bg-site-aside">
         <Link className="block" to="/">
           <img
@@ -35,7 +33,7 @@ const Header = () => {
           <DropdownCheckin />
         </div>
         <div className="flex items-center">
-          {calendar.hasRight && (
+          {pos_mng.hasRight && (
             <div>
               <Link
                 to="/search"

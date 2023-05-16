@@ -34,8 +34,8 @@ import Swal from 'sweetalert2'
 import useQueryParams from 'src/_ezs/hooks/useQueryParams'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import MembersAPI from 'src/_ezs/api/members.api'
-import { rolesAccess } from 'src/_ezs/utils/rolesAccess'
 import { SEO } from 'src/_ezs/core/SEO'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -66,7 +66,7 @@ const ListStatus = [
 ]
 
 function AppointmentsAddEdit(props) {
-  const { CrStocks, auth } = useAuth()
+  const { CrStocks } = useAuth()
   const { state } = useLocation()
   const navigate = useNavigate()
   const isAddMode = useMatch('/appointments/new')
@@ -76,10 +76,7 @@ function AppointmentsAddEdit(props) {
   const [isShowing, setIsShowing] = useState(false)
   const queryString = useQueryParams()
 
-  const { calendar } = rolesAccess({
-    rightsSum: auth.rightsSum,
-    CrStocks: CrStocks
-  })
+  const { pos_mng } = useRoles(['pos_mng'])
 
   const methodsUseForm = useForm({
     defaultValues: state?.formState
@@ -528,7 +525,7 @@ function AppointmentsAddEdit(props) {
                                   fieldState
                                 }) => (
                                   <SelectStocks
-                                    StockRoles={calendar.StockRoles}
+                                    StockRoles={pos_mng.StockRoles}
                                     value={field.value}
                                     onChange={val =>
                                       field.onChange(val?.value || '')
@@ -611,7 +608,7 @@ function AppointmentsAddEdit(props) {
                                   fieldState
                                 }) => (
                                   <SelectUserService
-                                    StockRoles={calendar.StockRoles}
+                                    StockRoles={pos_mng.StockRoles}
                                     value={field.value}
                                     onChange={val => field.onChange(val)}
                                     isMulti

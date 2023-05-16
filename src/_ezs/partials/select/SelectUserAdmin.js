@@ -54,7 +54,7 @@ const SelectUserAdmin = ({
                 .map(x => ({ ...x, value: x.id, label: x.text }))
                 .filter(x =>
                   StockRoles
-                    ? StockRoles.some(s => s.value === x.value)
+                    ? StockRoles.some(s => s.value === x.groupid)
                     : !StockRoles
                 )
             : []

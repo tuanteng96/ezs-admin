@@ -6,8 +6,10 @@ import { SelectStocks, SelectUserAdmin } from 'src/_ezs/partials/select'
 import { SelectTypeGenerate } from 'src/_ezs/partials/select/SelectTypeGenerate'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import UserKPIBonus from '../UserKPIBonus/UserKPIBonus'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 
 function UserKPI({ indexUser }) {
+  const { kpi_doanhso } = useRoles('kpi_doanhso')
   const { control, watch } = useFormContext()
   const { fields, remove, insert } = useFieldArray({
     control,
@@ -27,6 +29,7 @@ function UserKPI({ indexUser }) {
             control={control}
             render={({ field: { ref, ...field }, fieldState }) => (
               <SelectStocks
+                StockRoles={kpi_doanhso?.StockRoles}
                 isMulti
                 isClearable
                 value={field.value}
@@ -49,7 +52,9 @@ function UserKPI({ indexUser }) {
                   })
                 }}
                 menuPortalTarget={document.body}
-                allOption={[{ value: -1, label: 'Tất cả' }]}
+                allOption={
+                  kpi_doanhso.IsStocks ? [{ value: -1, label: 'Tất cả' }] : ''
+                }
               />
             )}
           />
@@ -68,7 +73,10 @@ function UserKPI({ indexUser }) {
             control={control}
             render={({ field: { ref, ...field }, fieldState }) => (
               <SelectUserAdmin
-                allOption={[{ value: -1, label: 'Tất cả' }]}
+                StockRoles={kpi_doanhso?.StockRoles}
+                allOption={
+                  kpi_doanhso.IsStocks ? [{ value: -1, label: 'Tất cả' }] : ''
+                }
                 isMulti
                 isSome
                 isClearable

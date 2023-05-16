@@ -30,27 +30,22 @@ import { MemberOs } from '../../components/MemberOs'
 import { isEqual } from 'lodash-es'
 import { FeeSalary } from '../../components/FeeSalary'
 import { OsSalaryMethod } from '../../components/OsSalaryMethod'
-import { useAuth } from 'src/_ezs/core/Auth'
-import { rolesAccess } from 'src/_ezs/utils/rolesAccess'
 import { SEO } from 'src/_ezs/core/SEO'
 import { OsPrint } from '../../components/OsPrint'
 import moment from 'moment'
 import 'moment/locale/vi'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 
 moment.locale('vi')
 
 function AppointmentsOsAddEdit(props) {
-  const { CrStocks, auth } = useAuth()
   const { id } = useParams()
   const [isShowing, setIsShowing] = useState(false)
   const { state } = useLocation()
   const navigate = useNavigate()
   const [FeeAll, setFeeAll] = useState([])
 
-  const { calendar } = rolesAccess({
-    rightsSum: auth.rightsSum,
-    CrStocks: CrStocks
-  })
+  const { pos_mng } = useRoles(['pos_mng'])
 
   const methodsUseForm = useForm({
     defaultValues: state?.formState
@@ -451,7 +446,7 @@ function AppointmentsOsAddEdit(props) {
                                   fieldState
                                 }) => (
                                   <SelectStocks
-                                    StockRoles={calendar.StockRoles}
+                                    StockRoles={pos_mng.StockRoles}
                                     value={field.value}
                                     onChange={val =>
                                       field.onChange(val?.value || '')
@@ -487,7 +482,7 @@ function AppointmentsOsAddEdit(props) {
                                   fieldState
                                 }) => (
                                   <SelectUserService
-                                    StockRoles={calendar.StockRoles}
+                                    StockRoles={pos_mng.StockRoles}
                                     value={field.value}
                                     onChange={val => {
                                       let count = 0

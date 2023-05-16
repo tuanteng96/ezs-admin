@@ -8,5 +8,30 @@ export const formatArray = {
       }
     }
     return newPages
+  },
+  findNodeByName: (data, name) => {
+    let response = null
+    let findNameItem = tree => {
+      let result = null
+      if (tree.name === name) {
+        return tree
+      }
+
+      if (Array.isArray(tree.children) && tree.children.length > 0) {
+        tree.children.some(node => {
+          result = findNameItem(node)
+          return result
+        })
+      }
+      return result
+    }
+    if (!data) return null
+    for (let item of data) {
+      if (findNameItem(item)) {
+        response = findNameItem(item)
+        break
+      }
+    }
+    return response
   }
 }

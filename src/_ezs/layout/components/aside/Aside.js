@@ -65,7 +65,10 @@ const AsideMenuList = [
 
 const Aside = () => {
   return (
-    <div className="fixed top-[70px] left-0 w-[72px] h-[calc(100%-70px)] bg-site-aside border-t border-[#393945] border-dashed">
+    <div
+      id="aside"
+      className="fixed top-[70px] left-0 w-[72px] h-[calc(100%-70px)] bg-site-aside border-t border-[#393945] border-dashed"
+    >
       <div className="flex flex-col items-center justify-between h-full p-3 overflow-x-hidden overflow-y-auto scrollbar-dark">
         <div>
           {AsideMenuList.map((menu, index) => (

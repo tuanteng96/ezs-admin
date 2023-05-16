@@ -13,7 +13,7 @@ function UserKPIBonus({ indexUser, rowIndex }) {
       {BonusList &&
         BonusList.map((item, index) => (
           <div className="mt-3" key={index}>
-            <div className="font-medium text-sm mb-px">{item.label}</div>
+            <div className="font-medium text-sm mb-1">{item.label}</div>
             <Controller
               name={`updateList[${indexUser}].Configs[${rowIndex}].BonusList[${index}].Bonus`}
               control={control}

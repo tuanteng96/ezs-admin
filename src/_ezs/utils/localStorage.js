@@ -10,7 +10,6 @@ export const getLocalStorage = key => {
     return null
   }
   var item = localStorage.getItem(key)
-
   if (!item) {
     return null
   }
