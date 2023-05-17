@@ -231,7 +231,7 @@ function SalesKPI(props) {
                     className="mb-5 border border-gray-200 rounded-md shadow-sm last:mb-0"
                     key={item.id}
                   >
-                    {({ open }, ...a) => (
+                    {({ open }) => (
                       <>
                         <div
                           className={clsx(

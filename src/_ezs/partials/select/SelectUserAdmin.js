@@ -77,15 +77,17 @@ const SelectUserAdmin = ({
     },
     onSuccess: () => {}
   })
+
   return (
     <div>
       <Select
+        key={value}
         isLoading={ListUsers.isLoading}
         value={
           isSome
             ? ListUsers?.data?.dataList && ListUsers?.data?.dataList.length > 0
               ? [...allOption, ...ListUsers?.data?.dataList].filter(
-                  x => value && value.some(k => Number(k) === x.value)
+                  x => value && value.includes(x.value)
                 )
               : null
             : value

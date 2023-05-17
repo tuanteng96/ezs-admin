@@ -1,5 +1,4 @@
-import React from 'react'
-import { useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form'
 import { InputNumber } from 'src/_ezs/partials/forms'
 import { SelectStocks, SelectUserAdmin } from 'src/_ezs/partials/select'
