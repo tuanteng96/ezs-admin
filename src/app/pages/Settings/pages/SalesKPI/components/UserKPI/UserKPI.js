@@ -33,7 +33,7 @@ function UserKPI({ indexUser }) {
                 StockRoles={kpi_doanhso?.StockRoles}
                 isMulti={watchUserID?.value !== -2}
                 isClearable
-                isDisabled={watchUserID?.value === -1}
+                isDisabled={watchUserID?.value !== -2}
                 value={field.value}
                 onChange={val => {
                   if (watchUserID?.value !== -2) {

@@ -9,6 +9,7 @@ const SelectUserAdmin = ({
   isSome = false,
   StockID,
   StockRoles,
+  removes = [],
   allOption = [],
   ...props
 }) => {
@@ -44,10 +45,24 @@ const SelectUserAdmin = ({
           }
         }
       }
+      newData = [
+        ...allOption,
+        ...newData
+          .map(x => ({
+            ...x,
+            options: x.options
+              ? x.options.filter(s => !removes.includes(s.value))
+              : []
+          }))
+          .filter(x =>
+            StockRoles
+              ? StockRoles.some(s => s.value === x.groupid)
+              : !StockRoles
+          )
+      ].filter(x => !x?.value || x?.value === -2 || !removes.includes(x.value))
+
       return {
-        data: newData.filter(x =>
-          StockRoles ? StockRoles.some(s => s.value === x.groupid) : !StockRoles
-        ),
+        data: newData,
         dataList:
           data?.data?.data?.length > 0
             ? data?.data?.data
@@ -62,7 +77,6 @@ const SelectUserAdmin = ({
     },
     onSuccess: () => {}
   })
-
   return (
     <div>
       <Select
@@ -77,9 +91,7 @@ const SelectUserAdmin = ({
             : value
         }
         classNamePrefix="select"
-        options={
-          ListUsers?.data?.data ? [...allOption, ...ListUsers?.data?.data] : []
-        }
+        options={ListUsers?.data?.data}
         placeholder="Chọn nhân viên"
         noOptionsMessage={() => 'Không có dữ liệu'}
         {...props}

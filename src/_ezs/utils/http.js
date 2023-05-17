@@ -12,7 +12,8 @@ class Http {
       timeout: 50000,
       headers: {
         'content-type': 'text/plain'
-      }
+      },
+      withCredentials: true
     })
     this.instance.interceptors.request.use(
       config => {

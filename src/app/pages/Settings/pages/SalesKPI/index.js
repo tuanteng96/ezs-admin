@@ -46,7 +46,7 @@ function SalesKPI(props) {
     }
   })
 
-  const { control, handleSubmit, setValue } = methods
+  const { control, handleSubmit, setValue, watch } = methods
 
   const { fields, remove, append } = useFieldArray({
     control,
@@ -299,6 +299,9 @@ function SalesKPI(props) {
                                           }
                                         ]
                                   }
+                                  removes={watch().updateList.map(
+                                    x => x?.UserID?.value || ''
+                                  )}
                                 />
                               )}
                             />
