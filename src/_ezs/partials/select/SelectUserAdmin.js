@@ -46,7 +46,6 @@ const SelectUserAdmin = ({
         }
       }
       newData = [
-        ...allOption,
         ...newData
           .map(x => ({
             ...x,
@@ -93,7 +92,9 @@ const SelectUserAdmin = ({
             : value
         }
         classNamePrefix="select"
-        options={ListUsers?.data?.data}
+        options={[...allOption, ...(ListUsers?.data?.data || [])].filter(
+          x => !x?.value || x?.value === -2 || x?.value === -1
+        )}
         placeholder="Chọn nhân viên"
         noOptionsMessage={() => 'Không có dữ liệu'}
         {...props}

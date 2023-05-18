@@ -2,7 +2,7 @@ import React from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { InputNumber } from 'src/_ezs/partials/forms'
 
-function UserKPIBonus({ indexUser, rowIndex }) {
+function UserKPIBonus({ indexUser, rowIndex, isDisabled }) {
   const { control, getValues } = useFormContext()
   const BonusList = getValues(
     `updateList[${indexUser}].Configs[${rowIndex}].BonusList`
@@ -22,12 +22,14 @@ function UserKPIBonus({ indexUser, rowIndex }) {
                   <InputNumber
                     thousandSeparator={true}
                     errorMessageForce={fieldState.invalid}
-                    placeholder="Số tiền"
+                    placeholder="Nhập %"
                     value={field.value}
                     onValueChange={val => {
-                      field.onChange(val.floatValue || '')
+                      field.onChange(val.floatValue)
                     }}
                     allowNegative={false}
+                    disabled={isDisabled}
+                    allowLeadingZeros
                   />
                 </>
               )}

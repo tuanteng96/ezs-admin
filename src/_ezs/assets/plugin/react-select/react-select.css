@@ -79,6 +79,7 @@ html.dark {
     font-family: "Inter", sans-serif;
     padding: 10px 12px;
     background-color: transparent;
+    text-transform: capitalize;
 }
 
 

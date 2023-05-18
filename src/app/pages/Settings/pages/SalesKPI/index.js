@@ -53,7 +53,7 @@ function SalesKPI(props) {
     name: 'updateList'
   })
 
-  const { isLoading } = useQuery({
+  const { isLoading, refetch } = useQuery({
     queryKey: [
       'ListSalesKPIs',
       { StockRoles: kpi_doanhso.StockRoles, filters }
@@ -68,20 +68,25 @@ function SalesKPI(props) {
     },
     onSuccess: ({ data }) => {
       if (data && data.list && data.list.length > 0) {
-        const newValues = data.list.map(item => ({
-          UserID: {
-            label: item.UserName,
-            value: item.UserID
-          },
-          Configs:
-            item.Configs && item.Configs.length > 0
-              ? item.Configs.map(x => ({
-                  ...x
-                  // StockIDs: x.StockIDs ? x.StockIDs.split(',') : '',
-                  // ProdTypes: x.ProdTypes ? x.ProdTypes.split(',') : ''
-                }))
-              : []
-        }))
+        const newValues = data.list
+          .map(item => ({
+            order: item?.UserID === -1 ? 0 : item?.UserID === -2 ? 1 : 2,
+            UserID: {
+              label: item.UserName,
+              value: item.UserID
+            },
+            Configs:
+              item.Configs && item.Configs.length > 0
+                ? item.Configs.map(x => ({
+                    ...x,
+                    isDisabled:
+                      item.UserID === -1 && !kpi_doanhso.IsStocks ? true : false
+                  }))
+                : [],
+            isDisabled:
+              item.UserID === -1 && !kpi_doanhso.IsStocks ? true : false
+          }))
+          .sort((a, b) => a.order - b.order)
         setValue('updateList', newValues)
       } else {
         setValue('updateList', [])
@@ -102,15 +107,13 @@ function SalesKPI(props) {
               ...item,
               UserID: item?.UserID?.value || '',
               UserName: item?.UserID?.label || '',
+              StockID:
+                item?.UserID?.value === -2
+                  ? item.Configs[0].StockIDs.join(',')
+                  : '',
               Configs: item.Configs
                 ? item.Configs.map(config => ({
                     ...config
-                    // StockIDs: config?.StockIDs
-                    //   ? config?.StockIDs.map(x => x.value).join(',')
-                    //   : '',
-                    // ProdTypes: config?.ProdTypes
-                    //   ? config?.ProdTypes.map(x => x.value).join(',')
-                    //   : ''
                   }))
                 : []
             }))
@@ -118,10 +121,9 @@ function SalesKPI(props) {
         : [],
       StockIDs: kpi_doanhso.StockRoles.map(x => x.value)
     }
-
     updateKPIMutation.mutate(dataUpdate, {
       onSuccess: data => {
-        toast.success('Cập nhập thành công')
+        refetch().then(() => toast.success('Cập nhập thành công'))
       },
       onError: error => {
         console.log(error)
@@ -248,6 +250,7 @@ function SalesKPI(props) {
                                 fieldState
                               }) => (
                                 <SelectUserAdmin
+                                  isDisabled={item.isDisabled}
                                   StockRoles={kpi_doanhso?.StockRolesAll}
                                   isClearable
                                   value={field.value}

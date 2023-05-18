@@ -6,63 +6,74 @@ import { SelectTypeGenerate } from 'src/_ezs/partials/select/SelectTypeGenerate'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import UserKPIBonus from '../UserKPIBonus/UserKPIBonus'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
+import clsx from 'clsx'
 
 function UserKPI({ indexUser }) {
   const { kpi_doanhso } = useRoles('kpi_doanhso')
-  const { control, watch } = useFormContext()
+  const {
+    control,
+    watch,
+    formState: { errors }
+  } = useFormContext()
   const { fields, remove, insert } = useFieldArray({
     control,
     name: `updateList[${indexUser}].Configs`
   })
   const watchConfigs = watch() //`updateList[${indexUser}].Configs`, fields
   const watchUserID = watch(`updateList[${indexUser}].UserID`)
-
+  console.log(watchConfigs)
   const columns = useMemo(
     () => [
       {
         key: 'StockIDs',
         title: 'Cơ sở',
         dataKey: 'StockIDs',
-        cellRenderer: ({ rowIndex }) => (
+        cellRenderer: ({ rowIndex, rowData }) => (
           <Controller
             name={`updateList[${indexUser}].Configs[${rowIndex}].StockIDs`}
             control={control}
+            rules={{ required: watchUserID?.value === -2 }}
             render={({ field: { ref, ...field }, fieldState }) => (
-              <SelectStocks
-                StockRoles={kpi_doanhso?.StockRoles}
-                isMulti={watchUserID?.value !== -2}
-                isClearable
-                isDisabled={watchUserID?.value !== -2}
-                value={field.value}
-                onChange={val => {
-                  if (watchUserID?.value !== -2) {
-                    const valIndex = val && val.findIndex(x => x.value === -1)
-                    field.onChange(
-                      valIndex > -1 && valIndex === val.length - 1
-                        ? [val[valIndex]]
-                        : val
-                        ? val.filter(x => x.value !== -1)
-                        : ''
-                    )
-                  } else {
-                    field.onChange(val ? [val?.value] : '')
+              <>
+                <SelectStocks
+                  StockRoles={kpi_doanhso?.StockRoles}
+                  isMulti={watchUserID?.value !== -2}
+                  isClearable
+                  isDisabled={watchUserID?.value !== -2 || rowData.isDisabled}
+                  value={field.value}
+                  onChange={val => {
+                    if (watchUserID?.value !== -2) {
+                      const valIndex = val && val.findIndex(x => x.value === -1)
+                      field.onChange(
+                        valIndex > -1 && valIndex === val.length - 1
+                          ? [val[valIndex]]
+                          : val
+                          ? val.filter(x => x.value !== -1)
+                          : ''
+                      )
+                    } else {
+                      field.onChange(val ? [val?.value] : '')
+                    }
+                  }}
+                  className={clsx(
+                    'w-full select-control',
+                    fieldState.invalid && 'select-control-error'
+                  )}
+                  menuPosition="fixed"
+                  styles={{
+                    menuPortal: base => ({
+                      ...base,
+                      zIndex: 9999
+                    })
+                  }}
+                  menuPortalTarget={document.body}
+                  allOption={
+                    kpi_doanhso.IsStocks && watchUserID?.value !== -2
+                      ? [{ value: -1, label: 'Tất cả cơ sở' }]
+                      : ''
                   }
-                }}
-                className="w-full select-control"
-                menuPosition="fixed"
-                styles={{
-                  menuPortal: base => ({
-                    ...base,
-                    zIndex: 9999
-                  })
-                }}
-                menuPortalTarget={document.body}
-                allOption={
-                  kpi_doanhso.IsStocks && watchUserID?.value !== -2
-                    ? [{ value: -1, label: 'Tất cả' }]
-                    : ''
-                }
-              />
+                />
+              </>
             )}
           />
         ),
@@ -74,15 +85,18 @@ function UserKPI({ indexUser }) {
         key: 'UserIDs',
         title: 'Nhóm nhân viên',
         dataKey: 'UserIDs',
-        cellRenderer: ({ rowIndex }) => (
+        cellRenderer: ({ rowIndex, rowData }) => (
           <Controller
             name={`updateList[${indexUser}].Configs[${rowIndex}].UserIDs`}
             control={control}
             render={({ field: { ref, ...field }, fieldState }) => (
               <SelectUserAdmin
+                isDisabled={rowData.isDisabled}
                 StockRoles={kpi_doanhso?.StockRolesAll}
                 allOption={
-                  kpi_doanhso.IsStocks ? [{ value: -1, label: 'Tất cả' }] : ''
+                  kpi_doanhso.IsStocks
+                    ? [{ value: -1, label: 'Tất cả nhân viên' }]
+                    : ''
                 }
                 isMulti
                 isSome
@@ -119,12 +133,13 @@ function UserKPI({ indexUser }) {
         key: 'ProdTypes',
         title: 'Nhóm DV / SP',
         dataKey: 'ProdTypes',
-        cellRenderer: ({ rowIndex }) => (
+        cellRenderer: ({ rowIndex, rowData }) => (
           <Controller
             name={`updateList[${indexUser}].Configs[${rowIndex}].ProdTypes`}
             control={control}
             render={({ field: { ref, ...field }, fieldState }) => (
               <SelectTypeGenerate
+                isDisabled={rowData.isDisabled}
                 allOption={[{ value: -1, label: 'Tất cả' }]}
                 isMulti
                 isClearable
@@ -160,21 +175,23 @@ function UserKPI({ indexUser }) {
         key: 'Threshold1',
         title: 'Ngưỡng A',
         dataKey: 'Threshold1',
-        cellRenderer: ({ rowIndex }) => (
+        cellRenderer: ({ rowIndex, rowData }) => (
           <Controller
             name={`updateList[${indexUser}].Configs[${rowIndex}].Threshold1`}
             control={control}
             render={({ field: { ref, ...field }, fieldState }) => (
               <>
                 <InputNumber
+                  disabled={rowData.isDisabled}
                   thousandSeparator={true}
                   errorMessageForce={fieldState.invalid}
                   placeholder="Số tiền"
                   value={field.value}
                   onValueChange={val => {
-                    field.onChange(val.floatValue || '')
+                    field.onChange(val.floatValue)
                   }}
                   allowNegative={false}
+                  allowLeadingZeros
                 />
               </>
             )}
@@ -187,21 +204,23 @@ function UserKPI({ indexUser }) {
         key: 'Threshold2',
         title: 'Ngưỡng B',
         dataKey: 'Threshold2',
-        cellRenderer: ({ rowIndex }) => (
+        cellRenderer: ({ rowIndex, rowData }) => (
           <Controller
             name={`updateList[${indexUser}].Configs[${rowIndex}].Threshold2`}
             control={control}
             render={({ field: { ref, ...field }, fieldState }) => (
               <>
                 <InputNumber
+                  disabled={rowData.isDisabled}
                   thousandSeparator={true}
                   errorMessageForce={fieldState.invalid}
                   placeholder="Số tiền"
                   value={field.value}
                   onValueChange={val => {
-                    field.onChange(val.floatValue || '')
+                    field.onChange(val.floatValue)
                   }}
                   allowNegative={false}
+                  allowLeadingZeros
                 />
               </>
             )}
@@ -214,7 +233,7 @@ function UserKPI({ indexUser }) {
         key: 'BonusList',
         title: 'Thưởng doanh số',
         dataKey: 'BonusList',
-        cellRenderer: ({ rowIndex }) => (
+        cellRenderer: ({ rowIndex, rowData }) => (
           <>
             <Controller
               name={`updateList[${indexUser}].Configs[${rowIndex}].BonusList`}
@@ -222,6 +241,7 @@ function UserKPI({ indexUser }) {
               render={({ field: { ref, ...field }, fieldState }) => (
                 <>
                   <SelectTypeGenerate
+                    isDisabled={rowData.isDisabled}
                     allOption={[{ value: -1, label: 'Tất cả' }]}
                     isMulti
                     isClearable
@@ -246,7 +266,11 @@ function UserKPI({ indexUser }) {
                       })
                     }}
                   />
-                  <UserKPIBonus indexUser={indexUser} rowIndex={rowIndex} />
+                  <UserKPIBonus
+                    isDisabled={rowData.isDisabled}
+                    indexUser={indexUser}
+                    rowIndex={rowIndex}
+                  />
                 </>
               )}
             />
@@ -260,11 +284,17 @@ function UserKPI({ indexUser }) {
         key: '#',
         title: '#',
         dataKey: '#',
-        cellRenderer: ({ rowIndex }) => (
+        cellRenderer: ({ rowIndex, rowData }) => (
           <>
             <div
-              className="flex items-center h-10 px-3 mx-1 text-sm rounded cursor-pointer text-success hover:text-white bg-successlight hover:bg-successhv"
+              className={clsx(
+                'flex items-center h-10 px-3 mx-1 text-sm rounded cursor-pointer text-success bg-successlight',
+                rowData.isDisabled
+                  ? 'opacity-30'
+                  : 'hover:text-white hover:bg-successhv'
+              )}
               onClick={() =>
+                !rowData.isDisabled &&
                 insert(rowIndex + 1, {
                   StockIDs: '',
                   UserID: '',
@@ -278,12 +308,19 @@ function UserKPI({ indexUser }) {
             >
               Thêm
             </div>
-            <div
-              className="flex items-center h-10 px-3 mx-1 text-sm rounded cursor-pointer text-danger hover:text-white bg-dangerlight hover:bg-dangerhv"
-              onClick={() => remove(rowIndex)}
-            >
-              Xóa
-            </div>
+            {fields && fields.length > 1 && (
+              <div
+                className={clsx(
+                  'flex items-center h-10 px-3 mx-1 text-sm rounded cursor-pointer text-danger hover:text-white bg-dangerlight hover:bg-dangerhv',
+                  rowData.isDisabled
+                    ? 'opacity-30'
+                    : 'hover:text-white hover:bg-dangerhv'
+                )}
+                onClick={() => !rowData.isDisabled && remove(rowIndex)}
+              >
+                Xóa
+              </div>
+            )}
           </>
         ),
         width: 160,
@@ -294,7 +331,7 @@ function UserKPI({ indexUser }) {
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [watchConfigs]
+    [watchConfigs, errors]
   )
 
   return (
