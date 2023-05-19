@@ -7,12 +7,14 @@ import { ReactBaseTable } from 'src/_ezs/partials/table'
 import UserKPIBonus from '../UserKPIBonus/UserKPIBonus'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
 import clsx from 'clsx'
+import { PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
 
 function UserKPI({ indexUser }) {
   const { kpi_doanhso } = useRoles('kpi_doanhso')
   const {
     control,
     watch,
+    setValue,
     formState: { errors }
   } = useFormContext()
   const { fields, remove, insert } = useFieldArray({
@@ -21,38 +23,43 @@ function UserKPI({ indexUser }) {
   })
   const watchConfigs = watch() //`updateList[${indexUser}].Configs`, fields
   const watchUserID = watch(`updateList[${indexUser}].UserID`)
-  console.log(watchConfigs)
   const columns = useMemo(
     () => [
       {
-        key: 'StockIDs',
+        key: 'StockID',
         title: 'Cơ sở',
-        dataKey: 'StockIDs',
+        dataKey: 'StockID',
         cellRenderer: ({ rowIndex, rowData }) => (
           <Controller
-            name={`updateList[${indexUser}].Configs[${rowIndex}].StockIDs`}
+            name={`updateList[${indexUser}].Configs[${rowIndex}].StockID`}
             control={control}
             rules={{ required: watchUserID?.value === -2 }}
             render={({ field: { ref, ...field }, fieldState }) => (
               <>
                 <SelectStocks
                   StockRoles={kpi_doanhso?.StockRoles}
-                  isMulti={watchUserID?.value !== -2}
                   isClearable
                   isDisabled={watchUserID?.value !== -2 || rowData.isDisabled}
                   value={field.value}
                   onChange={val => {
-                    if (watchUserID?.value !== -2) {
-                      const valIndex = val && val.findIndex(x => x.value === -1)
-                      field.onChange(
-                        valIndex > -1 && valIndex === val.length - 1
-                          ? [val[valIndex]]
-                          : val
-                          ? val.filter(x => x.value !== -1)
-                          : ''
-                      )
-                    } else {
-                      field.onChange(val ? [val?.value] : '')
+                    let Configs = watchConfigs.updateList[indexUser].Configs
+                    setValue(
+                      `updateList[${indexUser}].Configs`,
+                      Configs && Configs.length > 0
+                        ? Configs.map(x => ({
+                            ...x,
+                            StockID: val?.value || ''
+                          }))
+                        : []
+                    )
+
+                    if (
+                      watchConfigs.updateList[indexUser].UserID?.value === -2
+                    ) {
+                      setValue(`updateList[${indexUser}].UserID`, {
+                        value: -2,
+                        label: 'Theo cơ sở - ' + val.label
+                      })
                     }
                   }}
                   className={clsx(
@@ -67,11 +74,6 @@ function UserKPI({ indexUser }) {
                     })
                   }}
                   menuPortalTarget={document.body}
-                  allOption={
-                    kpi_doanhso.IsStocks && watchUserID?.value !== -2
-                      ? [{ value: -1, label: 'Tất cả cơ sở' }]
-                      : ''
-                  }
                 />
               </>
             )}
@@ -288,42 +290,44 @@ function UserKPI({ indexUser }) {
           <>
             <div
               className={clsx(
-                'flex items-center h-10 px-3 mx-1 text-sm rounded cursor-pointer text-success bg-successlight',
+                'flex justify-center items-center w-9 h-9 mx-1 text-sm rounded cursor-pointer text-success bg-successlight',
                 rowData.isDisabled
                   ? 'opacity-30'
                   : 'hover:text-white hover:bg-successhv'
               )}
-              onClick={() =>
-                !rowData.isDisabled &&
-                insert(rowIndex + 1, {
-                  StockIDs: '',
-                  UserID: '',
-                  UserIDs: '',
-                  Threshold1: '',
-                  Threshold2: '',
-                  ProdTypes: '',
-                  BonusList: ''
-                })
-              }
+              onClick={() => {
+                if (!rowData.isDisabled) {
+                  let { Configs, UserID } = watchConfigs.updateList[indexUser]
+                  insert(rowIndex + 1, {
+                    StockID:
+                      Configs && Configs.length > 0 ? Configs[0].StockID : '',
+                    UserIDs: [UserID?.value || ''],
+                    Threshold1: '',
+                    Threshold2: '',
+                    ProdTypes: '',
+                    BonusList: ''
+                  })
+                }
+              }}
             >
-              Thêm
+              <PlusIcon className="w-4" />
             </div>
             {fields && fields.length > 1 && (
               <div
                 className={clsx(
-                  'flex items-center h-10 px-3 mx-1 text-sm rounded cursor-pointer text-danger hover:text-white bg-dangerlight hover:bg-dangerhv',
+                  'flex justify-center items-center w-9 h-9 mx-1 text-sm rounded cursor-pointer text-danger bg-dangerlight',
                   rowData.isDisabled
                     ? 'opacity-30'
                     : 'hover:text-white hover:bg-dangerhv'
                 )}
                 onClick={() => !rowData.isDisabled && remove(rowIndex)}
               >
-                Xóa
+                <TrashIcon className="w-4" />
               </div>
             )}
           </>
         ),
-        width: 160,
+        width: 120,
         sortable: false,
         align: 'center',
         className: 'justify-center',

@@ -23,6 +23,15 @@ import { useRoles } from 'src/_ezs/hooks/useRoles'
 import Select from 'react-select'
 import { toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 
+const getStockName = (Stocks, StockID) => {
+  if (!StockID) return ''
+  let index = Stocks && Stocks.findIndex(x => x.value === StockID)
+  if (index > -1) {
+    return ' - ' + Stocks[index].label
+  }
+  return ''
+}
+
 function SalesKPI(props) {
   const { kpi_doanhso } = useRoles('kpi_doanhso')
   const [filters, setFilters] = useState()
@@ -72,7 +81,9 @@ function SalesKPI(props) {
           .map(item => ({
             order: item?.UserID === -1 ? 0 : item?.UserID === -2 ? 1 : 2,
             UserID: {
-              label: item.UserName,
+              label:
+                item.UserName +
+                getStockName(kpi_doanhso.StockRoles, item.Configs[0].StockID),
               value: item.UserID
             },
             Configs:
@@ -108,9 +119,7 @@ function SalesKPI(props) {
               UserID: item?.UserID?.value || '',
               UserName: item?.UserID?.label || '',
               StockID:
-                item?.UserID?.value === -2
-                  ? item.Configs[0].StockIDs.join(',')
-                  : '',
+                item?.UserID?.value === -2 ? item.Configs[0].StockID : '',
               Configs: item.Configs
                 ? item.Configs.map(config => ({
                     ...config
@@ -182,7 +191,7 @@ function SalesKPI(props) {
                     UserID: '',
                     Configs: [
                       {
-                        StockIDs: '',
+                        StockID: '',
                         UserIDs: '',
                         Threshold1: '',
                         Threshold2: '',
@@ -258,7 +267,7 @@ function SalesKPI(props) {
                                     field.onChange(val)
                                     setValue(`updateList[${index}].Configs`, [
                                       {
-                                        StockIDs: '',
+                                        StockID: '',
                                         UserIDs:
                                           val?.value &&
                                           val?.value !== -1 &&

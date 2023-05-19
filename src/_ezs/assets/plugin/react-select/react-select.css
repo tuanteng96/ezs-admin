@@ -113,6 +113,7 @@ html.dark {
 .select-control .select__menu-notice.select__menu-notice--no-options {
     color: var(--select-color-item);
     font-weight: 500;
+    text-transform: capitalize;
 }
 
 .select__menu-portal .select__value-container .select__placeholder,

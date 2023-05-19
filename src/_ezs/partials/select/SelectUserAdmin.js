@@ -59,7 +59,6 @@ const SelectUserAdmin = ({
               : !StockRoles
           )
       ].filter(x => !x?.value || x?.value === -2 || !removes.includes(x.value))
-
       return {
         data: newData,
         dataList:
@@ -93,7 +92,7 @@ const SelectUserAdmin = ({
         }
         classNamePrefix="select"
         options={[...allOption, ...(ListUsers?.data?.data || [])].filter(
-          x => !x?.value || x?.value === -2 || x?.value === -1
+          x => !x?.value || x?.value === -2 || !removes.includes(x.value)
         )}
         placeholder="Chọn nhân viên"
         noOptionsMessage={() => 'Không có dữ liệu'}
