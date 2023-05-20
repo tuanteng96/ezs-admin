@@ -2,7 +2,7 @@
     "name": "ezs-admin",
     "version": "0.1.0",
     "private": true,
-    "homepage": "/v2/",
+    "_homepage": "/v2/",
     "dependencies": {
         "@floating-ui/react": "^0.22.3",
         "@fullcalendar/core": "^6.1.5",

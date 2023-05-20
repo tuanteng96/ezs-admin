@@ -62,7 +62,7 @@ function SalesKPI(props) {
     name: 'updateList'
   })
 
-  const { isLoading, refetch } = useQuery({
+  const { isLoading, isRefetching, refetch, ...s } = useQuery({
     queryKey: [
       'ListSalesKPIs',
       { StockRoles: kpi_doanhso.StockRoles, filters }
@@ -106,10 +106,11 @@ function SalesKPI(props) {
     enabled: kpi_doanhso.StockRoles && kpi_doanhso.StockRoles.length > 0
   })
 
+  console.log(s)
+
   const updateKPIMutation = useMutation({
     mutationFn: body => SettingsAPI.updateSalesKPI(body)
   })
-
   const onSubmit = values => {
     const dataUpdate = {
       updateList: values?.updateList
