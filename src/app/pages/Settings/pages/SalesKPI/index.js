@@ -57,12 +57,12 @@ function SalesKPI(props) {
 
   const { control, handleSubmit, setValue, watch } = methods
 
-  const { fields, remove, append } = useFieldArray({
+  const { fields, remove, insert } = useFieldArray({
     control,
     name: 'updateList'
   })
 
-  const { isLoading, isRefetching, refetch, ...s } = useQuery({
+  const { isLoading, refetch } = useQuery({
     queryKey: [
       'ListSalesKPIs',
       { StockRoles: kpi_doanhso.StockRoles, filters }
@@ -105,8 +105,6 @@ function SalesKPI(props) {
     },
     enabled: kpi_doanhso.StockRoles && kpi_doanhso.StockRoles.length > 0
   })
-
-  console.log(s)
 
   const updateKPIMutation = useMutation({
     mutationFn: body => SettingsAPI.updateSalesKPI(body)
@@ -188,7 +186,7 @@ function SalesKPI(props) {
                 type="button"
                 className="relative flex items-center h-[50px] px-4 font-medium text-white transition rounded shadow-lg bg-success hover:bg-success focus:outline-none focus:shadow-none disabled:opacity-70 mr-2"
                 onClick={() =>
-                  append({
+                  insert({
                     UserID: '',
                     Configs: [
                       {

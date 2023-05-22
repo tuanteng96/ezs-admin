@@ -1,10 +1,8 @@
 import React from 'react'
-import PropTypes from 'prop-types'
+import { CatalogueLayout } from './CatalogueLayout'
 
 function CataloguePage(props) {
-  return <div>CataloguePage</div>
+  return <CatalogueLayout>a</CatalogueLayout>
 }
-
-CataloguePage.propTypes = {}
 
 export default CataloguePage
