@@ -14,7 +14,8 @@ const ProdsAPI = {
   getProdId: ID =>
     http.get(
       `/api/gl/select2?cmd=prod&cateids=${ID}&includeSource=1&_type=query`
-    )
+    ),
+  getListProds: body => http.post(`/api/v3/prod24@get`, JSON.stringify(body))
 }
 
 export default ProdsAPI

@@ -103,7 +103,8 @@ function SalesKPI(props) {
         setValue('updateList', [])
       }
     },
-    enabled: kpi_doanhso.StockRoles && kpi_doanhso.StockRoles.length > 0
+    enabled: kpi_doanhso.StockRoles && kpi_doanhso.StockRoles.length > 0,
+    cacheTime: 0
   })
 
   const updateKPIMutation = useMutation({
@@ -140,7 +141,7 @@ function SalesKPI(props) {
   }
 
   return (
-    <div className="w-full min-h-full bg-white border-t border-separator dark:border-[#393945]">
+    <div className="w-full min-h-full bg-white">
       <FormProvider {...methods}>
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -205,7 +206,7 @@ function SalesKPI(props) {
               </Button>
               <Button
                 type="sumbit"
-                className="relative flex items-center h-[50px] px-4 font-medium text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                className="relative flex items-center h-[50px] px-4 font-medium text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70 w-32"
                 loading={updateKPIMutation.isLoading}
                 disabled={updateKPIMutation.isLoading}
               >

@@ -61,7 +61,7 @@ const CalendarHeader = ({ queryConfig }) => {
 
   const views = ListView.filter(x => x.value === queryConfig.view)[0]
   return (
-    <div className="relative flex justify-between bg-white shadow-lg dark:border-l border-t border-separator px-4 py-4 dark:bg-dark-aside dark:border-t dark:border-[#393945] dark:border-dashed dark:border-l-solid">
+    <div className="relative flex justify-between px-4 py-4 bg-white shadow-lg dark:bg-dark-aside dark:border-dark-separator">
       <div className="flex">
         <Listbox
           value={views}

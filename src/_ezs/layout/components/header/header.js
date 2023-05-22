@@ -16,9 +16,9 @@ const Header = () => {
   return (
     <div
       id="header"
-      className="h-[70px] bg-white dark:bg-dark-aside fixed w-full top-0 left-0 z-[1001] flex justify-between pr-4 transition"
+      className="h-[70px] bg-white dark:bg-dark-aside fixed w-full top-0 left-0 z-[1001] flex justify-between transition"
     >
-      <div className="flex items-center justify-center w-[72px] bg-site-aside">
+      <div className="flex items-center justify-center w-[72px] bg-site-aside border-b border-[#393945] border-dashed dark:border-r">
         <Link className="block" to="/">
           <img
             className="h-5"
@@ -27,7 +27,7 @@ const Header = () => {
           />
         </Link>
       </div>
-      <div className="flex justify-between flex-1">
+      <div className="flex justify-between flex-1 pr-4 border-b border-separator dark:border-dark-separator">
         <div className="flex items-center pl-4">
           <DropdownStocks />
           <DropdownCheckin />
