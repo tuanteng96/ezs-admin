@@ -33,12 +33,12 @@ function CatalogueLayout({ children }) {
   ]
 
   return (
-    <div className="flex h-full bg-white">
+    <div className="flex h-full bg-white dark:bg-dark-app">
       <PerfectScrollbar
         options={perfectScrollbarOptions}
-        className="relative w-56 h-full px-3 py-4 overflow-auto border-r border-separator"
+        className="relative w-56 h-full px-3 py-4 overflow-auto border-r border-separator dark:border-dark-separator"
       >
-        <div className="font-bold font-inter text-[17px] py-2 px-4">
+        <div className="font-bold font-inter text-[17px] py-2 px-4 dark:text-white">
           Danh mục
         </div>
         <ul>
@@ -48,8 +48,8 @@ function CatalogueLayout({ children }) {
                 <NavLink
                   className={({ isActive }) =>
                     clsx(
-                      'block px-4 py-3 text-[15px] rounded-md font-medium hover:bg-primarylight transition mt-1',
-                      isActive && 'bg-primarylight'
+                      'block px-4 py-3 text-[15px] rounded-md font-medium hover:bg-primarylight dark:hover:bg-dark-light transition mt-1 dark:text-white',
+                      isActive && 'bg-primarylight dark:bg-dark-light'
                     )
                   }
                   to={to}

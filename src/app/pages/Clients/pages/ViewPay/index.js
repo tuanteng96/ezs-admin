@@ -5,10 +5,10 @@ import { XMarkIcon } from '@heroicons/react/24/outline'
 import { formatString } from 'src/_ezs/utils/formatString'
 import { useQuery } from '@tanstack/react-query'
 import MembersAPI from 'src/_ezs/api/members.api'
-import uuid from 'react-uuid'
 import Text from 'react-texty'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { Button } from 'src/_ezs/partials/button'
+import { uniqueId } from 'lodash-es'
 
 import moment from 'moment'
 import 'moment/locale/vi'
@@ -47,7 +47,7 @@ function ViewPay(props) {
               ...order,
               ToPayOrder: ToPayOrder,
               rowIndex: o,
-              Ids: uuid()
+              Ids: uniqueId()
             }
             if (k !== 0) {
               delete newObj.ListDebt

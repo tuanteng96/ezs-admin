@@ -141,11 +141,11 @@ function SalesKPI(props) {
   }
 
   return (
-    <div className="w-full min-h-full bg-white">
+    <div className="w-full min-h-full bg-white dark:bg-dark-app">
       <FormProvider {...methods}>
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="max-w-screen-xl py-10 m-auto 2xl:max-w-screen-2xl"
+          className="max-w-screen-xl py-8 m-auto 2xl:max-w-screen-2xl"
         >
           <div className="flex items-end justify-between mb-8">
             <div>
@@ -162,14 +162,16 @@ function SalesKPI(props) {
                   <li>
                     <div className="flex items-center">
                       <ChevronRightIcon className="w-3.5 text-muted2" />
-                      <span className="ml-1 text-sm font-medium md:ml-2">
+                      <span className="ml-1 text-sm font-medium md:ml-2 dark:text-white">
                         KPI Doanh số
                       </span>
                     </div>
                   </li>
                 </ol>
               </nav>
-              <div className="text-3xl font-extrabold">KPI Doanh số</div>
+              <div className="text-3xl font-extrabold dark:text-white">
+                KPI Doanh số
+              </div>
             </div>
             <div className="flex">
               <Select
@@ -220,7 +222,7 @@ function SalesKPI(props) {
                 .fill()
                 .map((_, index) => (
                   <div
-                    className="mb-5 border border-gray-200 rounded-md shadow-sm last:mb-0"
+                    className="mb-5 border border-gray-200 dark:border-gray-800 rounded-md shadow-sm last:mb-0"
                     key={index}
                   >
                     <div className="flex justify-between p-4 animate-pulse">
@@ -239,14 +241,14 @@ function SalesKPI(props) {
                 fields.map((item, index) => (
                   <Disclosure
                     as="div"
-                    className="mb-5 border border-gray-200 rounded-md shadow-sm last:mb-0"
+                    className="mb-5 border border-gray-200 dark:border-gray-800 rounded-md shadow-sm last:mb-0 overflow-hidden"
                     key={item.id}
                   >
                     {({ open }) => (
                       <>
                         <div
                           className={clsx(
-                            'flex justify-between p-4 hover:bg-gray-100',
+                            'flex justify-between p-4 hover:bg-gray-100 dark:hover:bg-gray-800 dark:bg-dark-app',
                             open && 'bg-gray-100'
                           )}
                         >
