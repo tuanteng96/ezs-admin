@@ -207,6 +207,7 @@ function SalesKPI(props) {
                 Thêm mới
               </Button>
               <Button
+                hideText={updateKPIMutation.isLoading}
                 type="sumbit"
                 className="relative flex items-center h-[50px] px-4 font-medium text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70 w-32"
                 loading={updateKPIMutation.isLoading}
@@ -222,7 +223,7 @@ function SalesKPI(props) {
                 .fill()
                 .map((_, index) => (
                   <div
-                    className="mb-5 border border-gray-200 dark:border-gray-800 rounded-md shadow-sm last:mb-0"
+                    className="mb-5 border border-gray-200 rounded-md shadow-sm dark:border-gray-800 last:mb-0"
                     key={index}
                   >
                     <div className="flex justify-between p-4 animate-pulse">
@@ -241,7 +242,7 @@ function SalesKPI(props) {
                 fields.map((item, index) => (
                   <Disclosure
                     as="div"
-                    className="mb-5 border border-gray-200 dark:border-gray-800 rounded-md shadow-sm last:mb-0 overflow-hidden"
+                    className="mb-5 overflow-hidden border border-gray-200 rounded-md shadow-sm dark:border-gray-800 last:mb-0"
                     key={item.id}
                   >
                     {({ open }) => (

@@ -6,7 +6,11 @@ const Button = ({ children, colorSpiner, loading, hideText, ...props }) => {
     <button {...props}>
       <span className={clsx(hideText && 'opacity-0')}>{children}</span>
       {loading && (
-        <div className={clsx(hideText ? 'absolute' : 'ml-3')}>
+        <div
+          className={clsx(
+            hideText ? 'absolute left-2/4 -translate-x-2/4' : 'ml-3'
+          )}
+        >
           <svg
             aria-hidden="true"
             role="status"

@@ -33,5 +33,19 @@ export const formatString = {
         .toFixed(0)
         .replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1.')
     }
+  },
+  formatTypesProds: type => {
+    const obj = {
+      type: type,
+      title: '',
+      path: '',
+      ID: ''
+    }
+    if (type === 'sp') {
+      obj.title = 'sản phẩm'
+      obj.path = 'products'
+      obj.ID = 794
+    }
+    return obj
   }
 }

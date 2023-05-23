@@ -24,6 +24,7 @@ function ReactBaseTable({
   data,
   onPagesChange,
   loading,
+  isPreviousData,
   pageCount,
   pageOffset,
   pageSizes,
@@ -69,7 +70,10 @@ function ReactBaseTable({
               data={data}
               overlayRenderer={() => (
                 <LoadingComponentFull
-                  bgClassName="bg-white dark:bg-dark-aside"
+                  bgClassName={clsx(
+                    'bg-white dark:bg-dark-aside',
+                    isPreviousData && 'bg-opacity-70'
+                  )}
                   top="top-[50px]"
                   height="h-[calc(100%-50px)]"
                   loading={loading}
@@ -96,12 +100,12 @@ function ReactBaseTable({
         </AutoResizer>
       </div>
       {pagination && (
-        <div className="w-full flex items-center justify-between mt-4">
+        <div className="flex items-center justify-between w-full mt-4">
           <div className="flex text-[15px] font-medium">
             Hiển thị
             <Menu as="div" className="relative">
               <div>
-                <Menu.Button className="flex items-center font-semibold font-inter px-2">
+                <Menu.Button className="flex items-center px-2 font-semibold font-inter">
                   {pageSizes}
                   <ChevronUpIcon className="w-4 ml-1" aria-hidden="true" />
                 </Menu.Button>

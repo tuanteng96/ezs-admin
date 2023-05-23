@@ -22,18 +22,17 @@ import { identity, pickBy } from 'lodash-es'
 
 function Products(props) {
   const navigate = useNavigate()
-  const { pathname } = useLocation()
+  const { pathname, search } = useLocation()
   const queryParams = useQueryParams()
 
   const queryConfig = {
     pi: queryParams.pi || 1,
     ps: queryParams.ps || 15,
     key: queryParams.key || '',
-    types: queryParams.types || '',
+    types: queryParams.types || '794',
     serviceOrFee: 0
   }
-
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isPreviousData } = useQuery({
     queryKey: ['ListProducts', queryConfig],
     queryFn: () => ProdsAPI.getListProds(queryConfig),
     keepPreviousData: true
@@ -57,7 +56,7 @@ function Products(props) {
             <div className="border border-separator">
               {rowData?.Thumbnail ? (
                 <img
-                  className="w-16 h-16 object-cover"
+                  className="object-cover w-16 h-16"
                   src={toAbsolutePath(rowData?.Thumbnail)}
                   alt={rowData.ID}
                 />
@@ -120,7 +119,7 @@ function Products(props) {
         dataKey: 'Action',
         width: 160,
         cellRenderer: ({ rowData }) => (
-          <div className="flex w-full justify-center">
+          <div className="flex justify-center w-full">
             <Button className="bg-primary hover:bg-primaryhv text-white mx-[2px] text-sm rounded cursor-pointer px-2 py-1.5 transition">
               Chỉnh sửa
             </Button>
@@ -136,8 +135,9 @@ function Products(props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   )
+
   return (
-    <div className="flex flex-col h-full max-w-7xl px-8 pt-8 pb-5 mx-auto">
+    <div className="flex flex-col h-full px-8 pt-8 pb-5 mx-auto max-w-7xl">
       <div className="flex items-end justify-between mb-5">
         <div>
           <div className="text-3xl font-extrabold dark:text-white">
@@ -184,7 +184,10 @@ function Products(props) {
                   </Menu.Item>
                   <Menu.Item>
                     <NavLink
-                      to="select-category/sp"
+                      to={{
+                        pathname: 'select-category/sp',
+                        search: search
+                      }}
                       className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
                     >
                       Quản lý danh mục
@@ -218,7 +221,8 @@ function Products(props) {
             </div>
           )
         }
-        loading={isLoading}
+        isPreviousData={isPreviousData}
+        loading={isLoading || isPreviousData}
         pageCount={data?.data?.pcount}
         pageOffset={Number(queryConfig.pi)}
         pageSizes={Number(queryConfig.ps)}
