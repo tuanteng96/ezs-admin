@@ -13,7 +13,7 @@ function LoadingComponentFull({
       role="status"
       className={clsx(
         'absolute left-0 flex items-center justify-center w-full transition',
-        !loading && 'opacity-0 invisible -z-10',
+        !loading ? 'opacity-0 invisible -z-10' : 'z-10',
         bgClassName && bgClassName,
         height,
         top

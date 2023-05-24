@@ -185,7 +185,7 @@ function Products(props) {
                   <Menu.Item>
                     <NavLink
                       to={{
-                        pathname: 'select-category/sp',
+                        pathname: 'list-category/sp',
                         search: search
                       }}
                       className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"

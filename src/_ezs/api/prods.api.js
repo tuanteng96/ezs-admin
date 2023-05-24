@@ -16,7 +16,13 @@ const ProdsAPI = {
       `/api/gl/select2?cmd=prod&cateids=${ID}&includeSource=1&_type=query`
     ),
   getListProds: body => http.post(`/api/v3/prod24@get`, JSON.stringify(body)),
-  getListCategory: () => http.get(`/api/v3/prod24@CategoryList`)
+  getListCategory: () => http.get(`/api/v3/prod24@CategoryList`),
+  addEditCategory: body =>
+    http.post(`/api/v3/prod24@categoryEdits`, JSON.stringify(body)),
+  getCategoryID: body =>
+    http.post(`/api/v3/prod24@CategoryID`, JSON.stringify(body)),
+  deleteEditCategory: body =>
+    http.post(`/api/v3/prod24@CategoryDelete`, JSON.stringify(body))
 }
 
 export default ProdsAPI

@@ -20,8 +20,9 @@ function CataloguePage(props) {
             </SuspensedView>
           }
         >
-          <Route path="select-category/:type" element={<Category />} />
+          <Route path="list-category/:type" element={<Category />} />
           <Route path="add-category/:type" element={<CategoryAdd />} />
+          <Route path="edit-category/:type/:id" element={<CategoryAdd />} />
         </Route>
       </Routes>
     </CatalogueLayout>

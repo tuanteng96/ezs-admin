@@ -120,3 +120,10 @@ body .react-viewer-list>li>img {
     width: auto;
     margin-left: 0;
 }
+
+
+/* ckeditor */
+
+.ck-editor__editable {
+    min-height: 100px !important;
+}

@@ -5,7 +5,7 @@ import clsx from 'clsx'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 import UploadsAPI from 'src/_ezs/api/uploads.api'
-import { toAbsolutePath, toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
+import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
 
 const UploadFile = ({
   value,
@@ -14,7 +14,7 @@ const UploadFile = ({
   errorMessage,
   errorMessageForce,
   width = 'w-[160px]',
-  height = 'h-[160x]',
+  height = 'h-[160px]',
   ...props
 }) => {
   const [completed, setCompleted] = useState(0)
@@ -47,30 +47,34 @@ const UploadFile = ({
 
   return (
     <>
-      <div
-        className={clsx(
-          'shadow-lg rounded border-4 relative border-white dark:border-dark-separator',
-          width,
-          height
-        )}
-      >
+      <div className={clsx('rounded relative bg-primarylight', width, height)}>
         {/* No file */}
         <div
           className={clsx(
-            'relative flex flex-col items-center justify-center h-full text-center border border-dashed rounded',
-            errorMessageForce
-              ? 'border-danger'
-              : 'border-separator dark:border-dark-separator'
+            'relative flex flex-col items-center justify-center h-full text-center border border-primarylight rounded',
+            !errorMessageForce && 'border-danger'
           )}
         >
-          <img
+          {/* <img
             className="w-8/12"
             src={toAbsoluteUrl('/assets/images/files/no-file.png')}
             alt="No Files"
           />
           <div className="px-2.5 mt-2 text-xs text-gray-500">
             Kéo tệp hoặc nhấp chuột vào đây.
-          </div>
+          </div> */}
+          <svg
+            className="w-9"
+            viewBox="0 0 25 23"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              className="fill-primary"
+              d="M21.072 16.002a.75.75 0 01.75.75v1.842h1.842a.75.75 0 01.743.648l.007.102a.75.75 0 01-.75.75h-1.842v1.842a.75.75 0 01-.648.743l-.102.007a.75.75 0 01-.75-.75v-1.842H18.48a.75.75 0 01-.743-.648l-.007-.102a.75.75 0 01.75-.75h1.842v-1.842a.75.75 0 01.648-.743zM14.102.45a.75.75 0 01.624.334l1.621 2.43h3.285a2.593 2.593 0 012.593 2.594v7.494a.75.75 0 11-1.5 0V5.808c0-.604-.49-1.093-1.093-1.093h-3.686a.75.75 0 01-.624-.334L13.7 1.95H8.974l-1.62 2.43a.75.75 0 01-.624.335H3.043c-.604 0-1.093.49-1.093 1.093v11.98c0 .605.49 1.094 1.093 1.094h11.691a.75.75 0 110 1.5H3.044A2.593 2.593 0 01.45 17.789V5.808a2.593 2.593 0 012.593-2.593h3.285L7.948.784A.75.75 0 018.574.45zm-2.764 5.53a5.358 5.358 0 110 10.716 5.358 5.358 0 010-10.716zm0 1.5a3.858 3.858 0 100 7.716 3.858 3.858 0 000-7.716zM4.08 5.808a1.037 1.037 0 110 2.074 1.037 1.037 0 010-2.074z"
+              fillRule="evenodd"
+            />
+          </svg>
+          <div className="text-primary font-bold mt-1.5 text-sm">Thêm ảnh</div>
           <input
             className="absolute top-0 left-0 z-0 w-full h-full opacity-0 cursor-pointer"
             type="file"

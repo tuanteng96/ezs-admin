@@ -99,6 +99,7 @@ module.exports = withMT({
       white: '#fff',
       primary: '#3699ff',
       primaryhv: '#187de4',
+      primarylight: '#e1f0ff',
       separator: '#F4F4F4',
       danger: '#F64E60',
       dangerhv: '#EE2D41',
