@@ -1,65 +1,28 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { AnimatePresence, m } from 'framer-motion'
-import {
-  ArrowsPointingOutIcon,
-  PlusCircleIcon,
-  XMarkIcon
-} from '@heroicons/react/24/outline'
+import { PlusCircleIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { NavLink, useLocation, useNavigate, useParams } from 'react-router-dom'
 import useEscape from 'src/_ezs/hooks/useEscape'
 import { formatString } from 'src/_ezs/utils/formatString'
 import { useQuery } from '@tanstack/react-query'
 import ProdsAPI from 'src/_ezs/api/prods.api'
 import PerfectScrollbar from 'react-perfect-scrollbar'
-import {
-  sortableContainer,
-  sortableElement,
-  sortableHandle
-} from 'react-sortable-hoc'
+import SortableList, { SortableItem, SortableKnob } from 'react-easy-sort'
+import { arrayMoveImmutable } from 'array-move'
 
 const perfectScrollbarOptions = {
   wheelSpeed: 2,
   wheelPropagation: false
 }
 
-const DragHandle = sortableHandle(() => (
-  <div className="w-16 flex justify-center items-center">
-    <ArrowsPointingOutIcon className="w-5 text-muted2" />
-  </div>
-))
-
-const SortableItem = sortableElement(({ item }) => {
-  const { search } = useLocation()
-  const { type } = useParams()
-  const { path, title } = formatString.formatTypesProds(type)
-  return (
-    <li className="flex z-[10001] bg-white transition border-b cursor-pointer border-separator dark:border-dark-separator hover:bg-light">
-      <NavLink
-        to={{
-          pathname: `/catalogue/${path}/edit-category/${type}/${item.ID}`,
-          search: search
-        }}
-        className="block px-5 py-4 flex-1"
-      >
-        <div className="font-bold">{item.Title}</div>
-        <div className="text-muted2">
-          {item.Count} {title}
-        </div>
-      </NavLink>
-      <DragHandle />
-    </li>
-  )
-})
-
-const SortableContainer = sortableContainer(({ children }) => {
-  return <ul>{children}</ul>
-})
-
 function Category(props) {
   const { search, pathname } = useLocation()
   const navigate = useNavigate()
   const { type } = useParams()
   const { path, title, ID } = formatString.formatTypesProds(type)
+
+  const [Items, setItems] = useState([])
+
   useEscape(() => navigate({ pathname: '/catalogue/' + path, search: search }))
 
   const { data, isLoading } = useQuery({
@@ -71,8 +34,14 @@ function Category(props) {
         result = data[type.toUpperCase()].filter(x => x.ParentID === ID)
       }
       return result
-    }
+    },
+    onSuccess: data => setItems(data || []),
+    cacheTime: 0
   })
+
+  const onSortEnd = (oldIndex, newIndex) => {
+    setItems(array => arrayMoveImmutable(array, oldIndex, newIndex))
+  }
 
   return (
     <AnimatePresence>
@@ -85,7 +54,6 @@ function Category(props) {
       ></m.div>
       <div className="fixed inset-0 flex items-center justify-center z-[1010]">
         <m.div
-          key={pathname}
           className="absolute flex flex-col justify-center xxl:py-10 h-5/6"
           initial={{ opacity: 0, top: '60%' }}
           animate={{ opacity: 1, top: 'auto' }}
@@ -130,7 +98,7 @@ function Category(props) {
                         key={index}
                       >
                         <div className="mb-2.5 font-bold">
-                          <div className=" w-2/4 h-4 bg-gray-200 rounded dark:bg-gray-700"></div>
+                          <div className="w-2/4 h-4 bg-gray-200 rounded dark:bg-gray-700"></div>
                         </div>
                         <div className="text-muted2">
                           <div className="w-1/3 h-2.5 bg-gray-200 rounded dark:bg-gray-700"></div>
@@ -141,23 +109,80 @@ function Category(props) {
               )}
               {!isLoading && (
                 <>
-                  {data && data.length > 0 && (
-                    <SortableContainer
-                      onSortEnd={val => console.log(val)}
-                      useDragHandle
-                    >
-                      {data.map((item, index) => (
-                        <SortableItem
-                          key={`item-${index}`}
-                          index={index}
-                          item={item}
-                        />
+                  <SortableList
+                    onSortEnd={onSortEnd}
+                    className="list"
+                    draggedItemClassName="shadow-lg bg-white z-[10001]"
+                  >
+                    {Items &&
+                      Items.map((item, index) => (
+                        <SortableItem key={index}>
+                          <div className="flex z-[10001] bg-white border-b cursor-pointer border-separator dark:border-dark-separator hover:bg-light">
+                            <NavLink
+                              to={{
+                                pathname: `/catalogue/${path}/edit-category/${type}/${item.ID}`,
+                                search: search
+                              }}
+                              className="flex-1 block px-5 py-4"
+                            >
+                              <div className="font-bold">{item.Title}</div>
+                              <div className="text-muted2">
+                                {item.Count} {title}
+                              </div>
+                            </NavLink>
+                            <SortableKnob>
+                              <div className="flex items-center justify-center w-16">
+                                <svg
+                                  className="w-5"
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 39 39"
+                                >
+                                  <path
+                                    d="M 5 0 C 7.761 0 10 2.239 10 5 C 10 7.761 7.761 10 5 10 C 2.239 10 0 7.761 0 5 C 0 2.239 2.239 0 5 0 Z"
+                                    fill="#CCC"
+                                  ></path>
+                                  <path
+                                    d="M 19 0 C 21.761 0 24 2.239 24 5 C 24 7.761 21.761 10 19 10 C 16.239 10 14 7.761 14 5 C 14 2.239 16.239 0 19 0 Z"
+                                    fill="#CCC"
+                                  ></path>
+                                  <path
+                                    d="M 33 0 C 35.761 0 38 2.239 38 5 C 38 7.761 35.761 10 33 10 C 30.239 10 28 7.761 28 5 C 28 2.239 30.239 0 33 0 Z"
+                                    fill="#CCC"
+                                  ></path>
+                                  <path
+                                    d="M 33 14 C 35.761 14 38 16.239 38 19 C 38 21.761 35.761 24 33 24 C 30.239 24 28 21.761 28 19 C 28 16.239 30.239 14 33 14 Z"
+                                    fill="#CCC"
+                                  ></path>
+                                  <path
+                                    d="M 19 14 C 21.761 14 24 16.239 24 19 C 24 21.761 21.761 24 19 24 C 16.239 24 14 21.761 14 19 C 14 16.239 16.239 14 19 14 Z"
+                                    fill="#CCC"
+                                  ></path>
+                                  <path
+                                    d="M 5 14 C 7.761 14 10 16.239 10 19 C 10 21.761 7.761 24 5 24 C 2.239 24 0 21.761 0 19 C 0 16.239 2.239 14 5 14 Z"
+                                    fill="#CCC"
+                                  ></path>
+                                  <path
+                                    d="M 5 28 C 7.761 28 10 30.239 10 33 C 10 35.761 7.761 38 5 38 C 2.239 38 0 35.761 0 33 C 0 30.239 2.239 28 5 28 Z"
+                                    fill="#CCC"
+                                  ></path>
+                                  <path
+                                    d="M 19 28 C 21.761 28 24 30.239 24 33 C 24 35.761 21.761 38 19 38 C 16.239 38 14 35.761 14 33 C 14 30.239 16.239 28 19 28 Z"
+                                    fill="#CCC"
+                                  ></path>
+                                  <path
+                                    d="M 33 28 C 35.761 28 38 30.239 38 33 C 38 35.761 35.761 38 33 38 C 30.239 38 28 35.761 28 33 C 28 30.239 30.239 28 33 28 Z"
+                                    fill="#CCC"
+                                  ></path>
+                                </svg>
+                              </div>
+                            </SortableKnob>
+                          </div>
+                        </SortableItem>
                       ))}
-                    </SortableContainer>
-                  )}
+                  </SortableList>
 
                   {(!data || data.length === 0) && (
-                    <div className="h-full flex justify-center flex-col items-center">
+                    <div className="flex flex-col items-center justify-center h-full">
                       <svg
                         className="w-16"
                         viewBox="0 0 64 64"
@@ -172,7 +197,7 @@ function Category(props) {
                           />
                         </g>
                       </svg>
-                      <div className="font-bold mt-4 text-lg">
+                      <div className="mt-4 text-lg font-bold">
                         Chưa có danh mục nào ở đây.
                       </div>
                     </div>
