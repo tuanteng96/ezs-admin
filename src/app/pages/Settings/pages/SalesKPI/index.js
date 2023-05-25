@@ -56,7 +56,6 @@ function SalesKPI(props) {
   })
 
   const { control, handleSubmit, setValue, watch } = methods
-
   const { fields, remove, insert } = useFieldArray({
     control,
     name: 'updateList'
@@ -189,7 +188,7 @@ function SalesKPI(props) {
                 type="button"
                 className="relative flex items-center h-[50px] px-4 font-medium text-white transition rounded shadow-lg bg-success hover:bg-success focus:outline-none focus:shadow-none disabled:opacity-70 mr-2"
                 onClick={() =>
-                  insert({
+                  insert(0, {
                     UserID: '',
                     Configs: [
                       {

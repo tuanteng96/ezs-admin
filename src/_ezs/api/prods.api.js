@@ -22,7 +22,9 @@ const ProdsAPI = {
   getCategoryID: body =>
     http.post(`/api/v3/prod24@CategoryID`, JSON.stringify(body)),
   deleteEditCategory: body =>
-    http.post(`/api/v3/prod24@CategoryDelete`, JSON.stringify(body))
+    http.post(`/api/v3/prod24@CategoryDelete`, JSON.stringify(body)),
+  deleteProdsID: body =>
+    http.post(`/api/v3/prod24@delete`, JSON.stringify(body))
 }
 
 export default ProdsAPI

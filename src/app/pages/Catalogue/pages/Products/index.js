@@ -8,7 +8,7 @@ import {
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import useQueryParams from 'src/_ezs/hooks/useQueryParams'
 import ProdsAPI from 'src/_ezs/api/prods.api'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { formatString } from 'src/_ezs/utils/formatString'
 import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
 import {
@@ -19,6 +19,8 @@ import {
   useNavigate
 } from 'react-router-dom'
 import { identity, pickBy } from 'lodash-es'
+import Swal from 'sweetalert2'
+import { toast } from 'react-toastify'
 
 function Products(props) {
   const navigate = useNavigate()
@@ -32,11 +34,48 @@ function Products(props) {
     types: queryParams.types || '794',
     serviceOrFee: 0
   }
-  const { data, isLoading, isPreviousData } = useQuery({
+  const { data, isLoading, isPreviousData, refetch } = useQuery({
     queryKey: ['ListProducts', queryConfig],
     queryFn: () => ProdsAPI.getListProds(queryConfig),
     keepPreviousData: true
   })
+
+  const deleteProdsIDMutation = useMutation({
+    mutationFn: body => ProdsAPI.deleteProdsID(body)
+  })
+
+  const onDelete = id => {
+    const dataDelete = {
+      delete: [id]
+    }
+    Swal.fire({
+      customClass: {
+        confirmButton: '!bg-danger'
+      },
+      title: 'Xóa sản phẩm ?',
+      html: `Bạn có chắc chắn muốn xóa sản phẩm này? Hành động này không thể được hoàn tác.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Xóa',
+      cancelButtonText: 'Đóng',
+      reverseButtons: true,
+      showLoaderOnConfirm: true,
+      preConfirm: async () => {
+        const data = await deleteProdsIDMutation.mutateAsync(dataDelete)
+        await refetch()
+        return data
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then(result => {
+      if (result.isConfirmed) {
+        if (!result?.value?.data?.error) {
+          toast.success('Đã xóa sản phẩm')
+        } else {
+          toast.error('Xảy ra lỗi không xác định.')
+        }
+      }
+    })
+  }
 
   const columns = useMemo(
     () => [
@@ -123,7 +162,11 @@ function Products(props) {
             <Button className="bg-primary hover:bg-primaryhv text-white mx-[2px] text-sm rounded cursor-pointer px-2 py-1.5 transition">
               Chỉnh sửa
             </Button>
-            <Button className="bg-danger hover:bg-dangerhv text-white mx-[2px] text-sm rounded cursor-pointer px-2 py-1.5 transition">
+            <Button
+              type="button"
+              onClick={() => onDelete(rowData.ID)}
+              className="bg-danger hover:bg-dangerhv text-white mx-[2px] text-sm rounded cursor-pointer px-2 py-1.5 transition"
+            >
               Xóa
             </Button>
           </div>
@@ -172,7 +215,7 @@ function Products(props) {
             >
               <Menu.Items className="z-[1001] absolute rounded px-0 py-2 border-0 w-[220px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow">
                 <div>
-                  <Menu.Item>
+                  {/* <Menu.Item>
                     <button className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white">
                       Tải lên Excel
                     </button>
@@ -181,7 +224,7 @@ function Products(props) {
                     <button className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white">
                       Tải xuống Excel
                     </button>
-                  </Menu.Item>
+                  </Menu.Item> */}
                   <Menu.Item>
                     <NavLink
                       to={{
@@ -194,17 +237,29 @@ function Products(props) {
                     </NavLink>
                   </Menu.Item>
                   <Menu.Item>
-                    <button className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white">
+                    <NavLink
+                      to={{
+                        pathname: 'list-category/nh',
+                        search: search
+                      }}
+                      className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                    >
                       Quản lý nhãn hàng
-                    </button>
+                    </NavLink>
                   </Menu.Item>
                 </div>
               </Menu.Items>
             </Transition>
           </Menu>
-          <Button className="relative flex items-center h-[50px] px-4 font-semibold text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70">
+          <NavLink
+            to={{
+              pathname: 'add',
+              search: search
+            }}
+            className="relative flex items-center h-[50px] px-4 font-semibold text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
+          >
             Thêm mới sản phẩm
-          </Button>
+          </NavLink>
         </div>
       </div>
       <ReactBaseTable

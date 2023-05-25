@@ -2,7 +2,6 @@ import React from 'react'
 import { m } from 'framer-motion'
 import { ArrowSmallLeftIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { NavLink, useParams, useLocation, useNavigate } from 'react-router-dom'
-import { formatString } from 'src/_ezs/utils/formatString'
 import { Controller, useForm } from 'react-hook-form'
 import { Button } from 'src/_ezs/partials/button'
 import { Input } from 'src/_ezs/partials/forms'
@@ -33,10 +32,10 @@ const schemaAdd = yup
   .required()
 
 function CategoryAdd(props) {
-  const { search } = useLocation()
+  const { search, pathname } = useLocation()
   const { type, id } = useParams()
+  const path = pathname.split('/')[2]
   const addMode = !id
-  const { path } = formatString.formatTypesProds(type)
   const navigate = useNavigate()
 
   useEscape(() =>
@@ -210,7 +209,7 @@ function CategoryAdd(props) {
                     control={control}
                     render={({ field: { ref, ...field }, fieldState }) => (
                       <Input
-                        placeholder="e.g Nước hoa"
+                        placeholder="e.g Tên danh mục"
                         autoComplete="off"
                         type="text"
                         errorMessageForce={fieldState?.invalid}

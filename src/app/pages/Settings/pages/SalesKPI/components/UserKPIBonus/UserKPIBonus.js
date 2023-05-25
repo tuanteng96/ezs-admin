@@ -1,19 +1,21 @@
 import React from 'react'
-import { Controller, useFormContext } from 'react-hook-form'
+import { Controller, useFieldArray, useFormContext } from 'react-hook-form'
 import { InputNumber } from 'src/_ezs/partials/forms'
 
 function UserKPIBonus({ indexUser, rowIndex, isDisabled }) {
-  const { control, getValues } = useFormContext()
-  const BonusList = getValues(
-    `updateList[${indexUser}].Configs[${rowIndex}].BonusList`
-  )
+  const { control } = useFormContext()
+
+  const { fields } = useFieldArray({
+    control,
+    name: `updateList[${indexUser}].Configs[${rowIndex}].BonusList`
+  })
 
   return (
     <>
-      {BonusList &&
-        BonusList.map((item, index) => (
-          <div className="mt-3" key={index}>
-            <div className="font-medium text-sm mb-1">{item.label}</div>
+      {fields &&
+        fields.map((item, index) => (
+          <div className="mt-3 relative" key={item.id}>
+            <div className="font-medium text-sm">{item.label}</div>
             <Controller
               name={`updateList[${indexUser}].Configs[${rowIndex}].BonusList[${index}].Bonus`}
               control={control}

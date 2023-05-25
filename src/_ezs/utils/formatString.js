@@ -43,8 +43,11 @@ export const formatString = {
     }
     if (type === 'sp') {
       obj.title = 'sản phẩm'
-      obj.path = 'products'
       obj.ID = 794
+    }
+    if (type === 'nh') {
+      obj.title = 'nhãn hàng'
+      obj.ID = 4
     }
     return obj
   }

@@ -8,6 +8,7 @@ import UploadsAPI from 'src/_ezs/api/uploads.api'
 import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
 
 const UploadFile = ({
+  className,
   value,
   onChange,
   placeholder,
@@ -47,7 +48,14 @@ const UploadFile = ({
 
   return (
     <>
-      <div className={clsx('rounded relative bg-primarylight', width, height)}>
+      <div
+        className={clsx(
+          'rounded relative bg-primarylight',
+          className,
+          width,
+          height
+        )}
+      >
         {/* No file */}
         <div
           className={clsx(
@@ -76,6 +84,7 @@ const UploadFile = ({
           </svg>
           <div className="text-primary font-bold mt-1.5 text-sm">Thêm ảnh</div>
           <input
+            value=""
             className="absolute top-0 left-0 z-0 w-full h-full opacity-0 cursor-pointer"
             type="file"
             title=""

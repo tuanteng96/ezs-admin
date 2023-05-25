@@ -272,6 +272,7 @@ function UserKPI({ indexUser }) {
                     isDisabled={rowData.isDisabled}
                     indexUser={indexUser}
                     rowIndex={rowIndex}
+                    key={field.value}
                   />
                 </>
               )}

@@ -15,9 +15,8 @@ class UploadAdapter {
           const data = new FormData()
           data.append(result.name, result)
           return UploadsAPI.sendFile(data)
-            .then(res => {
-              var resData = res.uploaded[0].Name
-              resolve({ default: toAbsolutePath(resData) })
+            .then(({ data }) => {
+              resolve({ default: toAbsolutePath(data.data) })
             })
             .catch(error => {
               console.log(error)

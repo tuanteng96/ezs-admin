@@ -2,10 +2,11 @@ import React, { lazy } from 'react'
 import { CatalogueLayout } from './CatalogueLayout'
 import { Route, Routes, Navigate } from 'react-router-dom'
 import SuspensedView from 'src/app/routing/SuspensedView'
-import Category from './pages/Category'
-import CategoryAdd from './pages/Category/CategoryAdd'
 
+const Category = lazy(() => import('./pages/Category'))
 const Products = lazy(() => import('./pages/Products'))
+const ProductAdd = lazy(() => import('./pages/Products/ProductAdd'))
+const CategoryAdd = lazy(() => import('./pages/Category/CategoryAdd'))
 
 function CataloguePage(props) {
   return (
@@ -20,6 +21,7 @@ function CataloguePage(props) {
             </SuspensedView>
           }
         >
+          <Route path="add" element={<ProductAdd />} />
           <Route path="list-category/:type" element={<Category />} />
           <Route path="add-category/:type" element={<CategoryAdd />} />
           <Route path="edit-category/:type/:id" element={<CategoryAdd />} />
