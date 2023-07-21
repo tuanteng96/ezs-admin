@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from 'react-router-dom'
 
-const RoleAccess = ({ roles = [] }) => {
+const RoleAccess = ({ roles = true }) => {
   return roles ? <Outlet /> : <Navigate to="/unauthorized" replace />
 }
 

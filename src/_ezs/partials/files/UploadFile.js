@@ -5,7 +5,7 @@ import clsx from 'clsx'
 import React, { useState } from 'react'
 import { toast } from 'react-toastify'
 import UploadsAPI from 'src/_ezs/api/uploads.api'
-import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
+import { toAbsolutePath, toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 
 const UploadFile = ({
   className,
@@ -98,6 +98,17 @@ const UploadFile = ({
             <a
               className="flex items-center justify-center h-full overflow-hidden rounded"
               href={toAbsolutePath(value)}
+              onError={e => {
+                if (
+                  e.target.src !==
+                  toAbsoluteUrl('/assets/images/files/image-default.png')
+                ) {
+                  e.target.onerror = null
+                  e.target.src = toAbsoluteUrl(
+                    '/assets/images/files/image-default.png'
+                  )
+                }
+              }}
               target="_blank"
               rel="noopener"
             >

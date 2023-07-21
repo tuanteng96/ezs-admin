@@ -64,19 +64,21 @@ const SortableIcon = () => (
   </SortableKnob>
 )
 
-const SortableItems = ({ item }) => {
-  const { search, pathname } = useLocation()
+const SortableItems = ({ item, prevPath }) => {
+  const { pathname, search } = useLocation()
   const { type } = useParams()
   const { title } = formatString.formatTypesProds(type)
-  const path = pathname.split('/')[2]
 
   return (
     <SortableItem>
       <div className="flex z-[10001] bg-white border-b cursor-pointer border-separator dark:border-dark-separator hover:bg-light">
         <NavLink
           to={{
-            pathname: `/catalogue/${path}/edit-category/${type}/${item.ID}`,
+            pathname: `${prevPath}/edit-category/${type}/${item.ID}`,
             search: search
+          }}
+          state={{
+            prevFrom: pathname
           }}
           className="flex-1 block px-5 py-4"
         >
@@ -95,12 +97,15 @@ function Category(props) {
   const { search, pathname } = useLocation()
   const navigate = useNavigate()
   const { type } = useParams()
-  const { title, ID } = formatString.formatTypesProds(type)
-  const path = pathname.split('/')[2]
+  const { title } = formatString.formatTypesProds(type)
+
+  let path = '/select-category'
+  let isSelect = pathname.includes(path)
+  let prevPath = isSelect
+    ? pathname.split(path)[0]
+    : pathname.split('/list-category')[0]
 
   const [Items, setItems] = useState([])
-
-  useEscape(() => navigate({ pathname: '/catalogue/' + path, search: search }))
 
   const { data, isLoading } = useQuery({
     queryKey: ['ListCategory-products'],
@@ -108,7 +113,7 @@ function Category(props) {
       const { data } = await ProdsAPI.getListCategory()
       let result = []
       if (data) {
-        result = data[type.toUpperCase()].filter(x => x.ParentID === ID)
+        result = data[type.toUpperCase()]
       }
       return result
     },
@@ -133,6 +138,17 @@ function Category(props) {
     updateCategoryMutation.mutate(dataUpdate)
   }
 
+  const onToBack = () => {
+    navigate({
+      pathname: isSelect
+        ? pathname.split(path)[0]
+        : pathname.split('/list-category')[0],
+      search: search
+    })
+  }
+
+  useEscape(onToBack)
+
   return (
     <AnimatePresence>
       <m.div
@@ -152,22 +168,22 @@ function Category(props) {
           <div className="bg-white dark:bg-dark-aside max-w-full w-[600px] h-full rounded shadow-lg flex flex-col">
             <div className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
               <div className="text-2xl font-bold">Danh mục {title}</div>
-              <NavLink
-                to={{
-                  pathname: '/catalogue/' + path,
-                  search: search
-                }}
+              <div
                 className="absolute flex items-center justify-center w-12 h-12 cursor-pointer right-2 top-2/4 -translate-y-2/4"
+                onClick={onToBack}
               >
                 <XMarkIcon className="w-8" />
-              </NavLink>
+              </div>
             </div>
             <div className="border-b border-separator dark:border-dark-separator">
               <NavLink
                 className="flex items-center px-5 py-4 font-semibold text-primary"
                 to={{
-                  pathname: `/catalogue/${path}/add-category/${type}`,
+                  pathname: `${prevPath}/add-category/${type}`,
                   search: search
+                }}
+                state={{
+                  prevFrom: pathname
                 }}
               >
                 <PlusCircleIcon className="w-7 mr-1.5" />
@@ -206,7 +222,11 @@ function Category(props) {
                   >
                     {Items &&
                       Items.map((item, index) => (
-                        <SortableItems key={index} item={item} />
+                        <SortableItems
+                          key={index}
+                          item={item}
+                          prevPath={prevPath}
+                        />
                       ))}
                   </SortableList>
 

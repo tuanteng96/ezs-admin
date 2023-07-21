@@ -215,7 +215,7 @@ function Products(props) {
             >
               <Menu.Items className="z-[1001] absolute rounded px-0 py-2 border-0 w-[220px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow">
                 <div>
-                  {/* <Menu.Item>
+                  <Menu.Item>
                     <button className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white">
                       Tải lên Excel
                     </button>
@@ -224,7 +224,7 @@ function Products(props) {
                     <button className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white">
                       Tải xuống Excel
                     </button>
-                  </Menu.Item> */}
+                  </Menu.Item>
                   <Menu.Item>
                     <NavLink
                       to={{

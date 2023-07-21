@@ -9,7 +9,7 @@ function ProductImages(props) {
 
   const { fields, insert, remove } = useFieldArray({
     control,
-    name: 'Images'
+    name: 'PhotoList'
   })
 
   return (

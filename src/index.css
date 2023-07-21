@@ -125,7 +125,7 @@ body .react-viewer-list>li>img {
 /* ckeditor */
 
 .ck-editor__editable {
-    min-height: 100px !important;
+    min-height: 130px !important;
 }
 
 .ck-content .ck-editor__editable {

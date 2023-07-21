@@ -31,29 +31,39 @@ const schemaAdd = yup
   })
   .required()
 
+const initialValues = {
+  ID: '',
+  $type: '',
+  Title: '',
+  Thumbnail: '',
+  Desc: '',
+  IsPublic: 1
+}
+
 function CategoryAdd(props) {
-  const { search, pathname } = useLocation()
+  const { search, state } = useLocation()
   const { type, id } = useParams()
-  const path = pathname.split('/')[2]
   const addMode = !id
   const navigate = useNavigate()
 
   useEscape(() =>
     navigate({
-      pathname: '/catalogue/' + path + '/list-category/' + type,
+      pathname: state?.prevFrom || '/',
       search: search
     })
   )
 
   const { control, handleSubmit, reset } = useForm({
-    defaultValues: {
-      ID: '',
-      $type: type.toLocaleUpperCase(),
-      Title: '',
-      Thumbnail: '',
-      Desc: '',
-      IsPublic: 1
-    },
+    defaultValues: state?.formState
+      ? {
+          ...initialValues,
+          $type: type.toLocaleUpperCase(),
+          ...state?.formState
+        }
+      : {
+          ...initialValues,
+          $type: type.toLocaleUpperCase()
+        },
     resolver: yupResolver(schemaAdd)
   })
 
@@ -76,7 +86,7 @@ function CategoryAdd(props) {
         })
       } else {
         navigate({
-          pathname: '/catalogue/' + path + '/list-category/' + type,
+          pathname: state?.prevFrom || '/',
           search: search
         })
       }
@@ -107,10 +117,22 @@ function CategoryAdd(props) {
               ? 'Thêm mới danh mục thành công'
               : 'Danh mục đã được chỉnh sửa'
           )
-          navigate({
-            pathname: '/catalogue/' + path + '/list-category/' + type,
-            search: search
-          })
+          if (state?.formState) {
+            navigate(state?.prevFrom || '/', {
+              state: {
+                OptionCreate: {
+                  typeCreate: type.toLocaleUpperCase(),
+                  label: data.data.adds[0].Title,
+                  value: data.data.adds[0].ID
+                }
+              }
+            })
+          } else {
+            navigate({
+              pathname: state?.prevFrom || '/',
+              search: search
+            })
+          }
         }
       },
       onError: error => console.log(error)
@@ -143,7 +165,7 @@ function CategoryAdd(props) {
         if (!result?.value?.data?.error) {
           toast.success('Đã xóa danh mục')
           navigate({
-            pathname: '/catalogue/' + path + '/list-category/' + type,
+            pathname: state?.prevFrom || '/',
             search: search
           })
         } else {
@@ -174,22 +196,20 @@ function CategoryAdd(props) {
           <div className="bg-white dark:bg-dark-aside max-w-full w-[470px] h-full rounded shadow-lg flex flex-col">
             <div className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
               <div className="text-2xl font-bold flex items-center">
-                {!addMode && (
-                  <NavLink
-                    to={{
-                      pathname: '/catalogue/' + path + '/list-category/' + type,
-                      search: search
-                    }}
-                    className="mr-2"
-                  >
-                    <ArrowSmallLeftIcon className="w-7" />
-                  </NavLink>
-                )}
+                <NavLink
+                  to={{
+                    pathname: state?.prevFrom || '/',
+                    search: search
+                  }}
+                  className="mr-2"
+                >
+                  <ArrowSmallLeftIcon className="w-7" />
+                </NavLink>
                 {addMode ? 'Thêm mới danh mục' : 'Chỉnh sửa danh mục'}
               </div>
               <NavLink
                 to={{
-                  pathname: '/catalogue/' + path + '/list-category/' + type,
+                  pathname: state?.prevFrom || '/',
                   search: search
                 }}
                 className="absolute flex items-center justify-center w-12 h-12 cursor-pointer right-2 top-2/4 -translate-y-2/4"
@@ -311,7 +331,7 @@ function CategoryAdd(props) {
               <div className="flex">
                 <NavLink
                   to={{
-                    pathname: '/catalogue/' + path + '/list-category/' + type,
+                    pathname: state?.prevFrom || '/',
                     search: search
                   }}
                   type="button"
