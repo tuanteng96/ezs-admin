@@ -38,7 +38,6 @@ const SelectProdService = ({ value, name, StockID = 0, ...props }) => {
         defaultOptions
         loadOptions={promiseOptions}
         value={value}
-        name="name"
         {...props}
       />
     </div>

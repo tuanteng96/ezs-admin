@@ -98,21 +98,21 @@ const UploadFile = ({
             <a
               className="flex items-center justify-center h-full overflow-hidden rounded"
               href={toAbsolutePath(value)}
-              onError={e => {
-                if (
-                  e.target.src !==
-                  toAbsoluteUrl('/assets/images/files/image-default.png')
-                ) {
-                  e.target.onerror = null
-                  e.target.src = toAbsoluteUrl(
-                    '/assets/images/files/image-default.png'
-                  )
-                }
-              }}
               target="_blank"
               rel="noopener"
             >
               <img
+                onError={e => {
+                  if (
+                    e.target.src !==
+                    toAbsoluteUrl('/assets/images/files/image-default.png')
+                  ) {
+                    e.target.onerror = null
+                    e.target.src = toAbsoluteUrl(
+                      '/assets/images/files/image-default.png'
+                    )
+                  }
+                }}
                 className="w-full"
                 src={toAbsolutePath(value)}
                 alt="Avatar"

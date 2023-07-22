@@ -22,6 +22,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import Tooltip from 'rc-tooltip'
 import { clsx } from 'clsx'
+import { ProductCombo } from './components/ProductCombo'
 
 const schemaAdd = yup
   .object({
@@ -58,7 +59,8 @@ function ProductAdd(props) {
       StockUnit: '',
       IsPublic: 0,
       IsDisplayPrice: 0,
-      InDays: 360
+      InDays: 360,
+      Combo: [{ Id: '', qty: '', price: '', addfee: '' }]
     },
     resolver: yupResolver(schemaAdd)
   })
@@ -439,7 +441,7 @@ function ProductAdd(props) {
                                               (day, index) => (
                                                 <div
                                                   className={clsx(
-                                                    'px-3 py-2 transition cursor-pointer hover:bg-light hover:text-primary',
+                                                    'px-3 py-2 transition cursor-pointer hover:bg-light hover:text-primary text-sm font-semibold',
                                                     day ===
                                                       Number(field.value) &&
                                                       'bg-light text-primary'
@@ -502,6 +504,7 @@ function ProductAdd(props) {
                         </div>
                         <BonusSaleKPI />
                       </div>
+                      <ProductCombo />
                       <div className="border border-gray-300 rounded-lg">
                         <div className="px-5 py-4 text-xl font-semibold border-b border-gray-300 font-inter">
                           Thông tin trên WEB / APP

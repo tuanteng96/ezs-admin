@@ -2,6 +2,7 @@ import { SelectCategoryProds } from './SelectCategoryProds'
 import { SelectDistricts } from './SelectDistricts'
 import { SelectGender } from './SelectGender'
 import { SelectMeasure } from './SelectMeasure'
+import { SelectProdProducts } from './SelectProdProducts'
 import { SelectProdService } from './SelectProdService'
 import { SelectStatusGenerate } from './SelectStatusGenerate'
 import { SelectStocks } from './SelectStocks'
@@ -15,5 +16,6 @@ export {
   SelectProdService,
   SelectMeasure,
   SelectCategoryProds,
-  SelectStatusGenerate
+  SelectStatusGenerate,
+  SelectProdProducts
 }

@@ -15,7 +15,8 @@ const ProdsAPI = {
     http.get(
       `/api/gl/select2?cmd=prod&cateids=${ID}&includeSource=1&_type=query`
     ),
-  getListProds: body => http.post(`/api/v3/prod24@get`, JSON.stringify(body)),
+  getListProdsProduct: body =>
+    http.post(`/api/v4/Prod25@sanpham`, JSON.stringify(body)),
   getListCategory: () => http.get(`/api/v3/prod24@CategoryList`),
   addEditCategory: body =>
     http.post(`/api/v3/prod24@categoryEdits`, JSON.stringify(body)),

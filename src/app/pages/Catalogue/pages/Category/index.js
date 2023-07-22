@@ -117,7 +117,7 @@ function Category(props) {
       }
       return result
     },
-    onSuccess: data => setItems(data || []),
+    onSuccess: data => setItems(data ? data.filter((_, i) => i > 0) : []),
     cacheTime: 0
   })
 

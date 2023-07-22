@@ -22,6 +22,7 @@ import { identity, pickBy } from 'lodash-es'
 import Swal from 'sweetalert2'
 import { toast } from 'react-toastify'
 import { TrashIcon, PencilIcon } from '@heroicons/react/24/solid'
+import { ImageLazy } from 'src/_ezs/partials/images'
 
 function Products(props) {
   const navigate = useNavigate()
@@ -31,13 +32,11 @@ function Products(props) {
   const queryConfig = {
     pi: queryParams.pi || 1,
     ps: queryParams.ps || 15,
-    key: queryParams.key || '',
-    types: queryParams.types || '794',
-    serviceOrFee: 0
+    key: queryParams.key || ''
   }
   const { data, isLoading, isPreviousData, refetch } = useQuery({
     queryKey: ['ListProducts', queryConfig],
-    queryFn: () => ProdsAPI.getListProds(queryConfig),
+    queryFn: () => ProdsAPI.getListProdsProduct(queryConfig),
     keepPreviousData: true
   })
 
@@ -95,10 +94,12 @@ function Products(props) {
           <div className="flex justify-center w-full">
             <div className="border border-separator">
               {rowData?.Thumbnail ? (
-                <img
+                <ImageLazy
+                  wrapperClassName="object-cover w-16 h-16 !block"
                   className="object-cover w-16 h-16"
+                  effect="blur"
                   src={toAbsolutePath(rowData?.Thumbnail)}
-                  alt={rowData.ID}
+                  alt={rowData.Title}
                 />
               ) : (
                 <svg
