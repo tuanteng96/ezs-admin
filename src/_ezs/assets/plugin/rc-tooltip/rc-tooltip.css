@@ -125,8 +125,8 @@
 .rc-tooltip-placement-topRight .rc-tooltip-arrow {
     bottom: 4px;
     margin-left: -5px;
-    border-width: 5px 5px 0;
-    border-top-color: #373737;
+    border-width: 6px 6px 0;
+    border-top-color: #fff;
 }
 
 .rc-tooltip-placement-top .rc-tooltip-arrow {
@@ -190,8 +190,8 @@
 .rc-tooltip-placement-bottomRight .rc-tooltip-arrow {
     top: 4px;
     margin-left: -5px;
-    border-width: 0 5px 5px;
-    border-bottom-color: #373737;
+    border-width: 0 6px 6px;
+    border-bottom-color: #fff;
 }
 
 .rc-tooltip-placement-bottom .rc-tooltip-arrow {

@@ -21,6 +21,7 @@ import {
 import { identity, pickBy } from 'lodash-es'
 import Swal from 'sweetalert2'
 import { toast } from 'react-toastify'
+import { TrashIcon, PencilIcon } from '@heroicons/react/24/solid'
 
 function Products(props) {
   const navigate = useNavigate()
@@ -156,22 +157,23 @@ function Products(props) {
         key: 'Action',
         title: 'Lựa chọn',
         dataKey: 'Action',
-        width: 160,
+        width: 100,
         cellRenderer: ({ rowData }) => (
           <div className="flex justify-center w-full">
-            <Button className="bg-primary hover:bg-primaryhv text-white mx-[2px] text-sm rounded cursor-pointer px-2 py-1.5 transition">
-              Chỉnh sửa
+            <Button className="bg-primary hover:bg-primaryhv text-white mx-[2px] text-sm rounded cursor-pointer p-2 transition">
+              <PencilIcon className="w-4" />
             </Button>
             <Button
               type="button"
               onClick={() => onDelete(rowData.ID)}
-              className="bg-danger hover:bg-dangerhv text-white mx-[2px] text-sm rounded cursor-pointer px-2 py-1.5 transition"
+              className="bg-danger hover:bg-dangerhv text-white mx-[2px] text-sm rounded cursor-pointer p-2 transition"
             >
-              Xóa
+              <TrashIcon className="w-4" />
             </Button>
           </div>
         ),
         sortable: false,
+        headerClassNames: 'center',
         frozen: 'right'
       }
     ],

@@ -1,4 +1,4 @@
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import { XMarkIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
 import { AnimatePresence, m } from 'framer-motion'
 import React, { useEffect } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
@@ -20,10 +20,13 @@ import { CkEditor5 } from 'src/_ezs/partials/ckeditor'
 import { Checkbox } from '@material-tailwind/react'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
+import Tooltip from 'rc-tooltip'
+import { clsx } from 'clsx'
 
 const schemaAdd = yup
   .object({
-    Title: yup.string().required('Vui lòng nhập tên sản phẩm')
+    Title: yup.string().required('Vui lòng nhập tên sản phẩm'),
+    DynamicID: yup.string().required('Vui lòng nhập mã sản phẩm')
   })
   .required()
 
@@ -54,7 +57,8 @@ function ProductAdd(props) {
       Manu: '',
       StockUnit: '',
       IsPublic: 0,
-      IsDisplayPrice: 0
+      IsDisplayPrice: 0,
+      InDays: 360
     },
     resolver: yupResolver(schemaAdd)
   })
@@ -80,7 +84,9 @@ function ProductAdd(props) {
     // eslint-disable-next-line
   }, [state?.OptionCreate, reset])
 
-  const onSubmit = values => console.log(values)
+  const onSubmit = values => {
+    console.log(values)
+  }
 
   return (
     <>
@@ -94,7 +100,7 @@ function ProductAdd(props) {
           >
             <form
               onSubmit={handleSubmit(onSubmit)}
-              className="h-full flex flex-col"
+              className="flex flex-col h-full"
             >
               <div className="transition border-b z-[10] border-separator dark:border-dark-separator bg-white dark:bg-dark-aside">
                 <div className="flex justify-center px-5 h-[85px] relative">
@@ -124,12 +130,12 @@ function ProductAdd(props) {
                   </div>
                 </div>
               </div>
-              <div className="grow overflow-auto">
-                <div className="max-w-screen-xl m-auto py-8">
+              <div className="overflow-auto grow">
+                <div className="max-w-screen-xl py-8 m-auto">
                   <div className="grid grid-cols-3 gap-5">
                     <div className="col-span-2">
-                      <div className="border border-gray-300 rounded-lg mb-5">
-                        <div className="border-b border-gray-300 py-4 px-5 font-semibold text-xl font-inter">
+                      <div className="mb-5 border border-gray-300 rounded-lg">
+                        <div className="px-5 py-4 text-xl font-semibold border-b border-gray-300 font-inter">
                           Thông tin sản phẩm
                         </div>
                         <div className="p-5">
@@ -148,6 +154,7 @@ function ProductAdd(props) {
                                     type="text"
                                     errorMessageForce={fieldState?.invalid}
                                     errorMessage={fieldState?.error?.message}
+                                    placeholder="e.g Kem trị nám"
                                     {...field}
                                   />
                                 )}
@@ -170,14 +177,14 @@ function ProductAdd(props) {
                                       autoComplete="off"
                                       type="text"
                                       errorMessageForce={fieldState?.invalid}
-                                      errorMessage={fieldState?.error?.message}
+                                      //errorMessage={fieldState?.error?.message}
                                       {...field}
                                     />
                                   )}
                                 />
                               </div>
                             </div>
-                            <div className="mb-3.5">
+                            <div>
                               <div className="font-bold">Đơn vị</div>
                               <div className="mt-1">
                                 <Controller
@@ -401,64 +408,102 @@ function ProductAdd(props) {
                             </div>
                           </div>
 
-                          <div className="mb-3.5">
-                            <div className="font-bold">Điểm bán</div>
-                            <div className="mt-1">
-                              <Controller
-                                name={`OnStocks`}
-                                control={control}
-                                render={({
-                                  field: { ref, ...field },
-                                  fieldState
-                                }) => (
-                                  <SelectStocks
-                                    isClearable
-                                    isMulti
-                                    value={field.value}
-                                    onChange={val => field.onChange(val)}
-                                    className="select-control"
-                                    menuPosition="fixed"
-                                    styles={{
-                                      menuPortal: base => ({
-                                        ...base,
-                                        zIndex: 9999
-                                      })
-                                    }}
-                                    menuPortalTarget={document.body}
-                                  />
-                                )}
-                              />
+                          <div className="grid grid-cols-2 gap-5 mb-3.5">
+                            <div>
+                              <div className="font-bold">Số ngày dùng hết</div>
+                              <div className="mt-1">
+                                <Controller
+                                  name={'InDays'}
+                                  control={control}
+                                  render={({
+                                    field: { ref, ...field },
+                                    fieldState
+                                  }) => (
+                                    <div className="relative">
+                                      <InputNumber
+                                        placeholder="Nhập số ngày"
+                                        thousandSeparator={true}
+                                        allowNegative={false}
+                                        value={field.value}
+                                        onValueChange={val =>
+                                          field.onChange(val.floatValue || '')
+                                        }
+                                      />
+                                      <Tooltip
+                                        overlayClassName="text-white dark:text-dark-light"
+                                        placement="top"
+                                        trigger={['click']}
+                                        overlay={
+                                          <div className="py-1 text-gray-700 bg-white rounded shadow-lg dark:bg-dark-light dark:text-graydark-800">
+                                            {[1, 3, 5, 7, 14, 30].map(
+                                              (day, index) => (
+                                                <div
+                                                  className={clsx(
+                                                    'px-3 py-2 transition cursor-pointer hover:bg-light hover:text-primary',
+                                                    day ===
+                                                      Number(field.value) &&
+                                                      'bg-light text-primary'
+                                                  )}
+                                                  key={index}
+                                                  onClick={() => {
+                                                    field.onChange(day)
+                                                    document.body.click()
+                                                  }}
+                                                >
+                                                  {day} ngày
+                                                </div>
+                                              )
+                                            )}
+                                          </div>
+                                        }
+                                        align={{
+                                          offset: [9, 0]
+                                        }}
+                                      >
+                                        <div className="absolute right-0 flex items-center justify-center w-12 h-full cursor-pointer text-warning top-2/4 -translate-y-2/4">
+                                          <QuestionMarkCircleIcon className="w-5" />
+                                        </div>
+                                      </Tooltip>
+                                    </div>
+                                  )}
+                                />
+                              </div>
                             </div>
-                          </div>
-                          <div>
-                            <div className="font-bold">
-                              Thời gian sử dụng hết
-                            </div>
-                            <div className="mt-1">
-                              <Controller
-                                name={`RenewDate`}
-                                control={control}
-                                render={({
-                                  field: { ref, ...field },
-                                  fieldState
-                                }) => (
-                                  <InputDatePicker
-                                    placeholderText="e.g HH:mm DD-MM-YYYY"
-                                    selected={field.value}
-                                    onChange={field.onChange}
-                                    showTimeSelect
-                                    dateFormat="HH:mm dd-MM-yyyy"
-                                    timeFormat="HH:mm"
-                                  />
-                                )}
-                              />
+                            <div>
+                              <div className="font-bold">Điểm bán</div>
+                              <div className="mt-1">
+                                <Controller
+                                  name={`OnStocks`}
+                                  control={control}
+                                  render={({
+                                    field: { ref, ...field },
+                                    fieldState
+                                  }) => (
+                                    <SelectStocks
+                                      isClearable
+                                      isMulti
+                                      value={field.value}
+                                      onChange={val => field.onChange(val)}
+                                      className="select-control"
+                                      menuPosition="fixed"
+                                      styles={{
+                                        menuPortal: base => ({
+                                          ...base,
+                                          zIndex: 9999
+                                        })
+                                      }}
+                                      menuPortalTarget={document.body}
+                                    />
+                                  )}
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>
                         <BonusSaleKPI />
                       </div>
                       <div className="border border-gray-300 rounded-lg">
-                        <div className="border-b border-gray-300 py-4 px-5 font-semibold text-xl font-inter">
+                        <div className="px-5 py-4 text-xl font-semibold border-b border-gray-300 font-inter">
                           Thông tin trên WEB / APP
                         </div>
                         <div className="p-5">
@@ -588,7 +633,7 @@ function ProductAdd(props) {
                                   id="IsDisplayPrice"
                                   label={
                                     <span className="font-bold text-site-color">
-                                      Ẩn giá giá trên Web / APP
+                                      Ẩn giá trên Web / APP
                                     </span>
                                   }
                                   className="!bg-[#EBEDF3] checked:!bg-primary border-0"
@@ -605,13 +650,13 @@ function ProductAdd(props) {
                     </div>
                     <div>
                       <div className="border border-gray-300 rounded-lg">
-                        <div className="border-b border-gray-300 py-4 px-5">
-                          <div className="font-semibold text-xl font-inter">
+                        <div className="px-5 py-4 border-b border-gray-300">
+                          <div className="text-xl font-semibold font-inter">
                             Hình ảnh sản phẩm
                           </div>
                           <div>Kéo và thả ảnh để thay đổi thứ tự.</div>
                         </div>
-                        <div className="py-4 px-5">
+                        <div className="px-5 py-4">
                           <Controller
                             name="Thumbnail"
                             control={control}
