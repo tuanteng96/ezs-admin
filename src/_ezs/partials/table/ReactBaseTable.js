@@ -10,6 +10,8 @@ import { Menu, Transition } from '@headlessui/react'
 import { ChevronUpIcon } from '@heroicons/react/24/outline'
 import { Fragment } from 'react'
 import clsx from 'clsx'
+import { useEffect } from 'react'
+import { useRef } from 'react'
 
 ReactBaseTable.propTypes = {
   columns: PropTypes.array,
@@ -37,11 +39,11 @@ function ReactBaseTable({
   pagination,
   ...props
 }) {
-  //const tableRef = useRef(null)
+  const tableRef = useRef(null)
 
-  //   useEffect(() => {
-  //     tableRef?.current?.scrollToRow(0, 'start')
-  //   }, [filters])
+  useEffect(() => {
+    tableRef?.current?.scrollToRow(0, 'start')
+  }, [pageOffset])
 
   const TableCell = ({ className, cellData }) => (
     <Text tooltipMaxWidth={280} className={className}>
@@ -62,6 +64,7 @@ function ReactBaseTable({
           {({ width, height }) => (
             <Table
               {...props}
+              ref={tableRef}
               fixed
               rowKey={rowKey}
               width={width}

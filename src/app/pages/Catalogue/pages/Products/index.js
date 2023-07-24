@@ -161,9 +161,15 @@ function Products(props) {
         width: 100,
         cellRenderer: ({ rowData }) => (
           <div className="flex justify-center w-full">
-            <Button className="bg-primary hover:bg-primaryhv text-white mx-[2px] text-sm rounded cursor-pointer p-2 transition">
+            <NavLink
+              to={{
+                pathname: rowData.ID.toString(),
+                search: search
+              }}
+              className="bg-primary hover:bg-primaryhv text-white mx-[2px] text-sm rounded cursor-pointer p-2 transition"
+            >
               <PencilIcon className="w-4" />
-            </Button>
+            </NavLink>
             <Button
               type="button"
               onClick={() => onDelete(rowData.ID)}

@@ -1,13 +1,19 @@
 import { Switch } from '@headlessui/react'
 import clsx from 'clsx'
 import React, { useState, Fragment } from 'react'
+import { useEffect } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { InputNumber } from 'src/_ezs/partials/forms'
 import { SelectTypeGenerate } from 'src/_ezs/partials/select/SelectTypeGenerate'
 
 function BonusSaleKPI(props) {
   const [enabled, setEnabled] = useState(false)
-  const { control } = useFormContext()
+  const { control, watch } = useFormContext()
+  let { KpiType } = watch()
+  useEffect(() => {
+    if (KpiType) setEnabled(true)
+  }, [KpiType])
+
   return (
     <div className="p-5 border-t border-gray-300">
       <div className="flex items-center mb-4">

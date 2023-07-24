@@ -20,7 +20,13 @@ const SelectStatusGenerate = ({ value, allOption = [], ...props }) => {
   return (
     <div>
       <Select
-        value={value}
+        value={
+          value
+            ? data.filter(x =>
+                value.split(',').some(v => Number(v) === x.value)
+              )
+            : []
+        }
         classNamePrefix="select"
         options={[...allOption, ...data]}
         placeholder="Chọn trạng thái"

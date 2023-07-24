@@ -24,6 +24,9 @@ function CataloguePage(props) {
           <Route path="add" element={<ProductAdd />}>
             <Route path="add-category/:type" element={<CategoryAdd />} />
           </Route>
+          <Route path=":id" element={<ProductAdd />}>
+            <Route path="add-category/:type" element={<CategoryAdd />} />
+          </Route>
           <Route path="list-category/:type" element={<Category />} />
           <Route path="add-category/:type" element={<CategoryAdd />} />
           <Route path="edit-category/:type/:id" element={<CategoryAdd />} />
