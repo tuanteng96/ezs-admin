@@ -19,7 +19,7 @@ function ProductCombo(props) {
   let { ComboList } = watch()
 
   useEffect(() => {
-    if (ComboList && ComboList.length > 0) setEnabled(true)
+    if (ComboList && ComboList.length > 0 && ComboList[0].Id) setEnabled(true)
   }, [ComboList])
 
   return (
