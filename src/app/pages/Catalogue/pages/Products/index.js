@@ -192,7 +192,7 @@ function Products(props) {
     <div className="flex flex-col h-full px-8 pt-8 pb-5 mx-auto max-w-7xl">
       <div className="flex items-end justify-between mb-5">
         <div>
-          <div className="text-3xl font-extrabold dark:text-white">
+          <div className="text-3xl font-bold dark:text-white">
             Quản lý sản phẩm
           </div>
           <div className="mt-1.5">
@@ -202,13 +202,13 @@ function Products(props) {
         <div className="flex pb-1">
           <Button
             type="button"
-            className="flex items-center justify-center font-semibold text-gray-900 bg-light border rounded border-light h-[50px] w-[50px] dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary mr-2.5"
+            className="flex items-center justify-center text-gray-900 bg-light border rounded border-light h-12 w-12 dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary mr-2.5"
           >
             <AdjustmentsVerticalIcon className="w-7" />
           </Button>
           <Menu as="div" className="relative mr-2.5">
             <div>
-              <Menu.Button className="flex items-center px-3.5 font-semibold border border-gray-300 dark:border-gray-700 hover:border-gray-700 dark:hover:border-graydark-700 transition rounded h-[50px] dark:text-white">
+              <Menu.Button className="flex items-center px-3.5 border border-gray-300 dark:border-gray-700 hover:border-gray-700 dark:hover:border-graydark-700 transition rounded h-12 dark:text-white">
                 Tùy chọn
                 <ChevronDownIcon
                   className="w-5 h-5 ml-2 -mr-1 text-violet-200 hover:text-violet-100"
@@ -224,7 +224,7 @@ function Products(props) {
             >
               <Menu.Items className="z-[1001] absolute rounded px-0 py-2 border-0 w-[220px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow">
                 <div>
-                  <Menu.Item>
+                  {/* <Menu.Item>
                     <button className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white">
                       Tải lên Excel
                     </button>
@@ -233,7 +233,7 @@ function Products(props) {
                     <button className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white">
                       Tải xuống Excel
                     </button>
-                  </Menu.Item>
+                  </Menu.Item> */}
                   <Menu.Item>
                     <NavLink
                       to={{
@@ -265,7 +265,7 @@ function Products(props) {
               pathname: 'add',
               search: search
             }}
-            className="relative flex items-center h-[50px] px-4 font-semibold text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
+            className="relative flex items-center h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
           >
             Thêm mới sản phẩm
           </NavLink>

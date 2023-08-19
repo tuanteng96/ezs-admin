@@ -82,8 +82,8 @@ const SortableItems = ({ item, prevPath }) => {
           }}
           className="flex-1 block px-5 py-4"
         >
-          <div className="font-bold">{item.Title}</div>
-          <div className="text-muted2">
+          <div className="font-semibold">{item.Title}</div>
+          <div className="text-muted2 font-light">
             {item.Count} {type === 'nh' ? 'sản phẩm' : title}
           </div>
         </NavLink>
@@ -167,7 +167,7 @@ function Category(props) {
         >
           <div className="bg-white dark:bg-dark-aside max-w-full w-[600px] h-full rounded shadow-lg flex flex-col">
             <div className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
-              <div className="text-2xl font-bold">Danh mục {title}</div>
+              <div className="text-2xl font-semibold">Danh mục {title}</div>
               <div
                 className="absolute flex items-center justify-center w-12 h-12 cursor-pointer right-2 top-2/4 -translate-y-2/4"
                 onClick={onToBack}
@@ -177,7 +177,7 @@ function Category(props) {
             </div>
             <div className="border-b border-separator dark:border-dark-separator">
               <NavLink
-                className="flex items-center px-5 py-4 font-semibold text-primary"
+                className="flex items-center px-5 py-4 text-primary"
                 to={{
                   pathname: `${prevPath}/add-category/${type}`,
                   search: search

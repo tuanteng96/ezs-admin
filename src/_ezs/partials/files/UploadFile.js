@@ -14,6 +14,7 @@ const UploadFile = ({
   placeholder,
   errorMessage,
   errorMessageForce,
+  size,
   width = 'w-[160px]',
   height = 'h-[160px]',
   ...props
@@ -82,7 +83,14 @@ const UploadFile = ({
               fillRule="evenodd"
             />
           </svg>
-          <div className="text-primary font-bold mt-1.5 text-sm">Thêm ảnh</div>
+          <div
+            className={clsx(
+              'text-primary font-medium mt-2',
+              size === 'xs' ? 'text-xs' : 'text-sm'
+            )}
+          >
+            Thêm ảnh
+          </div>
           <input
             value=""
             className="absolute top-0 left-0 z-0 w-full h-full opacity-0 cursor-pointer"

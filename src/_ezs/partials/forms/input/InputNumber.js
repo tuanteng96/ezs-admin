@@ -8,7 +8,7 @@ const InputNumber = ({
   errorMessageForce,
   loading,
   colorSpiner,
-  className = 'px-5 py-3 font-medium',
+  className = 'px-3.5 py-3 font-medium placeholder:font-normal',
   ...props
 }) => {
   return (

@@ -104,7 +104,7 @@ function ReactBaseTable({
       </div>
       {pagination && (
         <div className="flex items-center justify-between w-full mt-4">
-          <div className="flex text-[15px] font-medium">
+          <div className="flex">
             Hiển thị
             <Menu as="div" className="relative">
               <div>

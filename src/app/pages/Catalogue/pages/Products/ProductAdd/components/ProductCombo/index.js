@@ -24,7 +24,7 @@ function ProductCombo(props) {
 
   return (
     <div className="border border-gray-300 rounded-lg mb-5">
-      <div className="px-5 py-4 text-xl font-semibold border-b border-gray-300 font-inter">
+      <div className="px-5 py-4 text-xl font-bold border-b border-gray-300 font-inter">
         Combo
       </div>
       <div className="p-5">

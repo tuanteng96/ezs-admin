@@ -39,6 +39,11 @@ body {
     background: var(--ezs-body-bg);
 }
 
+body {
+    font-size: 15px;
+    line-height: 22px;
+}
+
 #root {
     height: 100%;
 }

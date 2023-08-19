@@ -122,8 +122,8 @@ module.exports = withMT({
       sm: '0px 0px 20px 0px rgba(76, 87, 125, 0.02)'
     },
     fontFamily: {
-      sans: ['Mulish', 'sans-serif'],
-      inter: ['Inter', 'sans-serif']
+      sans: ['Be Vietnam Pro', 'sans-serif'],
+      inter: ['Be Vietnam Pro', 'sans-serif']
     },
     extend: {
       keyframes: {

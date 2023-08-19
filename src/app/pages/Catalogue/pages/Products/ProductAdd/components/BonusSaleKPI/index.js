@@ -1,22 +1,17 @@
 import { Switch } from '@headlessui/react'
 import clsx from 'clsx'
 import React, { useState, Fragment } from 'react'
-import { useEffect } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { InputNumber } from 'src/_ezs/partials/forms'
 import { SelectTypeGenerate } from 'src/_ezs/partials/select/SelectTypeGenerate'
 
 function BonusSaleKPI(props) {
   const [enabled, setEnabled] = useState(false)
-  const { control, watch } = useFormContext()
-  let { KpiType } = watch()
-  useEffect(() => {
-    if (KpiType) setEnabled(true)
-  }, [KpiType])
+  const { control } = useFormContext()
 
   return (
     <div className="p-5 border-t border-gray-300">
-      <div className="flex items-center mb-4">
+      <div className="flex items-center mb-5">
         <Switch checked={enabled} onChange={setEnabled} as={Fragment}>
           {({ checked }) => (
             <button
@@ -35,13 +30,11 @@ function BonusSaleKPI(props) {
             </button>
           )}
         </Switch>
-        <div className="font-medium ml-3 font-inter">
-          Cài đặt hoa hồng cho kỹ thuật viên khi tư vấn
-        </div>
+        <div className="font-medium ml-3">Cài đặt % tư vấn riêng cho KTV</div>
       </div>
       <div className="grid grid-cols-2 gap-5">
         <div>
-          <div className="font-bold">Hoa hồng Sale</div>
+          <div className="font-medium">% tư vấn của NV Sale</div>
           <div className="mt-1">
             <Controller
               name="BonusSale"
@@ -62,7 +55,7 @@ function BonusSaleKPI(props) {
         </div>
         {enabled && (
           <div>
-            <div className="font-bold">Hoa hồng KTV tư vấn</div>
+            <div className="font-medium">Hoa hồng KTV tư vấn</div>
             <div className="mt-1">
               <Controller
                 name="BonusSale2"
@@ -83,7 +76,7 @@ function BonusSaleKPI(props) {
           </div>
         )}
         <div className={clsx(enabled && 'col-span-2')}>
-          <div className="font-bold">Nhóm KPI</div>
+          <div className="font-medium">Nhóm KPI</div>
           <div className="mt-1">
             <Controller
               name="KpiType"

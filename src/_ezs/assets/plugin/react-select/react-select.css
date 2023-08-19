@@ -54,7 +54,7 @@ html.dark {
 
 .select__menu-portal .select__value-container,
 .select-control .select__value-container {
-    padding: 8px 18px;
+    padding: 8px 0.875rem;
 }
 
 .select__menu-portal .select__menu,
@@ -74,9 +74,9 @@ html.dark {
     color: var(--select-color-item);
     font-weight: 500;
     cursor: pointer;
-    font-size: 1rem;
+    font-size: 14px;
     transition: all .3s ease;
-    font-family: "Inter", sans-serif;
+    font-family: "Be Vietnam Pro", sans-serif;
     padding: 10px 12px;
     background-color: transparent;
     text-transform: capitalize;
@@ -119,7 +119,6 @@ html.dark {
 .select__menu-portal .select__value-container .select__placeholder,
 .select-control .select__value-container .select__placeholder {
     color: var(--select-color-item-placeholder);
-    font-weight: 500;
 }
 
 .select__menu-portal .select__indicator.select__clear-indicator,
@@ -141,6 +140,14 @@ html.dark {
     color: var(--select-color-item-multi);
     background-color: var(--select-bg-item-multi);
     font-weight: 600;
+}
+
+.select-control .select__multi-value {
+    font-size: 14px;
+}
+
+.select-control .select__multi-value .select__multi-value__label {
+    padding: 2px;
 }
 
 .select__menu-portal .select__group-heading,

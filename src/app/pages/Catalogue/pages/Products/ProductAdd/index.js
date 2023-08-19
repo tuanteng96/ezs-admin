@@ -1,4 +1,8 @@
-import { XMarkIcon, QuestionMarkCircleIcon } from '@heroicons/react/24/outline'
+import {
+  XMarkIcon,
+  QuestionMarkCircleIcon,
+  ReceiptPercentIcon
+} from '@heroicons/react/24/outline'
 import { AnimatePresence, m } from 'framer-motion'
 import React, { useEffect } from 'react'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
@@ -33,6 +37,7 @@ import { useMutation, useQuery } from '@tanstack/react-query'
 import ProdsAPI from 'src/_ezs/api/prods.api'
 import { toast } from 'react-toastify'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
+import PriceCost from './components/PriceCost'
 
 const schemaAdd = yup
   .object({
@@ -46,8 +51,9 @@ function ProductAdd(props) {
   const navigate = useNavigate()
   const { id } = useParams()
   const { search, pathname, state } = useLocation()
-  const isAddMode = useMatch('/catalogue/products/add')
-
+  const isAddMode =
+    useMatch('/catalogue/products/add') ||
+    pathname.includes('/catalogue/products/add')
   const [showImages, setShowImages] = useState(false)
 
   const methods = useForm({
@@ -78,7 +84,7 @@ function ProductAdd(props) {
     resolver: yupResolver(schemaAdd)
   })
 
-  const { control, handleSubmit, watch, reset, setError } = methods
+  const { control, handleSubmit, watch, reset, setValue, setError } = methods
   const watchForm = watch()
 
   useEffect(() => {
@@ -160,8 +166,8 @@ function ProductAdd(props) {
             : '',
           Manu: data?.Manu
             ? {
-                label: data?.TypeName,
-                value: data?.ManuName
+                label: data?.ManuName,
+                value: data?.Manu
               }
             : '',
           StockUnit: data.StockUnit || '',
@@ -276,13 +282,13 @@ function ProductAdd(props) {
                       <XMarkIcon className="w-9" />
                     </div>
                   </div>
-                  <div className="flex items-center justify-center col-span-2 text-3xl font-extrabold transition dark:text-white">
-                    Thêm mới sản phẩm
+                  <div className="flex items-center justify-center col-span-2 text-3xl font-bold transition dark:text-white">
+                    {isAddMode ? 'Thêm mới sản phẩm' : 'Chỉnh sửa sản phẩm'}
                   </div>
                   <div className="absolute top-0 flex items-center justify-center h-full right-5">
                     <Button
                       type="submit"
-                      className="relative flex items-center justify-center h-12 px-4 font-bold text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                      className="relative flex items-center justify-center h-12 px-4 text-white transition rounded bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
                       loading={addProducMutation.isLoading}
                       disabled={addProducMutation.isLoading}
                     >
@@ -303,12 +309,12 @@ function ProductAdd(props) {
                     <div className="grid grid-cols-3 gap-5">
                       <div className="col-span-2">
                         <div className="mb-5 border border-gray-300 rounded-lg">
-                          <div className="px-5 py-4 text-xl font-semibold border-b border-gray-300 font-inter">
+                          <div className="px-5 py-4 text-xl font-bold border-b border-gray-300">
                             Thông tin sản phẩm
                           </div>
                           <div className="p-5">
                             <div className="mb-3.5">
-                              <div className="font-bold">Tên sản phẩm</div>
+                              <div className="font-medium">Tên sản phẩm</div>
                               <div className="mt-1">
                                 <Controller
                                   name="Title"
@@ -331,7 +337,7 @@ function ProductAdd(props) {
                             </div>
                             <div className="grid grid-cols-2 gap-5 mb-3.5">
                               <div>
-                                <div className="font-bold">Mã sản phẩm</div>
+                                <div className="font-medium">Mã sản phẩm</div>
                                 <div className="mt-1">
                                   <Controller
                                     name="DynamicID"
@@ -353,7 +359,7 @@ function ProductAdd(props) {
                                 </div>
                               </div>
                               <div>
-                                <div className="font-bold">Đơn vị</div>
+                                <div className="font-medium">Đơn vị</div>
                                 <div className="mt-1">
                                   <Controller
                                     name="StockUnit"
@@ -385,7 +391,7 @@ function ProductAdd(props) {
                             </div>
                             <div className="grid grid-cols-2 gap-5 mb-3.5">
                               <div>
-                                <div className="font-bold">Giá bán</div>
+                                <div className="font-medium">Giá nhập</div>
                                 <div className="mt-1">
                                   <Controller
                                     name="PriceProduct"
@@ -395,7 +401,7 @@ function ProductAdd(props) {
                                       fieldState
                                     }) => (
                                       <InputNumber
-                                        placeholder="Nhập giá bán"
+                                        placeholder="Nhập giá nhập"
                                         thousandSeparator={true}
                                         allowNegative={false}
                                         value={field.value}
@@ -411,37 +417,11 @@ function ProductAdd(props) {
                                   />
                                 </div>
                               </div>
-                              <div>
-                                <div className="font-bold">Giá gốc</div>
-                                <div className="mt-1">
-                                  <Controller
-                                    name="PriceBase"
-                                    control={control}
-                                    render={({
-                                      field: { ref, ...field },
-                                      fieldState
-                                    }) => (
-                                      <InputNumber
-                                        placeholder="Nhập giá gốc"
-                                        thousandSeparator={true}
-                                        allowNegative={false}
-                                        value={field.value}
-                                        onValueChange={val =>
-                                          field.onChange(val.floatValue || '')
-                                        }
-                                        errorMessageForce={fieldState?.invalid}
-                                        errorMessage={
-                                          fieldState?.error?.message
-                                        }
-                                      />
-                                    )}
-                                  />
-                                </div>
-                              </div>
+                              <PriceCost />
                             </div>
                             <div className="grid grid-cols-2 gap-5 mb-3.5">
                               <div>
-                                <div className="font-bold">
+                                <div className="font-medium">
                                   Danh mục sản phẩm
                                 </div>
                                 <div className="mt-1">
@@ -515,7 +495,7 @@ function ProductAdd(props) {
                                 </div>
                               </div>
                               <div>
-                                <div className="font-bold">
+                                <div className="font-medium">
                                   Nhãn hàng sản phẩm
                                 </div>
                                 <div className="mt-1">
@@ -588,7 +568,7 @@ function ProductAdd(props) {
 
                             <div className="grid grid-cols-2 gap-5 mb-3.5">
                               <div>
-                                <div className="font-bold">
+                                <div className="font-medium">
                                   Số ngày dùng hết
                                 </div>
                                 <div className="mt-1">
@@ -619,7 +599,7 @@ function ProductAdd(props) {
                                                 (day, index) => (
                                                   <div
                                                     className={clsx(
-                                                      'px-3 py-2 transition cursor-pointer hover:bg-light hover:text-primary text-sm font-semibold',
+                                                      'px-3 py-2 transition cursor-pointer hover:bg-light hover:text-primary text-sm font-medium',
                                                       day ===
                                                         Number(field.value) &&
                                                         'bg-light text-primary'
@@ -650,7 +630,7 @@ function ProductAdd(props) {
                                 </div>
                               </div>
                               <div>
-                                <div className="font-bold">Điểm bán</div>
+                                <div className="font-medium">Điểm bán</div>
                                 <div className="mt-1">
                                   <Controller
                                     name={`OnStocks`}
@@ -715,12 +695,12 @@ function ProductAdd(props) {
                         </div>
                         <ProductCombo />
                         <div className="border border-gray-300 rounded-lg">
-                          <div className="px-5 py-4 text-xl font-semibold border-b border-gray-300 font-inter">
+                          <div className="px-5 py-4 text-xl font-bold border-b border-gray-300">
                             Thông tin trên WEB / APP
                           </div>
                           <div className="p-5">
                             <div className="mb-3.5">
-                              <div className="font-bold">Mô tả sản phẩm</div>
+                              <div className="font-medium">Mô tả sản phẩm</div>
                               <div className="mt-1">
                                 <Controller
                                   name="Desc"
@@ -739,7 +719,7 @@ function ProductAdd(props) {
                               </div>
                             </div>
                             <div className="mb-3.5">
-                              <div className="font-bold">Chi tiết</div>
+                              <div className="font-medium">Chi tiết</div>
                               <div className="mt-1">
                                 <Controller
                                   name="Detail"
@@ -759,7 +739,7 @@ function ProductAdd(props) {
                               </div>
                             </div>
                             <div className="mb-3.5">
-                              <div className="font-bold">Trạng thái</div>
+                              <div className="font-medium">Trạng thái</div>
                               <div className="mt-1">
                                 <Controller
                                   name="Status"
@@ -773,7 +753,11 @@ function ProductAdd(props) {
                                       isClearable
                                       value={field.value}
                                       onChange={val => {
-                                        field.onChange(val.value || '')
+                                        field.onChange(
+                                          val
+                                            ? val.map(x => x.value).toString()
+                                            : ''
+                                        )
                                       }}
                                       className="select-control"
                                       menuPortalTarget={document.body}
@@ -790,25 +774,36 @@ function ProductAdd(props) {
                               </div>
                             </div>
                             <div className="mb-3.5">
-                              <div className="font-bold">Sắp xếp thứ tự</div>
+                              <div className="font-medium">Sắp xếp thứ tự</div>
                               <div className="mt-1">
-                                <Controller
-                                  name={`RenewDate`}
-                                  control={control}
-                                  render={({
-                                    field: { ref, ...field },
-                                    fieldState
-                                  }) => (
-                                    <InputDatePicker
-                                      placeholderText="e.g HH:mm DD-MM-YYYY"
-                                      selected={field.value}
-                                      onChange={field.onChange}
-                                      showTimeSelect
-                                      dateFormat="HH:mm dd-MM-yyyy"
-                                      timeFormat="HH:mm"
-                                    />
-                                  )}
-                                />
+                                <div className="relative">
+                                  <Controller
+                                    name={`RenewDate`}
+                                    control={control}
+                                    render={({
+                                      field: { ref, ...field },
+                                      fieldState
+                                    }) => (
+                                      <InputDatePicker
+                                        placeholderText="e.g HH:mm DD-MM-YYYY"
+                                        selected={field.value}
+                                        onChange={field.onChange}
+                                        showTimeSelect
+                                        dateFormat="HH:mm dd-MM-yyyy"
+                                        timeFormat="HH:mm"
+                                      />
+                                    )}
+                                  />
+                                  <button
+                                    className="absolute right-0 top-0 h-full px-3 border-gray-300 text-primary font-medium"
+                                    type="button"
+                                    onClick={() =>
+                                      setValue('RenewDate', new Date())
+                                    }
+                                  >
+                                    Hôm nay
+                                  </button>
+                                </div>
                               </div>
                             </div>
                             <div className="grid grid-cols-2 gap-5">
@@ -819,21 +814,23 @@ function ProductAdd(props) {
                                   field: { ref, ...field },
                                   fieldState
                                 }) => (
-                                  <Checkbox
-                                    id="IsPublic"
-                                    label={
-                                      <span className="font-bold text-site-color">
-                                        Ẩn sản phẩm trên Web / APP
-                                      </span>
-                                    }
-                                    className="!bg-[#EBEDF3] checked:!bg-primary border-0"
-                                    checked={Number(field.value) === 0}
-                                    onChange={evt => {
-                                      field.onChange(
-                                        !evt.target.checked ? 0 : 1
-                                      )
-                                    }}
-                                  />
+                                  <>
+                                    <Checkbox
+                                      id="IsPublic"
+                                      label={
+                                        <span className="font-medium text-site-color">
+                                          Ẩn sản phẩm trên Web / APP
+                                        </span>
+                                      }
+                                      className="!bg-[#EBEDF3] checked:!bg-primary border-0"
+                                      checked={Number(field.value) === 0}
+                                      onChange={evt => {
+                                        field.onChange(
+                                          !evt.target.checked ? 1 : 0
+                                        )
+                                      }}
+                                    />
+                                  </>
                                 )}
                               />
                               <Controller
@@ -846,7 +843,7 @@ function ProductAdd(props) {
                                   <Checkbox
                                     id="IsDisplayPrice"
                                     label={
-                                      <span className="font-bold text-site-color">
+                                      <span className="font-medium text-site-color">
                                         Ẩn giá trên Web / APP
                                       </span>
                                     }
@@ -854,7 +851,7 @@ function ProductAdd(props) {
                                     checked={Number(field.value) === 0}
                                     onChange={evt => {
                                       field.onChange(
-                                        !evt.target.checked ? 0 : 1
+                                        !evt.target.checked ? 1 : 0
                                       )
                                     }}
                                   />
@@ -867,7 +864,7 @@ function ProductAdd(props) {
                       <div>
                         <div className="border border-gray-300 rounded-lg">
                           <div className="px-5 py-4 border-b border-gray-300">
-                            <div className="text-xl font-semibold font-inter">
+                            <div className="text-xl font-bold mb-px">
                               Hình ảnh sản phẩm
                             </div>
                             <div>Kéo và thả ảnh để thay đổi thứ tự.</div>

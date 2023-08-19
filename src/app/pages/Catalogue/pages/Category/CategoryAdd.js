@@ -195,7 +195,7 @@ function CategoryAdd(props) {
         >
           <div className="bg-white dark:bg-dark-aside max-w-full w-[470px] h-full rounded shadow-lg flex flex-col">
             <div className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
-              <div className="text-2xl font-bold flex items-center">
+              <div className="text-2xl font-semibold flex items-center">
                 <NavLink
                   to={{
                     pathname: state?.prevFrom || '/',
@@ -222,7 +222,7 @@ function CategoryAdd(props) {
               className="relative p-5 grow"
             >
               <div className="mb-3.5">
-                <div className="font-semibold">Tên danh mục</div>
+                <div className="font-medium">Tên danh mục</div>
                 <div className="mt-1">
                   <Controller
                     name="Title"
@@ -241,7 +241,7 @@ function CategoryAdd(props) {
                 </div>
               </div>
               <div className="mb-3.5">
-                <div className="font-semibold">Mô tả</div>
+                <div className="font-medium">Mô tả</div>
                 <div className="mt-1">
                   <Controller
                     name="Desc"
@@ -257,13 +257,14 @@ function CategoryAdd(props) {
                 </div>
               </div>
               <div className="mb-3.5">
-                <div className="font-semibold">Hình ảnh</div>
+                <div className="font-medium">Hình ảnh</div>
                 <div className="mt-1">
                   <Controller
                     name="Thumbnail"
                     control={control}
                     render={({ field }) => (
                       <UploadFile
+                        size="xs"
                         width="w-[130px]"
                         height="h-[130px]"
                         value={field.value}
@@ -304,7 +305,7 @@ function CategoryAdd(props) {
                     </Switch>
                   )}
                 />
-                <div className="font-semibold ml-2 text-[15px]">
+                <div className="font-medium ml-2 text-[15px]">
                   Hiển thị trên Web / APP
                 </div>
               </div>
@@ -321,7 +322,7 @@ function CategoryAdd(props) {
                     loading={deleteCategoryMutation.isLoading}
                     disabled={deleteCategoryMutation.isLoading}
                     type="button"
-                    className="relative flex items-center px-4 ml-2 font-bold text-danger transition rounded bg-white h-11 focus:outline-none focus:shadow-none disabled:opacity-70 border border-gray-300 hover:border-danger"
+                    className="relative flex items-center px-4 text-danger transition rounded bg-white h-11 focus:outline-none focus:shadow-none disabled:opacity-70 border border-gray-300 hover:border-danger"
                     onClick={onDelete}
                   >
                     Xóa
@@ -335,7 +336,7 @@ function CategoryAdd(props) {
                     search: search
                   }}
                   type="button"
-                  className="relative flex items-center px-4 font-bold transition border border-gray-300 rounded shadow-lg dark:border-gray-700 h-11 hover:border-gray-800 focus:outline-none focus:shadow-none"
+                  className="relative flex items-center px-4 transition border border-gray-300 rounded shadow-lg dark:border-gray-700 h-11 hover:border-gray-800 focus:outline-none focus:shadow-none"
                 >
                   Hủy
                 </NavLink>
@@ -343,7 +344,7 @@ function CategoryAdd(props) {
                   loading={addCategoryMutation.isLoading}
                   disabled={addCategoryMutation.isLoading}
                   type="submit"
-                  className="relative flex items-center px-4 ml-2 font-semibold text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-11 focus:outline-none focus:shadow-none disabled:opacity-70"
+                  className="relative flex items-center px-4 ml-2 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-11 focus:outline-none focus:shadow-none disabled:opacity-70"
                 >
                   {addMode ? 'Thêm mới' : 'Cập nhập'}
                 </Button>
