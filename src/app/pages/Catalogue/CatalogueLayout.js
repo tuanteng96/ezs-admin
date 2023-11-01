@@ -1,6 +1,6 @@
 import { clsx } from 'clsx/dist/clsx'
 import React from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, Outlet } from 'react-router-dom'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 
 const perfectScrollbarOptions = {
@@ -11,23 +11,23 @@ const perfectScrollbarOptions = {
 function CatalogueLayout({ children }) {
   const paths = [
     {
-      to: 'products',
+      to: '/catalogue/products',
       name: 'Sản phẩm'
     },
     {
-      to: 'services',
+      to: '/catalogue/services',
       name: 'Dịch vụ & thẻ liệu trình'
     },
     {
-      to: 'money-cards',
+      to: '/catalogue/money-cards',
       name: 'Thẻ tiền'
     },
     {
-      to: 'surcharges',
+      to: '/catalogue/surcharges',
       name: 'Phụ phí'
     },
     {
-      to: 'materials',
+      to: '/catalogue/materials',
       name: 'Nguyên vật liệu'
     }
   ]
@@ -61,7 +61,7 @@ function CatalogueLayout({ children }) {
         </ul>
       </PerfectScrollbar>
       <div className="flex-1 h-full overflow-auto grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
-        {children}
+        <Outlet />
       </div>
     </div>
   )

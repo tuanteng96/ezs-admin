@@ -67,14 +67,7 @@ function PrivateRoutes(props) {
             }
           />
         </Route>
-        <Route
-          path="catalogue/*"
-          element={
-            <SuspensedView>
-              <CataloguePage />
-            </SuspensedView>
-          }
-        />
+        <Route path="catalogue/*" element={<CataloguePage />} />
         <Route
           path="settings/*"
           element={
