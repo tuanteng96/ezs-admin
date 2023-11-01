@@ -1,6 +1,6 @@
 /* eslint-disable react/jsx-no-target-blank */
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import AuthAPI from 'src/_ezs/api/auth.api'
 import { useMutation } from '@tanstack/react-query'
@@ -22,6 +22,17 @@ const schemaLogin = yup
 
 function Login() {
   const { saveAuth } = useAuth()
+
+  useEffect(() => {
+    if (window?.top?.token && window?.top?.Info) {
+      saveAuth({
+        auth: window?.top?.Info,
+        token: window?.top?.token
+      })
+    }
+    // eslint-disable-next-line
+  }, [])
+
   const { control, handleSubmit, setError } = useForm({
     defaultValues: {
       usn: '',

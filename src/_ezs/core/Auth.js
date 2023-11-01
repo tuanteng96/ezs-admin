@@ -111,10 +111,10 @@ const AuthInit = ({ children }) => {
   })
 
   useEffect(() => {
-    if (!accessToken && window?.parent?.token) {
+    if (!accessToken && window?.top?.token) {
       saveAuth({
-        auth: window?.parent?.Info,
-        token: window?.parent?.token
+        auth: window?.top?.Info,
+        token: window?.top?.token
       })
     } else {
       if (!accessToken) {
