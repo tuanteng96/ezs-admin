@@ -8,30 +8,7 @@ const perfectScrollbarOptions = {
   wheelPropagation: false
 }
 
-function CatalogueLayout({ children }) {
-  const paths = [
-    {
-      to: '/catalogue/products',
-      name: 'Sản phẩm'
-    },
-    {
-      to: '/catalogue/services',
-      name: 'Dịch vụ & thẻ liệu trình'
-    },
-    {
-      to: '/catalogue/money-cards',
-      name: 'Thẻ tiền'
-    },
-    {
-      to: '/catalogue/surcharges',
-      name: 'Phụ phí'
-    },
-    {
-      to: '/catalogue/materials',
-      name: 'Nguyên vật liệu'
-    }
-  ]
-
+function CatalogueLayout({ paths }) {
   return (
     <div className="flex h-full bg-white dark:bg-dark-app">
       <PerfectScrollbar
@@ -48,8 +25,9 @@ function CatalogueLayout({ children }) {
                 <NavLink
                   className={({ isActive }) =>
                     clsx(
-                      'block px-4 py-3 text-[15px] rounded-md font-medium hover:bg-primarylight dark:hover:bg-dark-light transition mt-1 dark:text-white',
-                      isActive && 'bg-primarylight dark:bg-dark-light'
+                      'block px-4 py-3 text-[15px] rounded-md font-medium hover:bg-primarylight hover:text-primary dark:hover:bg-dark-light transition mt-1 dark:text-white',
+                      isActive &&
+                        'bg-primarylight text-primary dark:bg-dark-light'
                     )
                   }
                   to={to}

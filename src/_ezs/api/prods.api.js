@@ -1,4 +1,5 @@
 import http from 'src/_ezs/utils/http'
+import { formatObject } from '../utils/formatObject'
 
 const ProdsAPI = {
   getListService: ({ StockID, Key, Pi, Ps, MemberID }) =>
@@ -27,7 +28,9 @@ const ProdsAPI = {
   deleteProdsID: body =>
     http.post(`/api/v3/prod24@delete`, JSON.stringify(body)),
   addUpdateProduct: body =>
-    http.post(`/api/v4/Prod25@sanpham`, JSON.stringify(body))
+    http.post(`/api/v4/Prod25@sanpham`, JSON.stringify(body)),
+  getListInventory: body =>
+    http.post(`/api/v3/whouse2?${formatObject.toQueryString(body)}`)
 }
 
 export default ProdsAPI

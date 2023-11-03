@@ -107,19 +107,17 @@ const AuthInit = ({ children }) => {
       setShowSplashScreen(false)
       logout()
     },
-    enabled: !!accessToken
+    enabled: Boolean(!window?.top?.token && accessToken)
   })
 
   useEffect(() => {
-    if (!accessToken && window?.top?.token) {
+    if (window?.top?.token) {
       saveAuth({
         auth: window?.top?.Info,
         token: window?.top?.token
       })
-    } else {
-      if (!accessToken) {
-        setShowSplashScreen(false)
-      }
+    } else if (!accessToken) {
+      setShowSplashScreen(false)
     }
 
     // eslint-disable-next-line

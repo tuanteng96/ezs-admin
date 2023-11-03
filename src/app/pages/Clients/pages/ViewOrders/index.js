@@ -159,13 +159,13 @@ function ViewOrders(props) {
             <Link
               to={`/clients/${id}/order/${rowData.ID}`}
               state={{ previousPath: pathname }}
-              className="relative flex items-center px-4 text-[15px] font-medium text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-10 focus:outline-none focus:shadow-none text-sm"
+              className="relative flex items-center px-4 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-10 focus:outline-none focus:shadow-none text-sm"
             >
               Xem đơn hàng
             </Link>
           </>
         ),
-        width: 155,
+        width: 160,
         sortable: false,
         align: 'center',
         frozen: 'right'

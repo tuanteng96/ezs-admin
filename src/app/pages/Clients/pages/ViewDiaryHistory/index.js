@@ -1,47 +1,45 @@
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { useQuery } from '@tanstack/react-query'
+// import { useQuery } from '@tanstack/react-query'
 import { LayoutGroup, m } from 'framer-motion'
 import React from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import MembersAPI from 'src/_ezs/api/members.api'
+// import MembersAPI from 'src/_ezs/api/members.api'
 
-const initialCare = [
-  {
-    Title: 'Lịch nhắc',
-    Key: 'NotiDates'
-  },
-  {
-    Title: 'Hình ảnh & Clip',
-    Key: 'Attachments'
-  },
-  {
-    Title: 'Lịch nhắc',
-    Key: 'NotiDates'
-  },
-  {
-    Title: 'Ghi chú',
-    Key: 'NotiServices'
-  }
-]
+// const initialCare = [
+//   {
+//     Title: 'Lịch nhắc',
+//     Key: 'NotiDates'
+//   },
+//   {
+//     Title: 'Hình ảnh & Clip',
+//     Key: 'Attachments'
+//   },
+//   {
+//     Title: 'Lịch nhắc',
+//     Key: 'NotiDates'
+//   },
+//   {
+//     Title: 'Ghi chú',
+//     Key: 'NotiServices'
+//   }
+// ]
 
 function ViewDiaryHistory(props) {
   const { id } = useParams()
   const { pathname, state } = useLocation()
   const navigate = useNavigate()
 
-  const resultCare = useQuery({
-    queryKey: ['MemberListCare', { MemberID: id }],
-    queryFn: async () => {
-      const { data } = await MembersAPI.memberListCare({
-        MemberID: id
-      })
-      console.log(data)
-      return data
-    },
-    initialData: initialCare
-  })
-
-  console.log(resultCare)
+  // const resultCare = useQuery({
+  //   queryKey: ['MemberListCare', { MemberID: id }],
+  //   queryFn: async () => {
+  //     const { data } = await MembersAPI.memberListCare({
+  //       MemberID: id
+  //     })
+  //     console.log(data)
+  //     return data
+  //   },
+  //   initialData: initialCare
+  // })
 
   return (
     <LayoutGroup key={pathname}>

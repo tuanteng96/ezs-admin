@@ -8,11 +8,39 @@ const Products = lazy(() => import('./pages/Products'))
 const ProductAdd = lazy(() => import('./pages/Products/ProductAdd'))
 const CategoryAdd = lazy(() => import('./pages/Category/CategoryAdd'))
 const Inventory = lazy(() => import('./pages/Inventory'))
+const InventoryFilters = lazy(() => import('./pages/Inventory/pages/Filters'))
 
 function CataloguePage(props) {
   return (
     <Routes>
-      <Route element={<CatalogueLayout />}>
+      <Route
+        element={
+          <CatalogueLayout
+            paths={[
+              {
+                to: '/catalogue/products',
+                name: 'Sản phẩm'
+              },
+              {
+                to: '/catalogue/services',
+                name: 'Dịch vụ & thẻ liệu trình'
+              },
+              {
+                to: '/catalogue/money-cards',
+                name: 'Thẻ tiền'
+              },
+              {
+                to: '/catalogue/surcharges',
+                name: 'Phụ phí'
+              },
+              {
+                to: '/catalogue/materials',
+                name: 'Nguyên vật liệu'
+              }
+            ]}
+          />
+        }
+      >
         <Route index element={<Navigate to="products" />} />
         <Route
           path="products"
@@ -66,13 +94,37 @@ function CataloguePage(props) {
         ></Route>
       </Route>
       <Route
-        path="inventory"
         element={
-          <SuspensedView>
-            <Inventory />
-          </SuspensedView>
+          <CatalogueLayout
+            paths={[
+              {
+                to: '/catalogue/inventory',
+                name: 'Kho và hàng tồn'
+              },
+              {
+                to: '/catalogue/import-export',
+                name: 'Đơn nhập xuất'
+              },
+              {
+                to: '/catalogue/money-cards',
+                name: 'Nhà cung cấp, đại lý'
+              }
+            ]}
+          />
         }
-      ></Route>
+      >
+        <Route index element={<Navigate to="inventory" />} />
+        <Route
+          path="inventory"
+          element={
+            <SuspensedView>
+              <Inventory />
+            </SuspensedView>
+          }
+        >
+          <Route path="filters" element={<InventoryFilters />}></Route>
+        </Route>
+      </Route>
     </Routes>
   )
 }

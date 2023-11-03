@@ -5,8 +5,12 @@ import { getLocalStorage } from './localStorage'
 class Http {
   constructor() {
     this.pathLogin = ['/admin/login.aspx?login=1', '/api/v3/user@setpwd']
-    this.accessToken = getLocalStorage('access_token')
-    this.accessStock = getLocalStorage('access_stock')
+    this.accessToken = window?.top?.token || getLocalStorage('access_token')
+    this.accessStock = window?.top?.Info
+      ? window?.top?.Info?.Stocks.filter(
+          x => x.ID === window?.top?.Info?.CrStockID
+        )[0]
+      : getLocalStorage('access_stock')
     this.instance = axios.create({
       baseURL:
         !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
