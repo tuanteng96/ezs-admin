@@ -7,6 +7,7 @@ import { ArrowSmallLeftIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Input } from 'src/_ezs/partials/forms'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import { Button } from 'src/_ezs/partials/button'
+import { SelectCategoryProds } from 'src/_ezs/partials/select'
 
 const perfectScrollbarOptions = {
   wheelSpeed: 2,
@@ -91,6 +92,36 @@ function InventoryFilters(props) {
                         placeholder="e.g Kem dưỡng"
                         autoComplete="off"
                         type="text"
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+              <div className="mb-3.5">
+                <div className="font-medium">Nhãn hàng</div>
+                <div className="mt-1">
+                  <Controller
+                    name="Manu"
+                    control={control}
+                    render={({ field: { ref, ...field }, fieldState }) => (
+                      <SelectCategoryProds
+                        isClearable
+                        value={field.value}
+                        onChange={val => {
+                          field.onChange(val)
+                        }}
+                        Type="NH"
+                        className="select-control"
+                        menuPosition="fixed"
+                        styles={{
+                          menuPortal: base => ({
+                            ...base,
+                            zIndex: 9999
+                          })
+                        }}
+                        menuPortalTarget={document.body}
+                        placeholder="Chọn nhãn hàng"
+                        noOptionsMessage={() => 'Chưa có nhãn hàng.'}
                       />
                     )}
                   />

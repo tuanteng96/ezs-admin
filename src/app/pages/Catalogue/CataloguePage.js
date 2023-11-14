@@ -9,6 +9,8 @@ const ProductAdd = lazy(() => import('./pages/Products/ProductAdd'))
 const CategoryAdd = lazy(() => import('./pages/Category/CategoryAdd'))
 const Inventory = lazy(() => import('./pages/Inventory'))
 const InventoryFilters = lazy(() => import('./pages/Inventory/pages/Filters'))
+const ImportExport = lazy(() => import('./pages/ImportExport'))
+const Supplier = lazy(() => import('./pages/Supplier'))
 
 function CataloguePage(props) {
   return (
@@ -106,7 +108,7 @@ function CataloguePage(props) {
                 name: 'Đơn nhập xuất'
               },
               {
-                to: '/catalogue/money-cards',
+                to: '/catalogue/supplier',
                 name: 'Nhà cung cấp, đại lý'
               }
             ]}
@@ -124,6 +126,22 @@ function CataloguePage(props) {
         >
           <Route path="filters" element={<InventoryFilters />}></Route>
         </Route>
+        <Route
+          path="import-export"
+          element={
+            <SuspensedView>
+              <ImportExport />
+            </SuspensedView>
+          }
+        ></Route>
+        <Route
+          path="supplier"
+          element={
+            <SuspensedView>
+              <Supplier />
+            </SuspensedView>
+          }
+        ></Route>
       </Route>
     </Routes>
   )

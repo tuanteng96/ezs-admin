@@ -30,7 +30,11 @@ const ProdsAPI = {
   addUpdateProduct: body =>
     http.post(`/api/v4/Prod25@sanpham`, JSON.stringify(body)),
   getListInventory: body =>
-    http.post(`/api/v3/whouse2?${formatObject.toQueryString(body)}`)
+    http.post(`/api/v3/whouse2?${formatObject.toQueryString(body)}`),
+  getListSupplier: body =>
+    http.post(`/api/v3/SupplierTable?${formatObject.toQueryString(body)}`),
+  addEditSupplier: body => http.post(`/api/v3/SupplierTable?cmd=save`, body),
+  deleteSupplier: body => http.post(`/api/v3/SupplierTable?cmd=delete`, body)
 }
 
 export default ProdsAPI

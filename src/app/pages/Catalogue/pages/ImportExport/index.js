@@ -6,43 +6,52 @@ import {
 } from '@heroicons/react/24/outline'
 import { useQuery } from '@tanstack/react-query'
 import { identity, pickBy } from 'lodash-es'
-import React, { Fragment } from 'react'
+import moment from 'moment'
+import React from 'react'
+import { Fragment } from 'react'
 import { useMemo } from 'react'
-import {
-  NavLink,
-  Outlet,
-  createSearchParams,
-  useLocation,
-  useNavigate
-} from 'react-router-dom'
+import { Outlet, useLocation, useNavigate } from 'react-router'
+import { NavLink, createSearchParams } from 'react-router-dom'
 import ProdsAPI from 'src/_ezs/api/prods.api'
-import useQueryParams from 'src/_ezs/hooks/useQueryParams'
-import { ImageLazy } from 'src/_ezs/partials/images'
-import { ReactBaseTable } from 'src/_ezs/partials/table'
-import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
-import { formatString } from 'src/_ezs/utils/formatString'
-import { PickerInventory } from './components'
 import { useAuth } from 'src/_ezs/core/Auth'
+import useQueryParams from 'src/_ezs/hooks/useQueryParams'
+import { DropdownMenu } from 'src/_ezs/partials/dropdown'
+import { ReactBaseTable } from 'src/_ezs/partials/table'
+import { formatString } from 'src/_ezs/utils/formatString'
 
-function Inventory(props) {
+function ImportExport(props) {
   const { CrStocks } = useAuth()
   const navigate = useNavigate()
   const { pathname, search } = useLocation()
   const queryParams = useQueryParams()
 
   const queryConfig = {
-    cmd: 'prodinstock',
+    cmd: 'getie',
     Pi: queryParams.Pi || 1,
     Ps: queryParams.Ps || 15,
-    '(filter)Only': queryParams.Only || true,
-    '(filter)RootTypeID': queryParams.RootTypeID || 794,
-    '(filter)StockID': queryParams.StockID || CrStocks?.ID
+    StockID: queryParams.StockID || CrStocks?.ID,
+    Private: queryParams.Private || true,
+    Type: queryParams.Type || 'N,X',
+    PayStatus: queryParams.PayStatus || '0',
+    UserID: queryParams.UserID || '',
+    ReceiverID: queryParams.ReceiverID || ''
   }
 
   const { data, isLoading, isPreviousData } = useQuery({
     queryKey: ['ListInventory', queryConfig],
     queryFn: async () => {
-      let { data } = await ProdsAPI.getListInventory(queryConfig)
+      let newQueryConfig = {
+        cmd: 'getie',
+        Pi: queryConfig.Pi,
+        Ps: queryConfig.Ps,
+        '(filter)StockID': queryConfig.StockID,
+        '(filter)Private': queryConfig.Private,
+        '(filter)Type': queryConfig.Type,
+        '(filter)PayStatus': queryConfig.PayStatus,
+        '(filter)UserID': queryConfig.UserID,
+        '(filter)ReceiverID': queryConfig.ReceiverID
+      }
+      let { data } = await ProdsAPI.getListInventory(newQueryConfig)
       return data?.data?.list || []
     },
     keepPreviousData: true
@@ -52,100 +61,88 @@ function Inventory(props) {
     () => [
       {
         key: 'ID',
-        title: 'ID',
+        title: 'Mã',
         dataKey: 'ID',
-        width: 100,
-        sortable: false
-      },
-      {
-        key: 'TypeText',
-        title: 'Hình ảnh',
-        dataKey: 'TypeText',
-        cellRenderer: ({ rowData }) => (
-          <div className="flex justify-center w-full">
-            <div className="border border-separator">
-              {rowData?.Thumbnail ? (
-                <ImageLazy
-                  wrapperClassName="object-cover w-16 h-16 !block"
-                  className="object-cover w-16 h-16"
-                  effect="blur"
-                  src={toAbsolutePath(rowData?.Thumbnail)}
-                  alt={rowData.Title}
-                />
-              ) : (
-                <svg
-                  className="w-16 h-16"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 1000 1000"
-                >
-                  <path fill="#fff" d="M0 0h1000v1000H0z" />
-                  <g opacity=".1">
-                    <path d="M566.64 267.54V237.6c0-6.74-5.46-12.2-12.2-12.2h-5.37v-68.2c0-6.74-5.46-12.2-12.2-12.2h-73.72c-6.74 0-12.2 5.46-12.2 12.2v68.18h-5.37c-6.74 0-12.2 5.46-12.2 12.2v29.94c-43.58 4.54-76.71 41.22-76.81 85.03v490.23c0 6.74 5.46 12.21 12.2 12.21h262.49c6.74 0 12.2-5.46 12.2-12.2V352.56c-.11-43.81-33.24-80.49-76.82-85.02zM500 166.48c15.23 0 27.58 12.35 27.58 27.58 0 15.23-12.35 27.58-27.58 27.58-15.23 0-27.58-12.35-27.58-27.58 0-15.23 12.35-27.58 27.58-27.58zm-42.23 83.32h84.46v17.33h-84.46V249.8zm161.27 580.79H380.96V352.56c.04-33.68 27.34-60.98 61.02-61.02h116.03c33.68.04 60.98 27.34 61.02 61.02v478.03z" />
-                    <path d="M419.04 406.1c-6.74 0-12.2 5.46-12.2 12.2v263.14c0 6.74 5.46 12.2 12.2 12.2s12.2-5.46 12.2-12.2V418.31c.01-6.74-5.46-12.21-12.2-12.21z" />
-                  </g>
-                </svg>
-              )}
-            </div>
-          </div>
-        ),
-        width: 100,
-        sortable: false
-        //align: 'center',
-      },
-      {
-        key: 'Title',
-        title: 'Tên sản phẩm',
-        dataKey: 'Title',
-        width: 300,
+        width: 180,
+        sortable: false,
         cellRenderer: ({ rowData }) => (
           <div>
-            <div className="font-semibold">{rowData.Title}</div>
-            <div className="text-sm">{rowData.ProdCode}</div>
+            <div className="font-semibold">{rowData.Code}</div>
+            <div className="text-xs bg-warning text-white inline-block px-1.5 py-px rounded">
+              #{rowData.ID}
+            </div>
           </div>
-        ),
+        )
+      },
+      {
+        key: 'CreateDate',
+        title: 'Ngày',
+        dataKey: 'CreateDate',
+        width: 200,
+        cellRenderer: ({ rowData }) =>
+          moment(rowData.CreateDate).format('HH:mm DD-MM-YYYY'),
         sortable: false
       },
       {
-        key: 'Unit',
-        title: 'Đơn vị',
-        dataKey: 'Unit',
-        width: 120,
-        cellRenderer: ({ rowData }) => <div>{rowData.Unit}</div>,
+        key: 'Type',
+        title: 'Loại',
+        dataKey: 'Type',
+        width: 135,
+        cellRenderer: ({ rowData }) =>
+          rowData.Type === 'N' ? 'Đơn Nhập' : 'Đơn Xuất',
         sortable: false
       },
       {
-        key: 'Qty',
-        title: 'Tồn PM',
-        dataKey: 'Qty',
-        width: 120,
-        cellRenderer: ({ rowData }) => <div>{rowData.Qty}</div>,
+        key: 'SourceTitle',
+        title: 'Cơ sở',
+        dataKey: 'SourceTitle',
+        width: 200,
+        cellRenderer: ({ rowData }) => rowData.SourceTitle,
         sortable: false
       },
       {
-        key: 'RealQty',
-        title: 'Tồn kho',
-        dataKey: 'RealQty',
-        width: 120,
-        cellRenderer: ({ rowData }) => <div>{rowData.RealQty}</div>,
+        key: 'SupplierText',
+        title: 'Nhà cung cấp',
+        dataKey: 'SupplierText',
+        width: 200,
+        cellRenderer: ({ rowData }) => rowData.SupplierText,
         sortable: false
       },
       {
         key: 'PriceBase',
-        title: 'Giá Cost',
+        title: 'Nhân viên thực hiện',
         dataKey: 'PriceBase',
+        width: 200,
+        cellRenderer: ({ rowData }) => rowData?.UserName,
+        sortable: false
+      },
+      {
+        key: 'Total',
+        title: 'Tổng giá trị',
+        dataKey: 'Total',
         width: 180,
         cellRenderer: ({ rowData }) => (
-          <div>{formatString.formatVND(rowData?.PriceBase)}</div>
+          <div>{formatString.formatVND(rowData?.Total)}</div>
         ),
         sortable: false
       },
       {
-        key: 'PriceBase*Qty',
-        title: 'Giá trị tồn',
-        dataKey: 'PriceBase*Qty',
+        key: 'ToPay',
+        title: 'Đã thanh toán',
+        dataKey: 'ToPay',
         width: 180,
         cellRenderer: ({ rowData }) => (
-          <div>{formatString.formatVND(rowData?.PriceBase * rowData?.Qty)}</div>
+          <div>{formatString.formatVND(rowData?.ToPay)}</div>
+        ),
+        sortable: false
+      },
+      {
+        key: 'Total-ToPay',
+        title: 'Còn lại',
+        dataKey: 'Total-ToPay',
+        width: 180,
+        cellRenderer: ({ rowData }) => (
+          <div>{formatString.formatVND(rowData?.Total - rowData?.ToPay)}</div>
         ),
         sortable: false
       },
@@ -153,25 +150,59 @@ function Inventory(props) {
         key: 'Action',
         title: '#',
         dataKey: 'Action',
-        headerClassNames: () => 'justify-center adad',
+        headerClassNames: () => 'justify-center',
         width: 80,
         cellRenderer: ({ rowData }) => (
-          <PickerInventory
-            item={rowData}
-            StockID={queryConfig['(filter)StockID']}
-          >
-            {({ open }) => (
-              <div className="flex justify-center w-full">
+          <div className="flex justify-center w-full">
+            <DropdownMenu
+              trigger={
                 <button
                   type="button"
                   className="bg-primary hover:bg-primaryhv text-white mx-[2px] text-sm cursor-pointer p-2.5 transition rounded-full"
-                  onClick={open}
                 >
                   <ArrowRightIcon className="w-5" />
                 </button>
+              }
+            >
+              <div>
+                <NavLink
+                  to={{
+                    pathname: 'list-category/sp'
+                  }}
+                  className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                >
+                  Xem chi tiết
+                </NavLink>
               </div>
-            )}
-          </PickerInventory>
+              <div>
+                <button
+                  type="button"
+                  className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                >
+                  In đơn
+                </button>
+              </div>
+              <div>
+                <NavLink
+                  to={{
+                    pathname: 'list-category/sp'
+                  }}
+                  className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                >
+                  Thanh toán
+                </NavLink>
+              </div>
+              <div>
+                <button
+                  type="button"
+                  className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                  onClick={() => console.log('Delete')}
+                >
+                  Xóa đơn
+                </button>
+              </div>
+            </DropdownMenu>
+          </div>
         ),
         sortable: false,
         frozen: 'right',
@@ -187,11 +218,9 @@ function Inventory(props) {
       <div className="flex items-end justify-between mb-5">
         <div>
           <div className="text-3xl font-bold dark:text-white">
-            Kho & hàng tồn
+            Đơn nhập xuất
           </div>
-          <div className="mt-1.5">
-            Quản lý sản phẩm còn hết của bạn trong kho
-          </div>
+          <div className="mt-1.5">Quản lý tất cả các đơn nhập - xuất</div>
         </div>
         <div className="flex pb-1">
           <NavLink
@@ -223,7 +252,7 @@ function Inventory(props) {
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Menu.Items className="z-[1001] absolute rounded px-0 py-2 border-0 w-[250px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow">
+              <Menu.Items className="z-[1001] absolute rounded px-0 py-2 border-0 w-[180px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow">
                 <div>
                   <Menu.Item>
                     <NavLink
@@ -232,7 +261,7 @@ function Inventory(props) {
                       }}
                       className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
                     >
-                      Đơn nhập kho
+                      Đơn nhập
                     </NavLink>
                   </Menu.Item>
                   <Menu.Item>
@@ -242,7 +271,7 @@ function Inventory(props) {
                       }}
                       className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
                     >
-                      Đơn xuất kho
+                      Đơn xuất
                     </NavLink>
                   </Menu.Item>
                   <Menu.Item>
@@ -252,17 +281,7 @@ function Inventory(props) {
                       }}
                       className="w-full text-[15px] flex flex-col px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
                     >
-                      Xuất kho làm nguyên liệu
-                    </NavLink>
-                  </Menu.Item>
-                  <Menu.Item>
-                    <NavLink
-                      to={{
-                        pathname: 'list-category/nh'
-                      }}
-                      className="w-full text-[15px] flex flex-col px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
-                    >
-                      Xuất chuyển đổi cơ sở
+                      Nhận đơn
                     </NavLink>
                   </Menu.Item>
                 </div>
@@ -305,10 +324,13 @@ function Inventory(props) {
             ).toString()
           })
         }}
+        rowClassName={({ rowData }) =>
+          rowData.Type === 'X' && '!bg-danger !text-white'
+        }
       />
       <Outlet />
     </div>
   )
 }
 
-export default Inventory
+export default ImportExport

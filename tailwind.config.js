@@ -103,6 +103,7 @@ module.exports = withMT({
       separator: '#F4F4F4',
       danger: '#F64E60',
       dangerhv: '#EE2D41',
+      dangerlight: '#FFE2E5',
       success: '#1bc5bd',
       light: '#EBEDF3',
       warning: '#FFA800',
