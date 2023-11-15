@@ -9,24 +9,46 @@ import {
 import useEscape from 'src/_ezs/hooks/useEscape'
 import { m } from 'framer-motion'
 import { ArrowSmallLeftIcon, XMarkIcon } from '@heroicons/react/24/outline'
-import { Input } from 'src/_ezs/partials/forms'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import { Button } from 'src/_ezs/partials/button'
 import {
-  SelectCategories,
-  SelectStocksWareHouse
+  SelectStocksWareHouse,
+  SelectSupplier,
+  SelectUserAdmin
 } from 'src/_ezs/partials/select'
 import { Switch } from '@headlessui/react'
 import clsx from 'clsx'
-import { useAuth } from 'src/_ezs/core/Auth'
+import Select from 'react-select'
+import { Input } from 'src/_ezs/partials/forms'
 
 const perfectScrollbarOptions = {
   wheelSpeed: 2,
   wheelPropagation: false
 }
 
+const ListType = [
+  {
+    label: 'Đơn nhập',
+    value: 'N'
+  },
+  {
+    label: 'Đơn xuất',
+    value: 'X'
+  }
+]
+
+const ListPayStatus = [
+  {
+    label: 'Đã Thanh toán hết',
+    value: '1'
+  },
+  {
+    label: 'Chưa Thanh toán hết',
+    value: '2'
+  }
+]
+
 function InventoryFilters(props) {
-  const { CrStocks } = useAuth()
   const { search, state, pathname } = useLocation()
   const navigate = useNavigate()
 
@@ -38,27 +60,7 @@ function InventoryFilters(props) {
   )
 
   const { control, handleSubmit } = useForm({
-    defaultValues: state?.queryConfig
-      ? {
-          ...state?.queryConfig,
-          RootTypeID: state?.queryConfig?.RootTypeID
-            ? state?.queryConfig?.RootTypeID.split(',')
-            : '',
-          manus: state?.queryConfig?.manus
-            ? state?.queryConfig?.manus.split(',')
-            : ''
-        }
-      : {
-          cmd: 'prodinstock',
-          Pi: 1,
-          Ps: 15,
-          Only: true,
-          RootTypeID: '',
-          manus: '',
-          StockID: CrStocks?.ID,
-          Key: '',
-          NotDelv: true
-        }
+    defaultValues: { ...state?.queryConfig }
   })
 
   const onSubmit = values => {
@@ -66,9 +68,7 @@ function InventoryFilters(props) {
       pathname: state?.prevFrom || pathname.replaceAll('/filters', ''),
       search: createSearchParams({
         ...values,
-        Pi: 1,
-        RootTypeID: values.RootTypeID ? values.RootTypeID.toString() : '',
-        manus: values.manus ? values.manus.toString() : ''
+        Pi: 1
       }).toString()
     })
   }
@@ -126,23 +126,6 @@ function InventoryFilters(props) {
               className="relative p-5 grow"
             >
               <div className="mb-3.5">
-                <div className="font-medium">Từ khóa</div>
-                <div className="mt-1">
-                  <Controller
-                    name="Key"
-                    control={control}
-                    render={({ field: { ref, ...field }, fieldState }) => (
-                      <Input
-                        placeholder="e.g Kem dưỡng"
-                        autoComplete="off"
-                        type="text"
-                        {...field}
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mb-3.5">
                 <div className="font-medium">Cơ sở</div>
                 <div className="mt-1">
                   <Controller
@@ -168,22 +151,21 @@ function InventoryFilters(props) {
                 </div>
               </div>
               <div className="mb-3.5">
-                <div className="font-medium">Danh mục</div>
+                <div className="font-semibold">Loại</div>
                 <div className="mt-1">
                   <Controller
-                    name="RootTypeID"
+                    name="Type"
                     control={control}
                     render={({ field: { ref, ...field }, fieldState }) => (
-                      <SelectCategories
-                        isMulti
-                        allOptions={true}
+                      <Select
                         isClearable
-                        value={field.value}
-                        onChange={val =>
-                          field.onChange(val ? val.map(x => x.value) : [])
-                        }
-                        Type="SP,NVL"
-                        className="select-control"
+                        classNamePrefix="select"
+                        options={ListType}
+                        className="select-control mb-8px"
+                        placeholder="Chọn loại"
+                        value={ListType.filter(x => x.value === field.value)}
+                        onChange={val => field.onChange(val?.value || '')}
+                        menuPortalTarget={document.body}
                         menuPosition="fixed"
                         styles={{
                           menuPortal: base => ({
@@ -191,31 +173,41 @@ function InventoryFilters(props) {
                             zIndex: 9999
                           })
                         }}
-                        menuPortalTarget={document.body}
-                        placeholder="Chọn danh mục"
-                        noOptionsMessage={() => 'Danh mục trống.'}
-                        isValidNewOption={() => false}
                       />
                     )}
                   />
                 </div>
               </div>
               <div className="mb-3.5">
-                <div className="font-medium">Nhãn hàng</div>
+                <div className="font-medium">Mã đơn</div>
                 <div className="mt-1">
                   <Controller
-                    name="manus"
+                    name="Key"
                     control={control}
                     render={({ field: { ref, ...field }, fieldState }) => (
-                      <SelectCategories
-                        isMulti
+                      <Input
+                        placeholder="Nhập mã đơn"
+                        autoComplete="off"
+                        type="text"
+                        {...field}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+              <div className="mb-3.5">
+                <div className="font-semibold">Nhà cung cấp, đại lý</div>
+                <div className="mt-1">
+                  <Controller
+                    name="SupplierID"
+                    control={control}
+                    render={({ field: { ref, ...field }, fieldState }) => (
+                      <SelectSupplier
                         isClearable
+                        className="select-control mb-8px"
                         value={field.value}
-                        onChange={val =>
-                          field.onChange(val ? val.map(x => x.value) : [])
-                        }
-                        Type="NH"
-                        className="select-control"
+                        onChange={val => field.onChange(val?.value || '')}
+                        menuPortalTarget={document.body}
                         menuPosition="fixed"
                         styles={{
                           menuPortal: base => ({
@@ -223,10 +215,59 @@ function InventoryFilters(props) {
                             zIndex: 9999
                           })
                         }}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+              <div className="mb-3.5">
+                <div className="font-medium">Nhân viên</div>
+                <Controller
+                  name="UserID"
+                  control={control}
+                  render={({ field: { ref, ...field }, fieldState }) => (
+                    <SelectUserAdmin
+                      className="select-control"
+                      isClearable
+                      value={field.value}
+                      onChange={val => field.onChange(val?.value || '')}
+                      menuPortalTarget={document.body}
+                      menuPosition="fixed"
+                      styles={{
+                        menuPortal: base => ({
+                          ...base,
+                          zIndex: 9999
+                        })
+                      }}
+                    />
+                  )}
+                />
+              </div>
+              <div className="mb-3.5">
+                <div className="font-semibold">Tình trạng thánh toán</div>
+                <div className="mt-1">
+                  <Controller
+                    name="PayStatus"
+                    control={control}
+                    render={({ field: { ref, ...field }, fieldState }) => (
+                      <Select
+                        isClearable
+                        classNamePrefix="select"
+                        options={ListPayStatus}
+                        className="select-control mb-8px"
+                        placeholder="Chọn tình trạng"
+                        value={ListPayStatus.filter(
+                          x => x.value === field.value
+                        )}
+                        onChange={val => field.onChange(val?.value || '')}
                         menuPortalTarget={document.body}
-                        placeholder="Chọn nhãn hàng"
-                        noOptionsMessage={() => 'Chưa có nhãn hàng.'}
-                        isValidNewOption={() => false}
+                        menuPosition="fixed"
+                        styles={{
+                          menuPortal: base => ({
+                            ...base,
+                            zIndex: 9999
+                          })
+                        }}
                       />
                     )}
                   />
@@ -235,19 +276,18 @@ function InventoryFilters(props) {
               <div>
                 <div className="flex items-center justify-between">
                   <div className="font-medium text-[15px]">
-                    Cần giao / Nhập lại
+                    Hiển thị chuyển đổi nội bộ
                   </div>
                   <Controller
-                    name="NotDelv"
+                    name="Private"
                     control={control}
                     render={({ field }) => (
                       <Switch
-                        checked={field.value}
-                        onChange={val => field.onChange(val)}
+                        checked={Number(field.value) === 1}
+                        onChange={val => field.onChange(val ? 1 : 0)}
                         as={Fragment}
                       >
                         {({ checked }) => (
-                          /* Use the `checked` state to conditionally style the button. */
                           <button
                             className={clsx(
                               'relative inline-flex h-6 w-11 items-center rounded-full transition',

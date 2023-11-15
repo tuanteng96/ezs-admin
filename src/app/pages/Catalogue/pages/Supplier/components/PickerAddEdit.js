@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { m } from 'framer-motion'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { Controller, useForm } from 'react-hook-form'
@@ -11,7 +11,6 @@ import * as yup from 'yup'
 import { Button } from 'src/_ezs/partials/button'
 import { FloatingPortal } from '@floating-ui/react'
 import ProdsAPI from 'src/_ezs/api/prods.api'
-import { useEffect } from 'react'
 
 const schemaAddEdit = yup
   .object({

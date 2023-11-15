@@ -6,8 +6,7 @@ import {
 } from '@heroicons/react/24/outline'
 import { useQuery } from '@tanstack/react-query'
 import { identity, pickBy } from 'lodash-es'
-import React, { Fragment } from 'react'
-import { useMemo } from 'react'
+import React, { Fragment, useMemo } from 'react'
 import {
   NavLink,
   Outlet,
@@ -34,15 +33,29 @@ function Inventory(props) {
     cmd: 'prodinstock',
     Pi: queryParams.Pi || 1,
     Ps: queryParams.Ps || 15,
-    '(filter)Only': queryParams.Only || true,
-    '(filter)RootTypeID': queryParams.RootTypeID || 794,
-    '(filter)StockID': queryParams.StockID || CrStocks?.ID
+    Only: queryParams.Only || true,
+    RootTypeID: queryParams.RootTypeID || '',
+    manus: queryParams.manus || '',
+    StockID: 'StockID' in queryParams ? queryParams.StockID : CrStocks?.ID,
+    Key: queryParams.Key || '',
+    NotDelv: queryParams.NotDelv || true
   }
 
   const { data, isLoading, isPreviousData } = useQuery({
     queryKey: ['ListInventory', queryConfig],
     queryFn: async () => {
-      let { data } = await ProdsAPI.getListInventory(queryConfig)
+      let newQueryConfig = {
+        cmd: queryConfig.cmd,
+        Pi: queryConfig.Pi,
+        Ps: queryConfig.Ps,
+        manus: queryConfig.manus,
+        '(filter)Only': queryConfig.Only,
+        '(filter)RootTypeID': queryConfig.RootTypeID,
+        '(filter)StockID': queryConfig.StockID,
+        '(filter)key': queryConfig.Key,
+        '(filter)NotDelv': queryConfig.NotDelv
+      }
+      let { data } = await ProdsAPI.getListInventory(newQueryConfig)
       return data?.data?.list || []
     },
     keepPreviousData: true
@@ -281,7 +294,7 @@ function Inventory(props) {
         emptyRenderer={() =>
           !isLoading && (
             <div className="flex items-center justify-center h-full">
-              Không có dữ liệu
+              Không có dữ liệu.
             </div>
           )
         }

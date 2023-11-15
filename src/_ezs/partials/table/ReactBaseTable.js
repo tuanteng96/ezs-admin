@@ -84,16 +84,20 @@ function ReactBaseTable({
                 />
               )}
               emptyRenderer={() =>
-                !loading && emptyRenderer ? (
-                  emptyRenderer
-                ) : (
-                  <div className="flex flex-col items-center justify-center h-full dark:bg-dark-aside">
-                    <img
-                      className="w-auto max-w-[350px]"
-                      src={toAbsoluteUrl('/assets/svg/sketchy/4.png')}
-                      alt="EZS - Phần mềm quản lý Spa"
-                    />
-                  </div>
+                !loading && (
+                  <>
+                    {emptyRenderer ? (
+                      <>{emptyRenderer()}</>
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-full dark:bg-dark-aside">
+                        <img
+                          className="w-auto max-w-[350px]"
+                          src={toAbsoluteUrl('/assets/svg/sketchy/4.png')}
+                          alt="EZS - Phần mềm quản lý Spa"
+                        />
+                      </div>
+                    )}
+                  </>
                 )
               }
               rowRenderer={rowRenderer}

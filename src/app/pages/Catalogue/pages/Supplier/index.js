@@ -5,11 +5,8 @@ import {
 } from '@heroicons/react/24/outline'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { identity, pickBy } from 'lodash-es'
-import React from 'react'
-import { useMemo } from 'react'
+import React, { useMemo, Fragment } from 'react'
 import {
-  NavLink,
-  Navigate,
   Outlet,
   createSearchParams,
   useLocation,
@@ -24,13 +21,12 @@ import { Button } from 'src/_ezs/partials/button'
 import Swal from 'sweetalert2'
 import { toast } from 'react-toastify'
 import { Menu, Transition } from '@headlessui/react'
-import { Fragment } from 'react'
 import clsx from 'clsx'
 
 function Supplier(props) {
   const { CrStocks } = useAuth()
   const navigate = useNavigate()
-  const { pathname, search } = useLocation()
+  const { pathname } = useLocation()
   const queryParams = useQueryParams()
 
   const queryConfig = {
@@ -259,7 +255,7 @@ function Supplier(props) {
         emptyRenderer={() =>
           !isLoading && (
             <div className="flex items-center justify-center h-full">
-              Không có dữ liệu
+              Không có dữ liệu.
             </div>
           )
         }

@@ -266,7 +266,7 @@ function SalesKPI(props) {
                                   isClearable
                                   value={field.value}
                                   onChange={val => {
-                                    field.onChange(val)
+                                    field.onChange(val?.value || '')
                                     setValue(`updateList[${index}].Configs`, [
                                       {
                                         StockID: '',

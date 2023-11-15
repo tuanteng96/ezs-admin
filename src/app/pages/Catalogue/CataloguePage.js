@@ -10,6 +10,9 @@ const CategoryAdd = lazy(() => import('./pages/Category/CategoryAdd'))
 const Inventory = lazy(() => import('./pages/Inventory'))
 const InventoryFilters = lazy(() => import('./pages/Inventory/pages/Filters'))
 const ImportExport = lazy(() => import('./pages/ImportExport'))
+const ImportExportFilters = lazy(() =>
+  import('./pages/ImportExport/pages/Filters')
+)
 const Supplier = lazy(() => import('./pages/Supplier'))
 
 function CataloguePage(props) {
@@ -133,7 +136,9 @@ function CataloguePage(props) {
               <ImportExport />
             </SuspensedView>
           }
-        ></Route>
+        >
+          <Route path="filters" element={<ImportExportFilters />}></Route>
+        </Route>
         <Route
           path="supplier"
           element={

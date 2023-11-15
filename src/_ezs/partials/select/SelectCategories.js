@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { isArray } from 'lodash-es'
 import React from 'react'
 import CreatableSelect from 'react-select/creatable'
 import ProdsAPI from 'src/_ezs/api/prods.api'
@@ -20,7 +21,7 @@ const getNameType = type => {
   }
 }
 
-function SelectCategoryProds({ Type, allOptions = false, ...props }) {
+function SelectCategories({ Type, allOptions = false, value, ...props }) {
   const { data, isLoading } = useQuery({
     queryKey: ['ListCategory-products', Type],
     queryFn: async () => {
@@ -79,16 +80,48 @@ function SelectCategoryProds({ Type, allOptions = false, ...props }) {
     enabled: Boolean(Type)
   })
 
+  const getValue = value => {
+    if (!data || !value) return null
+    let isChildren = data.some(x => 'options' in x)
+    let rs = []
+    if (isChildren) {
+      for (let x of data) {
+        if (x.options && x.options.length > 0) {
+          for (let option of x.options) {
+            if (isArray(value)) {
+              let index = value.findIndex(v => Number(v) === option.value)
+              if (index > -1) rs.push(option)
+            } else {
+              if (option.value === Number(value)) rs.push(option)
+            }
+          }
+        }
+      }
+    } else {
+      if (isArray(value)) {
+        for (let v of value) {
+          let index = data.findIndex(x => Number(v) === x.value)
+          if (index > -1) rs.push(data[index])
+        }
+      } else {
+        let index = data.findIndex(x => Number(value) === x.value)
+        if (index > -1) rs.push(data[index])
+      }
+    }
+    return rs
+  }
+
   return (
     <div>
       <CreatableSelect
         isLoading={isLoading}
         classNamePrefix="select"
         options={data}
+        value={getValue(value)}
         {...props}
       />
     </div>
   )
 }
 
-export { SelectCategoryProds }
+export { SelectCategories }

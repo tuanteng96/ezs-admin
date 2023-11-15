@@ -29,12 +29,14 @@ function ImportExport(props) {
     cmd: 'getie',
     Pi: queryParams.Pi || 1,
     Ps: queryParams.Ps || 15,
-    StockID: queryParams.StockID || CrStocks?.ID,
-    Private: queryParams.Private || true,
-    Type: queryParams.Type || 'N,X',
-    PayStatus: queryParams.PayStatus || '0',
+    StockID: 'StockID' in queryParams ? queryParams.StockID : CrStocks?.ID,
+    Private: queryParams.Private || 1,
+    Type: queryParams.Type || '',
+    PayStatus: queryParams.PayStatus || '',
     UserID: queryParams.UserID || '',
-    ReceiverID: queryParams.ReceiverID || ''
+    ReceiverID: queryParams.ReceiverID || '',
+    Key: queryParams.Key || '',
+    SupplierID: queryParams.SupplierID || ''
   }
 
   const { data, isLoading, isPreviousData } = useQuery({
@@ -44,12 +46,14 @@ function ImportExport(props) {
         cmd: 'getie',
         Pi: queryConfig.Pi,
         Ps: queryConfig.Ps,
+        '(filter)key': queryConfig.Key,
         '(filter)StockID': queryConfig.StockID,
         '(filter)Private': queryConfig.Private,
-        '(filter)Type': queryConfig.Type,
-        '(filter)PayStatus': queryConfig.PayStatus,
+        '(filter)Type': queryConfig.Type || 'N,X',
+        '(filter)PayStatus': queryConfig.PayStatus || '0',
         '(filter)UserID': queryConfig.UserID,
-        '(filter)ReceiverID': queryConfig.ReceiverID
+        '(filter)ReceiverID': queryConfig.ReceiverID,
+        '(filter)SupplierID': queryConfig.SupplierID
       }
       let { data } = await ProdsAPI.getListInventory(newQueryConfig)
       return data?.data?.list || []
@@ -300,7 +304,7 @@ function ImportExport(props) {
         emptyRenderer={() =>
           !isLoading && (
             <div className="flex items-center justify-center h-full">
-              Không có dữ liệu
+              Không có dữ liệu.
             </div>
           )
         }
