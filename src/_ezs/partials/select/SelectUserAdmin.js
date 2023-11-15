@@ -75,6 +75,7 @@ const SelectUserAdmin = ({
     },
     onSuccess: () => {}
   })
+
   return (
     <div>
       <Select
@@ -87,7 +88,7 @@ const SelectUserAdmin = ({
                   x => value && value.includes(x.value)
                 )
               : null
-            : ListUsers?.data?.dataList?.filter(x => x.value === Number(value))
+            : value
         }
         classNamePrefix="select"
         options={[...allOption, ...(ListUsers?.data?.data || [])].filter(

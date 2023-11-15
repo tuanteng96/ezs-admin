@@ -23,6 +23,7 @@ function UserKPI({ indexUser }) {
   })
   const watchConfigs = watch() //`updateList[${indexUser}].Configs`, fields
   const watchUserID = watch(`updateList[${indexUser}].UserID`)
+
   const columns = useMemo(
     () => [
       {
@@ -302,7 +303,10 @@ function UserKPI({ indexUser }) {
                   insert(rowIndex + 1, {
                     StockID:
                       Configs && Configs.length > 0 ? Configs[0].StockID : '',
-                    UserIDs: [UserID?.value || ''],
+                    UserIDs:
+                      UserID?.value !== -1 && UserID?.value !== -2
+                        ? [UserID?.value || '']
+                        : [],
                     Threshold1: '',
                     Threshold2: '',
                     ProdTypes: '',

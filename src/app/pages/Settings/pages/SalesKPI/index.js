@@ -18,10 +18,10 @@ import clsx from 'clsx'
 import { UserKPI } from './components/UserKPI/UserKPI'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import SettingsAPI from 'src/_ezs/api/settings.api'
-import { toast } from 'react-toastify'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
 import Select from 'react-select'
 import { toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
+import { toast } from 'react-toastify'
 
 const getStockName = (Stocks, StockID) => {
   if (!StockID) return ''
@@ -186,14 +186,14 @@ function SalesKPI(props) {
               />
               <Button
                 type="button"
-                className="relative flex items-center h-[50px] px-4 font-medium text-white transition rounded shadow-lg bg-success hover:bg-success focus:outline-none focus:shadow-none disabled:opacity-70 mr-2"
+                className="relative flex items-center h-12 px-4 mr-2 font-medium text-white transition rounded shadow-lg bg-success hover:bg-success focus:outline-none focus:shadow-none disabled:opacity-70"
                 onClick={() =>
                   insert(0, {
                     UserID: '',
                     Configs: [
                       {
                         StockID: '',
-                        UserIDs: '',
+                        UserIDs: [],
                         Threshold1: '',
                         Threshold2: '',
                         ProdTypes: [{ value: -1, label: 'Tất cả' }],
@@ -208,7 +208,7 @@ function SalesKPI(props) {
               <Button
                 hideText={updateKPIMutation.isLoading}
                 type="sumbit"
-                className="relative flex items-center h-[50px] px-4 font-medium text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70 w-32"
+                className="relative flex items-center w-32 h-12 px-4 font-medium text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
                 loading={updateKPIMutation.isLoading}
                 disabled={updateKPIMutation.isLoading}
               >
@@ -266,7 +266,7 @@ function SalesKPI(props) {
                                   isClearable
                                   value={field.value}
                                   onChange={val => {
-                                    field.onChange(val?.value || '')
+                                    field.onChange(val)
                                     setValue(`updateList[${index}].Configs`, [
                                       {
                                         StockID: '',
@@ -275,7 +275,7 @@ function SalesKPI(props) {
                                           val?.value !== -1 &&
                                           val?.value !== -2
                                             ? [val?.value]
-                                            : '',
+                                            : [],
                                         Threshold1: '',
                                         Threshold2: '',
                                         ProdTypes: [
