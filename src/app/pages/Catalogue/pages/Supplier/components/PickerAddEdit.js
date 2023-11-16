@@ -188,7 +188,7 @@ function PickerAddEdit({ children, data }) {
                             className="select-control mb-8px"
                             placeholder="Chọn loại"
                             value={field.value}
-                            onChange={val => field.onChange(val?.value || '')}
+                            onChange={val => field.onChange(val)}
                           />
                         )}
                       />
