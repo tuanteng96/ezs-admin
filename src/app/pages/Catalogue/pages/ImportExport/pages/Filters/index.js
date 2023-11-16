@@ -14,7 +14,7 @@ import { Button } from 'src/_ezs/partials/button'
 import {
   SelectStocksWareHouse,
   SelectSupplier,
-  SelectUserAdmin
+  SelectUsers
 } from 'src/_ezs/partials/select'
 import { Switch } from '@headlessui/react'
 import clsx from 'clsx'
@@ -226,7 +226,7 @@ function InventoryFilters(props) {
                   name="UserID"
                   control={control}
                   render={({ field: { ref, ...field }, fieldState }) => (
-                    <SelectUserAdmin
+                    <SelectUsers
                       className="select-control"
                       isClearable
                       value={field.value}

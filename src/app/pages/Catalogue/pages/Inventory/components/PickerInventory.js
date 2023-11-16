@@ -6,7 +6,7 @@ import { m } from 'framer-motion'
 import moment from 'moment'
 import React, { useMemo, useState } from 'react'
 import { toast } from 'react-toastify'
-import ProdsAPI from 'src/_ezs/api/prods.api'
+import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { Button } from 'src/_ezs/partials/button'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 
@@ -14,7 +14,7 @@ const ButtonAction = ({ item }) => {
   const queryClient = useQueryClient()
 
   const updateMutation = useMutation({
-    mutationFn: body => ProdsAPI.getListInventory(body)
+    mutationFn: body => WarehouseAPI.getListInventory(body)
   })
 
   const onSubmit = () => {
@@ -67,8 +67,11 @@ function PickerInventory({ children, item, StockID }) {
   const { data, isLoading, isPreviousData } = useQuery({
     queryKey: ['ListInventoryProdID', filters],
     queryFn: async () => {
-      let { data } = await ProdsAPI.getListInventory(filters)
-      return data?.data?.list || []
+      let { data } = await WarehouseAPI.getListInventory(filters)
+      return {
+        data: data?.data?.list || [],
+        PCount: data?.data?.PCount || 1
+      }
     },
     keepPreviousData: true,
     enabled: visible
@@ -176,7 +179,7 @@ function PickerInventory({ children, item, StockID }) {
                   paginationClassName="flex items-center justify-between w-full px-6 pb-6"
                   rowKey="ID"
                   columns={columns}
-                  data={data || []}
+                  data={data?.data || []}
                   estimatedRowHeight={96}
                   emptyRenderer={() =>
                     !isLoading && (
@@ -187,7 +190,7 @@ function PickerInventory({ children, item, StockID }) {
                   }
                   isPreviousData={isPreviousData}
                   loading={isLoading || isPreviousData}
-                  pageCount={data?.data?.pcount}
+                  pageCount={data?.PCount}
                   pageOffset={Number(filters.Pi)}
                   pageSizes={Number(filters.Ps)}
                   onChange={({ pageIndex, pageSize }) => {

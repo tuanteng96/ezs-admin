@@ -12,7 +12,7 @@ import { Fragment } from 'react'
 import { useMemo } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { NavLink, createSearchParams } from 'react-router-dom'
-import ProdsAPI from 'src/_ezs/api/prods.api'
+import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useAuth } from 'src/_ezs/core/Auth'
 import useQueryParams from 'src/_ezs/hooks/useQueryParams'
 import { DropdownMenu } from 'src/_ezs/partials/dropdown'
@@ -55,8 +55,11 @@ function ImportExport(props) {
         '(filter)ReceiverID': queryConfig.ReceiverID,
         '(filter)SupplierID': queryConfig.SupplierID
       }
-      let { data } = await ProdsAPI.getListInventory(newQueryConfig)
-      return data?.data?.list || []
+      let { data } = await WarehouseAPI.getListInventory(newQueryConfig)
+      return {
+        data: data?.data?.list || [],
+        PCount: data?.data?.PCount || 1
+      }
     },
     keepPreviousData: true
   })
@@ -256,7 +259,7 @@ function ImportExport(props) {
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Menu.Items className="z-[1001] absolute rounded px-0 py-2 border-0 w-[180px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow">
+              <Menu.Items className="z-[1001] absolute rounded px-0 py-2 border-0 w-[225px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow">
                 <div>
                   <Menu.Item>
                     <NavLink
@@ -265,7 +268,7 @@ function ImportExport(props) {
                       }}
                       className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
                     >
-                      Đơn nhập
+                      Đơn nhập kho
                     </NavLink>
                   </Menu.Item>
                   <Menu.Item>
@@ -275,7 +278,21 @@ function ImportExport(props) {
                       }}
                       className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
                     >
-                      Đơn xuất
+                      Đơn xuất kho
+                    </NavLink>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <NavLink
+                      to={{
+                        pathname: 'material-conversion',
+                        search: search
+                      }}
+                      state={{
+                        prevFrom: pathname
+                      }}
+                      className="w-full text-[15px] flex flex-col px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                    >
+                      Xuất kho làm nguyên liệu
                     </NavLink>
                   </Menu.Item>
                   <Menu.Item>
@@ -285,7 +302,7 @@ function ImportExport(props) {
                       }}
                       className="w-full text-[15px] flex flex-col px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
                     >
-                      Nhận đơn
+                      Xuất chuyển đổi cơ sở
                     </NavLink>
                   </Menu.Item>
                 </div>
@@ -299,7 +316,7 @@ function ImportExport(props) {
         wrapClassName="grow"
         rowKey="ID"
         columns={columns}
-        data={data || []}
+        data={data?.data || []}
         estimatedRowHeight={96}
         emptyRenderer={() =>
           !isLoading && (
@@ -310,7 +327,7 @@ function ImportExport(props) {
         }
         isPreviousData={isPreviousData}
         loading={isLoading || isPreviousData}
-        pageCount={data?.data?.pcount}
+        pageCount={data?.PCount}
         pageOffset={Number(queryConfig.Pi)}
         pageSizes={Number(queryConfig.Ps)}
         onChange={({ pageIndex, pageSize }) => {

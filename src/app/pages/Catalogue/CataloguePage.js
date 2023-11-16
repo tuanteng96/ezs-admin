@@ -13,6 +13,10 @@ const ImportExport = lazy(() => import('./pages/ImportExport'))
 const ImportExportFilters = lazy(() =>
   import('./pages/ImportExport/pages/Filters')
 )
+const ImportExportMaterial = lazy(() =>
+  import('./pages/ImportExport/pages/MaterialConversion')
+)
+
 const Supplier = lazy(() => import('./pages/Supplier'))
 
 function CataloguePage(props) {
@@ -138,6 +142,10 @@ function CataloguePage(props) {
           }
         >
           <Route path="filters" element={<ImportExportFilters />}></Route>
+          <Route
+            path="material-conversion"
+            element={<ImportExportMaterial />}
+          ></Route>
         </Route>
         <Route
           path="supplier"

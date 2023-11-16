@@ -1,12 +1,10 @@
-import { Menu, Transition } from '@headlessui/react'
 import {
   AdjustmentsVerticalIcon,
-  ArrowRightIcon,
-  ChevronDownIcon
+  ArrowRightIcon
 } from '@heroicons/react/24/outline'
 import { useQuery } from '@tanstack/react-query'
 import { identity, pickBy } from 'lodash-es'
-import React, { Fragment, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import {
   NavLink,
   Outlet,
@@ -14,7 +12,6 @@ import {
   useLocation,
   useNavigate
 } from 'react-router-dom'
-import ProdsAPI from 'src/_ezs/api/prods.api'
 import useQueryParams from 'src/_ezs/hooks/useQueryParams'
 import { ImageLazy } from 'src/_ezs/partials/images'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
@@ -22,6 +19,7 @@ import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
 import { formatString } from 'src/_ezs/utils/formatString'
 import { PickerInventory } from './components'
 import { useAuth } from 'src/_ezs/core/Auth'
+import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 
 function Inventory(props) {
   const { CrStocks } = useAuth()
@@ -55,8 +53,11 @@ function Inventory(props) {
         '(filter)key': queryConfig.Key,
         '(filter)NotDelv': queryConfig.NotDelv
       }
-      let { data } = await ProdsAPI.getListInventory(newQueryConfig)
-      return data?.data?.list || []
+      let { data } = await WarehouseAPI.getListInventory(newQueryConfig)
+      return {
+        data: data?.data?.list || [],
+        PCount: data?.data?.PCount || 1
+      }
     },
     keepPreviousData: true
   })
@@ -220,68 +221,6 @@ function Inventory(props) {
           >
             <AdjustmentsVerticalIcon className="w-7" />
           </NavLink>
-          <Menu as="div" className="relative mr-2.5">
-            <div>
-              <Menu.Button className="flex items-center relative h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70">
-                Thêm mới
-                <ChevronDownIcon
-                  className="w-5 h-5 ml-2 -mr-1 text-violet-200 hover:text-violet-100"
-                  aria-hidden="true"
-                />
-              </Menu.Button>
-            </div>
-            <Transition
-              as={Fragment}
-              leave="transition ease-in duration-100"
-              leaveFrom="opacity-100"
-              leaveTo="opacity-0"
-            >
-              <Menu.Items className="z-[1001] absolute rounded px-0 py-2 border-0 w-[250px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow">
-                <div>
-                  <Menu.Item>
-                    <NavLink
-                      to={{
-                        pathname: 'list-category/sp'
-                      }}
-                      className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
-                    >
-                      Đơn nhập kho
-                    </NavLink>
-                  </Menu.Item>
-                  <Menu.Item>
-                    <NavLink
-                      to={{
-                        pathname: 'list-category/nh'
-                      }}
-                      className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
-                    >
-                      Đơn xuất kho
-                    </NavLink>
-                  </Menu.Item>
-                  <Menu.Item>
-                    <NavLink
-                      to={{
-                        pathname: 'list-category/nh'
-                      }}
-                      className="w-full text-[15px] flex flex-col px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
-                    >
-                      Xuất kho làm nguyên liệu
-                    </NavLink>
-                  </Menu.Item>
-                  <Menu.Item>
-                    <NavLink
-                      to={{
-                        pathname: 'list-category/nh'
-                      }}
-                      className="w-full text-[15px] flex flex-col px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
-                    >
-                      Xuất chuyển đổi cơ sở
-                    </NavLink>
-                  </Menu.Item>
-                </div>
-              </Menu.Items>
-            </Transition>
-          </Menu>
         </div>
       </div>
       <ReactBaseTable
@@ -289,7 +228,7 @@ function Inventory(props) {
         wrapClassName="grow"
         rowKey="ID"
         columns={columns}
-        data={data || []}
+        data={data?.data || []}
         estimatedRowHeight={96}
         emptyRenderer={() =>
           !isLoading && (
@@ -300,7 +239,7 @@ function Inventory(props) {
         }
         isPreviousData={isPreviousData}
         loading={isLoading || isPreviousData}
-        pageCount={data?.data?.pcount}
+        pageCount={data?.PCount}
         pageOffset={Number(queryConfig.Pi)}
         pageSizes={Number(queryConfig.Ps)}
         onChange={({ pageIndex, pageSize }) => {

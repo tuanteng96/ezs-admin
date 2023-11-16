@@ -84,6 +84,7 @@ function Pagination({ pageCount, pageOffset = 1, pageSizes = 15, onChange }) {
         )
       })
   }
+
   return (
     <div className="flex flex-wrap justify-center">
       <span

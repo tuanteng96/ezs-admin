@@ -3,8 +3,9 @@ import Select from 'react-select'
 import { useQuery } from '@tanstack/react-query'
 import UsersAPI from 'src/_ezs/api/users.api'
 import { toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
+import { isArray } from 'lodash-es'
 
-const SelectUserAdmin = ({
+const SelectUsers = ({
   value,
   isSome = false,
   StockID,
@@ -13,7 +14,7 @@ const SelectUserAdmin = ({
   allOption = [],
   ...props
 }) => {
-  const ListUsers = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['ListUserAdmin'],
     queryFn: async () => {
       const data = await UsersAPI.listFull({ StockID: StockID || 0 })
@@ -59,40 +60,57 @@ const SelectUserAdmin = ({
               : !StockRoles
           )
       ].filter(x => !x?.value || x?.value === -2 || !removes.includes(x.value))
-
-      return {
-        data: newData,
-        dataList:
-          data?.data?.data?.length > 0
-            ? data?.data?.data
-                .map(x => ({ ...x, value: x.id, label: x.text }))
-                .filter(x =>
-                  StockRoles
-                    ? StockRoles.some(s => s.value === x.groupid)
-                    : !StockRoles
-                )
-            : []
-      }
-    },
-    onSuccess: () => {}
+      return data?.data?.data?.length > 0
+        ? data?.data?.data
+            .map(x => ({ ...x, value: x.id, label: x.text }))
+            .filter(x =>
+              StockRoles
+                ? StockRoles.some(s => s.value === x.groupid)
+                : !StockRoles
+            )
+        : []
+    }
   })
+
+  const getValue = value => {
+    if (!data || !value) return null
+    let isChildren = data.some(x => 'options' in x)
+    let rs = []
+    if (isChildren) {
+      for (let x of data) {
+        if (x.options && x.options.length > 0) {
+          for (let option of x.options) {
+            if (isArray(value)) {
+              let index = value.findIndex(v => Number(v) === option.value)
+              if (index > -1) rs.push(option)
+            } else {
+              if (option.value === Number(value)) rs.push(option)
+            }
+          }
+        }
+      }
+    } else {
+      if (isArray(value)) {
+        for (let v of value) {
+          let index = data.findIndex(x => Number(v) === x.value)
+          if (index > -1) rs.push(data[index])
+        }
+      } else {
+        let index = data.findIndex(x => Number(value) === x.value)
+        if (index > -1) rs.push(data[index])
+      }
+    }
+    return rs
+  }
 
   return (
     <div>
       <Select
         key={value}
-        isLoading={ListUsers.isLoading}
-        value={
-          isSome
-            ? ListUsers?.data?.dataList && ListUsers?.data?.dataList.length > 0
-              ? [...allOption, ...ListUsers?.data?.dataList].filter(
-                  x => value && value.includes(x.value)
-                )
-              : null
-            : value
-        }
+        isLoading={isLoading}
+        value={getValue(value)}
         classNamePrefix="select"
-        options={[...allOption, ...(ListUsers?.data?.data || [])].filter(
+        options={[...allOption, ...(data || [])].filter(
           x => !x?.value || x?.value === -2 || !removes.includes(x.value)
         )}
         placeholder="Chọn nhân viên"
@@ -103,4 +121,4 @@ const SelectUserAdmin = ({
   )
 }
 
-export { SelectUserAdmin }
+export { SelectUsers }

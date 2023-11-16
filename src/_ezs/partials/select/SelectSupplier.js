@@ -1,14 +1,14 @@
 import React from 'react'
 import Select from 'react-select'
 import { useQuery } from '@tanstack/react-query'
-import ProdsAPI from 'src/_ezs/api/prods.api'
 import { isArray } from 'lodash-es'
+import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 
 function SelectSupplier({ value, ...props }) {
   const { data, isLoading } = useQuery({
     queryKey: ['ListSelectSupplier'],
     queryFn: async () => {
-      const { data } = await ProdsAPI.getSelectSupplier('')
+      const { data } = await WarehouseAPI.getSelectSupplier('')
       return data.data
         ? data.data.map(x => ({ ...x, value: x.id, label: x.text }))
         : []

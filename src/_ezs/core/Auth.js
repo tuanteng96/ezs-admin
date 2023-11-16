@@ -107,7 +107,7 @@ const AuthInit = ({ children }) => {
       setShowSplashScreen(false)
       logout()
     },
-    enabled: Boolean(!window?.top?.token && accessToken)
+    enabled: Boolean(accessToken)
   })
 
   useEffect(() => {

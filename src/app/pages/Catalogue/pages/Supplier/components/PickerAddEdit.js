@@ -10,7 +10,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { Button } from 'src/_ezs/partials/button'
 import { FloatingPortal } from '@floating-ui/react'
-import ProdsAPI from 'src/_ezs/api/prods.api'
+import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 
 const schemaAddEdit = yup
   .object({
@@ -71,7 +71,7 @@ function PickerAddEdit({ children, data }) {
   }, [visible])
 
   const addEditMutation = useMutation({
-    mutationFn: body => ProdsAPI.addEditSupplier(body)
+    mutationFn: body => WarehouseAPI.addEditSupplier(body)
   })
 
   const onSubmit = values => {

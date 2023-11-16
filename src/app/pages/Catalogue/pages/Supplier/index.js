@@ -12,7 +12,6 @@ import {
   useLocation,
   useNavigate
 } from 'react-router-dom'
-import ProdsAPI from 'src/_ezs/api/prods.api'
 import { useAuth } from 'src/_ezs/core/Auth'
 import useQueryParams from 'src/_ezs/hooks/useQueryParams'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
@@ -22,6 +21,7 @@ import Swal from 'sweetalert2'
 import { toast } from 'react-toastify'
 import { Menu, Transition } from '@headlessui/react'
 import clsx from 'clsx'
+import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 
 function Supplier(props) {
   const { CrStocks } = useAuth()
@@ -47,14 +47,17 @@ function Supplier(props) {
         '(filter)StockID': queryConfig.StockID,
         '(filter)Type': queryConfig.Type
       }
-      let { data } = await ProdsAPI.getListSupplier(newQueryConfig)
-      return data?.data?.list || []
+      let { data } = await WarehouseAPI.getListSupplier(newQueryConfig)
+      return {
+        data: data?.data?.list || [],
+        PCount: data?.data?.PCount || 1
+      }
     },
     keepPreviousData: true
   })
 
   const deleteMutation = useMutation({
-    mutationFn: body => ProdsAPI.deleteSupplier(body)
+    mutationFn: body => WarehouseAPI.deleteSupplier(body)
   })
 
   const onDelete = item => {
@@ -250,7 +253,7 @@ function Supplier(props) {
         wrapClassName="grow"
         rowKey="ID"
         columns={columns}
-        data={data || []}
+        data={data?.data || []}
         estimatedRowHeight={96}
         emptyRenderer={() =>
           !isLoading && (
@@ -261,7 +264,7 @@ function Supplier(props) {
         }
         isPreviousData={isPreviousData}
         loading={isLoading || isPreviousData}
-        pageCount={data?.data?.pcount}
+        pageCount={data?.PCount}
         pageOffset={Number(queryConfig.Pi)}
         pageSizes={Number(queryConfig.Ps)}
         onChange={({ pageIndex, pageSize }) => {
