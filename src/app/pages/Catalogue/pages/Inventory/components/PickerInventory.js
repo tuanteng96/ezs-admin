@@ -105,12 +105,38 @@ function PickerInventory({ children, item, StockID }) {
           <div>
             {rowData.OrderID > 0 &&
               rowData.Source !== 'AfterReturn' &&
-              `Đơn hàng #${rowData.OrderID}`}
-            {rowData.Source === 'AfterReturn' &&
-              `Đơn trả hàng #${rowData.SourceID}`}
-            {!rowData.Source &&
-              !rowData.Source &&
-              `Đơn nhập xuất #${rowData.ImportID}`}
+              rowData.Source !== 'ServiceItem' && (
+                <>
+                  Đơn hàng
+                  <span className="text-primary pl-1.5 cursor-pointer">
+                    #{rowData.SourceID}
+                  </span>
+                </>
+              )}
+            {rowData.Source === 'AfterReturn' && (
+              <>
+                Đơn trả hàng
+                <span className="text-primary pl-1.5 cursor-pointer">
+                  #{rowData.SourceID}
+                </span>
+              </>
+            )}
+            {rowData.Source === 'ServiceItem' && (
+              <>
+                Định mức dịch vụ
+                <span className="text-primary pl-1.5 cursor-pointer">
+                  #{rowData.SourceID}
+                </span>
+              </>
+            )}
+            {!rowData.Source && !rowData.Source && (
+              <>
+                Đơn nhập xuất
+                <span className="text-primary pl-1.5 cursor-pointer">
+                  #{rowData.ImportID}
+                </span>
+              </>
+            )}
           </div>
         ),
         sortable: false

@@ -32,11 +32,11 @@ function Inventory(props) {
     Pi: queryParams.Pi || 1,
     Ps: queryParams.Ps || 15,
     Only: queryParams.Only || true,
-    RootTypeID: queryParams.RootTypeID || '',
+    RootTypeID: 'RootTypeID' in queryParams ? queryParams.RootTypeID : '794',
     manus: queryParams.manus || '',
     StockID: 'StockID' in queryParams ? queryParams.StockID : CrStocks?.ID,
     Key: queryParams.Key || '',
-    NotDelv: queryParams.NotDelv || true
+    NotDelv: queryParams.NotDelv || false
   }
 
   const { data, isLoading, isPreviousData } = useQuery({
@@ -64,13 +64,6 @@ function Inventory(props) {
 
   const columns = useMemo(
     () => [
-      {
-        key: 'ID',
-        title: 'ID',
-        dataKey: 'ID',
-        width: 100,
-        sortable: false
-      },
       {
         key: 'TypeText',
         title: 'Hình ảnh',
@@ -110,7 +103,7 @@ function Inventory(props) {
         key: 'Title',
         title: 'Tên sản phẩm',
         dataKey: 'Title',
-        width: 300,
+        width: 320,
         cellRenderer: ({ rowData }) => (
           <div>
             <div className="font-semibold">{rowData.Title}</div>
@@ -170,10 +163,7 @@ function Inventory(props) {
         headerClassNames: () => 'justify-center adad',
         width: 80,
         cellRenderer: ({ rowData }) => (
-          <PickerInventory
-            item={rowData}
-            StockID={queryConfig['(filter)StockID']}
-          >
+          <PickerInventory item={rowData} StockID={queryConfig.StockID}>
             {({ open }) => (
               <div className="flex justify-center w-full">
                 <button

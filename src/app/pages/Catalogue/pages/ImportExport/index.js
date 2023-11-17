@@ -4,7 +4,7 @@ import {
   ArrowRightIcon,
   ChevronDownIcon
 } from '@heroicons/react/24/outline'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { identity, pickBy } from 'lodash-es'
 import moment from 'moment'
 import React from 'react'
@@ -12,12 +12,14 @@ import { Fragment } from 'react'
 import { useMemo } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { NavLink, createSearchParams } from 'react-router-dom'
+import { toast } from 'react-toastify'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useAuth } from 'src/_ezs/core/Auth'
 import useQueryParams from 'src/_ezs/hooks/useQueryParams'
 import { DropdownMenu } from 'src/_ezs/partials/dropdown'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { formatString } from 'src/_ezs/utils/formatString'
+import Swal from 'sweetalert2'
 
 function ImportExport(props) {
   const { CrStocks } = useAuth()
@@ -30,7 +32,7 @@ function ImportExport(props) {
     Pi: queryParams.Pi || 1,
     Ps: queryParams.Ps || 15,
     StockID: 'StockID' in queryParams ? queryParams.StockID : CrStocks?.ID,
-    Private: queryParams.Private || 1,
+    Private: queryParams.Private || 0,
     Type: queryParams.Type || '',
     PayStatus: queryParams.PayStatus || '',
     UserID: queryParams.UserID || '',
@@ -39,8 +41,8 @@ function ImportExport(props) {
     SupplierID: queryParams.SupplierID || ''
   }
 
-  const { data, isLoading, isPreviousData } = useQuery({
-    queryKey: ['ListInventory', queryConfig],
+  const { data, isLoading, isPreviousData, refetch } = useQuery({
+    queryKey: ['ListImportExport', queryConfig],
     queryFn: async () => {
       let newQueryConfig = {
         cmd: 'getie',
@@ -63,6 +65,39 @@ function ImportExport(props) {
     },
     keepPreviousData: true
   })
+
+  const deleteMutation = useMutation({
+    mutationFn: body => WarehouseAPI.deleteImportExport(body)
+  })
+
+  const onDelete = item => {
+    Swal.fire({
+      customClass: {
+        confirmButton: '!bg-danger'
+      },
+      title: 'Xác nhận xóa ?',
+      html: `Bạn chắc chắn muốn thực hiện xóa <b class="text-danger">${item.Code}</b> này ?`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Xóa ngay',
+      cancelButtonText: 'Đóng',
+      reverseButtons: true,
+      showLoaderOnConfirm: true,
+      preConfirm: async () => {
+        const data = await deleteMutation.mutateAsync({
+          cmd: 'delete_ie',
+          id: item.ID
+        })
+        await refetch()
+        return data
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then(result => {
+      if (result.isConfirmed) {
+        toast.success('Xóa thành công.')
+      }
+    })
+  }
 
   const columns = useMemo(
     () => [
@@ -124,18 +159,8 @@ function ImportExport(props) {
         sortable: false
       },
       {
-        key: 'Total',
-        title: 'Tổng giá trị',
-        dataKey: 'Total',
-        width: 180,
-        cellRenderer: ({ rowData }) => (
-          <div>{formatString.formatVND(rowData?.Total)}</div>
-        ),
-        sortable: false
-      },
-      {
         key: 'ToPay',
-        title: 'Đã thanh toán',
+        title: 'Tổng giá trị',
         dataKey: 'ToPay',
         width: 180,
         cellRenderer: ({ rowData }) => (
@@ -144,12 +169,24 @@ function ImportExport(props) {
         sortable: false
       },
       {
-        key: 'Total-ToPay',
-        title: 'Còn lại',
-        dataKey: 'Total-ToPay',
+        key: 'Payed',
+        title: 'Đã thanh toán',
+        dataKey: 'Payed',
         width: 180,
         cellRenderer: ({ rowData }) => (
-          <div>{formatString.formatVND(rowData?.Total - rowData?.ToPay)}</div>
+          <div>{formatString.formatVNDPositive(rowData?.Payed)}</div>
+        ),
+        sortable: false
+      },
+      {
+        key: 'ToPay-Payed',
+        title: 'Còn lại',
+        dataKey: 'ToPay-Payed',
+        width: 180,
+        cellRenderer: ({ rowData }) => (
+          <div>
+            {formatString.formatVND(rowData?.ToPay - Math.abs(rowData?.Payed))}
+          </div>
         ),
         sortable: false
       },
@@ -185,6 +222,16 @@ function ImportExport(props) {
                 <button
                   type="button"
                   className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                  onClick={() => {
+                    window.top.open(
+                      `/services/printHelder.aspx?importexportid=${rowData.ID}&importexportMode=1`,
+                      '_blank',
+                      'width=600px; height=' + window.innerHeight + 'px'
+                    ).onload = function () {
+                      var loc = this.document.location.href
+                      if (loc.indexOf('printHelder.aspx') === -1) this.print()
+                    }
+                  }}
                 >
                   In đơn
                 </button>
@@ -202,8 +249,8 @@ function ImportExport(props) {
               <div>
                 <button
                   type="button"
-                  className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
-                  onClick={() => console.log('Delete')}
+                  className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light font-inter transition cursor-pointer dark:text-white text-danger"
+                  onClick={() => onDelete(rowData)}
                 >
                   Xóa đơn
                 </button>
@@ -264,7 +311,12 @@ function ImportExport(props) {
                   <Menu.Item>
                     <NavLink
                       to={{
-                        pathname: 'list-category/sp'
+                        pathname: 'import',
+                        search: search
+                      }}
+                      state={{
+                        prevFrom: pathname,
+                        queryConfig
                       }}
                       className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
                     >

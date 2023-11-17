@@ -102,7 +102,7 @@ function Supplier(props) {
         key: 'Title',
         title: 'Tên nhà cung cấp, đại lý',
         dataKey: 'Title',
-        width: 300,
+        width: 250,
         sortable: false
       },
       {
@@ -113,11 +113,20 @@ function Supplier(props) {
         sortable: false
       },
       {
+        key: 'Type',
+        title: 'Phân loại',
+        dataKey: 'Type',
+        cellRenderer: ({ rowData }) =>
+          rowData.Type === 'NCC' ? 'Nhà cung cấp' : 'Đại lý',
+        width: 150,
+        sortable: false
+      },
+      {
         key: 'Address',
         title: 'Địa chỉ',
         dataKey: 'Address',
         width: 500,
-        cellRenderer: ({ rowData }) => rowData.SourceTitle,
+        cellRenderer: ({ rowData }) => rowData.Address,
         sortable: false
       },
       {

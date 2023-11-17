@@ -1,6 +1,6 @@
 import React, { lazy } from 'react'
 import { CatalogueLayout } from './CatalogueLayout'
-import { Route, Routes, Navigate } from 'react-router-dom'
+import { Route, Routes, Navigate, Outlet } from 'react-router-dom'
 import SuspensedView from 'src/app/routing/SuspensedView'
 
 const Category = lazy(() => import('./pages/Category'))
@@ -12,6 +12,9 @@ const InventoryFilters = lazy(() => import('./pages/Inventory/pages/Filters'))
 const ImportExport = lazy(() => import('./pages/ImportExport'))
 const ImportExportFilters = lazy(() =>
   import('./pages/ImportExport/pages/Filters')
+)
+const WareHouseImport = lazy(() =>
+  import('./pages/ImportExport/pages/WareHouseImport')
 )
 const ImportExportMaterial = lazy(() =>
   import('./pages/ImportExport/pages/MaterialConversion')
@@ -146,6 +149,10 @@ function CataloguePage(props) {
             path="material-conversion"
             element={<ImportExportMaterial />}
           ></Route>
+          <Route path="import" element={<WareHouseImport />}>
+            <Route index element={<Navigate to="inventory" />} />
+            <Route path=":id" element={<Navigate to="inventory" />} />
+          </Route>
         </Route>
         <Route
           path="supplier"

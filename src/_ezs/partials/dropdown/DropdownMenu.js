@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, useId, cloneElement } from 'react'
 import {
   FloatingArrow,
   FloatingFocusManager,
@@ -10,14 +10,15 @@ import {
   useClick,
   useDismiss,
   useFloating,
-  useInteractions
+  useInteractions,
+  useRole
 } from '@floating-ui/react'
-import { cloneElement } from 'react'
+import { createPortal } from 'react-dom'
 
 const DropdownMenu = ({ children, trigger }) => {
   const [isOpen, setIsOpen] = useState(false)
   const arrowRef = useRef(null)
-  const { x, y, refs, context } = useFloating({
+  const { x, y, refs, context, floatingStyles } = useFloating({
     open: isOpen,
     onOpenChange: setIsOpen,
     //placement: 'auto',
@@ -33,11 +34,15 @@ const DropdownMenu = ({ children, trigger }) => {
 
   const click = useClick(context)
   const dismiss = useDismiss(context)
+  const role = useRole(context)
 
   const { getReferenceProps, getFloatingProps } = useInteractions([
     click,
-    dismiss
+    dismiss,
+    role
   ])
+
+  const headingId = useId()
 
   return (
     <>
@@ -45,18 +50,19 @@ const DropdownMenu = ({ children, trigger }) => {
         ref: refs.setReference,
         ...getReferenceProps()
       })}
-      {isOpen && (
-        <FloatingPortal>
+      {isOpen &&
+        createPortal(
           <FloatingFocusManager context={context} modal>
             <div
-              aria-hidden
               className="fixed rounded px-0 py-2 border-0 min-w-[180px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow"
               style={{
+                ...floatingStyles,
                 top: y ?? 0,
                 left: x ?? 0,
                 zIndex: 1009
               }}
               ref={refs.setFloating}
+              aria-labelledby={headingId}
               {...getFloatingProps()}
             >
               {children}
@@ -66,9 +72,9 @@ const DropdownMenu = ({ children, trigger }) => {
                 context={context}
               />
             </div>
-          </FloatingFocusManager>
-        </FloatingPortal>
-      )}
+          </FloatingFocusManager>,
+          document.body
+        )}
     </>
   )
 }

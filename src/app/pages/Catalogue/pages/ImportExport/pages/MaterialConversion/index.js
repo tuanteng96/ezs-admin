@@ -1,11 +1,14 @@
 import { ArrowRightIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { LayoutGroup, m } from 'framer-motion'
-import moment from 'moment'
 import React, { useMemo } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { toast } from 'react-toastify'
+import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useAuth } from 'src/_ezs/core/Auth'
 import { Button } from 'src/_ezs/partials/button'
+import { InputNumber } from 'src/_ezs/partials/forms'
 import { SelectProdCode, SelectStocksWareHouse } from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 
@@ -122,86 +125,177 @@ function MaterialConversion(props) {
   const navigate = useNavigate()
   const { pathname, state } = useLocation()
   const { CrStocks } = useAuth()
-  const { control, handleSubmit, watch } = useForm({
+  const queryClient = useQueryClient()
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { isDirty, isValid }
+  } = useForm({
     defaultValues: {
       data: [],
       stockid: CrStocks?.ID || 0
     }
   })
 
-  const { fields, append, prepend, remove, swap, move, insert } = useFieldArray(
-    {
-      control,
-      name: 'data'
-    }
-  )
-  console.log(watch())
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'data'
+  })
+
   const columns = useMemo(
     () => [
       {
         key: 'ID',
-        title: 'Mã',
+        title: 'STT',
         dataKey: 'ID',
-        width: 180,
+        width: 60,
+        sortable: false,
+        align: 'center',
+        cellRenderer: ({ rowIndex }) => rowIndex + 1
+      },
+      {
+        key: 'fromTitle',
+        title: 'Chuyển đổi từ Sản phẩm/NVL',
+        dataKey: 'fromTitle',
+        width: 280,
         sortable: false,
         cellRenderer: ({ rowData }) => (
           <div>
-            <div className="font-semibold">{rowData.Code}</div>
-            <div className="text-xs bg-warning text-white inline-block px-1.5 py-px rounded">
-              #{rowData.ID}
-            </div>
+            <div className="font-semibold">{rowData.fromTitle}</div>
+            <div className="inline-block text-muted2">({rowData.fromUnit})</div>
           </div>
         )
       },
       {
         key: 'CreateDate',
-        title: 'Ngày',
+        title: 'Số lượng',
         dataKey: 'CreateDate',
         width: 200,
-        cellRenderer: ({ rowData }) =>
-          moment(rowData.CreateDate).format('HH:mm DD-MM-YYYY'),
+        cellRenderer: ({ rowData, rowIndex }) => (
+          <Controller
+            rules={{
+              required: true
+            }}
+            name={`data[${rowIndex}].fromQty`}
+            control={control}
+            render={({ field: { ref, ...field }, fieldState }) => (
+              <InputNumber
+                errorMessageForce={fieldState.invalid}
+                className="px-3 py-2.5"
+                placeholder="Nhập số lượng"
+                value={field.value}
+                onValueChange={val => {
+                  field.onChange(val.floatValue || '')
+                  setValue(
+                    `data[${rowIndex}].toQty`,
+                    (val.floatValue || 0) * rowData.toQtyInit
+                  )
+                  setValue(
+                    `data[${rowIndex}].ratioText`,
+                    `${val.floatValue || 0}x${rowData.toQtyInit}`
+                  )
+                }}
+                allowNegative={false}
+                isAllowed={inputObj => {
+                  const { floatValue } = inputObj
+                  if (floatValue < 1) return
+                  return true
+                }}
+              />
+            )}
+          />
+        ),
         sortable: false
       },
       {
-        key: 'Type',
-        title: 'Loại',
-        dataKey: 'Type',
-        width: 135,
-        cellRenderer: ({ rowData }) =>
-          rowData.Type === 'N' ? 'Đơn Nhập' : 'Đơn Xuất',
+        key: 'toTitle',
+        title: 'Đến Sản phẩm/NVL',
+        dataKey: 'toTitle',
+        width: 290,
+        sortable: false,
+        cellRenderer: ({ rowData }) => (
+          <div>
+            <div className="font-semibold">{rowData.toTitle}</div>
+            <div className="inline-block text-muted2">({rowData.toUnit})</div>
+          </div>
+        )
+      },
+      {
+        key: 'toQty',
+        title: 'SL sau chuyển đổi',
+        dataKey: 'toQty',
+        width: 180,
+        sortable: false,
+        cellRenderer: ({ rowData, rowIndex }) => (
+          <Controller
+            name={`data[${rowIndex}].toQty`}
+            control={control}
+            render={({ field: { ref, ...field }, fieldState }) => (
+              <>{field.value}</>
+            )}
+          />
+        )
+      },
+      {
+        key: 'ratioText',
+        title: 'Tỉ lệ',
+        dataKey: 'ratioText',
+        cellRenderer: ({ rowData, rowIndex }) => (
+          <Controller
+            name={`data[${rowIndex}].ratioText`}
+            control={control}
+            render={({ field: { ref, ...field }, fieldState }) => (
+              <>{field.value}</>
+            )}
+          />
+        ),
+        width: 150,
         sortable: false
       },
       {
-        key: 'SourceTitle',
-        title: 'Cơ sở',
-        dataKey: 'SourceTitle',
-        width: 200,
-        cellRenderer: ({ rowData }) => rowData.SourceTitle,
-        sortable: false
-      },
-      {
-        key: 'SupplierText',
-        title: 'Nhà cung cấp',
-        dataKey: 'SupplierText',
-        width: 200,
-        cellRenderer: ({ rowData }) => rowData.SupplierText,
-        sortable: false
-      },
-      {
-        key: 'PriceBase',
-        title: 'Nhân viên thực hiện',
-        dataKey: 'PriceBase',
-        width: 200,
-        cellRenderer: ({ rowData }) => rowData?.UserName,
-        sortable: false
+        key: '#',
+        title: '#',
+        dataKey: '#',
+        cellRenderer: ({ rowIndex }) => (
+          <div
+            className="px-2.5 h-8 flex items-center text-[13px] text-white rounded cursor-pointer bg-danger hover:bg-dangerhv"
+            onClick={() => remove(rowIndex)}
+          >
+            Xóa
+          </div>
+        ),
+        width: 80,
+        sortable: false,
+        align: 'center',
+        frozen: 'right'
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [fields]
   )
 
+  const ConvertMutation = useMutation({
+    mutationFn: body => WarehouseAPI.whouseConvert(body)
+  })
+
   const onSubmit = values => {
-    console.log(values)
+    var bodyFormData = new FormData()
+    bodyFormData.append('stockid', values.stockid)
+    bodyFormData.append('data', JSON.stringify(values.data))
+
+    ConvertMutation.mutate(bodyFormData, {
+      onSettled: data => {
+        queryClient
+          .invalidateQueries({ queryKey: ['ListImportExport'] })
+          .then(() => {
+            reset()
+            toast.success('Chuyển đổi thành công.')
+          })
+      }
+    })
   }
 
   return (
@@ -236,23 +330,31 @@ function MaterialConversion(props) {
             <FormAddMaterial
               onSubmit={(values, reset) => {
                 let { fromTitle, toTitle } = values
-                append({
-                  fromCode: fromTitle.id,
-                  fromUnit: fromTitle.source?.StockUnit,
-                  fromTitle: fromTitle.text,
-                  fromQty: 1,
-                  fromBarcode: null,
-                  fromPrice: 0,
-                  toCode: 'NL21',
-                  toUnit: 'ML',
-                  toTitle: 'Nước khoáng',
-                  toQty: 1,
-                  toBarcode: null,
-                  toPrice: 0,
-                  valid: true,
-                  ratioText: '1',
-                  validCount: 3
-                })
+                let Meta = JSON.parse(toTitle.source?.Meta)
+                let index = Meta?.otherUnit.findIndex(
+                  x => Number(x.ProdID) === fromTitle?.source?.ID
+                )
+                if (index > -1) {
+                  append({
+                    fromCode: fromTitle.id,
+                    fromUnit: fromTitle.source?.StockUnit,
+                    fromTitle: fromTitle.text,
+                    fromQty: 1,
+                    fromBarcode: null,
+                    fromPrice: 0,
+                    toCode: toTitle.id,
+                    toUnit: toTitle.source?.StockUnit,
+                    toTitle: toTitle.text,
+                    toQty: Number(Meta?.otherUnit[index].Qty),
+                    toQtyInit: Number(Meta?.otherUnit[index].Qty),
+                    toBarcode: null,
+                    toPrice: 0,
+                    valid: true,
+                    ratioText: `1x${Meta?.otherUnit[index].Qty}`,
+                    validCount: 3
+                  })
+                  reset()
+                }
               }}
             />
             <form
@@ -261,9 +363,9 @@ function MaterialConversion(props) {
             >
               <ReactBaseTable
                 wrapClassName="p-6 grow bg-white dark:bg-dark-app rounded"
-                rowKey="ID"
+                rowKey="id"
                 columns={columns}
-                data={[]}
+                data={fields}
                 estimatedRowHeight={50}
                 onEndReachedThreshold={1}
               />
@@ -290,7 +392,9 @@ function MaterialConversion(props) {
                   />
                 </div>
                 <Button
-                  type="button"
+                  disabled={ConvertMutation.isLoading || !isDirty || !isValid}
+                  loading={ConvertMutation.isLoading}
+                  type="submit"
                   className="flex items-center relative h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
                 >
                   Thực hiện chuyển đổi

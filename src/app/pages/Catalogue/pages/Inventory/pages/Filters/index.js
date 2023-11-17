@@ -57,7 +57,7 @@ function InventoryFilters(props) {
           manus: '',
           StockID: CrStocks?.ID,
           Key: '',
-          NotDelv: true
+          NotDelv: false
         }
   })
 
@@ -242,7 +242,7 @@ function InventoryFilters(props) {
                     control={control}
                     render={({ field }) => (
                       <Switch
-                        checked={field.value}
+                        checked={field.value === 'true' || field.value}
                         onChange={val => field.onChange(val)}
                         as={Fragment}
                       >
