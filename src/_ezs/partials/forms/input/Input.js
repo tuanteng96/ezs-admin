@@ -2,10 +2,16 @@ import { ExclamationCircleIcon } from '@heroicons/react/24/outline'
 import clsx from 'clsx'
 import React from 'react'
 
-const Input = ({ errorMessage, errorMessageForce, className, ...props }) => {
+const Input = ({
+  errorMessage,
+  errorMessageForce,
+  className,
+  wrapClass,
+  ...props
+}) => {
   return (
     <>
-      <div className="relative">
+      <div className={clsx('relative', wrapClass)}>
         <input
           type="text"
           className={clsx(

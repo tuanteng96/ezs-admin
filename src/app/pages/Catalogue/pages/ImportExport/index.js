@@ -211,7 +211,15 @@ function ImportExport(props) {
               <div>
                 <NavLink
                   to={{
-                    pathname: 'list-category/sp'
+                    pathname:
+                      rowData.Type === 'N'
+                        ? 'import/' + rowData.ID
+                        : 'export/' + rowData.ID,
+                    search: search
+                  }}
+                  state={{
+                    prevFrom: pathname,
+                    queryConfig
                   }}
                   className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
                 >

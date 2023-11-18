@@ -2,7 +2,6 @@ import { useRef, useState, useId, cloneElement } from 'react'
 import {
   FloatingArrow,
   FloatingFocusManager,
-  FloatingPortal,
   arrow,
   autoUpdate,
   flip,
@@ -14,10 +13,13 @@ import {
   useRole
 } from '@floating-ui/react'
 import { createPortal } from 'react-dom'
+import { useEffect } from 'react'
+import { useLocation } from 'react-router'
 
 const DropdownMenu = ({ children, trigger }) => {
   const [isOpen, setIsOpen] = useState(false)
   const arrowRef = useRef(null)
+  const { pathname } = useLocation()
   const { x, y, refs, context, floatingStyles } = useFloating({
     open: isOpen,
     onOpenChange: setIsOpen,
@@ -42,6 +44,10 @@ const DropdownMenu = ({ children, trigger }) => {
     role
   ])
 
+  useEffect(() => {
+    setIsOpen(false)
+  }, [pathname])
+
   const headingId = useId()
 
   return (
@@ -52,7 +58,10 @@ const DropdownMenu = ({ children, trigger }) => {
       })}
       {isOpen &&
         createPortal(
-          <FloatingFocusManager context={context} modal>
+          <FloatingFocusManager
+            context={context}
+            order={['reference', 'content']}
+          >
             <div
               className="fixed rounded px-0 py-2 border-0 min-w-[180px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow"
               style={{

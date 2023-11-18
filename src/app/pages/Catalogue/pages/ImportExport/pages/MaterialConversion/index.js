@@ -123,7 +123,7 @@ const FormAddMaterial = ({ onSubmit: onSubmitAdd }) => {
 
 function MaterialConversion(props) {
   const navigate = useNavigate()
-  const { pathname, state } = useLocation()
+  const { pathname, state, search } = useLocation()
   const { CrStocks } = useAuth()
   const queryClient = useQueryClient()
 
@@ -304,7 +304,12 @@ function MaterialConversion(props) {
         <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <div
             className="absolute w-full h-full top-0 left bg-black/[.2] dark:bg-black/[.4]"
-            onClick={() => navigate(state?.prevFrom)}
+            onClick={() =>
+              navigate({
+                pathname: state?.prevFrom,
+                search: search
+              })
+            }
           ></div>
         </m.div>
         <m.div
@@ -322,7 +327,12 @@ function MaterialConversion(props) {
               </div>
               <div
                 className="flex items-center justify-center w-12 h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
-                onClick={() => navigate(state?.prevFrom)}
+                onClick={() =>
+                  navigate({
+                    pathname: state?.prevFrom,
+                    search: search
+                  })
+                }
               >
                 <XMarkIcon className="w-9" />
               </div>

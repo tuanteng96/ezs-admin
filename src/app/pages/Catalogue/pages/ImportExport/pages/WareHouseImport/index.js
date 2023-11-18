@@ -1,40 +1,63 @@
-import { ArrowRightIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import clsx from 'clsx'
 import { LayoutGroup, m } from 'framer-motion'
 import React, { useMemo } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { useLocation, useMatch, useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
-import { useAuth } from 'src/_ezs/core/Auth'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import { Button } from 'src/_ezs/partials/button'
 import { Input, InputNumber, InputTextarea } from 'src/_ezs/partials/forms'
-import { SelectStocksWareHouse, SelectSupplier } from 'src/_ezs/partials/select'
+import {
+  SelectProdCode,
+  SelectStocksWareHouse,
+  SelectSupplier
+} from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 
 function WareHouseImport(props) {
   const navigate = useNavigate()
-  const { pathname, state } = useLocation()
-  const { CrStocks } = useAuth()
+  const { pathname, state, search } = useLocation()
   const { id } = useParams()
 
   const queryClient = useQueryClient()
 
-  const {
-    control,
-    handleSubmit,
-    setValue,
-    reset,
-    formState: { isDirty, isValid }
-  } = useForm({
+  const { control, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
-      data: [],
-      stockid: CrStocks?.ID || 0
+      ie: {
+        Code: '', // Mã
+        SupplierID: '', //Nhà cung cấp
+        ToPay: '', // Giá trị sau chiết khấu
+        Total: '', // Tổng giá trị
+        Type: 'N',
+        Other: '', //Ghi chú
+        Discount: '', //Giá trị chiết khấu
+        Source: '' // Kho
+      },
+      items: [
+        {
+          ImportDiscount: '',
+          ImportPrice: '',
+          ImportPriceOrigin: '',
+          ProdTitle: '',
+          Qty: '',
+          ProdCode: '',
+          Unit: ''
+        }
+      ]
     }
   })
 
-  const { data, isLoading } = useQuery({
+  const watchForm = watch()
+
+  const { fields, remove, append, update } = useFieldArray({
+    control,
+    name: 'items'
+  })
+
+  const { isLoading } = useQuery({
     queryKey: ['ImportExportId', id],
     queryFn: async () => {
       let { data } = await WarehouseAPI.getListInventory({
@@ -44,67 +67,174 @@ function WareHouseImport(props) {
       return data?.data
     },
     onSettled: data => {
-      console.log(data)
+      if (data) {
+        reset({
+          ie: {
+            Code: data?.Code,
+            SupplierID: data?.SupplierID,
+            ToPay: data?.ToPay,
+            Total: data?.Total,
+            Type: 'N',
+            Other: data?.Other || '',
+            Discount: data?.Discount,
+            Source: data?.Source
+          },
+          items:
+            data.stockItems && data.stockItems.length > 0
+              ? data.stockItems.map(x => ({
+                  ...x,
+                  ProdTitle: x.ProdTitle
+                    ? {
+                        label: x.ProdTitle,
+                        value: x.ProdID
+                      }
+                    : '',
+                  ProdId: x.ProdID,
+                  Other: x?.Desc || ''
+                }))
+              : [
+                  {
+                    ImportDiscount: '',
+                    ImportPrice: '',
+                    ImportPriceOrigin: '',
+                    ProdTitle: '',
+                    Qty: '',
+                    ProdCode: '',
+                    ProdId: '',
+                    Unit: '',
+                    Source: ''
+                  }
+                ]
+        })
+      }
     }
-  })
-
-  const { fields, remove } = useFieldArray({
-    control,
-    name: 'data'
   })
 
   const columns = useMemo(
     () => [
       {
-        key: 'ID',
-        title: 'STT',
-        dataKey: 'ID',
-        width: 60,
+        key: 'ProdTitle',
+        title: 'Mã SP/ Tên SP',
+        dataKey: 'ProdTitle',
+        width: 370,
         sortable: false,
-        align: 'center',
-        cellRenderer: ({ rowIndex }) => rowIndex + 1
-      },
-      {
-        key: 'fromTitle',
-        title: 'Chuyển đổi từ Sản phẩm/NVL',
-        dataKey: 'fromTitle',
-        width: 280,
-        sortable: false,
-        cellRenderer: ({ rowData }) => (
-          <div>
-            <div className="font-semibold">{rowData.fromTitle}</div>
-            <div className="inline-block text-muted2">({rowData.fromUnit})</div>
+        cellRenderer: ({ rowIndex, rowData }) => (
+          <div className="w-full">
+            <Controller
+              name={`items[${rowIndex}].ProdTitle`}
+              control={control}
+              rules={{ required: true }}
+              render={({ field: { ref, ...field }, fieldState }) => (
+                <SelectProdCode
+                  className={clsx(
+                    'select-control',
+                    fieldState?.invalid && 'select-control-error'
+                  )}
+                  Params={{
+                    cmd: 'prodcode',
+                    includeSource: 1,
+                    cate_name: 'san_pham,nvl',
+                    _type: 'query'
+                  }}
+                  menuPosition="fixed"
+                  styles={{
+                    menuPortal: base => ({
+                      ...base,
+                      zIndex: 9999
+                    })
+                  }}
+                  menuPortalTarget={document.body}
+                  isClearable
+                  value={field.value}
+                  onChange={(val, triggeredAction) => {
+                    field.onChange(val)
+                    setValue(
+                      `items[${rowIndex}].ProdCode`,
+                      val ? val?.source?.DynamicID : ''
+                    )
+                    setValue(
+                      `items[${rowIndex}].ProdId`,
+                      val ? val?.source?.ID : ''
+                    )
+                    setValue(
+                      `items[${rowIndex}].Unit`,
+                      val ? val?.source?.StockUnit : ''
+                    )
+                    setValue(`items[${rowIndex}].Qty`, 1)
+                    setValue(
+                      `items[${rowIndex}].ImportPriceOrigin`,
+                      val ? val?.source?.PriceProduct : ''
+                    )
+                    setValue(
+                      `items[${rowIndex}].ImportPrice`,
+                      val ? val?.source?.PriceBase : ''
+                    )
+                    setValue(
+                      `items[${rowIndex}].ImportDiscount`,
+                      val
+                        ? val?.source?.PriceBase > 0 &&
+                          val?.source?.PriceProduct >= val?.source?.PriceBase
+                          ? val?.source?.PriceProduct - val?.source?.PriceBase
+                          : 0
+                        : 0
+                    )
+                    onUpdate()
+                  }}
+                />
+              )}
+            />
           </div>
         )
       },
       {
-        key: 'CreateDate',
-        title: 'Số lượng',
-        dataKey: 'CreateDate',
-        width: 200,
+        key: 'ProdId',
+        title: 'Mã',
+        dataKey: 'ProdId',
+        width: 100,
         cellRenderer: ({ rowData, rowIndex }) => (
           <Controller
-            rules={{
-              required: true
-            }}
-            name={`data[${rowIndex}].fromQty`}
+            name={`items[${rowIndex}].ProdId`}
+            control={control}
+            render={({ field: { ref, ...field }, fieldState }) => (
+              <>{field.value}</>
+            )}
+          />
+        ),
+        sortable: false
+      },
+      {
+        key: 'Unit',
+        title: 'Đơn vị',
+        dataKey: 'Unit',
+        width: 100,
+        cellRenderer: ({ rowData, rowIndex }) => (
+          <Controller
+            name={`items[${rowIndex}].Unit`}
+            control={control}
+            render={({ field: { ref, ...field }, fieldState }) => (
+              <>{field.value}</>
+            )}
+          />
+        ),
+        sortable: false
+      },
+      {
+        key: 'Qty',
+        title: 'SL',
+        dataKey: 'Qty',
+        width: 120,
+        cellRenderer: ({ rowIndex }) => (
+          <Controller
+            name={`items[${rowIndex}].Qty`}
             control={control}
             render={({ field: { ref, ...field }, fieldState }) => (
               <InputNumber
-                errorMessageForce={fieldState.invalid}
                 className="px-3 py-2.5"
-                placeholder="Nhập số lượng"
+                placeholder="Nhập SL"
                 value={field.value}
                 onValueChange={val => {
                   field.onChange(val.floatValue || '')
-                  setValue(
-                    `data[${rowIndex}].toQty`,
-                    (val.floatValue || 0) * rowData.toQtyInit
-                  )
-                  setValue(
-                    `data[${rowIndex}].ratioText`,
-                    `${val.floatValue || 0}x${rowData.toQtyInit}`
-                  )
+                  onUpdate()
                 }}
                 allowNegative={false}
                 isAllowed={inputObj => {
@@ -119,48 +249,122 @@ function WareHouseImport(props) {
         sortable: false
       },
       {
-        key: 'toTitle',
-        title: 'Đến Sản phẩm/NVL',
-        dataKey: 'toTitle',
-        width: 290,
+        key: 'ImportPriceOrigin',
+        title: 'Nguyên giá',
+        dataKey: 'ImportPriceOrigin',
+        width: 200,
         sortable: false,
-        cellRenderer: ({ rowData }) => (
-          <div>
-            <div className="font-semibold">{rowData.toTitle}</div>
-            <div className="inline-block text-muted2">({rowData.toUnit})</div>
-          </div>
-        )
-      },
-      {
-        key: 'toQty',
-        title: 'SL sau chuyển đổi',
-        dataKey: 'toQty',
-        width: 180,
-        sortable: false,
-        cellRenderer: ({ rowData, rowIndex }) => (
+        cellRenderer: ({ rowIndex, rowData }) => (
           <Controller
-            name={`data[${rowIndex}].toQty`}
+            name={`items[${rowIndex}].ImportPriceOrigin`}
             control={control}
             render={({ field: { ref, ...field }, fieldState }) => (
-              <>{field.value}</>
+              <InputNumber
+                allowLeadingZeros={true}
+                thousandSeparator={true}
+                value={field.value}
+                placeholder="Nhập nguyên giá"
+                onValueChange={val => {
+                  const { ImportDiscount } = watchForm.items[rowIndex]
+                  field.onChange(val.floatValue || '')
+                  setValue(
+                    `items[${rowIndex}].ImportPrice`,
+                    (val?.floatValue || 0) - ImportDiscount
+                  )
+                  onUpdate()
+                }}
+              />
             )}
           />
         )
       },
       {
-        key: 'ratioText',
-        title: 'Tỉ lệ',
-        dataKey: 'ratioText',
+        key: 'ImportDiscount',
+        title: 'Chiết khấu',
+        dataKey: 'ImportDiscount',
+        width: 200,
+        sortable: false,
         cellRenderer: ({ rowData, rowIndex }) => (
           <Controller
-            name={`data[${rowIndex}].ratioText`}
+            name={`items[${rowIndex}].ImportDiscount`}
             control={control}
             render={({ field: { ref, ...field }, fieldState }) => (
-              <>{field.value}</>
+              <div className="relative">
+                <InputNumber
+                  thousandSeparator={true}
+                  value={field.value}
+                  placeholder="Nhập chiết khấu"
+                  onValueChange={val => {
+                    const { ImportPriceOrigin } = watchForm.items[rowIndex]
+                    field.onChange(val.floatValue || '')
+
+                    setValue(
+                      `items[${rowIndex}].ImportPrice`,
+                      val?.floatValue > 100
+                        ? ImportPriceOrigin - val?.floatValue
+                        : ImportPriceOrigin -
+                            (ImportPriceOrigin * val?.floatValue) / 100
+                    )
+                    onUpdate()
+                  }}
+                />
+                <div className="absolute w-[45px] h-full top-0 right-0 flex justify-center items-center pointer-none">
+                  {field.value > 100 ? 'đ' : '%'}
+                </div>
+              </div>
+            )}
+          />
+        )
+      },
+      {
+        key: 'ImportPrice',
+        title: 'Đơn giá',
+        dataKey: 'ImportPrice',
+        cellRenderer: ({ rowData, rowIndex }) => (
+          <Controller
+            name={`items[${rowIndex}].ImportPrice`}
+            control={control}
+            render={({ field: { ref, ...field }, fieldState }) => (
+              <InputNumber
+                thousandSeparator={true}
+                value={field.value}
+                placeholder="Nhập đơn giá"
+                onValueChange={val => {
+                  const { ImportPriceOrigin } = watchForm.items[rowIndex]
+                  setValue(
+                    `items[${rowIndex}].ImportDiscount`,
+                    ImportPriceOrigin - (val.floatValue || 0)
+                  )
+                  field.onChange(val.floatValue || '')
+                  onUpdate()
+                }}
+              />
             )}
           />
         ),
-        width: 150,
+        width: 200,
+        sortable: false
+      },
+      {
+        key: 'Other',
+        title: 'Ghi chú',
+        dataKey: 'Other',
+        cellRenderer: ({ rowData, rowIndex }) => (
+          <Controller
+            name={`items[${rowIndex}].Other`}
+            control={control}
+            render={({ field: { ref, ...field }, fieldState }) => (
+              <Input
+                wrapClass="w-full"
+                placeholder="Nhập ghi chú"
+                autoComplete="off"
+                type="text"
+                {...field}
+              />
+            )}
+          />
+        ),
+        width: 350,
         sortable: false
       },
       {
@@ -168,42 +372,108 @@ function WareHouseImport(props) {
         title: '#',
         dataKey: '#',
         cellRenderer: ({ rowIndex }) => (
-          <div
-            className="px-2.5 h-8 flex items-center text-[13px] text-white rounded cursor-pointer bg-danger hover:bg-dangerhv"
-            onClick={() => remove(rowIndex)}
-          >
-            Xóa
-          </div>
+          <>
+            <div
+              className="px-2 h-8 flex items-center text-[13px] text-white rounded cursor-pointer bg-success hover:bg-successhv"
+              onClick={() =>
+                append({
+                  ImportDiscount: '',
+                  ImportPrice: '',
+                  ImportPriceOrigin: '',
+                  ProdTitle: '',
+                  Qty: '',
+                  ProdCode: '',
+                  ProdId: '',
+                  Unit: ''
+                })
+              }
+            >
+              <PlusIcon className="w-5" />
+            </div>
+            <div
+              className="px-2 h-8 flex items-center text-[13px] text-white rounded cursor-pointer bg-danger hover:bg-dangerhv ml-1"
+              onClick={() => {
+                if (watchForm?.items.length > 1) {
+                  remove(rowIndex)
+                } else {
+                  update(rowIndex, {
+                    ImportDiscount: '',
+                    ImportPrice: '',
+                    ImportPriceOrigin: '',
+                    ProdTitle: '',
+                    Qty: '',
+                    ProdCode: '',
+                    ProdId: '',
+                    Unit: ''
+                  })
+                }
+              }}
+            >
+              <TrashIcon className="w-5" />
+            </div>
+          </>
         ),
-        width: 80,
+        width: 110,
         sortable: false,
         align: 'center',
         frozen: 'right'
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [fields]
+    [fields, watchForm?.items]
   )
 
-  const ConvertMutation = useMutation({
-    mutationFn: body => WarehouseAPI.whouseConvert(body)
+  const onUpdate = () => {
+    const total = watchForm?.items.reduce(
+      (n, { ImportPrice, Qty }) => n + ImportPrice * Qty,
+      0
+    )
+    const ToPay =
+      watchForm?.ie?.Discount > 100
+        ? total - watchForm?.ie?.Discount
+        : total - (total * watchForm?.ie?.Discount) / 100
+    setValue('ie.Total', total)
+    setValue('ie.ToPay', ToPay)
+  }
+
+  const updateMutation = useMutation({
+    mutationFn: body => WarehouseAPI.updateImportExport(body)
   })
 
   const onSubmit = values => {
-    var bodyFormData = new FormData()
-    bodyFormData.append('stockid', values.stockid)
-    bodyFormData.append('data', JSON.stringify(values.data))
-
-    ConvertMutation.mutate(bodyFormData, {
-      onSettled: data => {
-        queryClient
-          .invalidateQueries({ queryKey: ['ListImportExport'] })
-          .then(() => {
-            reset()
-            toast.success('Chuyển đổi thành công.')
-          })
+    updateMutation.mutate(
+      {
+        ...values,
+        ie: {
+          ...values.ie,
+          stockItems: values.items.map(x => ({
+            ...x,
+            ProdTitle: x.ProdTitle.text,
+            Desc: x?.Other || ''
+          }))
+        },
+        items: values.items.map(x => ({
+          ...x,
+          ProdTitle: x.ProdTitle.text,
+          Desc: x?.Other || ''
+        }))
+      },
+      {
+        onSettled: data => {
+          queryClient
+            .invalidateQueries({ queryKey: ['ListImportExport'] })
+            .then(() => {
+              toast.success(
+                id ? 'Cập nhập thành công.' : 'Thêm mới thành công.'
+              )
+              navigate({
+                pathname: state?.prevFrom,
+                search: search
+              })
+            })
+        }
       }
-    })
+    )
   }
   return (
     <LayoutGroup key={pathname}>
@@ -211,7 +481,12 @@ function WareHouseImport(props) {
         <m.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
           <div
             className="absolute w-full h-full top-0 left bg-black/[.2] dark:bg-black/[.4]"
-            onClick={() => navigate(state?.prevFrom)}
+            onClick={() =>
+              navigate({
+                pathname: state?.prevFrom,
+                search: search
+              })
+            }
           ></div>
         </m.div>
         <m.div
@@ -225,11 +500,16 @@ function WareHouseImport(props) {
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
               <div className="flex text-2xl font-bold dark:text-graydark-800">
-                Đơn nhập kho mới
+                {!id ? 'Đơn nhập kho mới' : 'Chỉnh sửa đơn nhập kho'}
               </div>
               <div
                 className="flex items-center justify-center w-12 h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
-                onClick={() => navigate(state?.prevFrom)}
+                onClick={() =>
+                  navigate({
+                    pathname: state?.prevFrom,
+                    search: search
+                  })
+                }
               >
                 <XMarkIcon className="w-9" />
               </div>
@@ -253,7 +533,7 @@ function WareHouseImport(props) {
                       <div className="font-medium">Mã đơn</div>
                       <div className="mt-1">
                         <Controller
-                          name="Key"
+                          name="ie.Code"
                           control={control}
                           render={({
                             field: { ref, ...field },
@@ -273,7 +553,7 @@ function WareHouseImport(props) {
                       <div className="font-medium">Kho</div>
                       <div className="mt-1">
                         <Controller
-                          name="stockid"
+                          name="ie.Source"
                           control={control}
                           render={({
                             field: { ref, ...field },
@@ -300,7 +580,7 @@ function WareHouseImport(props) {
                       <div className="font-semibold">Nhà cung cấp, đại lý</div>
                       <div className="mt-1">
                         <Controller
-                          name="SupplierID"
+                          name="ie.SupplierID"
                           control={control}
                           render={({
                             field: { ref, ...field },
@@ -330,7 +610,7 @@ function WareHouseImport(props) {
                       <div className="font-semibold">Tổng tiền</div>
                       <div className="mt-1">
                         <Controller
-                          name={`UserServices`}
+                          name="ie.Total"
                           control={control}
                           render={({
                             field: { ref, ...field },
@@ -343,7 +623,6 @@ function WareHouseImport(props) {
                               onValueChange={val =>
                                 field.onChange(val.floatValue || '')
                               }
-                              allowNegative={false}
                             />
                           )}
                         />
@@ -353,21 +632,34 @@ function WareHouseImport(props) {
                       <div className="font-semibold">Chiết khấu cả đơn</div>
                       <div className="mt-1">
                         <Controller
-                          name={`UserServices`}
+                          name="ie.Discount"
                           control={control}
                           render={({
                             field: { ref, ...field },
                             fieldState
                           }) => (
-                            <InputNumber
-                              thousandSeparator={true}
-                              value={field.value}
-                              placeholder="Nhập số tiền"
-                              onValueChange={val =>
-                                field.onChange(val.floatValue || '')
-                              }
-                              allowNegative={false}
-                            />
+                            <div className="relative">
+                              <InputNumber
+                                thousandSeparator={true}
+                                value={field.value}
+                                placeholder="Nhập số tiền"
+                                onValueChange={val => {
+                                  field.onChange(val.floatValue || '')
+                                  setValue(
+                                    'ie.ToPay',
+                                    val.floatValue > 100
+                                      ? watchForm?.ie?.Total - val.floatValue
+                                      : watchForm?.ie?.Total -
+                                          (val.floatValue *
+                                            watchForm?.ie?.Total) /
+                                            100
+                                  )
+                                }}
+                              />
+                              <div className="absolute w-[45px] h-full top-0 right-0 flex justify-center items-center pointer-none">
+                                {field.value > 100 ? 'đ' : '%'}
+                              </div>
+                            </div>
                           )}
                         />
                       </div>
@@ -376,7 +668,7 @@ function WareHouseImport(props) {
                       <div className="font-semibold">Tổng</div>
                       <div className="mt-1">
                         <Controller
-                          name={`UserServices`}
+                          name="ie.ToPay"
                           control={control}
                           render={({
                             field: { ref, ...field },
@@ -389,7 +681,6 @@ function WareHouseImport(props) {
                               onValueChange={val =>
                                 field.onChange(val.floatValue || '')
                               }
-                              allowNegative={false}
                             />
                           )}
                         />
@@ -399,7 +690,7 @@ function WareHouseImport(props) {
                       <div className="font-semibold">Ghi chú</div>
                       <div className="mt-1">
                         <Controller
-                          name={`UserServices`}
+                          name="ie.Other"
                           control={control}
                           render={({
                             field: { ref, ...field },
@@ -420,8 +711,8 @@ function WareHouseImport(props) {
                 </div>
                 <div className="px-6 py-4 border-t border-separator">
                   <Button
-                    disabled={ConvertMutation.isLoading || !isDirty || !isValid}
-                    loading={ConvertMutation.isLoading}
+                    disabled={updateMutation.isLoading}
+                    loading={updateMutation.isLoading}
                     type="submit"
                     className="w-full flex items-center justify-center relative h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
                   >

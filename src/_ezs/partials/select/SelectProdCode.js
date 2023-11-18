@@ -1,5 +1,4 @@
 import React from 'react'
-import { useQuery } from '@tanstack/react-query'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import AsyncSelect from 'react-select/async'
 
@@ -49,6 +48,7 @@ function SelectProdCode({ Params, Key, ...props }) {
         classNamePrefix="select"
         placeholder="Chọn sản phẩm, nvl"
         noOptionsMessage={() => 'Không có dữ liệu'}
+        onInputChange={val => console.log(val)}
         {...props}
       />
     </div>
