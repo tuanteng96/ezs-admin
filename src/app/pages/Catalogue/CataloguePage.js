@@ -1,6 +1,6 @@
 import React, { lazy } from 'react'
 import { CatalogueLayout } from './CatalogueLayout'
-import { Route, Routes, Navigate, Outlet } from 'react-router-dom'
+import { Route, Routes, Navigate } from 'react-router-dom'
 import SuspensedView from 'src/app/routing/SuspensedView'
 
 const Category = lazy(() => import('./pages/Category'))
@@ -10,11 +10,18 @@ const CategoryAdd = lazy(() => import('./pages/Category/CategoryAdd'))
 const Inventory = lazy(() => import('./pages/Inventory'))
 const InventoryFilters = lazy(() => import('./pages/Inventory/pages/Filters'))
 const ImportExport = lazy(() => import('./pages/ImportExport'))
+
 const ImportExportFilters = lazy(() =>
   import('./pages/ImportExport/pages/Filters')
 )
 const WareHouseImport = lazy(() =>
   import('./pages/ImportExport/pages/WareHouseImport')
+)
+const WareHouseExport = lazy(() =>
+  import('./pages/ImportExport/pages/WareHouseExport')
+)
+const WareHouseExportStock = lazy(() =>
+  import('./pages/ImportExport/pages/WareHouseExportStock')
 )
 const ImportExportMaterial = lazy(() =>
   import('./pages/ImportExport/pages/MaterialConversion')
@@ -150,6 +157,14 @@ function CataloguePage(props) {
             element={<ImportExportMaterial />}
           ></Route>
           <Route path="import" element={<WareHouseImport />}>
+            <Route index element={<Navigate to="inventory" />} />
+            <Route path=":id" element={<Navigate to="inventory" />} />
+          </Route>
+          <Route path="export" element={<WareHouseExport />}>
+            <Route index element={<Navigate to="inventory" />} />
+            <Route path=":id" element={<Navigate to="inventory" />} />
+          </Route>
+          <Route path="export-stock" element={<WareHouseExportStock />}>
             <Route index element={<Navigate to="inventory" />} />
             <Route path=":id" element={<Navigate to="inventory" />} />
           </Route>

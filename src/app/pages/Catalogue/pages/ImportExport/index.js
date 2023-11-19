@@ -214,7 +214,8 @@ function ImportExport(props) {
                     pathname:
                       rowData.Type === 'N'
                         ? 'import/' + rowData.ID
-                        : 'export/' + rowData.ID,
+                        : (rowData.Target > 0 ? 'export-stock/' : 'export/') +
+                          rowData.ID,
                     search: search
                   }}
                   state={{
@@ -300,7 +301,7 @@ function ImportExport(props) {
           </NavLink>
           <Menu as="div" className="relative mr-2.5">
             <div>
-              <Menu.Button className="flex items-center relative h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70">
+              <Menu.Button className="relative flex items-center h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70">
                 Thêm mới
                 <ChevronDownIcon
                   className="w-5 h-5 ml-2 -mr-1 text-violet-200 hover:text-violet-100"
@@ -314,7 +315,7 @@ function ImportExport(props) {
               leaveFrom="opacity-100"
               leaveTo="opacity-0"
             >
-              <Menu.Items className="z-[1001] absolute rounded px-0 py-2 border-0 w-[225px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow">
+              <Menu.Items className="z-[1001] absolute right-0 rounded px-0 py-2 border-0 w-[225px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow">
                 <div>
                   <Menu.Item>
                     <NavLink
@@ -334,7 +335,12 @@ function ImportExport(props) {
                   <Menu.Item>
                     <NavLink
                       to={{
-                        pathname: 'list-category/nh'
+                        pathname: 'export',
+                        search: search
+                      }}
+                      state={{
+                        prevFrom: pathname,
+                        queryConfig
                       }}
                       className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
                     >
@@ -358,7 +364,12 @@ function ImportExport(props) {
                   <Menu.Item>
                     <NavLink
                       to={{
-                        pathname: 'list-category/nh'
+                        pathname: 'export-stock',
+                        search: search
+                      }}
+                      state={{
+                        prevFrom: pathname,
+                        queryConfig
                       }}
                       className="w-full text-[15px] flex flex-col px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
                     >

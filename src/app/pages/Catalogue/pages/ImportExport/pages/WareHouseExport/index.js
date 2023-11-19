@@ -17,7 +17,7 @@ import {
 } from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 
-function WareHouseImport(props) {
+function WareHouseExport(props) {
   const navigate = useNavigate()
   const { pathname, state, search } = useLocation()
   const { id } = useParams()
@@ -31,7 +31,7 @@ function WareHouseImport(props) {
         SupplierID: '', //Nhà cung cấp
         ToPay: '', // Giá trị sau chiết khấu
         Total: '', // Tổng giá trị
-        Type: 'N',
+        Type: 'X',
         Other: '', //Ghi chú
         Discount: '', //Giá trị chiết khấu
         Source: '' // Kho
@@ -62,7 +62,7 @@ function WareHouseImport(props) {
     queryFn: async () => {
       let { data } = await WarehouseAPI.getListInventory({
         cmd: 'getie_id',
-        id: id || 'typeN'
+        id: id || 'typeX'
       })
       return data?.data
     },
@@ -74,7 +74,7 @@ function WareHouseImport(props) {
             SupplierID: data?.SupplierID,
             ToPay: data?.ToPay,
             Total: data?.Total,
-            Type: 'N',
+            Type: 'X',
             Other: data?.Other || '',
             Discount: data?.Discount,
             Source: data?.Source
@@ -500,7 +500,7 @@ function WareHouseImport(props) {
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
               <div className="flex text-2xl font-bold dark:text-graydark-800">
-                {!id ? 'Đơn nhập kho mới' : 'Chỉnh sửa đơn nhập kho'}
+                {!id ? 'Đơn xuất kho mới' : 'Chỉnh sửa đơn xuất kho'}
               </div>
               <div
                 className="flex items-center justify-center w-12 h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
@@ -732,4 +732,4 @@ function WareHouseImport(props) {
   )
 }
 
-export default WareHouseImport
+export default WareHouseExport
