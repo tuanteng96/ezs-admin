@@ -58,7 +58,6 @@ function WareHouseExport(props) {
   })
 
   const watchForm = watch()
-
   const { fields, remove, append, update } = useFieldArray({
     control,
     name: 'items'

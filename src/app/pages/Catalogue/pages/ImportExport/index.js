@@ -267,20 +267,20 @@ function ImportExport(props) {
                   </NavLink>
                 </div>
               )}
-
-              {auth.User.ID !== 1 &&
-                moment().format('DD-MM-YYYY') ===
-                  moment(rowData.CreateDate).format('DD-MM-YYYY') && (
-                  <div>
-                    <button
-                      type="button"
-                      className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light font-inter transition cursor-pointer dark:text-white text-danger"
-                      onClick={() => onDelete(rowData)}
-                    >
-                      Xóa đơn
-                    </button>
-                  </div>
-                )}
+              {(auth.User.ID === 1 ||
+                (auth.User.ID !== 1 &&
+                  moment().format('DD-MM-YYYY') ===
+                    moment(rowData.CreateDate).format('DD-MM-YYYY'))) && (
+                <div>
+                  <button
+                    type="button"
+                    className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light font-inter transition cursor-pointer dark:text-white text-danger"
+                    onClick={() => onDelete(rowData)}
+                  >
+                    Xóa đơn
+                  </button>
+                </div>
+              )}
             </DropdownMenu>
           </div>
         ),
@@ -290,7 +290,7 @@ function ImportExport(props) {
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [search, auth]
   )
 
   return (

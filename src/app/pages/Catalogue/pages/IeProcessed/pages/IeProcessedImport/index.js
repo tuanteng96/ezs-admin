@@ -79,6 +79,10 @@ function IeProcessedImport(props) {
             Discount: data?.Discount,
             Source: data?.Source,
             IsReceive: true,
+            UserID: data?.UserID || 0,
+            Target: data?.Target || 0,
+            TargetCreated: data?.TargetCreated || 0,
+            CreateDate: data?.CreateDate || '',
             Summary: data?.Summary,
             ID: data?.ID
           },

@@ -5,8 +5,7 @@ import {
 import { useQuery } from '@tanstack/react-query'
 import { identity, pickBy } from 'lodash-es'
 import moment from 'moment'
-import React from 'react'
-import { useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { NavLink, createSearchParams } from 'react-router-dom'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
@@ -14,12 +13,15 @@ import { useAuth } from 'src/_ezs/core/Auth'
 import useQueryParams from 'src/_ezs/hooks/useQueryParams'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { formatString } from 'src/_ezs/utils/formatString'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 
 function IeProcessed(props) {
   const { CrStocks } = useAuth()
   const navigate = useNavigate()
   const { pathname, search } = useLocation()
   const queryParams = useQueryParams()
+
+  const { xuat_nhap_diem } = useRoles(['xuat_nhap_diem', 'xuat_nhap_ten_slg'])
 
   const queryConfig = {
     cmd: 'getie',
@@ -98,14 +100,6 @@ function IeProcessed(props) {
         sortable: false
       },
       {
-        key: 'Summary',
-        title: 'Số lượng',
-        dataKey: 'Summary',
-        width: 200,
-        cellRenderer: ({ rowData }) => rowData.Summary,
-        sortable: false
-      },
-      {
         key: 'PriceBase',
         title: 'Nhân viên thực hiện',
         dataKey: 'PriceBase',
@@ -121,7 +115,8 @@ function IeProcessed(props) {
         cellRenderer: ({ rowData }) => (
           <div>{formatString.formatVND(rowData?.ToPay)}</div>
         ),
-        sortable: false
+        sortable: false,
+        hidden: !xuat_nhap_diem.hasRight
       },
       {
         key: 'Payed',
@@ -131,7 +126,8 @@ function IeProcessed(props) {
         cellRenderer: ({ rowData }) => (
           <div>{formatString.formatVNDPositive(rowData?.Payed)}</div>
         ),
-        sortable: false
+        sortable: false,
+        hidden: !xuat_nhap_diem.hasRight
       },
       {
         key: 'ToPay-Payed',
@@ -143,7 +139,8 @@ function IeProcessed(props) {
             {formatString.formatVND(rowData?.ToPay - Math.abs(rowData?.Payed))}
           </div>
         ),
-        sortable: false
+        sortable: false,
+        hidden: !xuat_nhap_diem.hasRight
       },
       {
         key: 'Other',
@@ -195,7 +192,7 @@ function IeProcessed(props) {
         </div>
         <div className="flex pb-1">
           <NavLink
-            className="flex items-center justify-center text-gray-900 bg-light border rounded border-light h-12 w-12 dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
+            className="flex items-center justify-center w-12 h-12 text-gray-900 border rounded bg-light border-light dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
             to={{
               pathname: 'filters',
               search: search

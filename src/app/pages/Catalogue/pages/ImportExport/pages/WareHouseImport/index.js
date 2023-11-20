@@ -24,6 +24,7 @@ function WareHouseImport(props) {
   const { auth } = useAuth()
   const navigate = useNavigate()
   const { pathname, state, search } = useLocation()
+
   const { id } = useParams()
   const { xuat_nhap_diem, xuat_nhap_ten_slg } = useRoles([
     'xuat_nhap_diem',
@@ -58,7 +59,7 @@ function WareHouseImport(props) {
   })
 
   const watchForm = watch()
-  console.log(watchForm)
+
   const { fields, remove, append, update } = useFieldArray({
     control,
     name: 'items'
@@ -86,11 +87,12 @@ function WareHouseImport(props) {
             Other: data?.Other || '',
             Discount: data?.Discount,
             Source: data?.Source,
-            UserID: data?.UserID || '',
-            Target: data?.Target || '',
-            TargetCreated: data?.TargetCreated || '',
+            UserID: data?.UserID || 0,
+            Target: data?.Target || 0,
+            TargetCreated: data?.TargetCreated || 0,
             CreateDate: data?.CreateDate || '',
-            Summary: data?.Summary || ''
+            Summary: data?.Summary || '',
+            ReceiverID: data?.ReceiverID || 0
           },
           items:
             data.stockItems && data.stockItems.length > 0

@@ -207,7 +207,7 @@ function Inventory(props) {
         </div>
         <div className="flex pb-1">
           <NavLink
-            className="flex items-center justify-center text-gray-900 bg-light border rounded border-light h-12 w-12 dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
+            className="flex items-center justify-center w-12 h-12 text-gray-900 border rounded bg-light border-light dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
             to={{
               pathname: 'filters',
               search: search
