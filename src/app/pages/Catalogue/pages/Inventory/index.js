@@ -20,12 +20,17 @@ import { formatString } from 'src/_ezs/utils/formatString'
 import { PickerInventory } from './components'
 import { useAuth } from 'src/_ezs/core/Auth'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
+import { useLayout } from 'src/_ezs/layout/LayoutProvider'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 
 function Inventory(props) {
   const { CrStocks } = useAuth()
+  const { GlobalConfig } = useLayout()
   const navigate = useNavigate()
   const { pathname, search } = useLocation()
   const queryParams = useQueryParams()
+
+  const { xuat_nhap_diem } = useRoles(['xuat_nhap_diem', 'xuat_nhap_ten_slg'])
 
   const queryConfig = {
     cmd: 'prodinstock',
@@ -134,7 +139,8 @@ function Inventory(props) {
         dataKey: 'RealQty',
         width: 120,
         cellRenderer: ({ rowData }) => <div>{rowData.RealQty}</div>,
-        sortable: false
+        sortable: false,
+        hidden: GlobalConfig?.Admin?.khong_co_kho
       },
       {
         key: 'PriceBase',
@@ -144,7 +150,8 @@ function Inventory(props) {
         cellRenderer: ({ rowData }) => (
           <div>{formatString.formatVND(rowData?.PriceBase)}</div>
         ),
-        sortable: false
+        sortable: false,
+        hidden: !xuat_nhap_diem?.hasRight
       },
       {
         key: 'PriceBase*Qty',
@@ -154,7 +161,8 @@ function Inventory(props) {
         cellRenderer: ({ rowData }) => (
           <div>{formatString.formatVND(rowData?.PriceBase * rowData?.Qty)}</div>
         ),
-        sortable: false
+        sortable: false,
+        hidden: !xuat_nhap_diem?.hasRight
       },
       {
         key: 'Action',
@@ -199,7 +207,7 @@ function Inventory(props) {
         </div>
         <div className="flex pb-1">
           <NavLink
-            className="flex items-center justify-center text-gray-900 bg-light border rounded border-light h-12 w-12 dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary mr-2.5"
+            className="flex items-center justify-center text-gray-900 bg-light border rounded border-light h-12 w-12 dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
             to={{
               pathname: 'filters',
               search: search

@@ -20,6 +20,7 @@ import { Switch } from '@headlessui/react'
 import clsx from 'clsx'
 import Select from 'react-select'
 import { Input } from 'src/_ezs/partials/forms'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 
 const perfectScrollbarOptions = {
   wheelSpeed: 2,
@@ -51,6 +52,11 @@ const ListPayStatus = [
 function InventoryFilters(props) {
   const { search, state, pathname } = useLocation()
   const navigate = useNavigate()
+
+  const { xuat_nhap_diem, xuat_nhap_ten_slg } = useRoles([
+    'xuat_nhap_diem',
+    'xuat_nhap_ten_slg'
+  ])
 
   useEscape(() =>
     navigate({
@@ -144,7 +150,22 @@ function InventoryFilters(props) {
                           })
                         }}
                         menuPortalTarget={document.body}
-                        isClearable
+                        isClearable={
+                          xuat_nhap_diem.IsStocks || xuat_nhap_ten_slg.IsStocks
+                        }
+                        StockRoles={
+                          xuat_nhap_diem.hasRight
+                            ? xuat_nhap_diem.IsStocks
+                              ? [{ value: 778, label: 'Kho tổng' }].concat(
+                                  xuat_nhap_diem.StockRoles
+                                )
+                              : xuat_nhap_diem.StockRoles
+                            : xuat_nhap_ten_slg.IsStocks
+                            ? [{ value: 778, label: 'Kho tổng' }].concat(
+                                xuat_nhap_ten_slg.StockRoles
+                              )
+                            : xuat_nhap_ten_slg.StockRoles
+                        }
                       />
                     )}
                   />

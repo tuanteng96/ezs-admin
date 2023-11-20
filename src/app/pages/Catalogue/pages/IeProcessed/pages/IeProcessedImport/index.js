@@ -2,29 +2,25 @@ import { PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { LayoutGroup, m } from 'framer-motion'
-import moment from 'moment'
 import React, { useMemo } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
-import { useAuth } from 'src/_ezs/core/Auth'
-import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import { Button } from 'src/_ezs/partials/button'
 import { Input, InputNumber, InputTextarea } from 'src/_ezs/partials/forms'
-import { SelectProdCode, SelectStocksWareHouse } from 'src/_ezs/partials/select'
+import {
+  SelectProdCode,
+  SelectStocksWareHouse,
+  SelectSupplier
+} from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 
-function WareHouseExportStock(props) {
-  const { auth } = useAuth()
+function IeProcessedImport(props) {
   const navigate = useNavigate()
   const { pathname, state, search } = useLocation()
   const { id } = useParams()
-  const { xuat_nhap_diem, xuat_nhap_ten_slg } = useRoles([
-    'xuat_nhap_diem',
-    'xuat_nhap_ten_slg'
-  ])
 
   const queryClient = useQueryClient()
 
@@ -35,11 +31,10 @@ function WareHouseExportStock(props) {
         SupplierID: '', //Nhà cung cấp
         ToPay: '', // Giá trị sau chiết khấu
         Total: '', // Tổng giá trị
-        Type: 'X',
+        Type: 'N',
         Other: '', //Ghi chú
         Discount: '', //Giá trị chiết khấu
-        Source: '', // Kho
-        Target: '' //Kho xuất qua
+        Source: '' // Kho
       },
       items: [
         {
@@ -62,12 +57,12 @@ function WareHouseExportStock(props) {
     name: 'items'
   })
 
-  const { isLoading, data } = useQuery({
+  const { isLoading } = useQuery({
     queryKey: ['ImportExportId', id],
     queryFn: async () => {
       let { data } = await WarehouseAPI.getListInventory({
         cmd: 'getie_id',
-        id: id || 'typeX'
+        id: id
       })
       return data?.data
     },
@@ -75,19 +70,17 @@ function WareHouseExportStock(props) {
       if (data) {
         reset({
           ie: {
-            ID: data?.ID || 0,
             Code: data?.Code,
             SupplierID: data?.SupplierID,
             ToPay: data?.ToPay,
             Total: data?.Total,
-            Type: 'X',
+            Type: 'N',
             Other: data?.Other || '',
             Discount: data?.Discount,
             Source: data?.Source,
-            Target: data?.Target || '',
-            UserID: data?.UserID || '',
-            TargetCreated: data?.TargetCreated || '',
-            CreateDate: data?.CreateDate || ''
+            IsReceive: true,
+            Summary: data?.Summary,
+            ID: data?.ID
           },
           items:
             data.stockItems && data.stockItems.length > 0
@@ -286,8 +279,7 @@ function WareHouseExportStock(props) {
               />
             )}
           />
-        ),
-        hidden: !xuat_nhap_diem?.hasRight
+        )
       },
       {
         key: 'ImportDiscount',
@@ -325,8 +317,7 @@ function WareHouseExportStock(props) {
               </div>
             )}
           />
-        ),
-        hidden: !xuat_nhap_diem?.hasRight
+        )
       },
       {
         key: 'ImportPrice',
@@ -355,8 +346,7 @@ function WareHouseExportStock(props) {
           />
         ),
         width: 200,
-        sortable: false,
-        hidden: !xuat_nhap_diem?.hasRight
+        sortable: false
       },
       {
         key: 'Other',
@@ -469,21 +459,21 @@ function WareHouseExportStock(props) {
           ...x,
           ProdTitle: x.ProdTitle.text,
           Desc: x?.Other || ''
-        }))
+        })),
+        receive: true
       },
       {
         onSettled: data => {
-          queryClient
-            .invalidateQueries({ queryKey: ['ListImportExport'] })
-            .then(() => {
-              toast.success(
-                id ? 'Cập nhập thành công.' : 'Thêm mới thành công.'
-              )
-              navigate({
-                pathname: state?.prevFrom,
-                search: search
-              })
+          Promise.all([
+            queryClient.invalidateQueries(['ListIEProcessed']),
+            queryClient.invalidateQueries(['ReceiveStock'])
+          ]).then(data => {
+            toast.success('Thêm mới thành công.')
+            navigate({
+              pathname: state?.prevFrom,
+              search: search
             })
+          })
         }
       }
     )
@@ -513,9 +503,7 @@ function WareHouseExportStock(props) {
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
               <div className="flex text-2xl font-bold dark:text-graydark-800">
-                {!id
-                  ? 'Xuất kho chuyển đổi cơ sở'
-                  : 'Chỉnh sửa xuất kho chuyển đổi cơ sở'}
+                Đơn nhập kho mới
               </div>
               <div
                 className="flex items-center justify-center w-12 h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
@@ -565,7 +553,7 @@ function WareHouseExportStock(props) {
                       </div>
                     </div>
                     <div className="mb-3.5">
-                      <div className="font-medium">Xuất từ kho</div>
+                      <div className="font-medium">Kho</div>
                       <div className="mt-1">
                         <Controller
                           name="ie.Source"
@@ -586,38 +574,27 @@ function WareHouseExportStock(props) {
                                 })
                               }}
                               menuPortalTarget={document.body}
-                              StockRoles={
-                                xuat_nhap_diem.hasRight
-                                  ? xuat_nhap_diem.IsStocks
-                                    ? [
-                                        { value: 778, label: 'Kho tổng' }
-                                      ].concat(xuat_nhap_diem.StockRoles)
-                                    : xuat_nhap_diem.StockRoles
-                                  : xuat_nhap_ten_slg.IsStocks
-                                  ? [{ value: 778, label: 'Kho tổng' }].concat(
-                                      xuat_nhap_ten_slg.StockRoles
-                                    )
-                                  : xuat_nhap_ten_slg.StockRoles
-                              }
                             />
                           )}
                         />
                       </div>
                     </div>
-                    <div className="mb-3.5">
-                      <div className="font-medium">Kho được chuyển đến</div>
+                    <div>
+                      <div className="font-medium">Nhà cung cấp, đại lý</div>
                       <div className="mt-1">
                         <Controller
-                          name="ie.Target"
+                          name="ie.SupplierID"
                           control={control}
                           render={({
                             field: { ref, ...field },
                             fieldState
                           }) => (
-                            <SelectStocksWareHouse
+                            <SelectSupplier
+                              isClearable
+                              className="select-control mb-8px"
                               value={field.value}
                               onChange={val => field.onChange(val?.value || '')}
-                              className="select-control"
+                              menuPortalTarget={document.body}
                               menuPosition="fixed"
                               styles={{
                                 menuPortal: base => ({
@@ -625,7 +602,6 @@ function WareHouseExportStock(props) {
                                   zIndex: 9999
                                 })
                               }}
-                              menuPortalTarget={document.body}
                             />
                           )}
                         />
@@ -633,91 +609,86 @@ function WareHouseExportStock(props) {
                     </div>
                   </div>
                   <div className="pt-4 mt-4 border-t border-separator">
-                    {xuat_nhap_diem?.hasRight && (
-                      <>
-                        <div className="mb-3.5">
-                          <div className="font-semibold">Tổng tiền</div>
-                          <div className="mt-1">
-                            <Controller
-                              name="ie.Total"
-                              control={control}
-                              render={({
-                                field: { ref, ...field },
-                                fieldState
-                              }) => (
-                                <InputNumber
-                                  thousandSeparator={true}
-                                  value={field.value}
-                                  placeholder="Nhập số tiền"
-                                  onValueChange={val =>
-                                    field.onChange(val.floatValue || '')
-                                  }
-                                />
-                              )}
+                    <div className="mb-3.5">
+                      <div className="font-semibold">Tổng tiền</div>
+                      <div className="mt-1">
+                        <Controller
+                          name="ie.Total"
+                          control={control}
+                          render={({
+                            field: { ref, ...field },
+                            fieldState
+                          }) => (
+                            <InputNumber
+                              thousandSeparator={true}
+                              value={field.value}
+                              placeholder="Nhập số tiền"
+                              onValueChange={val =>
+                                field.onChange(val.floatValue || '')
+                              }
                             />
-                          </div>
-                        </div>
-                        <div className="mb-3.5">
-                          <div className="font-semibold">Chiết khấu cả đơn</div>
-                          <div className="mt-1">
-                            <Controller
-                              name="ie.Discount"
-                              control={control}
-                              render={({
-                                field: { ref, ...field },
-                                fieldState
-                              }) => (
-                                <div className="relative">
-                                  <InputNumber
-                                    thousandSeparator={true}
-                                    value={field.value}
-                                    placeholder="Nhập số tiền"
-                                    onValueChange={val => {
-                                      field.onChange(val.floatValue || '')
-                                      setValue(
-                                        'ie.ToPay',
-                                        val.floatValue > 100
-                                          ? watchForm?.ie?.Total -
-                                              val.floatValue
-                                          : watchForm?.ie?.Total -
-                                              (val.floatValue *
-                                                watchForm?.ie?.Total) /
-                                                100
-                                      )
-                                    }}
-                                  />
-                                  <div className="absolute w-[45px] h-full top-0 right-0 flex justify-center items-center pointer-none">
-                                    {field.value > 100 ? 'đ' : '%'}
-                                  </div>
-                                </div>
-                              )}
+                          )}
+                        />
+                      </div>
+                    </div>
+                    <div className="mb-3.5">
+                      <div className="font-semibold">Chiết khấu cả đơn</div>
+                      <div className="mt-1">
+                        <Controller
+                          name="ie.Discount"
+                          control={control}
+                          render={({
+                            field: { ref, ...field },
+                            fieldState
+                          }) => (
+                            <div className="relative">
+                              <InputNumber
+                                thousandSeparator={true}
+                                value={field.value}
+                                placeholder="Nhập số tiền"
+                                onValueChange={val => {
+                                  field.onChange(val.floatValue || '')
+                                  setValue(
+                                    'ie.ToPay',
+                                    val.floatValue > 100
+                                      ? watchForm?.ie?.Total - val.floatValue
+                                      : watchForm?.ie?.Total -
+                                          (val.floatValue *
+                                            watchForm?.ie?.Total) /
+                                            100
+                                  )
+                                }}
+                              />
+                              <div className="absolute w-[45px] h-full top-0 right-0 flex justify-center items-center pointer-none">
+                                {field.value > 100 ? 'đ' : '%'}
+                              </div>
+                            </div>
+                          )}
+                        />
+                      </div>
+                    </div>
+                    <div className="mb-3.5">
+                      <div className="font-semibold">Tổng</div>
+                      <div className="mt-1">
+                        <Controller
+                          name="ie.ToPay"
+                          control={control}
+                          render={({
+                            field: { ref, ...field },
+                            fieldState
+                          }) => (
+                            <InputNumber
+                              thousandSeparator={true}
+                              value={field.value}
+                              placeholder="Nhập số tiền"
+                              onValueChange={val =>
+                                field.onChange(val.floatValue || '')
+                              }
                             />
-                          </div>
-                        </div>
-                        <div className="mb-3.5">
-                          <div className="font-semibold">Tổng</div>
-                          <div className="mt-1">
-                            <Controller
-                              name="ie.ToPay"
-                              control={control}
-                              render={({
-                                field: { ref, ...field },
-                                fieldState
-                              }) => (
-                                <InputNumber
-                                  thousandSeparator={true}
-                                  value={field.value}
-                                  placeholder="Nhập số tiền"
-                                  onValueChange={val =>
-                                    field.onChange(val.floatValue || '')
-                                  }
-                                />
-                              )}
-                            />
-                          </div>
-                        </div>
-                      </>
-                    )}
+                          )}
+                        />
+                      </div>
+                    </div>
                     <div>
                       <div className="font-semibold">Ghi chú</div>
                       <div className="mt-1">
@@ -743,25 +714,12 @@ function WareHouseExportStock(props) {
                 </div>
                 <div className="px-6 py-4 border-t border-separator">
                   <Button
-                    disabled={
-                      updateMutation.isLoading ||
-                      (auth.User.ID !== 1 &&
-                        data &&
-                        moment().format('DD-MM-YYYY') !==
-                          moment(data?.CreateDate).format('DD-MM-YYYY'))
-                    }
+                    disabled={updateMutation.isLoading}
                     loading={updateMutation.isLoading}
                     type="submit"
                     className="relative flex items-center justify-center w-full h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
                   >
-                    {auth.User.ID !== 1 &&
-                    data &&
-                    moment().format('DD-MM-YYYY') !==
-                      moment(data?.CreateDate).format('DD-MM-YYYY') ? (
-                      <>Không thể chỉnh sửa</>
-                    ) : (
-                      <>{id ? 'Cập nhập' : 'Thêm mới'}</>
-                    )}
+                    Tạo mới
                   </Button>
                 </div>
               </div>
@@ -777,4 +735,4 @@ function WareHouseExportStock(props) {
   )
 }
 
-export default WareHouseExportStock
+export default IeProcessedImport

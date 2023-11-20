@@ -1,8 +1,8 @@
 import { Menu, Transition } from '@headlessui/react'
 import {
   AdjustmentsVerticalIcon,
-  ArrowRightIcon,
-  ChevronDownIcon
+  ChevronDownIcon,
+  EllipsisHorizontalIcon
 } from '@heroicons/react/24/outline'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { identity, pickBy } from 'lodash-es'
@@ -16,16 +16,18 @@ import { toast } from 'react-toastify'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useAuth } from 'src/_ezs/core/Auth'
 import useQueryParams from 'src/_ezs/hooks/useQueryParams'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { DropdownMenu } from 'src/_ezs/partials/dropdown'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { formatString } from 'src/_ezs/utils/formatString'
 import Swal from 'sweetalert2'
 
 function ImportExport(props) {
-  const { CrStocks } = useAuth()
+  const { CrStocks, auth } = useAuth()
   const navigate = useNavigate()
   const { pathname, search } = useLocation()
   const queryParams = useQueryParams()
+  const { xuat_nhap_diem } = useRoles(['xuat_nhap_diem', 'xuat_nhap_ten_slg'])
 
   const queryConfig = {
     cmd: 'getie',
@@ -126,6 +128,41 @@ function ImportExport(props) {
         sortable: false
       },
       {
+        key: 'ToPay',
+        title: 'Tổng giá trị',
+        dataKey: 'ToPay',
+        width: 180,
+        cellRenderer: ({ rowData }) => (
+          <div>{formatString.formatVND(rowData?.ToPay)}</div>
+        ),
+        sortable: false,
+        hidden: !xuat_nhap_diem.hasRight
+      },
+      {
+        key: 'Payed',
+        title: 'Đã thanh toán',
+        dataKey: 'Payed',
+        width: 180,
+        cellRenderer: ({ rowData }) => (
+          <div>{formatString.formatVNDPositive(rowData?.Payed)}</div>
+        ),
+        sortable: false,
+        hidden: !xuat_nhap_diem.hasRight
+      },
+      {
+        key: 'ToPay-Payed',
+        title: 'Còn lại',
+        dataKey: 'ToPay-Payed',
+        width: 180,
+        cellRenderer: ({ rowData }) => (
+          <div>
+            {formatString.formatVND(rowData?.ToPay - Math.abs(rowData?.Payed))}
+          </div>
+        ),
+        sortable: false,
+        hidden: !xuat_nhap_diem.hasRight
+      },
+      {
         key: 'Type',
         title: 'Loại',
         dataKey: 'Type',
@@ -159,38 +196,6 @@ function ImportExport(props) {
         sortable: false
       },
       {
-        key: 'ToPay',
-        title: 'Tổng giá trị',
-        dataKey: 'ToPay',
-        width: 180,
-        cellRenderer: ({ rowData }) => (
-          <div>{formatString.formatVND(rowData?.ToPay)}</div>
-        ),
-        sortable: false
-      },
-      {
-        key: 'Payed',
-        title: 'Đã thanh toán',
-        dataKey: 'Payed',
-        width: 180,
-        cellRenderer: ({ rowData }) => (
-          <div>{formatString.formatVNDPositive(rowData?.Payed)}</div>
-        ),
-        sortable: false
-      },
-      {
-        key: 'ToPay-Payed',
-        title: 'Còn lại',
-        dataKey: 'ToPay-Payed',
-        width: 180,
-        cellRenderer: ({ rowData }) => (
-          <div>
-            {formatString.formatVND(rowData?.ToPay - Math.abs(rowData?.Payed))}
-          </div>
-        ),
-        sortable: false
-      },
-      {
         key: 'Action',
         title: '#',
         dataKey: 'Action',
@@ -204,7 +209,7 @@ function ImportExport(props) {
                   type="button"
                   className="bg-primary hover:bg-primaryhv text-white mx-[2px] text-sm cursor-pointer p-2.5 transition rounded-full"
                 >
-                  <ArrowRightIcon className="w-5" />
+                  <EllipsisHorizontalIcon className="w-5" />
                 </button>
               }
             >
@@ -245,25 +250,37 @@ function ImportExport(props) {
                   In đơn
                 </button>
               </div>
-              <div>
-                <NavLink
-                  to={{
-                    pathname: 'list-category/sp'
-                  }}
-                  className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
-                >
-                  Thanh toán
-                </NavLink>
-              </div>
-              <div>
-                <button
-                  type="button"
-                  className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light font-inter transition cursor-pointer dark:text-white text-danger"
-                  onClick={() => onDelete(rowData)}
-                >
-                  Xóa đơn
-                </button>
-              </div>
+              {xuat_nhap_diem.hasRight && (
+                <div>
+                  <NavLink
+                    to={{
+                      pathname: 'topay/' + rowData.ID,
+                      search: search
+                    }}
+                    state={{
+                      prevFrom: pathname,
+                      queryConfig
+                    }}
+                    className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                  >
+                    Thanh toán
+                  </NavLink>
+                </div>
+              )}
+
+              {auth.User.ID !== 1 &&
+                moment().format('DD-MM-YYYY') ===
+                  moment(rowData.CreateDate).format('DD-MM-YYYY') && (
+                  <div>
+                    <button
+                      type="button"
+                      className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light font-inter transition cursor-pointer dark:text-white text-danger"
+                      onClick={() => onDelete(rowData)}
+                    >
+                      Xóa đơn
+                    </button>
+                  </div>
+                )}
             </DropdownMenu>
           </div>
         ),
@@ -299,7 +316,7 @@ function ImportExport(props) {
           >
             <AdjustmentsVerticalIcon className="w-7" />
           </NavLink>
-          <Menu as="div" className="relative mr-2.5">
+          <Menu as="div" className="relative">
             <div>
               <Menu.Button className="relative flex items-center h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70">
                 Thêm mới
@@ -417,7 +434,7 @@ function ImportExport(props) {
           })
         }}
         rowClassName={({ rowData }) =>
-          rowData.Type === 'X' && '!bg-danger !text-white'
+          rowData.Type === 'X' && '!bg-dangerlight'
         }
       />
       <Outlet />

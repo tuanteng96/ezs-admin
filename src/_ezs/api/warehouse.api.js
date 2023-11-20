@@ -16,7 +16,11 @@ const WarehouseAPI = {
   deleteSupplier: body => http.post(`/api/v3/SupplierTable?cmd=delete`, body),
   getListProdCode: body =>
     http.get(`/api/gl/select2?${formatObject.toQueryString(body)}`),
-  whouseConvert: body => http.post(`/api/v3/whouseConvert?cmd=doconvert`, body)
+  whouseConvert: body => http.post(`/api/v3/whouseConvert?cmd=doconvert`, body),
+  getToPayId: body => http.post(`/api/v3/Whouse3@GetId`, JSON.stringify(body)),
+  whousePay: body => http.post(`/api/v3/Whouse3@payed`, JSON.stringify(body)),
+  getReceiveStock: body =>
+    http.post(`/api/v3/WHouse24@targetList`, JSON.stringify(body))
 }
 
 export default WarehouseAPI

@@ -11,7 +11,7 @@ const hasRolesAuth = data => {
       children: x.rights
         ? x.rights.map(r => ({
             ...r,
-            name: r.name + useId(),
+            name: r.name, // + useId()
             children: r?.subs || null
           }))
         : []

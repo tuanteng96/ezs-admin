@@ -7,6 +7,7 @@ import moment from 'moment'
 import React, { useMemo, useState } from 'react'
 import { toast } from 'react-toastify'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
+import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import { Button } from 'src/_ezs/partials/button'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 
@@ -63,6 +64,7 @@ function PickerInventory({ children, item, StockID }) {
     '(filter)ProdID': item?.ProdID,
     '(filter)StockID': StockID
   })
+  const { GlobalConfig } = useLayout()
 
   const { data, isLoading, isPreviousData } = useQuery({
     queryKey: ['ListInventoryProdID', filters],
@@ -158,7 +160,8 @@ function PickerInventory({ children, item, StockID }) {
         width: 120,
         cellRenderer: ({ rowData }) => <ButtonAction item={rowData} />,
         sortable: false,
-        frozen: 'right'
+        frozen: 'right',
+        hidden: GlobalConfig?.Admin?.khong_co_kho
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps

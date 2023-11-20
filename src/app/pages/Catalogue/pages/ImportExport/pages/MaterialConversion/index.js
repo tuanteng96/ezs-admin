@@ -7,6 +7,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useAuth } from 'src/_ezs/core/Auth'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { Button } from 'src/_ezs/partials/button'
 import { InputNumber } from 'src/_ezs/partials/forms'
 import { SelectProdCode, SelectStocksWareHouse } from 'src/_ezs/partials/select'
@@ -126,7 +127,10 @@ function MaterialConversion(props) {
   const { pathname, state, search } = useLocation()
   const { CrStocks } = useAuth()
   const queryClient = useQueryClient()
-
+  const { xuat_nhap_diem, xuat_nhap_ten_slg } = useRoles([
+    'xuat_nhap_diem',
+    'xuat_nhap_ten_slg'
+  ])
   const {
     control,
     handleSubmit,
@@ -397,6 +401,19 @@ function MaterialConversion(props) {
                           })
                         }}
                         menuPortalTarget={document.body}
+                        StockRoles={
+                          xuat_nhap_diem.hasRight
+                            ? xuat_nhap_diem.IsStocks
+                              ? [{ value: 778, label: 'Kho tổng' }].concat(
+                                  xuat_nhap_diem.StockRoles
+                                )
+                              : xuat_nhap_diem.StockRoles
+                            : xuat_nhap_ten_slg.IsStocks
+                            ? [{ value: 778, label: 'Kho tổng' }].concat(
+                                xuat_nhap_ten_slg.StockRoles
+                              )
+                            : xuat_nhap_ten_slg.StockRoles
+                        }
                       />
                     )}
                   />

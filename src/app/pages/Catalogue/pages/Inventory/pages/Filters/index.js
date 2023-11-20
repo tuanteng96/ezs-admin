@@ -19,6 +19,8 @@ import {
 import { Switch } from '@headlessui/react'
 import clsx from 'clsx'
 import { useAuth } from 'src/_ezs/core/Auth'
+import { useLayout } from 'src/_ezs/layout/LayoutProvider'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 
 const perfectScrollbarOptions = {
   wheelSpeed: 2,
@@ -27,8 +29,14 @@ const perfectScrollbarOptions = {
 
 function InventoryFilters(props) {
   const { CrStocks } = useAuth()
+  const { GlobalConfig } = useLayout()
   const { search, state, pathname } = useLocation()
   const navigate = useNavigate()
+
+  const { xuat_nhap_diem, xuat_nhap_ten_slg } = useRoles([
+    'xuat_nhap_diem',
+    'xuat_nhap_ten_slg'
+  ])
 
   useEscape(() =>
     navigate({
@@ -125,150 +133,170 @@ function InventoryFilters(props) {
               options={perfectScrollbarOptions}
               className="relative p-5 grow"
             >
-              <div className="mb-3.5">
-                <div className="font-medium">Từ khóa</div>
-                <div className="mt-1">
-                  <Controller
-                    name="Key"
-                    control={control}
-                    render={({ field: { ref, ...field }, fieldState }) => (
-                      <Input
-                        placeholder="e.g Kem dưỡng"
-                        autoComplete="off"
-                        type="text"
-                        {...field}
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mb-3.5">
-                <div className="font-medium">Cơ sở</div>
-                <div className="mt-1">
-                  <Controller
-                    name={`StockID`}
-                    control={control}
-                    render={({ field: { ref, ...field }, fieldState }) => (
-                      <SelectStocksWareHouse
-                        value={field.value}
-                        onChange={val => field.onChange(val?.value || '')}
-                        className="select-control"
-                        menuPosition="fixed"
-                        styles={{
-                          menuPortal: base => ({
-                            ...base,
-                            zIndex: 9999
-                          })
-                        }}
-                        menuPortalTarget={document.body}
-                        isClearable
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mb-3.5">
-                <div className="font-medium">Danh mục</div>
-                <div className="mt-1">
-                  <Controller
-                    name="RootTypeID"
-                    control={control}
-                    render={({ field: { ref, ...field }, fieldState }) => (
-                      <SelectCategories
-                        isMulti
-                        allOptions={true}
-                        isClearable
-                        value={field.value}
-                        onChange={val =>
-                          field.onChange(val ? val.map(x => x.value) : [])
-                        }
-                        Type="SP,NVL"
-                        className="select-control"
-                        menuPosition="fixed"
-                        styles={{
-                          menuPortal: base => ({
-                            ...base,
-                            zIndex: 9999
-                          })
-                        }}
-                        menuPortalTarget={document.body}
-                        placeholder="Chọn danh mục"
-                        noOptionsMessage={() => 'Danh mục trống.'}
-                        isValidNewOption={() => false}
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-              <div className="mb-3.5">
-                <div className="font-medium">Nhãn hàng</div>
-                <div className="mt-1">
-                  <Controller
-                    name="manus"
-                    control={control}
-                    render={({ field: { ref, ...field }, fieldState }) => (
-                      <SelectCategories
-                        isMulti
-                        isClearable
-                        value={field.value}
-                        onChange={val =>
-                          field.onChange(val ? val.map(x => x.value) : [])
-                        }
-                        Type="NH"
-                        className="select-control"
-                        menuPosition="fixed"
-                        styles={{
-                          menuPortal: base => ({
-                            ...base,
-                            zIndex: 9999
-                          })
-                        }}
-                        menuPortalTarget={document.body}
-                        placeholder="Chọn nhãn hàng"
-                        noOptionsMessage={() => 'Chưa có nhãn hàng.'}
-                        isValidNewOption={() => false}
-                      />
-                    )}
-                  />
-                </div>
-              </div>
               <div>
-                <div className="flex items-center justify-between">
-                  <div className="font-medium text-[15px]">
-                    Cần giao / Nhập lại
+                <div className="mb-3.5 last:mb-0">
+                  <div className="font-medium">Từ khóa</div>
+                  <div className="mt-1">
+                    <Controller
+                      name="Key"
+                      control={control}
+                      render={({ field: { ref, ...field }, fieldState }) => (
+                        <Input
+                          placeholder="e.g Kem dưỡng"
+                          autoComplete="off"
+                          type="text"
+                          {...field}
+                        />
+                      )}
+                    />
                   </div>
-                  <Controller
-                    name="NotDelv"
-                    control={control}
-                    render={({ field }) => (
-                      <Switch
-                        checked={field.value === 'true' || field.value}
-                        onChange={val => field.onChange(val)}
-                        as={Fragment}
-                      >
-                        {({ checked }) => (
-                          /* Use the `checked` state to conditionally style the button. */
-                          <button
-                            className={clsx(
-                              'relative inline-flex h-6 w-11 items-center rounded-full transition',
-                              checked ? 'bg-primary' : 'bg-gray-300'
-                            )}
-                          >
-                            <span className="sr-only">
-                              Enable notifications
-                            </span>
-                            <span
-                              className={clsx(
-                                'inline-block h-4 w-4 transform rounded-full bg-white transition',
-                                checked ? 'translate-x-6' : 'translate-x-1'
-                              )}
-                            />
-                          </button>
-                        )}
-                      </Switch>
-                    )}
-                  />
                 </div>
+                <div className="mb-3.5 last:mb-0">
+                  <div className="font-medium">Cơ sở</div>
+                  <div className="mt-1">
+                    <Controller
+                      name={`StockID`}
+                      control={control}
+                      render={({ field: { ref, ...field }, fieldState }) => (
+                        <SelectStocksWareHouse
+                          value={field.value}
+                          onChange={val => field.onChange(val?.value || '')}
+                          className="select-control"
+                          menuPosition="fixed"
+                          styles={{
+                            menuPortal: base => ({
+                              ...base,
+                              zIndex: 9999
+                            })
+                          }}
+                          menuPortalTarget={document.body}
+                          isClearable={
+                            xuat_nhap_diem.IsStocks ||
+                            xuat_nhap_ten_slg.IsStocks
+                          }
+                          StockRoles={
+                            xuat_nhap_diem.hasRight
+                              ? xuat_nhap_diem.IsStocks
+                                ? [{ value: 778, label: 'Kho tổng' }].concat(
+                                    xuat_nhap_diem.StockRoles
+                                  )
+                                : xuat_nhap_diem.StockRoles
+                              : xuat_nhap_ten_slg.IsStocks
+                              ? [{ value: 778, label: 'Kho tổng' }].concat(
+                                  xuat_nhap_ten_slg.StockRoles
+                                )
+                              : xuat_nhap_ten_slg.StockRoles
+                          }
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="mb-3.5 last:mb-0">
+                  <div className="font-medium">Danh mục</div>
+                  <div className="mt-1">
+                    <Controller
+                      name="RootTypeID"
+                      control={control}
+                      render={({ field: { ref, ...field }, fieldState }) => (
+                        <SelectCategories
+                          isMulti
+                          allOptions={true}
+                          isClearable
+                          value={field.value}
+                          onChange={val =>
+                            field.onChange(val ? val.map(x => x.value) : [])
+                          }
+                          Type="SP,NVL"
+                          className="select-control"
+                          menuPosition="fixed"
+                          styles={{
+                            menuPortal: base => ({
+                              ...base,
+                              zIndex: 9999
+                            })
+                          }}
+                          menuPortalTarget={document.body}
+                          placeholder="Chọn danh mục"
+                          noOptionsMessage={() => 'Danh mục trống.'}
+                          isValidNewOption={() => false}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="mb-3.5 last:mb-0">
+                  <div className="font-medium">Nhãn hàng</div>
+                  <div className="mt-1">
+                    <Controller
+                      name="manus"
+                      control={control}
+                      render={({ field: { ref, ...field }, fieldState }) => (
+                        <SelectCategories
+                          isMulti
+                          isClearable
+                          value={field.value}
+                          onChange={val =>
+                            field.onChange(val ? val.map(x => x.value) : [])
+                          }
+                          Type="NH"
+                          className="select-control"
+                          menuPosition="fixed"
+                          styles={{
+                            menuPortal: base => ({
+                              ...base,
+                              zIndex: 9999
+                            })
+                          }}
+                          menuPortalTarget={document.body}
+                          placeholder="Chọn nhãn hàng"
+                          noOptionsMessage={() => 'Chưa có nhãn hàng.'}
+                          isValidNewOption={() => false}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                {!GlobalConfig?.Admin?.khong_co_kho && (
+                  <div className="mb-3.5 last:mb-0">
+                    <div className="flex items-center justify-between">
+                      <div className="font-medium text-[15px]">
+                        Cần giao / Nhập lại
+                      </div>
+                      <Controller
+                        name="NotDelv"
+                        control={control}
+                        render={({ field }) => (
+                          <Switch
+                            checked={field.value === 'true' || field.value}
+                            onChange={val => field.onChange(val)}
+                            as={Fragment}
+                          >
+                            {({ checked }) => (
+                              /* Use the `checked` state to conditionally style the button. */
+                              <button
+                                className={clsx(
+                                  'relative inline-flex h-6 w-11 items-center rounded-full transition',
+                                  checked ? 'bg-primary' : 'bg-gray-300'
+                                )}
+                              >
+                                <span className="sr-only">
+                                  Enable notifications
+                                </span>
+                                <span
+                                  className={clsx(
+                                    'inline-block h-4 w-4 transform rounded-full bg-white transition',
+                                    checked ? 'translate-x-6' : 'translate-x-1'
+                                  )}
+                                />
+                              </button>
+                            )}
+                          </Switch>
+                        )}
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
             </PerfectScrollbar>
             <div className="flex justify-end p-5 border-t border-separator dark:border-dark-separator">

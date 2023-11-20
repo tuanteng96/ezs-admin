@@ -3,6 +3,7 @@ import { SelectCategoryProds } from './SelectCategoryProds'
 import { SelectDistricts } from './SelectDistricts'
 import { SelectGender } from './SelectGender'
 import { SelectMeasure } from './SelectMeasure'
+import { SelectPaymentMethods } from './SelectPaymentMethods'
 import { SelectProdCode } from './SelectProdCode'
 import { SelectProdProducts } from './SelectProdProducts'
 import { SelectProdService } from './SelectProdService'
@@ -27,5 +28,6 @@ export {
   SelectStocksWareHouse,
   SelectSupplier,
   SelectUsers,
-  SelectProdCode
+  SelectProdCode,
+  SelectPaymentMethods
 }

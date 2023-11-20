@@ -2,6 +2,8 @@ import React, { lazy } from 'react'
 import { CatalogueLayout } from './CatalogueLayout'
 import { Route, Routes, Navigate } from 'react-router-dom'
 import SuspensedView from 'src/app/routing/SuspensedView'
+import { RoleAccess } from 'src/_ezs/layout/RoleAccess'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 
 const Category = lazy(() => import('./pages/Category'))
 const Products = lazy(() => import('./pages/Products'))
@@ -23,13 +25,23 @@ const WareHouseExport = lazy(() =>
 const WareHouseExportStock = lazy(() =>
   import('./pages/ImportExport/pages/WareHouseExportStock')
 )
+const WareHouseToPay = lazy(() =>
+  import('./pages/ImportExport/pages/WareHouseToPay')
+)
 const ImportExportMaterial = lazy(() =>
   import('./pages/ImportExport/pages/MaterialConversion')
 )
-
 const Supplier = lazy(() => import('./pages/Supplier'))
+const IeProcessed = lazy(() => import('./pages/IeProcessed'))
+const IeProcessedImport = lazy(() =>
+  import('./pages/IeProcessed/pages/IeProcessedImport')
+)
 
 function CataloguePage(props) {
+  const { xuat_nhap_diem, xuat_nhap_ten_slg } = useRoles([
+    'xuat_nhap_diem',
+    'xuat_nhap_ten_slg'
+  ])
   return (
     <Routes>
       <Route
@@ -114,69 +126,95 @@ function CataloguePage(props) {
       </Route>
       <Route
         element={
-          <CatalogueLayout
-            paths={[
-              {
-                to: '/catalogue/inventory',
-                name: 'Kho và hàng tồn'
-              },
-              {
-                to: '/catalogue/import-export',
-                name: 'Đơn nhập xuất'
-              },
-              {
-                to: '/catalogue/supplier',
-                name: 'Nhà cung cấp, đại lý'
-              }
-            ]}
+          <RoleAccess
+            roles={xuat_nhap_diem.hasRight || xuat_nhap_ten_slg.hasRight}
           />
         }
       >
-        <Route index element={<Navigate to="inventory" />} />
         <Route
-          path="inventory"
           element={
-            <SuspensedView>
-              <Inventory />
-            </SuspensedView>
+            <CatalogueLayout
+              paths={[
+                {
+                  to: '/catalogue/inventory',
+                  name: 'Kho và hàng tồn'
+                },
+                {
+                  to: '/catalogue/import-export',
+                  name: 'Đơn nhập xuất'
+                },
+                {
+                  to: '/catalogue/supplier',
+                  name: 'Nhà cung cấp, đại lý'
+                }
+              ]}
+              isReceive
+            />
           }
         >
-          <Route path="filters" element={<InventoryFilters />}></Route>
-        </Route>
-        <Route
-          path="import-export"
-          element={
-            <SuspensedView>
-              <ImportExport />
-            </SuspensedView>
-          }
-        >
-          <Route path="filters" element={<ImportExportFilters />}></Route>
+          <Route index element={<Navigate to="inventory" />} />
           <Route
-            path="material-conversion"
-            element={<ImportExportMaterial />}
+            path="inventory"
+            element={
+              <SuspensedView>
+                <Inventory />
+              </SuspensedView>
+            }
+          >
+            <Route path="filters" element={<InventoryFilters />}></Route>
+          </Route>
+          <Route
+            path="import-export"
+            element={
+              <SuspensedView>
+                <ImportExport />
+              </SuspensedView>
+            }
+          >
+            <Route path="filters" element={<ImportExportFilters />}></Route>
+            <Route
+              path="material-conversion"
+              element={<ImportExportMaterial />}
+            ></Route>
+            <Route path="import" element={<WareHouseImport />}>
+              <Route index element={<Navigate to="inventory" />} />
+              <Route path=":id" element={<Navigate to="inventory" />} />
+            </Route>
+            <Route path="export" element={<WareHouseExport />}>
+              <Route index element={<Navigate to="inventory" />} />
+              <Route path=":id" element={<Navigate to="inventory" />} />
+            </Route>
+            <Route path="export-stock" element={<WareHouseExportStock />}>
+              <Route index element={<Navigate to="inventory" />} />
+              <Route path=":id" element={<Navigate to="inventory" />} />
+            </Route>
+            <Route path="topay" element={<WareHouseToPay />}>
+              <Route index element={<Navigate to="inventory" />} />
+              <Route path=":id" element={<Navigate to="inventory" />} />
+            </Route>
+          </Route>
+          <Route
+            path="supplier"
+            element={
+              <SuspensedView>
+                <Supplier />
+              </SuspensedView>
+            }
           ></Route>
-          <Route path="import" element={<WareHouseImport />}>
-            <Route index element={<Navigate to="inventory" />} />
-            <Route path=":id" element={<Navigate to="inventory" />} />
-          </Route>
-          <Route path="export" element={<WareHouseExport />}>
-            <Route index element={<Navigate to="inventory" />} />
-            <Route path=":id" element={<Navigate to="inventory" />} />
-          </Route>
-          <Route path="export-stock" element={<WareHouseExportStock />}>
-            <Route index element={<Navigate to="inventory" />} />
-            <Route path=":id" element={<Navigate to="inventory" />} />
+          <Route
+            path="ie-processed"
+            element={
+              <SuspensedView>
+                <IeProcessed />
+              </SuspensedView>
+            }
+          >
+            <Route path="import" element={<IeProcessedImport />}>
+              <Route index element={<Navigate to="inventory" />} />
+              <Route path=":id" element={<Navigate to="inventory" />} />
+            </Route>
           </Route>
         </Route>
-        <Route
-          path="supplier"
-          element={
-            <SuspensedView>
-              <Supplier />
-            </SuspensedView>
-          }
-        ></Route>
       </Route>
     </Routes>
   )
