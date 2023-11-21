@@ -1,6 +1,7 @@
 import {
   AdjustmentsVerticalIcon,
-  ArrowRightIcon
+  ArrowRightIcon,
+  Bars3Icon
 } from '@heroicons/react/24/outline'
 import { useQuery } from '@tanstack/react-query'
 import { identity, pickBy } from 'lodash-es'
@@ -22,15 +23,17 @@ import { useAuth } from 'src/_ezs/core/Auth'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
+import { useCatalogue } from '../../CatalogueLayout'
 
 function Inventory(props) {
   const { CrStocks } = useAuth()
   const { GlobalConfig } = useLayout()
+  const { openMenu } = useCatalogue()
   const navigate = useNavigate()
   const { pathname, search } = useLocation()
   const queryParams = useQueryParams()
 
-  const { xuat_nhap_diem } = useRoles(['xuat_nhap_diem', 'xuat_nhap_ten_slg'])
+  const { xuat_nhap_diem } = useRoles(['xuat_nhap_diem'])
 
   const queryConfig = {
     cmd: 'prodinstock',
@@ -144,7 +147,7 @@ function Inventory(props) {
       },
       {
         key: 'PriceBase',
-        title: 'Giá Cost',
+        title: 'Giá nhập / Giá Cost',
         dataKey: 'PriceBase',
         width: 180,
         cellRenderer: ({ rowData }) => (
@@ -195,19 +198,19 @@ function Inventory(props) {
   )
 
   return (
-    <div className="flex flex-col h-full px-8 pt-8 pb-5 mx-auto max-w-7xl">
+    <div className="flex flex-col h-full lg:px-8 lg:pt-8 lg:pb-5 p-4 mx-auto max-w-7xl">
       <div className="flex items-end justify-between mb-5">
         <div>
-          <div className="text-3xl font-bold dark:text-white">
+          <div className="text-xl sm:text-3xl font-bold dark:text-white">
             Kho & hàng tồn
           </div>
-          <div className="mt-1.5">
+          <div className="mt-1.5 hidden sm:block">
             Quản lý sản phẩm còn hết của bạn trong kho
           </div>
         </div>
-        <div className="flex pb-1">
+        <div className="flex sm:pb-1">
           <NavLink
-            className="flex items-center justify-center w-12 h-12 text-gray-900 border rounded bg-light border-light dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
+            className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 text-gray-900 border rounded bg-light border-light dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
             to={{
               pathname: 'filters',
               search: search
@@ -217,8 +220,14 @@ function Inventory(props) {
               queryConfig
             }}
           >
-            <AdjustmentsVerticalIcon className="w-7" />
+            <AdjustmentsVerticalIcon className="w-6 sm:w-7" />
           </NavLink>
+          <button
+            className="relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70 ml-2 xl:hidden"
+            onClick={openMenu}
+          >
+            <Bars3Icon className="w-6 sm:w-7" />
+          </button>
         </div>
       </div>
       <ReactBaseTable
@@ -255,6 +264,11 @@ function Inventory(props) {
             ).toString()
           })
         }}
+        // rowEventHandlers={{
+        //   onClick: ({ rowKey, ...a }) => {
+        //     console.log(a)
+        //   }
+        // }}
       />
       <Outlet />
     </div>

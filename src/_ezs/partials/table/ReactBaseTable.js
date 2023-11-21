@@ -1,17 +1,14 @@
-import React from 'react'
+import React, { Fragment, useEffect, useRef } from 'react'
 import PropTypes from 'prop-types'
 import Table, { AutoResizer } from 'react-base-table'
-import 'src/_ezs/assets/plugin/react-base-table/react-base-table.css'
 import Text from 'react-texty'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import { toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 import Pagination from '../pagination'
 import { Menu, Transition } from '@headlessui/react'
 import { ChevronUpIcon } from '@heroicons/react/24/outline'
-import { Fragment } from 'react'
 import clsx from 'clsx'
-import { useEffect } from 'react'
-import { useRef } from 'react'
+import 'src/_ezs/assets/plugin/react-base-table/react-base-table.css'
 
 ReactBaseTable.propTypes = {
   columns: PropTypes.array,
@@ -91,7 +88,7 @@ function ReactBaseTable({
                     ) : (
                       <div className="flex flex-col items-center justify-center h-full dark:bg-dark-aside">
                         <img
-                          className="w-auto max-w-[350px]"
+                          className="w-auto max-h-full max-w-[350px]"
                           src={toAbsoluteUrl('/assets/svg/sketchy/4.png')}
                           alt="EZS - Phần mềm quản lý Spa"
                         />
@@ -110,7 +107,7 @@ function ReactBaseTable({
       {pagination && (
         <div className={paginationClassName}>
           <div className="flex">
-            Hiển thị
+            <span className="hidden md:inline-block">Hiển thị</span>
             <Menu as="div" className="relative">
               <div>
                 <Menu.Button className="flex items-center px-2 font-semibold font-inter">
@@ -151,7 +148,7 @@ function ReactBaseTable({
                 </Menu.Items>
               </Transition>
             </Menu>
-            trên trang
+            <span className="hidden md:inline-block">trên trang</span>
           </div>
           <div>
             <Pagination

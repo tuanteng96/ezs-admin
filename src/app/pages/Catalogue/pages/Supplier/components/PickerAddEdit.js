@@ -105,11 +105,14 @@ function PickerAddEdit({ children, data }) {
         open: () => setVisible(true)
       })}
       {visible && (
-        <FloatingPortal root={window?.top?.body || document.body}>
+        <FloatingPortal root={document.body}>
           <form
             onSubmit={handleSubmit(onSubmit)}
             className="fixed inset-0 flex items-center justify-center z-[1003]"
             autoComplete="off"
+            onKeyDown={e => {
+              if (e.key === 'Enter') e.preventDefault()
+            }}
           >
             <m.div
               className="absolute inset-0 bg-black/[.2] dark:bg-black/[.4]"
@@ -119,12 +122,12 @@ function PickerAddEdit({ children, data }) {
               onClick={onHide}
             ></m.div>
             <m.div
-              className="absolute flex flex-col justify-center h-full py-8"
+              className="absolute flex flex-col justify-center h-full py-8 px-4 sm:px-0 w-[500px] max-w-full"
               initial={{ opacity: 0, top: '60%' }}
               animate={{ opacity: 1, top: 'auto' }}
               exit={{ opacity: 0, top: '60%' }}
             >
-              <div className="bg-white dark:bg-dark-aside max-w-full w-[500px] max-h-full flex flex-col rounded shadow-lg">
+              <div className="bg-white dark:bg-dark-aside flex flex-col rounded shadow-lg max-h-full">
                 <div className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
                   <div className="text-2xl font-bold">
                     {data?.ID ? 'Chỉnh sửa' : 'Tạo mới'}
@@ -189,6 +192,14 @@ function PickerAddEdit({ children, data }) {
                             placeholder="Chọn loại"
                             value={field.value}
                             onChange={val => field.onChange(val)}
+                            menuPosition="fixed"
+                            styles={{
+                              menuPortal: base => ({
+                                ...base,
+                                zIndex: 9999
+                              })
+                            }}
+                            menuPortalTarget={document.body}
                           />
                         )}
                       />

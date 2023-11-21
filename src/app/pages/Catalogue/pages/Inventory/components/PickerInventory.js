@@ -174,7 +174,7 @@ function PickerInventory({ children, item, StockID }) {
         open: () => setVisible(true)
       })}
       {visible && (
-        <FloatingPortal root={window?.top?.body || document.body}>
+        <FloatingPortal root={document.body}>
           <div className="fixed inset-0 flex items-center justify-center z-[1010]">
             <m.div
               initial={{ opacity: 0 }}
@@ -191,21 +191,21 @@ function PickerInventory({ children, item, StockID }) {
               animate={{ x: '0' }}
             >
               <div className="flex flex-col h-full w-full">
-                <div className="flex items-center justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
-                  <div className="flex text-2xl font-bold dark:text-graydark-800">
+                <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-separator dark:border-dark-separator">
+                  <div className="text-xl lg:text-2xl font-bold dark:text-graydark-800 truncate w-10/12">
                     {item?.Title}
                   </div>
                   <div
-                    className="flex items-center justify-center w-12 h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
+                    className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
                     onClick={() => setVisible(false)}
                   >
-                    <XMarkIcon className="w-9" />
+                    <XMarkIcon className="w-7 lg:w-9" />
                   </div>
                 </div>
                 <ReactBaseTable
                   pagination
-                  wrapClassName="grow p-6"
-                  paginationClassName="flex items-center justify-between w-full px-6 pb-6"
+                  wrapClassName="grow p-4 lg:p-6"
+                  paginationClassName="flex items-center justify-between w-full px-4 pb-4 lg:px-6 lg:pb-6"
                   rowKey="ID"
                   columns={columns}
                   data={data?.data || []}

@@ -92,12 +92,12 @@ function InventoryFilters(props) {
         className="fixed inset-0 flex items-center justify-center z-[1010]"
       >
         <m.div
-          className="absolute flex flex-col justify-center py-10 h-5/6"
+          className="absolute flex flex-col justify-center py-10 h-5/6 max-w-full w-[470px] px-4 sm:px-0"
           initial={{ opacity: 0, top: '60%' }}
           animate={{ opacity: 1, top: 'auto' }}
           exit={{ opacity: 0, top: '60%' }}
         >
-          <div className="bg-white dark:bg-dark-aside max-w-full w-[470px] h-full rounded shadow-lg flex flex-col">
+          <div className="bg-white dark:bg-dark-aside h-full rounded shadow-lg flex flex-col">
             <div className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
               <div className="flex items-center text-2xl font-semibold">
                 <NavLink
@@ -265,7 +265,7 @@ function InventoryFilters(props) {
                 />
               </div>
               <div className="mb-3.5">
-                <div className="font-semibold">Tình trạng thánh toán</div>
+                <div className="font-semibold">Tình trạng thanh toán</div>
                 <div className="mt-1">
                   <Controller
                     name="PayStatus"

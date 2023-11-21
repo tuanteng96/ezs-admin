@@ -198,13 +198,13 @@ function WareHouseExport(props) {
         )
       },
       {
-        key: 'ProdId',
+        key: 'ProdCode',
         title: 'Mã',
-        dataKey: 'ProdId',
+        dataKey: 'ProdCode',
         width: 100,
         cellRenderer: ({ rowData, rowIndex }) => (
           <Controller
-            name={`items[${rowIndex}].ProdId`}
+            name={`items[${rowIndex}].ProdCode`}
             control={control}
             render={({ field: { ref, ...field }, fieldState }) => (
               <>{field.value}</>
@@ -512,12 +512,12 @@ function WareHouseExport(props) {
           animate={{ x: '0' }}
         >
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
-              <div className="flex text-2xl font-bold dark:text-graydark-800">
+            <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-separator dark:border-dark-separator">
+              <div className="text-xl lg:text-2xl font-bold dark:text-graydark-800 truncate w-10/12">
                 {!id ? 'Đơn xuất kho mới' : 'Chỉnh sửa đơn xuất kho'}
               </div>
               <div
-                className="flex items-center justify-center w-12 h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
+                className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
                 onClick={() =>
                   navigate({
                     pathname: state?.prevFrom,
@@ -525,23 +525,26 @@ function WareHouseExport(props) {
                   })
                 }
               >
-                <XMarkIcon className="w-9" />
+                <XMarkIcon className="w-7 lg:w-9" />
               </div>
             </div>
             <form
-              className="flex h-[calc(100%-81px)] relative"
+              className="md:flex md:h-[calc(100%-81px)] relative overflow-auto md:overflow-hidden"
               onSubmit={handleSubmit(onSubmit)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') e.preventDefault()
+              }}
             >
               <ReactBaseTable
-                wrapClassName="p-6 grow bg-white dark:bg-dark-app rounded"
+                wrapClassName="p-4 lg:p-6 grow bg-white dark:bg-dark-app rounded h-[70vh] md:h-auto"
                 rowKey="id"
                 columns={columns}
                 data={fields}
                 estimatedRowHeight={50}
                 onEndReachedThreshold={1}
               />
-              <div className="w-[380px] border-l border-separator flex flex-col">
-                <div className="p-6 overflow-auto grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
+              <div className="w-full md:w-[320px] lg:w-[380px] border-l border-separator flex flex-col">
+                <div className="p-4 lg:p-6 overflow-auto grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
                   <div>
                     <div className="mb-3.5">
                       <div className="font-medium">Mã đơn xuất</div>
@@ -741,7 +744,7 @@ function WareHouseExport(props) {
                     </div>
                   </div>
                 </div>
-                <div className="px-6 py-4 border-t border-separator">
+                <div className="px-4 lg:px-6 py-4 border-t border-separator">
                   <Button
                     disabled={
                       updateMutation.isLoading ||

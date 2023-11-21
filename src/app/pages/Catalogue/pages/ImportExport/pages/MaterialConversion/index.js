@@ -33,8 +33,11 @@ const FormAddMaterial = ({ onSubmit: onSubmitAdd }) => {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="px-6 pt-6">
-      <div className="flex items-center">
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="lg:px-6 lg:pt-6 px-4 pt-4"
+    >
+      <div className="md:flex items-center">
         <div className="flex-1">
           <Controller
             name="fromTitle"
@@ -69,8 +72,8 @@ const FormAddMaterial = ({ onSubmit: onSubmitAdd }) => {
             )}
           />
         </div>
-        <div className="px-4">
-          <ArrowRightIcon className="w-6" />
+        <div className="md:px-4 py-2 md:py-0 flex justify-center md:block">
+          <ArrowRightIcon className="w-6 rotate-90 md:rotate-0" />
         </div>
         <div className="flex-1">
           <Controller
@@ -108,10 +111,10 @@ const FormAddMaterial = ({ onSubmit: onSubmitAdd }) => {
             )}
           />
         </div>
-        <div className="ml-4">
+        <div className="md:ml-4 mt-3 md:mt-0">
           <Button
             type="submit"
-            className="flex items-center relative h-12 px-4 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+            className="w-full md:w-auto flex items-center justify-center relative h-12 px-4 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
             disabled={!isDirty || !isValid}
           >
             Thêm chuyển đổi
@@ -325,12 +328,12 @@ function MaterialConversion(props) {
           animate={{ x: '0' }}
         >
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
-              <div className="flex text-2xl font-bold dark:text-graydark-800">
+            <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-separator dark:border-dark-separator">
+              <div className="text-xl lg:text-2xl font-bold dark:text-graydark-800 truncate w-10/12">
                 Xuất kho làm nguyên liệu
               </div>
               <div
-                className="flex items-center justify-center w-12 h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
+                className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
                 onClick={() =>
                   navigate({
                     pathname: state?.prevFrom,
@@ -338,7 +341,7 @@ function MaterialConversion(props) {
                   })
                 }
               >
-                <XMarkIcon className="w-9" />
+                <XMarkIcon className="w-7 lg:w-9" />
               </div>
             </div>
             <FormAddMaterial
@@ -374,17 +377,20 @@ function MaterialConversion(props) {
             <form
               className="flex flex-col grow"
               onSubmit={handleSubmit(onSubmit)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') e.preventDefault()
+              }}
             >
               <ReactBaseTable
-                wrapClassName="p-6 grow bg-white dark:bg-dark-app rounded"
+                wrapClassName="p-4 lg:p-6 grow bg-white dark:bg-dark-app rounded"
                 rowKey="id"
                 columns={columns}
                 data={fields}
                 estimatedRowHeight={50}
                 onEndReachedThreshold={1}
               />
-              <div className="border-t border-separator dark:border-dark-separator px-6 py-4 flex">
-                <div className="mr-3.5">
+              <div className="border-t border-separator dark:border-dark-separator lg:px-6 px-4 py-4 flex">
+                <div className="mr-3.5 flex-1 md:flex-auto">
                   <Controller
                     name="stockid"
                     control={control}
@@ -392,7 +398,7 @@ function MaterialConversion(props) {
                       <SelectStocksWareHouse
                         value={field.value}
                         onChange={val => field.onChange(val?.value || '')}
-                        className="select-control w-[350px]"
+                        className="select-control w-full md:w-[350px]"
                         menuPosition="fixed"
                         styles={{
                           menuPortal: base => ({
@@ -424,7 +430,8 @@ function MaterialConversion(props) {
                   type="submit"
                   className="flex items-center relative h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
                 >
-                  Thực hiện chuyển đổi
+                  <span className="hidden md:block">Thực hiện chuyển đổi</span>
+                  <span className="md:hidden">Thực hiện</span>
                 </Button>
               </div>
             </form>

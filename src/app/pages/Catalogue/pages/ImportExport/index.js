@@ -1,8 +1,10 @@
 import { Menu, Transition } from '@headlessui/react'
 import {
   AdjustmentsVerticalIcon,
+  Bars3Icon,
   ChevronDownIcon,
-  EllipsisHorizontalIcon
+  EllipsisHorizontalIcon,
+  PlusIcon
 } from '@heroicons/react/24/outline'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { identity, pickBy } from 'lodash-es'
@@ -21,13 +23,16 @@ import { DropdownMenu } from 'src/_ezs/partials/dropdown'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { formatString } from 'src/_ezs/utils/formatString'
 import Swal from 'sweetalert2'
+import { useCatalogue } from '../../CatalogueLayout'
+import clsx from 'clsx'
 
 function ImportExport(props) {
   const { CrStocks, auth } = useAuth()
+  const { openMenu } = useCatalogue()
   const navigate = useNavigate()
   const { pathname, search } = useLocation()
   const queryParams = useQueryParams()
-  const { xuat_nhap_diem } = useRoles(['xuat_nhap_diem', 'xuat_nhap_ten_slg'])
+  const { xuat_nhap_diem } = useRoles(['xuat_nhap_diem'])
 
   const queryConfig = {
     cmd: 'getie',
@@ -111,12 +116,20 @@ function ImportExport(props) {
         sortable: false,
         cellRenderer: ({ rowData }) => (
           <div>
-            <div className="font-semibold">{rowData.Code}</div>
+            <div
+              className={clsx(
+                'font-semibold',
+                rowData.Type === 'X' ? 'text-danger' : 'text-success'
+              )}
+            >
+              {rowData.Code}
+            </div>
             <div className="text-xs bg-warning text-white inline-block px-1.5 py-px rounded">
               #{rowData.ID}
             </div>
           </div>
-        )
+        ),
+        frozen: window.top.innerWidth > 993 ? 'left' : ''
       },
       {
         key: 'CreateDate',
@@ -193,6 +206,13 @@ function ImportExport(props) {
         dataKey: 'PriceBase',
         width: 200,
         cellRenderer: ({ rowData }) => rowData?.UserName,
+        sortable: false
+      },
+      {
+        key: 'Other',
+        title: 'Ghi chú',
+        dataKey: 'Other',
+        width: 200,
         sortable: false
       },
       {
@@ -294,17 +314,19 @@ function ImportExport(props) {
   )
 
   return (
-    <div className="flex flex-col h-full px-8 pt-8 pb-5 mx-auto max-w-7xl">
+    <div className="flex flex-col h-full lg:px-8 lg:pt-8 lg:pb-5 p-4 mx-auto max-w-7xl">
       <div className="flex items-end justify-between mb-5">
         <div>
-          <div className="text-3xl font-bold dark:text-white">
+          <div className="text-xl sm:text-3xl font-bold dark:text-white">
             Đơn nhập xuất
           </div>
-          <div className="mt-1.5">Quản lý tất cả các đơn nhập - xuất</div>
+          <div className="mt-1.5 hidden sm:block">
+            Quản lý tất cả các đơn nhập - xuất
+          </div>
         </div>
-        <div className="flex pb-1">
+        <div className="flex sm:pb-1">
           <NavLink
-            className="flex items-center justify-center text-gray-900 bg-light border rounded border-light h-12 w-12 dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary mr-2.5"
+            className="flex items-center justify-center text-gray-900 bg-light border rounded border-light w-10 h-10 sm:h-12 sm:w-12 dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary mr-1 sm:mr-2.5"
             to={{
               pathname: 'filters',
               search: search
@@ -314,14 +336,15 @@ function ImportExport(props) {
               queryConfig
             }}
           >
-            <AdjustmentsVerticalIcon className="w-7" />
+            <AdjustmentsVerticalIcon className="w-6 sm:w-7" />
           </NavLink>
           <Menu as="div" className="relative">
             <div>
-              <Menu.Button className="relative flex items-center h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70">
-                Thêm mới
+              <Menu.Button className="relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 md:w-auto md:px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70">
+                <span className="hidden md:block">Thêm mới</span>
+                <PlusIcon className="w-6 sm:w-7 md:hidden" />
                 <ChevronDownIcon
-                  className="w-5 h-5 ml-2 -mr-1 text-violet-200 hover:text-violet-100"
+                  className="w-5 h-5 ml-2 -mr-1 text-violet-200 hover:text-violet-100 hidden md:block"
                   aria-hidden="true"
                 />
               </Menu.Button>
@@ -397,6 +420,12 @@ function ImportExport(props) {
               </Menu.Items>
             </Transition>
           </Menu>
+          <button
+            className="relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70 ml-1 sm:ml-2.5 xl:hidden"
+            onClick={openMenu}
+          >
+            <Bars3Icon className="w-6 sm:w-7" />
+          </button>
         </div>
       </div>
       <ReactBaseTable
@@ -433,9 +462,9 @@ function ImportExport(props) {
             ).toString()
           })
         }}
-        rowClassName={({ rowData }) =>
-          rowData.Type === 'X' && '!bg-dangerlight'
-        }
+        // rowClassName={({ rowData }) =>
+        //   rowData.Type === 'X' && '!bg-dangerlight'
+        // }
       />
       <Outlet />
     </div>

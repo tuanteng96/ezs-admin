@@ -1,7 +1,4 @@
-import {
-  AdjustmentsVerticalIcon,
-  ArrowRightIcon
-} from '@heroicons/react/24/outline'
+import { ArrowRightIcon } from '@heroicons/react/24/outline'
 import { useQuery } from '@tanstack/react-query'
 import { identity, pickBy } from 'lodash-es'
 import moment from 'moment'
@@ -21,7 +18,7 @@ function IeProcessed(props) {
   const { pathname, search } = useLocation()
   const queryParams = useQueryParams()
 
-  const { xuat_nhap_diem } = useRoles(['xuat_nhap_diem', 'xuat_nhap_ten_slg'])
+  const { xuat_nhap_diem } = useRoles(['xuat_nhap_diem'])
 
   const queryConfig = {
     cmd: 'getie',
@@ -182,17 +179,19 @@ function IeProcessed(props) {
   )
 
   return (
-    <div className="flex flex-col h-full px-8 pt-8 pb-5 mx-auto max-w-7xl">
+    <div className="flex flex-col h-full lg:px-8 lg:pt-8 lg:pb-5 p-4 mx-auto max-w-7xl">
       <div className="flex items-end justify-between mb-5">
         <div>
-          <div className="text-3xl font-bold dark:text-white">
+          <div className="text-xl sm:text-3xl font-bold dark:text-white">
             Đơn cần xử lý
           </div>
-          <div className="mt-1.5">Quản lý tất cả các đơn cần xử lý</div>
+          <div className="mt-1.5 hidden sm:block">
+            Quản lý tất cả các đơn cần xử lý
+          </div>
         </div>
-        <div className="flex pb-1">
+        {/* <div className="flex sm:pb-1">
           <NavLink
-            className="flex items-center justify-center w-12 h-12 text-gray-900 border rounded bg-light border-light dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
+            className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 text-gray-900 border rounded bg-light border-light dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
             to={{
               pathname: 'filters',
               search: search
@@ -202,9 +201,9 @@ function IeProcessed(props) {
               queryConfig
             }}
           >
-            <AdjustmentsVerticalIcon className="w-7" />
+            <AdjustmentsVerticalIcon className="w-6 sm:w-7" />
           </NavLink>
-        </div>
+        </div> */}
       </div>
       <ReactBaseTable
         pagination

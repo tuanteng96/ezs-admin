@@ -7,6 +7,7 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import { Button } from 'src/_ezs/partials/button'
 import { Input, InputNumber, InputTextarea } from 'src/_ezs/partials/forms'
@@ -23,6 +24,8 @@ function IeProcessedImport(props) {
   const { id } = useParams()
 
   const queryClient = useQueryClient()
+
+  const { xuat_nhap_diem } = useRoles(['xuat_nhap_diem'])
 
   const { control, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
@@ -57,7 +60,7 @@ function IeProcessedImport(props) {
     name: 'items'
   })
 
-  const { isLoading } = useQuery({
+  const { isLoading, data } = useQuery({
     queryKey: ['ImportExportId', id],
     queryFn: async () => {
       let { data } = await WarehouseAPI.getListInventory({
@@ -70,18 +73,22 @@ function IeProcessedImport(props) {
       if (data) {
         reset({
           ie: {
+            AdminEdit: true,
+            CanEdit: true,
             Code: data?.Code,
             SupplierID: data?.SupplierID,
             ToPay: data?.ToPay,
             Total: data?.Total,
-            Type: 'N',
+            Payed: data?.Payed,
+            Type: data?.Type,
             Other: data?.Other || '',
             Discount: data?.Discount,
             Source: data?.Source,
             IsReceive: true,
+            ReceiverID: 0,
             UserID: data?.UserID || 0,
-            Target: data?.Target || 0,
-            TargetCreated: data?.TargetCreated || 0,
+            Target: data?.Target,
+            TargetCreated: 0,
             CreateDate: data?.CreateDate || '',
             Summary: data?.Summary,
             ID: data?.ID
@@ -283,7 +290,8 @@ function IeProcessedImport(props) {
               />
             )}
           />
-        )
+        ),
+        hidden: !xuat_nhap_diem?.hasRight
       },
       {
         key: 'ImportDiscount',
@@ -321,7 +329,8 @@ function IeProcessedImport(props) {
               </div>
             )}
           />
-        )
+        ),
+        hidden: !xuat_nhap_diem?.hasRight
       },
       {
         key: 'ImportPrice',
@@ -350,7 +359,8 @@ function IeProcessedImport(props) {
           />
         ),
         width: 200,
-        sortable: false
+        sortable: false,
+        hidden: !xuat_nhap_diem?.hasRight
       },
       {
         key: 'Other',
@@ -505,12 +515,12 @@ function IeProcessedImport(props) {
           animate={{ x: '0' }}
         >
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
-              <div className="flex text-2xl font-bold dark:text-graydark-800">
+            <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-separator dark:border-dark-separator">
+              <div className="text-xl lg:text-2xl font-bold dark:text-graydark-800 truncate w-10/12">
                 Đơn nhập kho mới
               </div>
               <div
-                className="flex items-center justify-center w-12 h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
+                className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
                 onClick={() =>
                   navigate({
                     pathname: state?.prevFrom,
@@ -518,23 +528,26 @@ function IeProcessedImport(props) {
                   })
                 }
               >
-                <XMarkIcon className="w-9" />
+                <XMarkIcon className="w-7 lg:w-9" />
               </div>
             </div>
             <form
-              className="flex h-[calc(100%-81px)] relative"
+              className="md:flex md:h-[calc(100%-81px)] relative overflow-auto md:overflow-hidden"
               onSubmit={handleSubmit(onSubmit)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') e.preventDefault()
+              }}
             >
               <ReactBaseTable
-                wrapClassName="p-6 grow bg-white dark:bg-dark-app rounded"
+                wrapClassName="p-4 lg:p-6 grow bg-white dark:bg-dark-app rounded h-[70vh] md:h-auto"
                 rowKey="id"
                 columns={columns}
                 data={fields}
                 estimatedRowHeight={50}
                 onEndReachedThreshold={1}
               />
-              <div className="w-[380px] border-l border-separator flex flex-col">
-                <div className="p-6 overflow-auto grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
+              <div className="w-full md:w-[320px] lg:w-[380px] border-l border-separator flex flex-col">
+                <div className="p-4 lg:p-6 overflow-auto grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
                   <div>
                     <div className="mb-3.5">
                       <div className="font-medium">Mã đơn</div>
@@ -557,10 +570,28 @@ function IeProcessedImport(props) {
                       </div>
                     </div>
                     <div className="mb-3.5">
-                      <div className="font-medium">Kho</div>
+                      <div className="font-medium">Chuyển từ</div>
+                      <div className="mt-1">
+                        <SelectStocksWareHouse
+                          isDisabled
+                          value={data?.Source}
+                          className="select-control"
+                          menuPosition="fixed"
+                          styles={{
+                            menuPortal: base => ({
+                              ...base,
+                              zIndex: 9999
+                            })
+                          }}
+                          menuPortalTarget={document.body}
+                        />
+                      </div>
+                    </div>
+                    <div className="mb-3.5">
+                      <div className="font-medium">Đến kho</div>
                       <div className="mt-1">
                         <Controller
-                          name="ie.Source"
+                          name="ie.Target"
                           control={control}
                           render={({
                             field: { ref, ...field },
@@ -613,86 +644,91 @@ function IeProcessedImport(props) {
                     </div>
                   </div>
                   <div className="pt-4 mt-4 border-t border-separator">
-                    <div className="mb-3.5">
-                      <div className="font-semibold">Tổng tiền</div>
-                      <div className="mt-1">
-                        <Controller
-                          name="ie.Total"
-                          control={control}
-                          render={({
-                            field: { ref, ...field },
-                            fieldState
-                          }) => (
-                            <InputNumber
-                              thousandSeparator={true}
-                              value={field.value}
-                              placeholder="Nhập số tiền"
-                              onValueChange={val =>
-                                field.onChange(val.floatValue || '')
-                              }
+                    {xuat_nhap_diem?.hasRight && (
+                      <>
+                        <div className="mb-3.5">
+                          <div className="font-semibold">Tổng tiền</div>
+                          <div className="mt-1">
+                            <Controller
+                              name="ie.Total"
+                              control={control}
+                              render={({
+                                field: { ref, ...field },
+                                fieldState
+                              }) => (
+                                <InputNumber
+                                  thousandSeparator={true}
+                                  value={field.value}
+                                  placeholder="Nhập số tiền"
+                                  onValueChange={val =>
+                                    field.onChange(val.floatValue || '')
+                                  }
+                                />
+                              )}
                             />
-                          )}
-                        />
-                      </div>
-                    </div>
-                    <div className="mb-3.5">
-                      <div className="font-semibold">Chiết khấu cả đơn</div>
-                      <div className="mt-1">
-                        <Controller
-                          name="ie.Discount"
-                          control={control}
-                          render={({
-                            field: { ref, ...field },
-                            fieldState
-                          }) => (
-                            <div className="relative">
-                              <InputNumber
-                                thousandSeparator={true}
-                                value={field.value}
-                                placeholder="Nhập số tiền"
-                                onValueChange={val => {
-                                  field.onChange(val.floatValue || '')
-                                  setValue(
-                                    'ie.ToPay',
-                                    val.floatValue > 100
-                                      ? watchForm?.ie?.Total - val.floatValue
-                                      : watchForm?.ie?.Total -
-                                          (val.floatValue *
-                                            watchForm?.ie?.Total) /
-                                            100
-                                  )
-                                }}
-                              />
-                              <div className="absolute w-[45px] h-full top-0 right-0 flex justify-center items-center pointer-none">
-                                {field.value > 100 ? 'đ' : '%'}
-                              </div>
-                            </div>
-                          )}
-                        />
-                      </div>
-                    </div>
-                    <div className="mb-3.5">
-                      <div className="font-semibold">Tổng</div>
-                      <div className="mt-1">
-                        <Controller
-                          name="ie.ToPay"
-                          control={control}
-                          render={({
-                            field: { ref, ...field },
-                            fieldState
-                          }) => (
-                            <InputNumber
-                              thousandSeparator={true}
-                              value={field.value}
-                              placeholder="Nhập số tiền"
-                              onValueChange={val =>
-                                field.onChange(val.floatValue || '')
-                              }
+                          </div>
+                        </div>
+                        <div className="mb-3.5">
+                          <div className="font-semibold">Chiết khấu cả đơn</div>
+                          <div className="mt-1">
+                            <Controller
+                              name="ie.Discount"
+                              control={control}
+                              render={({
+                                field: { ref, ...field },
+                                fieldState
+                              }) => (
+                                <div className="relative">
+                                  <InputNumber
+                                    thousandSeparator={true}
+                                    value={field.value}
+                                    placeholder="Nhập số tiền"
+                                    onValueChange={val => {
+                                      field.onChange(val.floatValue || '')
+                                      setValue(
+                                        'ie.ToPay',
+                                        val.floatValue > 100
+                                          ? watchForm?.ie?.Total -
+                                              val.floatValue
+                                          : watchForm?.ie?.Total -
+                                              (val.floatValue *
+                                                watchForm?.ie?.Total) /
+                                                100
+                                      )
+                                    }}
+                                  />
+                                  <div className="absolute w-[45px] h-full top-0 right-0 flex justify-center items-center pointer-none">
+                                    {field.value > 100 ? 'đ' : '%'}
+                                  </div>
+                                </div>
+                              )}
                             />
-                          )}
-                        />
-                      </div>
-                    </div>
+                          </div>
+                        </div>
+                        <div className="mb-3.5">
+                          <div className="font-semibold">Tổng</div>
+                          <div className="mt-1">
+                            <Controller
+                              name="ie.ToPay"
+                              control={control}
+                              render={({
+                                field: { ref, ...field },
+                                fieldState
+                              }) => (
+                                <InputNumber
+                                  thousandSeparator={true}
+                                  value={field.value}
+                                  placeholder="Nhập số tiền"
+                                  onValueChange={val =>
+                                    field.onChange(val.floatValue || '')
+                                  }
+                                />
+                              )}
+                            />
+                          </div>
+                        </div>
+                      </>
+                    )}
                     <div>
                       <div className="font-semibold">Ghi chú</div>
                       <div className="mt-1">
@@ -716,7 +752,7 @@ function IeProcessedImport(props) {
                     </div>
                   </div>
                 </div>
-                <div className="px-6 py-4 border-t border-separator">
+                <div className="px-4 lg:px-6 py-4 border-t border-separator">
                   <Button
                     disabled={updateMutation.isLoading}
                     loading={updateMutation.isLoading}

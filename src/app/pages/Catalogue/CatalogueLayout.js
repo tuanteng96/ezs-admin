@@ -1,6 +1,6 @@
 import { clsx } from 'clsx/dist/clsx'
-import React from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import React, { createContext, useContext, useState, useEffect } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import { useAuth } from 'src/_ezs/core/Auth'
 import { useQuery } from '@tanstack/react-query'
@@ -11,8 +11,21 @@ const perfectScrollbarOptions = {
   wheelPropagation: false
 }
 
+const CatalogueContext = createContext()
+
+const useCatalogue = () => {
+  return useContext(CatalogueContext)
+}
+
 function CatalogueLayout({ paths, isReceive }) {
+  const { pathname } = useLocation()
   const { CrStocks } = useAuth()
+  const [isOpenMenu, setIsOpenMenu] = useState(false)
+
+  useEffect(() => {
+    if (isOpenMenu) setIsOpenMenu(false)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname])
 
   const { data } = useQuery({
     queryKey: ['ReceiveStock', CrStocks],
@@ -26,18 +39,44 @@ function CatalogueLayout({ paths, isReceive }) {
   })
 
   return (
-    <div className="flex h-full bg-white dark:bg-dark-app">
-      <PerfectScrollbar
-        options={perfectScrollbarOptions}
-        className="relative w-56 h-full px-3 py-4 overflow-auto border-r border-separator dark:border-dark-separator"
-      >
-        <div className="font-bold font-inter text-[17px] py-2 px-4 dark:text-white">
-          Danh mục
-        </div>
-        <ul>
-          {paths &&
-            paths.map(({ to, name }, index) => (
-              <li key={index}>
+    <CatalogueContext.Provider
+      value={{
+        isOpenMenu,
+        openMenu: () => setIsOpenMenu(true),
+        hideMenu: () => setIsOpenMenu(false)
+      }}
+    >
+      <div className="flex h-full bg-white dark:bg-dark-app relative">
+        <PerfectScrollbar
+          options={perfectScrollbarOptions}
+          className={clsx(
+            'w-56 h-full px-3 py-4 overflow-auto border-r border-separator dark:border-dark-separator absolute xl:relative bg-white z-50 xl:visible',
+            !isOpenMenu && 'invisible'
+          )}
+        >
+          <div className="font-bold font-inter text-[17px] py-2 px-4 dark:text-white">
+            Danh mục
+          </div>
+          <ul>
+            {paths &&
+              paths.map(({ to, name }, index) => (
+                <li key={index}>
+                  <NavLink
+                    className={({ isActive }) =>
+                      clsx(
+                        'block px-4 py-3 text-[15px] rounded-md font-medium hover:bg-primarylight hover:text-primary dark:hover:bg-dark-light transition mt-1 dark:text-white',
+                        isActive &&
+                          'bg-primarylight text-primary dark:bg-dark-light'
+                      )
+                    }
+                    to={to}
+                  >
+                    {name}
+                  </NavLink>
+                </li>
+              ))}
+            {isReceive && data && data.length > 0 && (
+              <li>
                 <NavLink
                   className={({ isActive }) =>
                     clsx(
@@ -46,38 +85,30 @@ function CatalogueLayout({ paths, isReceive }) {
                         'bg-primarylight text-primary dark:bg-dark-light'
                     )
                   }
-                  to={to}
+                  to="/catalogue/ie-processed"
                 >
-                  {name}
+                  <span className="pr-2">Đơn cần xử lý</span>
+                  <span className="bg-danger text-white text-[10px] px-2 py-px rounded">
+                    {data.length}
+                  </span>
                 </NavLink>
               </li>
-            ))}
-          {isReceive && data && data.length > 0 && (
-            <li>
-              <NavLink
-                className={({ isActive }) =>
-                  clsx(
-                    'block px-4 py-3 text-[15px] rounded-md font-medium hover:bg-primarylight hover:text-primary dark:hover:bg-dark-light transition mt-1 dark:text-white',
-                    isActive &&
-                      'bg-primarylight text-primary dark:bg-dark-light'
-                  )
-                }
-                to="/catalogue/ie-processed"
-              >
-                <span className="pr-2">Đơn cần xử lý</span>
-                <span className="bg-danger text-white text-[10px] px-2 py-px rounded">
-                  {data.length}
-                </span>
-              </NavLink>
-            </li>
+            )}
+          </ul>
+        </PerfectScrollbar>
+        <div
+          className={clsx(
+            'absolute inset-0 flex items-center justify-center z-40 bg-black/[.2] dark:bg-black/[.4] transition',
+            !isOpenMenu ? 'invisible opacity-0' : 'visible opacity-100'
           )}
-        </ul>
-      </PerfectScrollbar>
-      <div className="flex-1 h-full overflow-auto grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
-        <Outlet />
+          onClick={() => setIsOpenMenu(false)}
+        />
+        <div className="flex-1 h-full overflow-auto grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
+          <Outlet />
+        </div>
       </div>
-    </div>
+    </CatalogueContext.Provider>
   )
 }
 
-export { CatalogueLayout }
+export { CatalogueLayout, useCatalogue }

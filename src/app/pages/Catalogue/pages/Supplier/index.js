@@ -1,6 +1,8 @@
 import {
   AdjustmentsVerticalIcon,
+  Bars3Icon,
   PencilIcon,
+  PlusIcon,
   TrashIcon
 } from '@heroicons/react/24/outline'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -22,9 +24,11 @@ import { toast } from 'react-toastify'
 import { Menu, Transition } from '@headlessui/react'
 import clsx from 'clsx'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
+import { useCatalogue } from '../../CatalogueLayout'
 
 function Supplier(props) {
   const { CrStocks } = useAuth()
+  const { openMenu } = useCatalogue()
   const navigate = useNavigate()
   const { pathname } = useLocation()
   const queryParams = useQueryParams()
@@ -125,8 +129,15 @@ function Supplier(props) {
         key: 'Address',
         title: 'Địa chỉ',
         dataKey: 'Address',
-        width: 500,
+        width: 300,
         cellRenderer: ({ rowData }) => rowData.Address,
+        sortable: false
+      },
+      {
+        key: 'Desc',
+        title: 'Ghi chú',
+        dataKey: 'Desc',
+        width: 300,
         sortable: false
       },
       {
@@ -167,19 +178,21 @@ function Supplier(props) {
   )
 
   return (
-    <div className="flex flex-col h-full px-8 pt-8 pb-5 mx-auto max-w-7xl">
+    <div className="flex flex-col h-full lg:px-8 lg:pt-8 lg:pb-5 p-4 mx-auto max-w-7xl">
       <div className="flex items-end justify-between mb-5">
-        <div>
-          <div className="text-3xl font-bold dark:text-white">
+        <div className="pr-3">
+          <div className="text-xl sm:text-3xl font-bold dark:text-white">
             Nhà cung cấp, đại lý
           </div>
-          <div className="mt-1.5">Quản lý tất cả các nhà cung cấp, đại lý</div>
+          <div className="mt-1.5 hidden sm:block">
+            Quản lý tất cả các nhà cung cấp, đại lý
+          </div>
         </div>
-        <div className="flex pb-1">
-          <Menu as="div" className="relative mr-2.5">
+        <div className="flex sm:pb-1">
+          <Menu as="div" className="relative mr-1 sm:mr-2.5">
             <div>
-              <Menu.Button className="flex items-center justify-center text-gray-900 bg-light border rounded border-light h-12 w-12 dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary">
-                <AdjustmentsVerticalIcon className="w-7" />
+              <Menu.Button className="flex items-center justify-center text-gray-900 bg-light border rounded border-light w-10 h-10 sm:w-12 sm:h-12 dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary">
+                <AdjustmentsVerticalIcon className="w-6 sm:w-7" />
               </Menu.Button>
             </div>
             <Transition
@@ -249,12 +262,19 @@ function Supplier(props) {
               <Button
                 onClick={open}
                 type="button"
-                className="flex items-center relative h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                className="flex items-center justify-center relative w-10 h-10 sm:w-12 sm:h-12 md:w-auto md:px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
               >
-                Thêm mới
+                <span className="hidden md:block">Thêm mới</span>
+                <PlusIcon className="w-6 sm:w-7 md:hidden" />
               </Button>
             )}
           </PickerAddEdit>
+          <button
+            className="relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70 ml-1 sm:ml-2.5 xl:hidden"
+            onClick={openMenu}
+          >
+            <Bars3Icon className="w-6 sm:w-7" />
+          </button>
         </div>
       </div>
       <ReactBaseTable

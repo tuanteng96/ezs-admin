@@ -1,54 +1,52 @@
 import React from 'react'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
-import AsyncSelect from 'react-select/async'
+import { AsyncPaginate } from 'react-select-async-paginate'
 
 function SelectProdCode({ Params, Key, ...props }) {
-  const promiseOptions = inputValue =>
-    new Promise(resolve => {
-      if (Params) {
-        WarehouseAPI.getListProdCode({ ...Params, q: inputValue }).then(
-          ({ data }) => {
-            let result = [
-              {
-                label: 'Sản phẩm',
-                groupid: 'SP',
-                options: []
-              },
-              {
-                label: 'Nguyên vật liệu',
-                groupid: 'NVL',
-                options: []
-              }
-            ]
-            if (data.data && data?.data.length > 0) {
-              for (let item of data?.data) {
-                let index = result.findIndex(x => x.groupid === item.suffix)
-                result[index].options.push({
-                  ...item,
-                  label: item.text,
-                  value: item.source.ID
-                })
-              }
-            }
-            resolve(result)
-          }
-        )
-      } else {
-        resolve([])
+  async function loadOptions(search, loadedOptions, { page }) {
+    let { data } = await WarehouseAPI.getListProdCode({ ...Params, q: search })
+    let options = [
+      {
+        label: 'Sản phẩm',
+        groupid: 'SP',
+        options: []
+      },
+      {
+        label: 'Nguyên vật liệu',
+        groupid: 'NVL',
+        options: []
       }
-    })
+    ]
+    if (data.data && data?.data.length > 0) {
+      for (let item of data?.data) {
+        let index = options.findIndex(x => x.groupid === item.suffix)
+        options[index].options.push({
+          ...item,
+          label: item.text,
+          value: item.source.ID
+        })
+      }
+    }
+    return {
+      options: options,
+      hasMore: false,
+      additional: {
+        page: 1
+      }
+    }
+  }
 
   return (
     <div>
-      <AsyncSelect
+      <AsyncPaginate
         key={Key}
-        cacheOptions
-        defaultOptions
-        loadOptions={promiseOptions}
+        loadOptions={loadOptions}
+        additional={{
+          page: 1
+        }}
         classNamePrefix="select"
         placeholder="Chọn sản phẩm, nvl"
         noOptionsMessage={() => 'Không có dữ liệu'}
-        onInputChange={val => console.log(val)}
         {...props}
       />
     </div>

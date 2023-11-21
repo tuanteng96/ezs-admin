@@ -154,15 +154,15 @@ function WareHouseToPay(props) {
           animate={{ x: '0' }}
         >
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-separator dark:border-dark-separator">
-              <div className="flex text-2xl font-bold dark:text-graydark-800">
+            <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-separator dark:border-dark-separator">
+              <div className="text-xl lg:text-2xl font-bold dark:text-graydark-800 truncate w-10/12">
                 Thanh toán cho đơn
                 <span className="pl-1.5">
                   {watchForm?.ie.Type === 'N' ? 'nhập' : 'xuất'}
                 </span>
               </div>
               <div
-                className="flex items-center justify-center w-12 h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
+                className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
                 onClick={() =>
                   navigate({
                     pathname: state?.prevFrom,
@@ -170,19 +170,22 @@ function WareHouseToPay(props) {
                   })
                 }
               >
-                <XMarkIcon className="w-9" />
+                <XMarkIcon className="w-7 lg:w-9" />
               </div>
             </div>
             <form
-              className="flex h-[calc(100%-81px)] relative"
+              className="md:flex md:h-[calc(100%-81px)] relative overflow-auto md:overflow-hidden"
               onSubmit={handleSubmit(onSubmit)}
+              onKeyDown={e => {
+                if (e.key === 'Enter') e.preventDefault()
+              }}
             >
               <div className="h-full flex flex-col grow">
                 <Tab.Group
                   selectedIndex={selectedIndex}
                   onChange={setSelectedIndex}
                 >
-                  <div className="px-6 pt-6">
+                  <div className="lg:px-6 lg:pt-6 pt-4 px-4">
                     <Tab.List className="rounded inline-flex">
                       <Tab as={Fragment}>
                         {({ selected }) => (
@@ -213,7 +216,7 @@ function WareHouseToPay(props) {
                   <Tab.Panels className="grow">
                     <Tab.Panel className="h-full">
                       <ReactBaseTable
-                        wrapClassName="p-6 h-full bg-white dark:bg-dark-app rounded"
+                        wrapClassName="p-4 lg:p-6 h-full bg-white dark:bg-dark-app rounded"
                         rowKey="id"
                         columns={[
                           {
@@ -260,7 +263,7 @@ function WareHouseToPay(props) {
                     </Tab.Panel>
                     <Tab.Panel className="h-full">
                       <ReactBaseTable
-                        wrapClassName="p-6 h-full bg-white dark:bg-dark-app rounded"
+                        wrapClassName="p-4 lg:p-6 h-full bg-white dark:bg-dark-app rounded"
                         rowKey="id"
                         columns={[
                           {
@@ -304,8 +307,8 @@ function WareHouseToPay(props) {
                   </Tab.Panels>
                 </Tab.Group>
               </div>
-              <div className="w-[380px] border-l border-separator flex flex-col">
-                <div className="p-6 overflow-auto grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
+              <div className="w-full md:w-[320px] lg:w-[380px] border-l border-separator flex flex-col">
+                <div className="p-4 lg:p-6 overflow-auto grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
                   <div>
                     <div className="mb-3.5">
                       <div className="font-medium">Mã đơn</div>
@@ -339,6 +342,7 @@ function WareHouseToPay(props) {
                             fieldState
                           }) => (
                             <SelectStocks
+                              isDisabled
                               value={field.value}
                               onChange={val => field.onChange(val?.value || '')}
                               className="select-control"
@@ -510,7 +514,7 @@ function WareHouseToPay(props) {
                   </div>
                 </div>
                 {data && data.ie.ToPay - Math.abs(data.ie.Payed) !== 0 && (
-                  <div className="px-6 py-4 border-t border-separator">
+                  <div className="px-4 lg:px-6 py-4 border-t border-separator">
                     <Button
                       disabled={updateMutation.isLoading}
                       loading={updateMutation.isLoading}
