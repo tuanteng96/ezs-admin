@@ -2,9 +2,10 @@ import { FloatingPortal } from '@floating-ui/react'
 import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import clsx from 'clsx'
-import { m } from 'framer-motion'
+import { AnimatePresence, m } from 'framer-motion'
 import moment from 'moment'
 import React, { useMemo, useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
@@ -66,6 +67,8 @@ function PickerInventory({ children, item, StockID }) {
   })
   const { GlobalConfig } = useLayout()
 
+  const { pathname } = useLocation()
+
   const { data, isLoading, isPreviousData } = useQuery({
     queryKey: ['ListInventoryProdID', filters],
     queryFn: async () => {
@@ -110,7 +113,12 @@ function PickerInventory({ children, item, StockID }) {
               rowData.Source !== 'ServiceItem' && (
                 <>
                   Đơn hàng
-                  <span className="text-primary pl-1.5 cursor-pointer">
+                  <span
+                    className="text-primary pl-1.5 cursor-pointer"
+                    onClick={() =>
+                      (window.top.location.href = `/admin/?mdl=store&act=sell#mp:${rowData.MemberID}/orderid/${rowData.OrderID}`)
+                    }
+                  >
                     #{rowData.SourceID}
                   </span>
                 </>
@@ -118,7 +126,12 @@ function PickerInventory({ children, item, StockID }) {
             {rowData.Source === 'AfterReturn' && (
               <>
                 Đơn trả hàng
-                <span className="text-primary pl-1.5 cursor-pointer">
+                <span
+                  className="text-primary pl-1.5 cursor-pointer"
+                  onClick={() =>
+                    (window.top.location.href = `/admin/?mdl=store&act=sell#mp:${rowData.MemberID}/orderid/${rowData.SourceID}`)
+                  }
+                >
                   #{rowData.SourceID}
                 </span>
               </>
@@ -134,9 +147,22 @@ function PickerInventory({ children, item, StockID }) {
             {!rowData.Source && !rowData.Source && (
               <>
                 Đơn nhập xuất
-                <span className="text-primary pl-1.5 cursor-pointer">
+                <Link
+                  to={{
+                    pathname:
+                      rowData.Type === 'N'
+                        ? '/catalogue/import-export/import/' + rowData.ImportID
+                        : '/catalogue/import-export/' +
+                          (rowData.Target > 0 ? 'export-stock/' : 'export/') +
+                          rowData.ImportID
+                  }}
+                  state={{
+                    prevFrom: pathname
+                  }}
+                  className="text-primary pl-1.5 cursor-pointer"
+                >
                   #{rowData.ImportID}
-                </span>
+                </Link>
               </>
             )}
           </div>
@@ -173,68 +199,71 @@ function PickerInventory({ children, item, StockID }) {
       {children({
         open: () => setVisible(true)
       })}
-      {visible && (
+      <AnimatePresence>
         <FloatingPortal root={document.body}>
-          <div className="fixed inset-0 flex items-center justify-center z-[1010]">
-            <m.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute w-full h-full top-0 left bg-black/[.2] dark:bg-black/[.4]"
-              onClick={() => setVisible(false)}
-            ></m.div>
-            <m.div
-              className="absolute top-0 right-0 z-10 flex w-full h-full max-w-4xl bg-white dark:bg-dark-aside"
-              initial={{ x: '100%' }}
-              transition={{
-                transform: { ease: 'linear' }
-              }}
-              animate={{ x: '0' }}
-            >
-              <div className="flex flex-col h-full w-full">
-                <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-separator dark:border-dark-separator">
-                  <div className="text-xl lg:text-2xl font-bold dark:text-graydark-800 truncate w-10/12">
-                    {item?.Title}
+          {visible && (
+            <div className="fixed inset-0 flex items-center justify-center z-[1010]">
+              <m.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="absolute w-full h-full top-0 left bg-black/[.2] dark:bg-black/[.4]"
+                onClick={() => setVisible(false)}
+              ></m.div>
+              <m.div
+                className="absolute top-0 right-0 z-10 flex w-full h-full max-w-4xl bg-white dark:bg-dark-aside"
+                initial={{ x: '100%' }}
+                transition={{
+                  transform: { ease: 'linear' }
+                }}
+                animate={{ x: '0' }}
+              >
+                <div className="flex flex-col h-full w-full">
+                  <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-separator dark:border-dark-separator">
+                    <div className="text-xl lg:text-2xl font-bold dark:text-graydark-800 truncate w-10/12">
+                      {item?.Title}
+                    </div>
+                    <div
+                      className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
+                      onClick={() => setVisible(false)}
+                    >
+                      <XMarkIcon className="w-7 lg:w-9" />
+                    </div>
                   </div>
-                  <div
-                    className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
-                    onClick={() => setVisible(false)}
-                  >
-                    <XMarkIcon className="w-7 lg:w-9" />
-                  </div>
+                  <ReactBaseTable
+                    pagination
+                    wrapClassName="grow p-4 lg:p-6"
+                    paginationClassName="flex items-center justify-between w-full px-4 pb-4 lg:px-6 lg:pb-6"
+                    rowKey="ID"
+                    columns={columns}
+                    data={data?.data || []}
+                    estimatedRowHeight={96}
+                    emptyRenderer={() =>
+                      !isLoading && (
+                        <div className="flex items-center justify-center h-full">
+                          Không có dữ liệu
+                        </div>
+                      )
+                    }
+                    isPreviousData={isPreviousData}
+                    loading={isLoading || isPreviousData}
+                    pageCount={data?.PCount}
+                    pageOffset={Number(filters.Pi)}
+                    pageSizes={Number(filters.Ps)}
+                    onChange={({ pageIndex, pageSize }) => {
+                      setFilters(prevState => ({
+                        ...prevState,
+                        Pi: pageIndex,
+                        Ps: pageSize
+                      }))
+                    }}
+                  />
                 </div>
-                <ReactBaseTable
-                  pagination
-                  wrapClassName="grow p-4 lg:p-6"
-                  paginationClassName="flex items-center justify-between w-full px-4 pb-4 lg:px-6 lg:pb-6"
-                  rowKey="ID"
-                  columns={columns}
-                  data={data?.data || []}
-                  estimatedRowHeight={96}
-                  emptyRenderer={() =>
-                    !isLoading && (
-                      <div className="flex items-center justify-center h-full">
-                        Không có dữ liệu
-                      </div>
-                    )
-                  }
-                  isPreviousData={isPreviousData}
-                  loading={isLoading || isPreviousData}
-                  pageCount={data?.PCount}
-                  pageOffset={Number(filters.Pi)}
-                  pageSizes={Number(filters.Ps)}
-                  onChange={({ pageIndex, pageSize }) => {
-                    setFilters(prevState => ({
-                      ...prevState,
-                      Pi: pageIndex,
-                      Ps: pageSize
-                    }))
-                  }}
-                />
-              </div>
-            </m.div>
-          </div>
+              </m.div>
+            </div>
+          )}
         </FloatingPortal>
-      )}
+      </AnimatePresence>
     </>
   )
 }

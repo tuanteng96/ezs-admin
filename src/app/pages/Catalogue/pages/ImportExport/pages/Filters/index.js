@@ -12,6 +12,7 @@ import { ArrowSmallLeftIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import { Button } from 'src/_ezs/partials/button'
 import {
+  SelectProdCode,
   SelectStocksWareHouse,
   SelectSupplier,
   SelectUsers
@@ -21,6 +22,8 @@ import clsx from 'clsx'
 import Select from 'react-select'
 import { Input } from 'src/_ezs/partials/forms'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
+import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
+import moment from 'moment'
 
 const perfectScrollbarOptions = {
   wheelSpeed: 2,
@@ -74,6 +77,10 @@ function InventoryFilters(props) {
       pathname: state?.prevFrom || pathname.replaceAll('/filters', ''),
       search: createSearchParams({
         ...values,
+        ProdID: values.ProdID ? values.ProdID.value : '',
+        ProdTitle: values.ProdID ? values.ProdID.label : '',
+        From: values.From ? moment(values.From).format('YYYY-MM-DD') : '',
+        To: values.From ? moment(values.To).format('YYYY-MM-DD') : '',
         Pi: 1
       }).toString()
     })
@@ -214,6 +221,74 @@ function InventoryFilters(props) {
                       />
                     )}
                   />
+                </div>
+              </div>
+              <div className="mb-3.5">
+                <div className="font-semibold">Sản phẩm & nguyên vật liệu</div>
+                <div className="mt-1">
+                  <Controller
+                    name="ProdID"
+                    control={control}
+                    render={({ field: { ref, ...field }, fieldState }) => (
+                      <SelectProdCode
+                        isClearable
+                        className="select-control mb-8px"
+                        Params={{
+                          cmd: 'prodcode',
+                          includeSource: 1,
+                          cate_name: 'san_pham,nvl',
+                          _type: 'query'
+                        }}
+                        value={field.value}
+                        onChange={val => field.onChange(val)}
+                        menuPortalTarget={document.body}
+                        menuPosition="fixed"
+                        styles={{
+                          menuPortal: base => ({
+                            ...base,
+                            zIndex: 9999
+                          })
+                        }}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+              <div className="mb-3.5">
+                <div className="font-semibold">Theo ngày</div>
+                <div className="mt-1 grid grid-cols-2 gap-4">
+                  <div>
+                    <Controller
+                      name="From"
+                      control={control}
+                      render={({ field: { ref, ...field }, fieldState }) => (
+                        <InputDatePicker
+                          placeholderText="Bắt đầu"
+                          autoComplete="off"
+                          onChange={field.onChange}
+                          dateFormat="dd/MM/yyyy"
+                          selected={field.value ? field.value : null}
+                          {...field}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div>
+                    <Controller
+                      name="To"
+                      control={control}
+                      render={({ field: { ref, ...field }, fieldState }) => (
+                        <InputDatePicker
+                          placeholderText="Kết thúc"
+                          autoComplete="off"
+                          onChange={field.onChange}
+                          selected={field.value ? field.value : null}
+                          {...field}
+                          dateFormat="dd/MM/yyyy"
+                        />
+                      )}
+                    />
+                  </div>
                 </div>
               </div>
               <div className="mb-3.5">

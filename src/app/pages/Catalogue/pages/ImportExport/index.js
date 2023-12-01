@@ -45,7 +45,15 @@ function ImportExport(props) {
     UserID: queryParams.UserID || '',
     ReceiverID: queryParams.ReceiverID || '',
     Key: queryParams.Key || '',
-    SupplierID: queryParams.SupplierID || ''
+    SupplierID: queryParams.SupplierID || '',
+    ProdID: queryParams.ProdID
+      ? {
+          value: queryParams.ProdID || '',
+          label: queryParams.ProdTitle || ''
+        }
+      : '',
+    From: queryParams.From,
+    To: queryParams.To
   }
 
   const { data, isLoading, isPreviousData, refetch } = useQuery({
@@ -62,7 +70,10 @@ function ImportExport(props) {
         '(filter)PayStatus': queryConfig.PayStatus || '0',
         '(filter)UserID': queryConfig.UserID,
         '(filter)ReceiverID': queryConfig.ReceiverID,
-        '(filter)SupplierID': queryConfig.SupplierID
+        '(filter)SupplierID': queryConfig.SupplierID,
+        ProdID: queryConfig.ProdID ? queryConfig.ProdID.value : '',
+        From: queryConfig.From,
+        To: queryConfig.To
       }
       let { data } = await WarehouseAPI.getListInventory(newQueryConfig)
       return {
