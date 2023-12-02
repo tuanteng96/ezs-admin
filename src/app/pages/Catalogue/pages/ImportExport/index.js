@@ -74,8 +74,10 @@ function ImportExport(props) {
         '(filter)ReceiverID': queryConfig.ReceiverID,
         '(filter)SupplierID': queryConfig.SupplierID,
         ProdID: queryConfig.ProdID ? queryConfig.ProdID.value : '',
-        From: queryConfig.From,
-        To: queryConfig.To
+        From: queryConfig.From
+          ? moment(queryConfig.From).format('YYYY-MM-DD')
+          : '',
+        To: queryConfig.To ? moment(queryConfig.To).format('YYYY-MM-DD') : ''
       }
       let { data } = await WarehouseAPI.getListInventory(newQueryConfig)
       return {
