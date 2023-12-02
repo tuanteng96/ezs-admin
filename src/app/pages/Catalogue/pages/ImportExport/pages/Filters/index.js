@@ -80,7 +80,7 @@ function InventoryFilters(props) {
         ProdID: values.ProdID ? values.ProdID.value : '',
         ProdTitle: values.ProdID ? values.ProdID.label : '',
         From: values.From ? moment(values.From).format('YYYY-MM-DD') : '',
-        To: values.From ? moment(values.To).format('YYYY-MM-DD') : '',
+        To: values.To ? moment(values.To).format('YYYY-MM-DD') : '',
         Pi: 1
       }).toString()
     })
