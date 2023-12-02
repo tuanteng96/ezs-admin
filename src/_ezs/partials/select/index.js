@@ -5,6 +5,7 @@ import { SelectGender } from './SelectGender'
 import { SelectMeasure } from './SelectMeasure'
 import { SelectPaymentMethods } from './SelectPaymentMethods'
 import { SelectProdCode } from './SelectProdCode'
+import { SelectProdDynamic } from './SelectProdDynamic'
 import { SelectProdProducts } from './SelectProdProducts'
 import { SelectProdService } from './SelectProdService'
 import { SelectStatusGenerate } from './SelectStatusGenerate'
@@ -29,5 +30,6 @@ export {
   SelectSupplier,
   SelectUsers,
   SelectProdCode,
-  SelectPaymentMethods
+  SelectPaymentMethods,
+  SelectProdDynamic
 }

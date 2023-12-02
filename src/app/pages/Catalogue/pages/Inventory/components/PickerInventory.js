@@ -10,6 +10,7 @@ import { toast } from 'react-toastify'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import { Button } from 'src/_ezs/partials/button'
+import { DropdownMenu } from 'src/_ezs/partials/dropdown'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 
 const ButtonAction = ({ item }) => {
@@ -139,9 +140,54 @@ function PickerInventory({ children, item, StockID }) {
             {rowData.Source === 'ServiceItem' && (
               <>
                 Định mức dịch vụ
-                <span className="text-primary pl-1.5 cursor-pointer">
-                  #{rowData.SourceID}
-                </span>
+                <DropdownMenu
+                  zIndex={10009}
+                  trigger={
+                    <span className="text-primary pl-1.5 cursor-pointer">
+                      #{rowData.SourceID}
+                    </span>
+                  }
+                  className="fixed rounded px-0 py-2 border-0 min-w-[250px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow"
+                >
+                  <div>
+                    <div className="p-3 border-b last:border-0 border-separator">
+                      <div className="text-sm text-muted2 font-light mb-px">
+                        Tên khách hàng
+                      </div>
+                      <div className="font-medium">
+                        {rowData?.WarehouseOs?.FullName || 'Chưa xác định'}
+                      </div>
+                    </div>
+                    <div className="p-3 border-b last:border-0 border-separator">
+                      <div className="text-sm text-muted2 font-light mb-px">
+                        Số điện thoại
+                      </div>
+                      <div className="font-medium">
+                        {rowData?.WarehouseOs?.Phone || 'Chưa xác định'}
+                      </div>
+                    </div>
+                    <div className="p-3 border-b last:border-0 border-separator">
+                      <div className="text-sm text-muted2 font-light mb-px">
+                        Dịch vụ
+                      </div>
+                      <div className="font-medium">
+                        {rowData?.WarehouseOs?.Title || 'Chưa xác định'}
+                      </div>
+                    </div>
+                    <div className="p-3 border-b last:border-0 border-separator">
+                      <div className="text-sm text-muted2 font-light mb-px">
+                        Ngày thực hiện
+                      </div>
+                      <div className="font-medium">
+                        {rowData?.WarehouseOs?.UseDate
+                          ? moment(rowData?.WarehouseOs?.UseDate).format(
+                              'HH:mm DD-MM-YYYY'
+                            )
+                          : 'Chưa xác định'}
+                      </div>
+                    </div>
+                  </div>
+                </DropdownMenu>
               </>
             )}
             {!rowData.Source && !rowData.Source && (

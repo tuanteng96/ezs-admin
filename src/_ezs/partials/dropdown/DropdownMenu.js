@@ -16,7 +16,12 @@ import { createPortal } from 'react-dom'
 import { useEffect } from 'react'
 import { useLocation } from 'react-router'
 
-const DropdownMenu = ({ children, trigger }) => {
+const DropdownMenu = ({
+  children,
+  trigger,
+  zIndex = 1009,
+  className = 'fixed rounded px-0 py-2 border-0 min-w-[180px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow'
+}) => {
   const [isOpen, setIsOpen] = useState(false)
   const arrowRef = useRef(null)
   const { pathname } = useLocation()
@@ -63,12 +68,12 @@ const DropdownMenu = ({ children, trigger }) => {
             order={['reference', 'content']}
           >
             <div
-              className="fixed rounded px-0 py-2 border-0 min-w-[180px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow"
+              className={className}
               style={{
                 ...floatingStyles,
                 top: y ?? 0,
                 left: x ?? 0,
-                zIndex: 1009
+                zIndex: zIndex
               }}
               ref={refs.setFloating}
               aria-labelledby={headingId}

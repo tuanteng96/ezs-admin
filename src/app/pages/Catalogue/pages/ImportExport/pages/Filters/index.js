@@ -12,7 +12,7 @@ import { ArrowSmallLeftIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import PerfectScrollbar from 'react-perfect-scrollbar'
 import { Button } from 'src/_ezs/partials/button'
 import {
-  SelectProdCode,
+  SelectProdDynamic,
   SelectStocksWareHouse,
   SelectSupplier,
   SelectUsers
@@ -230,7 +230,7 @@ function InventoryFilters(props) {
                     name="ProdID"
                     control={control}
                     render={({ field: { ref, ...field }, fieldState }) => (
-                      <SelectProdCode
+                      <SelectProdDynamic
                         isClearable
                         className="select-control mb-8px"
                         Params={{
