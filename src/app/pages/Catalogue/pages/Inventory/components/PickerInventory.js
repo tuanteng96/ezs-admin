@@ -117,7 +117,10 @@ function PickerInventory({ children, item, StockID }) {
                   <span
                     className="text-primary pl-1.5 cursor-pointer"
                     onClick={() =>
-                      (window.top.location.href = `/admin/?mdl=store&act=sell#mp:${rowData.MemberID}/orderid/${rowData.OrderID}`)
+                      window.top.open(
+                        `/admin/?mdl=store&act=sell#mp:${rowData.MemberID}/orderid/${rowData.OrderID}`,
+                        '_blank'
+                      )
                     }
                   >
                     #{rowData.SourceID}
@@ -130,7 +133,10 @@ function PickerInventory({ children, item, StockID }) {
                 <span
                   className="text-primary pl-1.5 cursor-pointer"
                   onClick={() =>
-                    (window.top.location.href = `/admin/?mdl=store&act=sell#mp:${rowData.MemberID}/orderid/${rowData.SourceID}`)
+                    window.top.open(
+                      `/admin/?mdl=store&act=sell#mp:${rowData.MemberID}/orderid/${rowData.SourceID}`,
+                      '_blank'
+                    )
                   }
                 >
                   #{rowData.SourceID}
@@ -151,7 +157,7 @@ function PickerInventory({ children, item, StockID }) {
                 >
                   <div>
                     <div className="p-3 border-b last:border-0 border-separator">
-                      <div className="text-sm text-muted2 font-light mb-px">
+                      <div className="mb-px text-sm font-light text-muted2">
                         Tên khách hàng
                       </div>
                       <div className="font-medium">
@@ -159,7 +165,7 @@ function PickerInventory({ children, item, StockID }) {
                       </div>
                     </div>
                     <div className="p-3 border-b last:border-0 border-separator">
-                      <div className="text-sm text-muted2 font-light mb-px">
+                      <div className="mb-px text-sm font-light text-muted2">
                         Số điện thoại
                       </div>
                       <div className="font-medium">
@@ -167,7 +173,7 @@ function PickerInventory({ children, item, StockID }) {
                       </div>
                     </div>
                     <div className="p-3 border-b last:border-0 border-separator">
-                      <div className="text-sm text-muted2 font-light mb-px">
+                      <div className="mb-px text-sm font-light text-muted2">
                         Dịch vụ
                       </div>
                       <div className="font-medium">
@@ -175,7 +181,7 @@ function PickerInventory({ children, item, StockID }) {
                       </div>
                     </div>
                     <div className="p-3 border-b last:border-0 border-separator">
-                      <div className="text-sm text-muted2 font-light mb-px">
+                      <div className="mb-px text-sm font-light text-muted2">
                         Ngày thực hiện
                       </div>
                       <div className="font-medium">
@@ -264,13 +270,13 @@ function PickerInventory({ children, item, StockID }) {
                 }}
                 animate={{ x: '0' }}
               >
-                <div className="flex flex-col h-full w-full">
-                  <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-separator dark:border-dark-separator">
-                    <div className="text-xl lg:text-2xl font-bold dark:text-graydark-800 truncate w-10/12">
+                <div className="flex flex-col w-full h-full">
+                  <div className="flex items-center justify-between px-4 py-4 border-b lg:px-6 border-separator dark:border-dark-separator">
+                    <div className="w-10/12 text-xl font-bold truncate lg:text-2xl dark:text-graydark-800">
                       {item?.Title}
                     </div>
                     <div
-                      className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
+                      className="flex items-center justify-center w-10 h-10 transition cursor-pointer lg:w-12 lg:h-12 dark:text-graydark-800 hover:text-primary"
                       onClick={() => setVisible(false)}
                     >
                       <XMarkIcon className="w-7 lg:w-9" />

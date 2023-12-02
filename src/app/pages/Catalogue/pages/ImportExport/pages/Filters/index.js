@@ -104,7 +104,7 @@ function InventoryFilters(props) {
           animate={{ opacity: 1, top: 'auto' }}
           exit={{ opacity: 0, top: '60%' }}
         >
-          <div className="bg-white dark:bg-dark-aside h-full rounded shadow-lg flex flex-col">
+          <div className="flex flex-col h-full bg-white rounded shadow-lg dark:bg-dark-aside">
             <div className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
               <div className="flex items-center text-2xl font-semibold">
                 <NavLink
@@ -256,7 +256,7 @@ function InventoryFilters(props) {
               </div>
               <div className="mb-3.5">
                 <div className="font-semibold">Theo ngày</div>
-                <div className="mt-1 grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-4 mt-1">
                   <div>
                     <Controller
                       name="From"

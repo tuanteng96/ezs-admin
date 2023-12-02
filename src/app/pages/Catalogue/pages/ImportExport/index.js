@@ -52,8 +52,10 @@ function ImportExport(props) {
           label: queryParams.ProdTitle || ''
         }
       : '',
-    From: queryParams.From,
-    To: queryParams.To
+    From: queryParams.From
+      ? moment(queryParams.From, 'YYYY-MM-DD').toDate()
+      : '',
+    To: queryParams.To ? moment(queryParams.To, 'YYYY-MM-DD').toDate() : ''
   }
 
   const { data, isLoading, isPreviousData, refetch } = useQuery({
@@ -325,10 +327,10 @@ function ImportExport(props) {
   )
 
   return (
-    <div className="flex flex-col h-full lg:px-8 lg:pt-8 lg:pb-5 p-4 mx-auto max-w-7xl">
+    <div className="flex flex-col h-full p-4 mx-auto lg:px-8 lg:pt-8 lg:pb-5 max-w-7xl">
       <div className="flex items-end justify-between mb-5">
         <div>
-          <div className="text-xl sm:text-3xl font-bold dark:text-white">
+          <div className="text-xl font-bold sm:text-3xl dark:text-white">
             Đơn nhập xuất
           </div>
           <div className="mt-1.5 hidden sm:block">
@@ -351,11 +353,11 @@ function ImportExport(props) {
           </NavLink>
           <Menu as="div" className="relative">
             <div>
-              <Menu.Button className="relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 md:w-auto md:px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70">
+              <Menu.Button className="relative flex items-center justify-center w-10 h-10 text-white transition rounded shadow-lg sm:w-12 sm:h-12 md:w-auto md:px-4 bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70">
                 <span className="hidden md:block">Thêm mới</span>
                 <PlusIcon className="w-6 sm:w-7 md:hidden" />
                 <ChevronDownIcon
-                  className="w-5 h-5 ml-2 -mr-1 text-violet-200 hover:text-violet-100 hidden md:block"
+                  className="hidden w-5 h-5 ml-2 -mr-1 text-violet-200 hover:text-violet-100 md:block"
                   aria-hidden="true"
                 />
               </Menu.Button>
