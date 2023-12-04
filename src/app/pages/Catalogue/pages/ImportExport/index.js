@@ -25,6 +25,7 @@ import { formatString } from 'src/_ezs/utils/formatString'
 import Swal from 'sweetalert2'
 import { useCatalogue } from '../../CatalogueLayout'
 import clsx from 'clsx'
+import ExcelHepers from 'src/_ezs/utils/ExcelHepers'
 
 function ImportExport(props) {
   const { CrStocks, auth } = useAuth()
@@ -328,6 +329,31 @@ function ImportExport(props) {
     [search, auth]
   )
 
+  const onExport = () => {
+    if (!data.data) return
+    ExcelHepers.dataToExcel(
+      'don-nhap-xuat-' + moment().format('DD-MM-YYYY[-]HH-mm-ss'),
+      (sheet, workbook) => {
+        workbook.suspendPaint()
+        workbook.suspendEvent()
+        let Response = []
+        for (let item of data.data) {
+          console.log(item)
+        }
+        //  var { Response, TotalRow, TotalColumn } = BAO_CAO_DAT_LICH(Data.result)
+        //  sheet.setArray(2, 0, Response)
+
+        //title
+        workbook.getActiveSheet().getCell(0, 0).value('Danh sách đơn nhập xuất')
+        workbook.getActiveSheet().getCell(0, 0).font('18pt Arial')
+
+        //Finish
+        workbook.resumePaint()
+        workbook.resumeEvent()
+      }
+    )
+  }
+
   return (
     <div className="flex flex-col h-full p-4 mx-auto lg:px-8 lg:pt-8 lg:pb-5 max-w-7xl">
       <div className="flex items-end justify-between mb-5">
@@ -430,6 +456,14 @@ function ImportExport(props) {
                     >
                       Xuất chuyển đổi cơ sở
                     </NavLink>
+                  </Menu.Item>
+                  <Menu.Item>
+                    <div
+                      className="w-full text-[15px] text-danger flex flex-col px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-danger font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                      onClick={onExport}
+                    >
+                      Xuất Excel
+                    </div>
                   </Menu.Item>
                 </div>
               </Menu.Items>
