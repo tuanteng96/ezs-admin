@@ -3,7 +3,7 @@ import clsx from 'clsx'
 import React, { useState, Fragment } from 'react'
 import { Controller, useFormContext } from 'react-hook-form'
 import { InputNumber } from 'src/_ezs/partials/forms'
-import { SelectTypeGenerate } from 'src/_ezs/partials/select/SelectTypeGenerate'
+import { SelectTypeGenerate } from 'src/_ezs/partials/select'
 
 function BonusSaleKPI(props) {
   const [enabled, setEnabled] = useState(false)

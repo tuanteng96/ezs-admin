@@ -27,7 +27,10 @@ const ProdsAPI = {
   deleteProdsID: body =>
     http.post(`/api/v3/prod24@delete`, JSON.stringify(body)),
   addUpdateProduct: body =>
-    http.post(`/api/v4/Prod25@sanpham`, JSON.stringify(body))
+    http.post(`/api/v4/Prod25@sanpham`, JSON.stringify(body)),
+  getListProd24: body => http.post(`/api/v3/prod24@get`, JSON.stringify(body)),
+  prod24UpdateKPI: body =>
+    http.post(`/api/v3/prod24@KpiUpdate`, JSON.stringify(body))
 }
 
 export default ProdsAPI

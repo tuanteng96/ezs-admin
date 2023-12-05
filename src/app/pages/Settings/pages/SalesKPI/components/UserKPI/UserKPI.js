@@ -1,8 +1,11 @@
 import React, { useMemo } from 'react'
 import { Controller, useFieldArray, useFormContext } from 'react-hook-form'
 import { InputNumber } from 'src/_ezs/partials/forms'
-import { SelectStocks, SelectUserAdmin } from 'src/_ezs/partials/select'
-import { SelectTypeGenerate } from 'src/_ezs/partials/select/SelectTypeGenerate'
+import {
+  SelectStocks,
+  SelectTypeGenerate,
+  SelectUserAdmin
+} from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import UserKPIBonus from '../UserKPIBonus/UserKPIBonus'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
@@ -245,7 +248,6 @@ function UserKPI({ indexUser }) {
                 <>
                   <SelectTypeGenerate
                     isDisabled={rowData.isDisabled}
-                    allOption={[{ value: -1, label: 'Tất cả' }]}
                     isMulti
                     isClearable
                     value={field.value}

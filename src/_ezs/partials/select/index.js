@@ -12,6 +12,7 @@ import { SelectStatusGenerate } from './SelectStatusGenerate'
 import { SelectStocks } from './SelectStocks'
 import { SelectStocksWareHouse } from './SelectStocksWareHouse'
 import { SelectSupplier } from './SelectSupplier'
+import { SelectTypeGenerate } from './SelectTypeGenerate'
 import { SelectUserAdmin } from './SelectUserAdmin'
 import { SelectUsers } from './SelectUsers'
 
@@ -31,5 +32,6 @@ export {
   SelectUsers,
   SelectProdCode,
   SelectPaymentMethods,
-  SelectProdDynamic
+  SelectProdDynamic,
+  SelectTypeGenerate
 }

@@ -6,6 +6,7 @@ import SuspensedView from 'src/app/routing/SuspensedView'
 
 const Home = lazy(() => import('./pages/Home'))
 const SalesKPI = lazy(() => import('./pages/SalesKPI'))
+const SalesKPIClassify = lazy(() => import('./pages/SalesKPI/SalesKPIClassify'))
 
 function SettingsPage(props) {
   const { kpi_doanhso } = useRoles(['kpi_doanhso'])
@@ -27,7 +28,16 @@ function SettingsPage(props) {
               <SalesKPI />
             </SuspensedView>
           }
-        />
+        >
+          <Route
+            path="classify"
+            element={
+              <SuspensedView>
+                <SalesKPIClassify />
+              </SuspensedView>
+            }
+          />
+        </Route>
       </Route>
     </Routes>
   )
