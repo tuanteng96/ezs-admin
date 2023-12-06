@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useLocation } from 'react-router-dom'
 import {
   ChevronDoubleDownIcon,
   ChevronRightIcon,
+  MagnifyingGlassIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline'
 import {
@@ -13,7 +14,7 @@ import {
 } from 'react-hook-form'
 import { SelectUserAdmin } from 'src/_ezs/partials/select'
 import { Button } from 'src/_ezs/partials/button'
-import { Disclosure } from '@headlessui/react'
+import { Disclosure, Popover } from '@headlessui/react'
 import clsx from 'clsx'
 import { UserKPI } from './components/UserKPI/UserKPI'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -35,6 +36,8 @@ const getStockName = (Stocks, StockID) => {
 function SalesKPI(props) {
   const { kpi_doanhso } = useRoles('kpi_doanhso')
   const [filters, setFilters] = useState()
+  const { pathname } = useLocation()
+
   const methods = useForm({
     defaultValues: {
       updateList: [
@@ -174,19 +177,34 @@ function SalesKPI(props) {
                 </div>
               </div>
               <div className="flex">
-                <Select
-                  className="w-64 mr-2 select-control"
-                  classNamePrefix="select"
-                  isLoading={false}
-                  isClearable
-                  isSearchable
-                  placeholder="Lọc theo cơ sở"
-                  options={kpi_doanhso.StockRoles}
-                  value={filters}
-                  onChange={val => setFilters(val)}
-                />
+                <div className="flex mr-2">
+                  <Popover className="relative">
+                    <Popover.Button className="flex items-center justify-center w-12 font-semibold text-gray-900 transition bg-white border rounded border-light h-12 dark:bg-transparent dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary">
+                      <MagnifyingGlassIcon className="w-6" />
+                    </Popover.Button>
+
+                    <Popover.Panel className="absolute z-10  shadow-lg bg-white p-4">
+                      <div>
+                        <Select
+                          className="w-64 select-control"
+                          classNamePrefix="select"
+                          isLoading={false}
+                          isClearable
+                          isSearchable
+                          placeholder="Lọc theo cơ sở"
+                          options={kpi_doanhso.StockRoles}
+                          value={filters}
+                          onChange={val => setFilters(val)}
+                        />
+                      </div>
+                    </Popover.Panel>
+                  </Popover>
+                </div>
                 <Link
                   to="classify"
+                  state={{
+                    prevFrom: pathname
+                  }}
                   className="flex items-center px-4 font-semibold text-gray-900 transition bg-white border rounded border-light h-12 dark:bg-transparent dark:border-dark-separator dark:text-graydark-800 hover:text-primary dark:hover:text-primary mr-2"
                 >
                   Phân loại KPI

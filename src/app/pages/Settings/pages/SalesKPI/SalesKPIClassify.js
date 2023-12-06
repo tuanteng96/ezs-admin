@@ -46,7 +46,14 @@ const EditableCell = ({ rowData }) => {
     }
     updateKPIMutation.mutate(values, {
       onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['ListProd24'] })
+        queryClient.invalidateQueries({ queryKey: ['ListProd24'] }).then(() => {
+          if (rowData.filters) {
+            setValue('')
+            window?.top?.toastr?.success('Đã cập nhập tất cả.', '', {
+              timeOut: 1500
+            })
+          }
+        })
       }
     })
   }
@@ -195,7 +202,7 @@ function SalesKPIClassify() {
                     types: val ? val.value : ''
                   }))
                 }
-                Type="SP,DV"
+                Type="SP,DV,NH,NVL,PP,TT"
                 className="select-control"
                 menuPosition="fixed"
                 styles={{
@@ -222,9 +229,10 @@ function SalesKPIClassify() {
                 rowKey="ID"
                 columns={columns}
                 data={Lists || []}
-                estimatedRowHeight={50}
+                rowHeight={78}
                 onEndReachedThreshold={1}
                 onEndReached={fetchNextPage}
+                frozenData={[{ filters, Title: 'Cập nhập tất cả theo bộ lọc' }]}
               />
             </form>
           </div>

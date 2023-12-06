@@ -331,27 +331,168 @@ function ImportExport(props) {
 
   const onExport = () => {
     if (!data.data) return
-    ExcelHepers.dataToExcel(
-      'don-nhap-xuat-' + moment().format('DD-MM-YYYY[-]HH-mm-ss'),
-      (sheet, workbook) => {
-        workbook.suspendPaint()
-        workbook.suspendEvent()
-        let Response = []
-        for (let item of data.data) {
-          console.log(item)
-        }
-        //  var { Response, TotalRow, TotalColumn } = BAO_CAO_DAT_LICH(Data.result)
-        //  sheet.setArray(2, 0, Response)
 
-        //title
-        workbook.getActiveSheet().getCell(0, 0).value('Danh sách đơn nhập xuất')
-        workbook.getActiveSheet().getCell(0, 0).font('18pt Arial')
+    window?.top?.loading &&
+      window?.top?.loading('Đang thực hiện ...', () => {
+        ExcelHepers.dataToExcel(
+          'don-nhap-xuat-' + moment().format('DD-MM-YYYY[-]HH-mm-ss'),
+          (sheet, workbook) => {
+            workbook.suspendPaint()
+            workbook.suspendEvent()
+            let Head = [
+              'ID',
+              'MÃ ĐƠN',
+              'NGÀY',
+              'TỔNG GIÁ TRỊ',
+              'ĐÃ THANH TOÁN',
+              'CÒN LẠI',
+              'LOẠI',
+              'CƠ SỞ',
+              'NHÀ CUNG CẤP',
+              'NHÂN VIÊN THỰC HIỆN',
+              'GHI CHÚ',
+              'TÊN SẢN PHẨM',
+              'MÃ SẢN PHẨM',
+              'ĐƠN VỊ',
+              'SỐ LƯỢNG'
+            ]
 
-        //Finish
-        workbook.resumePaint()
-        workbook.resumeEvent()
-      }
-    )
+            if (!xuat_nhap_diem.hasRight) {
+              Head.splice(3, 3)
+            }
+
+            let Response = [Head]
+            let newRows = []
+
+            var indexStart = 3
+
+            for (let [index, item] of data.data.entries()) {
+              indexStart =
+                index > 0
+                  ? data.data[index - 1].Items.length + indexStart
+                  : indexStart
+              for (let [i, prod] of item.Items.entries()) {
+                let newArray = [
+                  item.ID,
+                  item.Code,
+                  moment(item.CreateDate).format('HH:mm DD-MM-YYYY'),
+                  item.ToPay,
+                  item.Payed,
+                  item?.ToPay - Math.abs(item?.Payed),
+                  item.Type === 'N' ? 'Đơn Nhập' : 'Đơn Xuất',
+                  item.SourceTitle,
+                  item.SupplierText,
+                  item?.UserName,
+                  item.Other,
+                  prod.ProdTitle,
+                  prod.ProdCode,
+                  prod.Unit,
+                  prod.Qty
+                ]
+                if (!xuat_nhap_diem.hasRight) {
+                  newArray.splice(3, 3)
+                }
+                Response.push(newArray)
+                if (i === 0 && item.Items.length > 0) {
+                  const rowObj = {
+                    row: indexStart,
+                    rowCount: item.Items && item.Items.length
+                  }
+                  newRows.push(rowObj)
+                }
+              }
+            }
+            let TotalRow = Response.length
+            let TotalColumn = Head.length
+
+            sheet.setArray(2, 0, Response)
+
+            //title
+            workbook
+              .getActiveSheet()
+              .getCell(0, 0)
+              .value('Danh sách đơn nhập xuất')
+            workbook.getActiveSheet().getCell(0, 0).font('18pt Arial')
+
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, 1, TotalColumn)
+              .font('12pt Arial')
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, 1, TotalColumn)
+              .backColor('#E7E9EB')
+            //border
+            var border = new window.GC.Spread.Sheets.LineBorder()
+            border.color = '#000'
+            border.style = window.GC.Spread.Sheets.LineStyle.thin
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderLeft(border)
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderRight(border)
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderBottom(border)
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderTop(border)
+            //filter
+            var cellrange = new window.GC.Spread.Sheets.Range(
+              3,
+              0,
+              1,
+              TotalColumn
+            )
+            var hideRowFilter =
+              new window.GC.Spread.Sheets.Filter.HideRowFilter(cellrange)
+            workbook.getActiveSheet().rowFilter(hideRowFilter)
+
+            //format number
+            workbook
+              .getActiveSheet()
+              .getCell(2, 0)
+              .hAlign(window.GC.Spread.Sheets.HorizontalAlign.center)
+
+            //auto fit width and height
+            workbook.getActiveSheet().autoFitRow(TotalRow + 2)
+            workbook.getActiveSheet().autoFitRow(0)
+            for (let i = 1; i < TotalColumn; i++) {
+              workbook.getActiveSheet().autoFitColumn(i)
+            }
+
+            for (const x of newRows) {
+              for (let i = 0; i <= (xuat_nhap_diem.hasRight ? 10 : 7); i++) {
+                //i là vị trí cột
+                workbook
+                  .getActiveSheet()
+                  .addSpan(
+                    x.row,
+                    i,
+                    x.rowCount,
+                    1,
+                    window.GC.Spread.Sheets.SheetArea.viewport
+                  )
+                workbook
+                  .getActiveSheet()
+                  .getCell(x.row, i)
+                  .vAlign(window.GC.Spread.Sheets.VerticalAlign.center)
+              }
+            }
+
+            window.top?.toastr?.remove()
+
+            //Finish
+            workbook.resumePaint()
+            workbook.resumeEvent()
+          }
+        )
+      })
   }
 
   return (
