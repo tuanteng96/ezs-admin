@@ -13,6 +13,7 @@ import { formatArray } from 'src/_ezs/utils/formatArray'
 import { SelectCategories, SelectTypeGenerate } from 'src/_ezs/partials/select'
 import { Input } from 'src/_ezs/partials/forms'
 import useDebounce from 'src/_ezs/hooks/useDebounce'
+import Swal from 'sweetalert2'
 
 const EditableCell = ({ rowData }) => {
   const [value, setValue] = useState('')
@@ -50,20 +51,43 @@ const EditableCell = ({ rowData }) => {
         KpiType: val ? val.value : 0,
         updatebyFilter: rowData.filters
       }
+      Swal.fire({
+        customClass: {
+          confirmButton: 'bg-success'
+        },
+        title: 'Xác nhận cập nhập ?',
+        html: `Tất cả các sản phẩm được tìm kiếm theo bộ lọc sẽ được cập nhật về loại KPI : ${
+          val.value || 0
+        } và không thể khôi phục.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Thực hiện',
+        cancelButtonText: 'Huỷ',
+        reverseButtons: true,
+        showLoaderOnConfirm: true,
+        preConfirm: async () => {
+          const data = await updateKPIMutation.mutateAsync(values)
+          await queryClient.invalidateQueries({ queryKey: ['ListProd24'] })
+          return data
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+      }).then(result => {
+        if (result.isConfirmed) {
+          setValue('')
+          window?.top?.toastr?.success('Đã cập nhập tất cả.', '', {
+            timeOut: 1500
+          })
+        } else if (result.isDismissed) {
+          setValue('')
+        }
+      })
+    } else {
+      updateKPIMutation.mutate(values, {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['ListProd24'] })
+        }
+      })
     }
-
-    updateKPIMutation.mutate(values, {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['ListProd24'] }).then(() => {
-          if (rowData.filters) {
-            setValue('')
-            window?.top?.toastr?.success('Đã cập nhập tất cả.', '', {
-              timeOut: 1500
-            })
-          }
-        })
-      }
-    })
   }
 
   return (
@@ -77,7 +101,7 @@ const EditableCell = ({ rowData }) => {
           setValue(val)
           onSubmit(val)
         }}
-        className="select-control w-full"
+        className="w-full select-control"
         menuPortalTarget={document.body}
         menuPosition="fixed"
         styles={{
@@ -165,7 +189,7 @@ function SalesKPIClassify() {
           ></div>
         </m.div>
         <m.div
-          className="absolute top-0 right-0 z-10 w-full h-full bg-white max-w-4xl dark:bg-dark-aside"
+          className="absolute top-0 right-0 z-10 w-full h-full max-w-4xl bg-white dark:bg-dark-aside"
           initial={{ x: '100%' }}
           transition={{
             transform: { ease: 'linear' }
@@ -173,12 +197,12 @@ function SalesKPIClassify() {
           animate={{ x: '0' }}
         >
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-separator dark:border-dark-separator">
-              <div className="text-xl lg:text-2xl font-bold dark:text-graydark-800 truncate w-10/12">
+            <div className="flex items-center justify-between px-4 py-4 border-b lg:px-6 border-separator dark:border-dark-separator">
+              <div className="w-10/12 text-xl font-bold truncate lg:text-2xl dark:text-graydark-800">
                 Phân loại nhóm KPI
               </div>
               <div
-                className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
+                className="flex items-center justify-center w-10 h-10 transition cursor-pointer lg:w-12 lg:h-12 dark:text-graydark-800 hover:text-primary"
                 onClick={() =>
                   navigate({
                     pathname: state?.prevFrom,
@@ -189,7 +213,7 @@ function SalesKPIClassify() {
                 <XMarkIcon className="w-7 lg:w-9" />
               </div>
             </div>
-            <div className="px-6 pt-6 grid grid-cols-2 gap-6">
+            <div className="grid grid-cols-2 gap-6 px-6 pt-6">
               <Input
                 placeholder="Nhập từ khóa ..."
                 value={filters.key}
