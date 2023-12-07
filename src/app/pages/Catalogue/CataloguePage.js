@@ -9,6 +9,9 @@ const Category = lazy(() => import('./pages/Category'))
 const Products = lazy(() => import('./pages/Products'))
 const ProductAdd = lazy(() => import('./pages/Products/ProductAdd'))
 const CategoryAdd = lazy(() => import('./pages/Category/CategoryAdd'))
+
+const ConsultingCommission = lazy(() => import('./pages/ConsultingCommission'))
+
 const Inventory = lazy(() => import('./pages/Inventory'))
 const InventoryFilters = lazy(() => import('./pages/Inventory/pages/Filters'))
 const ImportExport = lazy(() => import('./pages/ImportExport'))
@@ -67,6 +70,10 @@ function CataloguePage(props) {
               {
                 to: '/catalogue/materials',
                 name: 'Nguyên vật liệu'
+              },
+              {
+                to: '/catalogue/consulting-commission',
+                name: 'Hoa hồng tư vấn'
               }
             ]}
           />
@@ -120,6 +127,14 @@ function CataloguePage(props) {
           element={
             <SuspensedView>
               <div>Nguyên vật liệu</div>
+            </SuspensedView>
+          }
+        ></Route>
+        <Route
+          path="consulting-commission"
+          element={
+            <SuspensedView>
+              <ConsultingCommission />
             </SuspensedView>
           }
         ></Route>

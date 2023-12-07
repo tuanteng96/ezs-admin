@@ -44,6 +44,14 @@ const EditableCell = ({ rowData }) => {
         }
       ]
     }
+
+    if (rowData.filters) {
+      values = {
+        KpiType: val ? val.value : 0,
+        updatebyFilter: rowData.filters
+      }
+    }
+
     updateKPIMutation.mutate(values, {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ['ListProd24'] }).then(() => {
