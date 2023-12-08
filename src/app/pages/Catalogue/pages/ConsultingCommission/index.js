@@ -70,10 +70,79 @@ function ConsultingCommission(props) {
       },
       {
         key: 'hhtv1',
-        title: 'Hoa hồng theo cấp bậc',
+        title: 'Thử việc',
         dataKey: 'hhtv1',
-        width: 250,
-        sortable: false
+        width: 200,
+        sortable: false,
+        cellRenderer: () => (
+          <Input
+            placeholder="Nhập giá trị"
+            value={filters.key}
+            onChange={e =>
+              setFilters(prevState => ({
+                ...prevState,
+                key: e.target.value
+              }))
+            }
+          />
+        )
+      },
+      {
+        key: 'hhtv2',
+        title: 'Nhân viên chính thức',
+        dataKey: 'hhtv2',
+        width: 200,
+        sortable: false,
+        cellRenderer: () => (
+          <Input
+            placeholder="Nhập giá trị"
+            value={filters.key}
+            onChange={e =>
+              setFilters(prevState => ({
+                ...prevState,
+                key: e.target.value
+              }))
+            }
+          />
+        )
+      },
+      {
+        key: 'hhtv3',
+        title: 'Chuyên gia',
+        dataKey: 'hhtv3',
+        width: 200,
+        sortable: false,
+        cellRenderer: () => (
+          <Input
+            placeholder="Nhập giá trị"
+            value={filters.key}
+            onChange={e =>
+              setFilters(prevState => ({
+                ...prevState,
+                key: e.target.value
+              }))
+            }
+          />
+        )
+      },
+      {
+        key: 'hhtv4',
+        title: 'Chuyên viên',
+        dataKey: 'hhtv4',
+        width: 200,
+        sortable: false,
+        cellRenderer: () => (
+          <Input
+            placeholder="Nhập giá trị"
+            value={filters.key}
+            onChange={e =>
+              setFilters(prevState => ({
+                ...prevState,
+                key: e.target.value
+              }))
+            }
+          />
+        )
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
