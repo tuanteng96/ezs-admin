@@ -1,4 +1,9 @@
-import { PlusIcon, TrashIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import {
+  ExclamationCircleIcon,
+  PlusIcon,
+  TrashIcon,
+  XMarkIcon
+} from '@heroicons/react/24/outline'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { LayoutGroup, m } from 'framer-motion'
@@ -12,6 +17,7 @@ import { useAuth } from 'src/_ezs/core/Auth'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import { Button } from 'src/_ezs/partials/button'
+import { DropdownMenu } from 'src/_ezs/partials/dropdown'
 import { Input, InputNumber, InputTextarea } from 'src/_ezs/partials/forms'
 import {
   SelectProdCode,
@@ -19,6 +25,7 @@ import {
   SelectSupplier
 } from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
+import { ConversionTools } from '../../components'
 
 function WareHouseExport(props) {
   const { auth } = useAuth()
@@ -101,7 +108,8 @@ function WareHouseExport(props) {
                       }
                     : '',
                   ProdId: x.ProdID,
-                  Other: x?.Desc || ''
+                  Other: x?.Desc || '',
+                  convert: null
                 }))
               : [
                   {
@@ -113,7 +121,8 @@ function WareHouseExport(props) {
                     ProdCode: '',
                     ProdId: '',
                     Unit: '',
-                    Source: ''
+                    Source: '',
+                    convert: null
                   }
                 ]
         })
@@ -159,6 +168,17 @@ function WareHouseExport(props) {
                   value={field.value}
                   onChange={(val, triggeredAction) => {
                     field.onChange(val)
+
+                    WarehouseAPI.getConvert({
+                      prodid: val?.source?.ID
+                    }).then(({ data }) => {
+                      if (data?.lst && data.lst.length > 0) {
+                        setValue(`items[${rowIndex}].convert`, data.lst)
+                      } else {
+                        setValue(`items[${rowIndex}].convert`, null)
+                      }
+                    })
+
                     setValue(
                       `items[${rowIndex}].ProdCode`,
                       val ? val?.source?.DynamicID : ''
@@ -233,29 +253,58 @@ function WareHouseExport(props) {
         key: 'Qty',
         title: 'SL',
         dataKey: 'Qty',
-        width: 120,
+        width: 200,
         cellRenderer: ({ rowIndex }) => (
-          <Controller
-            name={`items[${rowIndex}].Qty`}
-            control={control}
-            render={({ field: { ref, ...field }, fieldState }) => (
-              <InputNumber
-                className="px-3 py-2.5"
-                placeholder="Nhập SL"
-                value={field.value}
-                onValueChange={val => {
-                  field.onChange(val.floatValue || '')
-                  onUpdate()
-                }}
-                allowNegative={false}
-                isAllowed={inputObj => {
-                  const { floatValue } = inputObj
-                  if (floatValue < 1) return
-                  return true
-                }}
-              />
-            )}
-          />
+          <div className="relative">
+            <Controller
+              name={`items[${rowIndex}].Qty`}
+              control={control}
+              render={({ field: { ref, ...field }, fieldState }) => (
+                <InputNumber
+                  className="px-3 py-2.5"
+                  placeholder="Nhập SL"
+                  value={field.value}
+                  onValueChange={val => {
+                    field.onChange(val.floatValue || '')
+                    onUpdate()
+                  }}
+                  allowNegative={false}
+                  isAllowed={inputObj => {
+                    const { floatValue } = inputObj
+                    if (floatValue < 1) return
+                    return true
+                  }}
+                />
+              )}
+            />
+            <Controller
+              name={`items[${rowIndex}].convert`}
+              control={control}
+              render={({ field: { ref, ...field }, fieldState }) =>
+                field.value ? (
+                  <DropdownMenu
+                    trigger={
+                      <div className="absolute top-0 right-0 w-10 h-full flex items-center justify-center cursor-pointer">
+                        <ExclamationCircleIcon className="w-5 text-warning" />
+                      </div>
+                    }
+                  >
+                    <div className="px-4 py-2">
+                      <ConversionTools
+                        initialValues={field.value}
+                        onChange={val => {
+                          setValue(`items[${rowIndex}].Qty`, val)
+                          onUpdate()
+                        }}
+                      />
+                    </div>
+                  </DropdownMenu>
+                ) : (
+                  <></>
+                )
+              }
+            />
+          </div>
         ),
         sortable: false
       },

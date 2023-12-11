@@ -20,7 +20,9 @@ const WarehouseAPI = {
   getToPayId: body => http.post(`/api/v3/Whouse3@GetId`, JSON.stringify(body)),
   whousePay: body => http.post(`/api/v3/Whouse3@payed`, JSON.stringify(body)),
   getReceiveStock: body =>
-    http.post(`/api/v3/WHouse24@targetList`, JSON.stringify(body))
+    http.post(`/api/v3/WHouse24@targetList`, JSON.stringify(body)),
+  getConvert: body =>
+    http.post(`/api/v3/whouse2@getconvert`, JSON.stringify(body))
 }
 
 export default WarehouseAPI
