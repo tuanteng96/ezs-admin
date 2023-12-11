@@ -34,9 +34,7 @@ function ConversionTools({ initialValues, onChange }) {
       {fields &&
         fields.map((c, i) => (
           <div className="mb-3 last:mb-0" key={i}>
-            <div className="text-sm mb-1">
-              Số lượng x {c.multi} ({c.From.StockUnit})
-            </div>
+            <div className="text-sm mb-1">{c.Title}</div>
             <div>
               <Controller
                 name={`items[${i}].value`}
