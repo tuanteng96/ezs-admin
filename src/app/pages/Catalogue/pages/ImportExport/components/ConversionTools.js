@@ -3,7 +3,7 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { InputNumber } from 'src/_ezs/partials/forms'
 
 function ConversionTools({ initialValues, onChange }) {
-  const { control, handleSubmit, setValue, reset, watch } = useForm({
+  const { control, handleSubmit, setValue, reset } = useForm({
     defaultValues: {
       items: []
     }

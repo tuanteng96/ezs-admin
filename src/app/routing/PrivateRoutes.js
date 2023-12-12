@@ -11,6 +11,7 @@ const CalendarPage = lazy(() => import('../pages/Calendar'))
 const ClientsPage = lazy(() => import('../pages/Clients'))
 const AppointmentsPage = lazy(() => import('../pages/Appointments'))
 const CataloguePage = lazy(() => import('../pages/Catalogue'))
+const NotificationsPage = lazy(() => import('../pages/Notifications'))
 const SettingsPage = lazy(() => import('../pages/Settings'))
 const SearchPage = lazy(() => import('../pages/Search'))
 const UnauthorizedPage = lazy(() => import('../pages/Unauthorized'))
@@ -68,6 +69,14 @@ function PrivateRoutes(props) {
           />
         </Route>
         <Route path="catalogue/*" element={<CataloguePage />} />
+        <Route
+          path="notifications/*"
+          element={
+            <SuspensedView>
+              <NotificationsPage />
+            </SuspensedView>
+          }
+        />
         <Route
           path="settings/*"
           element={
