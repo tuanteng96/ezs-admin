@@ -1,6 +1,10 @@
 import http from 'src/_ezs/utils/http'
 
 const ProdsAPI = {
+  getList: ({ cates = '', key = '', pi = 1, ps = 20 }) =>
+    http.get(
+      `/app/index.aspx?cmd=search_prods&token=&key=${key}&cates=${cates}&pi=${pi}&ps=${ps}`
+    ),
   getListService: ({ StockID, Key, Pi, Ps, MemberID }) =>
     http.get(
       `/api/v3/mbook?cmd=getroot&memberid=${
