@@ -25,6 +25,14 @@ function NotificationsPage(props) {
             </SuspensedView>
           }
         ></Route>
+        <Route
+          path=":id"
+          element={
+            <SuspensedView>
+              <AddEdit />
+            </SuspensedView>
+          }
+        ></Route>
       </Route>
     </Routes>
   )

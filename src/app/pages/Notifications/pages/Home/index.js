@@ -2,7 +2,7 @@ import { EllipsisHorizontalIcon } from '@heroicons/react/24/outline'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import moment from 'moment'
 import React, { useMemo, useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import NotificationsAPI from 'src/_ezs/api/notifications.api'
 import { DropdownMenu } from 'src/_ezs/partials/dropdown'
@@ -15,8 +15,10 @@ function Home(props) {
     ps: 20
   })
 
+  const navigate = useNavigate()
+
   const { data, isLoading, isPreviousData, refetch } = useQuery({
-    queryKey: ['ListInventory', filters],
+    queryKey: ['ListNotifications', filters],
     queryFn: async () => {
       let { data } = await NotificationsAPI.list(filters)
       return {
@@ -98,7 +100,14 @@ function Home(props) {
                 </button>
               }
             >
-              <div className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white">
+              <div
+                className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                onClick={() => {
+                  navigate({
+                    pathname: '/notifications/danh-sach/' + rowData.ID
+                  })
+                }}
+              >
                 Chỉnh sửa
               </div>
               <div>

@@ -2,9 +2,9 @@ import React from 'react'
 import { AsyncPaginate } from 'react-select-async-paginate'
 import UsersAPI from 'src/_ezs/api/users.api'
 
-function SelectUserNotification(props) {
+function SelectMemberNotification(props) {
   async function loadOptions(search, loadedOptions, { page }) {
-    let { data } = await UsersAPI.listUserNotification({ key: search })
+    let { data } = await UsersAPI.listMembersNotification({ key: search })
     let newData = []
     if (data?.data) {
       for (let key of data?.data) {
@@ -49,7 +49,7 @@ function SelectUserNotification(props) {
           page: 1
         }}
         classNamePrefix="select"
-        placeholder="Chọn nhân viên"
+        placeholder="Chọn khách hàng"
         noOptionsMessage={() => 'Không có dữ liệu'}
         {...props}
       />
@@ -57,4 +57,4 @@ function SelectUserNotification(props) {
   )
 }
 
-export { SelectUserNotification }
+export { SelectMemberNotification }

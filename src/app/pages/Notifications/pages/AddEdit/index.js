@@ -1,22 +1,41 @@
-import React, { Fragment, useRef, useState } from 'react'
-import { NavLink, useLocation } from 'react-router-dom'
+import React, { Fragment, useState } from 'react'
+import {
+  NavLink,
+  useLocation,
+  useMatch,
+  useNavigate,
+  useParams
+} from 'react-router-dom'
 import { m } from 'framer-motion'
-import { ArrowSmallLeftIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import {
+  ArrowSmallLeftIcon,
+  FaceSmileIcon,
+  XMarkIcon
+} from '@heroicons/react/24/outline'
 import { Button } from 'src/_ezs/partials/button'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { Input } from 'src/_ezs/partials/forms'
-import { Editor } from '@tinymce/tinymce-react'
 import Select from 'react-select'
-import { SelectStocks, SelectUserNotification } from 'src/_ezs/partials/select'
+import {
+  SelectMemberNotification,
+  SelectUserNotification
+} from 'src/_ezs/partials/select'
 import { Switch } from '@headlessui/react'
 import clsx from 'clsx'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import { RenderTypeLink } from '../../components'
+import { yupResolver } from '@hookform/resolvers/yup'
+import * as yup from 'yup'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import NotificationsAPI from 'src/_ezs/api/notifications.api'
+import { toast } from 'react-toastify'
+
+import PopverPickerEmoji from './PopverPickerEmoji'
 
 const SelectTypeLink = ({ value, ...props }) => {
   const [data] = useState([
     {
-      label: 'Tới trang tin tức',
+      label: 'Tới danh mục tin tức',
       value: 'NEWS'
     },
     {
@@ -48,18 +67,23 @@ const SelectTypeLink = ({ value, ...props }) => {
       value: 'VOUCHER'
     },
     {
-      label: 'Tới dịch vụ, danh sách dịch vụ gốc',
+      label: 'Tới dịch vụ gốc',
       value: 'CATE_SERVICE_ID'
     },
     {
       label: 'Tới đặt lịch dịch vụ',
       value: 'BOOK_SERVICE'
+    },
+    {
+      label: 'Tới form đăng ký ưu đãi',
+      value: 'FORM_SALES'
     }
   ])
 
   return (
     <div>
       <Select
+        isClearable
         className="select-control"
         menuPortalTarget={document.body}
         menuPosition="fixed"
@@ -80,8 +104,45 @@ const SelectTypeLink = ({ value, ...props }) => {
   )
 }
 
+const schemaUsers = yup
+  .object({
+    Title: yup.string().required('Vui lòng nhập tiêu đề.')
+  })
+  .required()
+
+class TextArea extends React.Component {
+  constructor(props) {
+    super(props)
+
+    this.handleChange = this.handleChange.bind(this)
+  }
+
+  handleChange(event) {
+    this.props.onChange(event.target.value)
+  }
+
+  render() {
+    return (
+      <textarea
+        className="w-full px-5 py-3 placeholder:font-normal font-medium text-gray-700 transition bg-white border rounded outline-none dark:bg-site-aside disabled:bg-gray-200 disabled:border-gray-200 dark:disabled:bg-graydark-200 dark:text-graydark-700 block border-gray-300 dark:border-graydark-400 focus:border-primary dark:focus:border-primary"
+        id="text-area"
+        rows="8"
+        value={this.props.text}
+        onChange={this.handleChange}
+        onMouseUp={this.handleMouseUp}
+      />
+    )
+  }
+}
+
 function AddEdit(props) {
-  const { search, state, pathname } = useLocation()
+  const { search } = useLocation()
+  const isAddMode = useMatch('/notifications/danh-sach/them-moi')
+  let { id } = useParams()
+
+  const queryClient = useQueryClient()
+
+  const navigate = useNavigate()
 
   const methods = useForm({
     defaultValues: {
@@ -111,30 +172,81 @@ function AddEdit(props) {
       SumInfo: '',
       Link: '',
       TypeLink: ''
-    }
+    },
+    resolver: yupResolver(schemaUsers)
   })
 
-  const { control, handleSubmit, setValue, watch } = methods
+  const { control, handleSubmit, setValue, watch, reset } = methods
   const watchForm = watch()
 
-  const editorRef = useRef(null)
+  useQuery({
+    queryKey: ['NotificationID', id],
+    queryFn: async () => {
+      var bodyFormData = new FormData()
+      bodyFormData.append('ids', id)
 
-  const onSubmit = () => {}
+      const { data } = await NotificationsAPI.getId(bodyFormData)
+      return data ? data.data[0] : null
+    },
+    onSuccess: data => {
+      reset(data)
+    },
+    enabled: !isAddMode
+  })
+
+  const updateMutation = useMutation({
+    mutationFn: body => NotificationsAPI.send(body)
+  })
+
+  const onSubmit = values => {
+    updateMutation.mutate(
+      {
+        noti: {
+          ...values,
+          ToMembers: values.ToMembers
+            ? values.ToMembers.map(x => x.value).toString()
+            : '',
+          ToUsers: values.ToUsers
+            ? values.ToUsers.map(x => x.value).toString()
+            : ''
+        }
+      },
+      {
+        onSuccess: data => {
+          queryClient
+            .invalidateQueries({ queryKey: ['ListNotifications'] })
+            .then(() => {
+              toast.success('Thực hiện thành công.')
+              navigate({
+                pathname: '/notifications/danh-sach',
+                search: search
+              })
+            })
+        }
+      }
+    )
+  }
 
   return (
     <FormProvider {...methods}>
-      <m.div
-        className="fixed inset-0 bg-black/[.2] dark:bg-black/[.4] z-[1010]"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-      ></m.div>
       <form
         onSubmit={handleSubmit(onSubmit)}
         className="fixed inset-0 flex items-center justify-center z-[1010]"
       >
         <m.div
-          className="absolute flex flex-col justify-center h-5/6 max-w-full w-[550px] px-4 sm:px-0"
+          className="fixed inset-0 bg-black/[.2] dark:bg-black/[.4] z-[1010]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={() =>
+            navigate({
+              pathname: '/notifications/danh-sach',
+              search: search
+            })
+          }
+        ></m.div>
+        <m.div
+          className="absolute flex flex-col justify-center h-5/6 max-w-full w-[550px] px-4 sm:px-0 z-[1011]"
           initial={{ opacity: 0, top: '60%' }}
           animate={{ opacity: 1, top: 'auto' }}
           exit={{ opacity: 0, top: '60%' }}
@@ -144,24 +256,18 @@ function AddEdit(props) {
               <div className="flex items-center text-2xl font-semibold">
                 <NavLink
                   to={{
-                    pathname:
-                      state?.prevFrom ||
-                      pathname.replaceAll('/them-moi', '') ||
-                      '/',
+                    pathname: '/notifications/danh-sach',
                     search: search
                   }}
                   className="mr-2"
                 >
                   <ArrowSmallLeftIcon className="w-7" />
                 </NavLink>
-                Tạo mới tin nhắn
+                {isAddMode ? 'Tạo mới tin nhắn' : 'Chỉnh sửa tin nhắn'}
               </div>
               <NavLink
                 to={{
-                  pathname:
-                    state?.prevFrom ||
-                    pathname.replaceAll('/them-moi', '') ||
-                    '/',
+                  pathname: '/notifications/danh-sach',
                   search: search
                 }}
                 className="absolute flex items-center justify-center w-12 h-12 cursor-pointer right-2 top-2/4 -translate-y-2/4"
@@ -181,6 +287,8 @@ function AddEdit(props) {
                         placeholder="Nhập tiêu đề"
                         autoComplete="off"
                         type="text"
+                        errorMessageForce={fieldState?.invalid}
+                        errorMessage={fieldState?.error?.message}
                         {...field}
                       />
                     )}
@@ -188,29 +296,27 @@ function AddEdit(props) {
                 </div>
               </div>
               <div className="mb-3.5">
-                <div className="font-medium">Nội dung</div>
+                <div className="font-medium">Tóm tắt</div>
                 <div className="mt-1">
                   <Controller
                     name="Content"
                     control={control}
                     render={({ field: { ref, ...field }, fieldState }) => (
-                      <Editor
-                        apiKey="p297e5h1avlu5lolypcugo4jim06hid17cxlob5i4ipd14ka"
-                        onInit={(evt, editor) => (editorRef.current = editor)}
-                        initialValue={field.value}
-                        init={{
-                          height: 200,
-                          menubar: false,
-                          plugins: 'lists code emoticons',
-                          toolbar:
-                            'undo redo emoticons | styleselect | bold italic | ' +
-                            'alignleft aligncenter alignright alignjustify | ' +
-                            'outdent indent | numlist bullist',
-                          content_style:
-                            'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                        }}
-                        onEditorChange={val => field.onChange(val)}
-                      />
+                      <div className="relative">
+                        <TextArea
+                          text={field.value}
+                          onChange={val => field.onChange(val)}
+                        />
+                        <PopverPickerEmoji
+                          value={field.value}
+                          trigger={
+                            <div className="absolute w-12 h-12 flex justify-center items-center right-0 bottom-0 cursor-pointer">
+                              <FaceSmileIcon className="w-6" />
+                            </div>
+                          }
+                          onChange={val => field.onChange(val)}
+                        />
+                      </div>
                     )}
                   />
                 </div>
@@ -224,7 +330,28 @@ function AddEdit(props) {
                     render={({ field: { ref, ...field }, fieldState }) => (
                       <SelectTypeLink
                         value={field.value}
-                        onChange={val => field.onChange(val?.value || '')}
+                        onChange={val => {
+                          field.onChange(val?.value || '')
+                          if (!val?.value) {
+                            setValue('Link', '')
+                          } else if (
+                            ['SALE', 'VOUCHER', 'FORM_SALES'].includes(
+                              val.value
+                            )
+                          ) {
+                            if (val.value === 'SALE') {
+                              setValue('Link', '/shop/hot')
+                            }
+                            if (val.value === 'VOUCHER') {
+                              setValue('Link', '/voucher/')
+                            }
+                            if (val.value === 'FORM_SALES') {
+                              setValue('Link', '/pupup-contact/')
+                            }
+                          } else {
+                            setValue('Link', '')
+                          }
+                        }}
                       />
                     )}
                   />
@@ -234,18 +361,25 @@ function AddEdit(props) {
               <div className="mb-3.5">
                 <div className="font-medium">Khách hàng</div>
                 <div className="mt-1">
-                  <SelectStocks
-                    // value={field.value}
-                    // onChange={val => field.onChange(val?.value || '')}
-                    className="select-control"
-                    menuPosition="fixed"
-                    styles={{
-                      menuPortal: base => ({
-                        ...base,
-                        zIndex: 9999
-                      })
-                    }}
-                    menuPortalTarget={document.body}
+                  <Controller
+                    name="ToMembers"
+                    control={control}
+                    render={({ field: { ref, ...field }, fieldState }) => (
+                      <SelectMemberNotification
+                        isMulti
+                        value={field.value}
+                        onChange={val => field.onChange(val)}
+                        className="select-control"
+                        menuPosition="fixed"
+                        styles={{
+                          menuPortal: base => ({
+                            ...base,
+                            zIndex: 9999
+                          })
+                        }}
+                        menuPortalTarget={document.body}
+                      />
+                    )}
                   />
                 </div>
               </div>
@@ -338,10 +472,7 @@ function AddEdit(props) {
               <div className="flex">
                 <NavLink
                   to={{
-                    pathname:
-                      state?.prevFrom ||
-                      pathname.replaceAll('/them-moi', '') ||
-                      '/',
+                    pathname: '/notifications/danh-sach',
                     search: search
                   }}
                   type="button"
@@ -350,10 +481,12 @@ function AddEdit(props) {
                   Hủy
                 </NavLink>
                 <Button
+                  loading={updateMutation.isLoading}
+                  disabled={updateMutation.isLoading}
                   type="submit"
                   className="relative flex items-center px-4 ml-2 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-11 focus:outline-none focus:shadow-none disabled:opacity-70"
                 >
-                  Thực hiện gửi
+                  {isAddMode ? 'Thực hiện gửi' : 'Thực hiện gửi lại'}
                 </Button>
               </div>
             </div>

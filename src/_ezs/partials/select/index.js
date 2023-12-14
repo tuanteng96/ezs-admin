@@ -1,9 +1,14 @@
+import { SelectAdvs } from './SelectAdvs'
 import { SelectCategories } from './SelectCategories'
+import { SelectCategoriesAsync } from './SelectCategoriesAsync'
 import { SelectCategoryProds } from './SelectCategoryProds'
 import { SelectDistricts } from './SelectDistricts'
 import { SelectGender } from './SelectGender'
 import { SelectMeasure } from './SelectMeasure'
+import { SelectMemberNotification } from './SelectMemberNotification'
 import { SelectNews } from './SelectNews'
+import { SelectNewsCategories } from './SelectNewsCategories'
+import { SelectOriginalService } from './SelectOriginalService'
 import { SelectPaymentMethods } from './SelectPaymentMethods'
 import { SelectProdCode } from './SelectProdCode'
 import { SelectProdDynamic } from './SelectProdDynamic'
@@ -39,5 +44,10 @@ export {
   SelectTypeGenerate,
   SelectUserNotification,
   SelectNews,
-  SelectProds
+  SelectProds,
+  SelectNewsCategories,
+  SelectAdvs,
+  SelectOriginalService,
+  SelectCategoriesAsync,
+  SelectMemberNotification
 }
