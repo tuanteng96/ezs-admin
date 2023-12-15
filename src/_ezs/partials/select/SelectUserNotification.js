@@ -18,11 +18,11 @@ function SelectUserNotification(props) {
           })
         } else {
           const newItem = {}
-          newItem.label = group
+          newItem.label = group === 'TAT_CA' ? 'Tất cả' : text
           newItem.groupid = groupid
           newItem.options = [
             {
-              label: text === 'TAT_CA' ? 'Tất cả khách hàng' : text,
+              label: text === 'TAT_CA' ? 'Tất cả nhân viên' : text,
               value: id,
               ...key
             }
