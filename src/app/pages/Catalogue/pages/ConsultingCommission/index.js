@@ -1,181 +1,303 @@
-import { useInfiniteQuery } from '@tanstack/react-query'
-import React from 'react'
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient
+} from '@tanstack/react-query'
+import clsx from 'clsx'
+import React, { useEffect, useRef } from 'react'
 import { useMemo } from 'react'
 import { useState } from 'react'
 import ProdsAPI from 'src/_ezs/api/prods.api'
-import { Input } from 'src/_ezs/partials/forms'
+import { useLayout } from 'src/_ezs/layout/LayoutProvider'
+import { InputNumber } from 'src/_ezs/partials/forms'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { formatArray } from 'src/_ezs/utils/formatArray'
 
-function ConsultingCommission(props) {
+const RendererBonusSale = ({ rowData }) => {
+  const [value, setValue] = useState(0)
+  const queryClient = useQueryClient()
+
+  const typingTimeoutRef = useRef(null)
+
+  useEffect(() => {
+    setValue(rowData.BonusSale)
+  }, [rowData])
+
+  const updateMutation = useMutation({
+    mutationFn: body => ProdsAPI.prod24UpdateKPI(body)
+  })
+
+  const onSubmit = val => {
+    let values = {
+      update: [
+        {
+          ID: rowData.ID,
+          BonusSale: val
+        }
+      ]
+    }
+    updateMutation.mutate(values, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['ListProdRose'] })
+      }
+    })
+  }
+
+  return (
+    <InputNumber
+      className="px-3 py-2.5"
+      placeholder="Nhập giá trị"
+      thousandSeparator={true}
+      value={value}
+      onValueChange={val => {
+        setValue(val.floatValue)
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current)
+        }
+        typingTimeoutRef.current = setTimeout(() => {
+          onSubmit(val.floatValue)
+        }, 300)
+      }}
+      allowNegative={false}
+      isAllowed={inputObj => {
+        const { floatValue } = inputObj
+        if (floatValue < 1) return
+        return true
+      }}
+    />
+  )
+}
+
+const RendererLevels = ({ rowData, name }) => {
+  const [value, setValue] = useState()
+  const queryClient = useQueryClient()
+
+  const typingTimeoutRef = useRef(null)
+
+  useEffect(() => {
+    if (rowData.BonusSaleJSON) {
+      let BonusSales = JSON.parse(rowData.BonusSaleJSON)
+      let index = BonusSales.findIndex(x => x.Level === name)
+      if (index > -1) setValue(BonusSales[index].Salary || 0)
+    }
+  }, [rowData, name])
+
+  const updateMutation = useMutation({
+    mutationFn: body => ProdsAPI.prod24UpdateKPI(body)
+  })
+
+  const onSubmit = val => {
+    let BonusSales = JSON.parse(rowData.BonusSaleJSON)
+    let index = BonusSales.findIndex(x => x.Level === name)
+
+    BonusSales[index].Salary = val
+
+    let values = {
+      update: [
+        {
+          ID: rowData.ID,
+          BonusSale: 0,
+          BonusSaleJSON: JSON.stringify(BonusSales)
+        }
+      ]
+    }
+    updateMutation.mutate(values, {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ['ListProdRose'] })
+      }
+    })
+  }
+
+  return (
+    <InputNumber
+      className="px-3 py-2.5"
+      placeholder="Nhập giá trị"
+      thousandSeparator={true}
+      value={value}
+      onValueChange={val => {
+        setValue(val.floatValue)
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current)
+        }
+        typingTimeoutRef.current = setTimeout(() => {
+          onSubmit(val.floatValue)
+        }, 300)
+      }}
+      allowNegative={false}
+      isAllowed={inputObj => {
+        const { floatValue } = inputObj
+        if (floatValue < 1) return
+        return true
+      }}
+    />
+  )
+}
+
+function ConsultingCommission() {
   const [filters, setFilters] = useState({
     pi: 1,
     ps: 20,
     hascombo: 1,
     key: '',
-    types: '',
+    types: 794,
     display: 1
   })
 
+  const [levels, setLevels] = useState([])
+
+  const { LayoutIframe } = useLayout()
+
   const { data, fetchNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ['ListProd24', filters],
+    queryKey: ['ListProdRose', filters],
     queryFn: async ({ pageParam = 1 }) => {
       const { data } = await ProdsAPI.getListProd24({
         ...filters,
         pi: pageParam
       })
+      pageParam === 1 && setLevels(data.levels)
       return data
     },
     getNextPageParam: (lastPage, pages) =>
       lastPage.pi === lastPage.pcount ? undefined : lastPage.pi + 1
   })
 
+  const Categories = useQuery({
+    queryKey: ['Categories-products'],
+    queryFn: async () => {
+      const { data } = await ProdsAPI.getListCategory()
+      return data
+        ? [
+            {
+              Title: 'Sản phẩm',
+              ID: data['SP'][0].ID
+            },
+            {
+              Title: 'Dịch vụ',
+              ID: data['DV'][0].ID
+            },
+            {
+              Title: 'Phụ phí',
+              ID: data['PP'][0].ID
+            },
+            {
+              Title: 'Thẻ tiền',
+              ID: data['TT'][0].ID
+            },
+            {
+              Title: 'NVL',
+              ID: data['NVL'][0].ID
+            }
+          ]
+        : []
+    },
+    initialData: [
+      {
+        Title: 'Sản phẩm',
+        ID: 794
+      },
+      {
+        Title: 'Dịch vụ',
+        ID: 0
+      },
+      {
+        Title: 'Phụ phí',
+        ID: 0
+      },
+      {
+        Title: 'Thẻ tiền',
+        ID: 0
+      },
+      {
+        Title: 'NVL',
+        ID: 0
+      }
+    ]
+  })
+
   const Lists = formatArray.useInfiniteQuery(data?.pages, 'list')
 
   const columns = useMemo(
-    () => [
-      {
-        key: 'ID',
-        title: 'ID',
-        dataKey: 'ID',
-        width: 120,
-        sortable: false
-      },
-      {
-        key: 'Title',
-        title: 'Tên mặt hàng',
-        dataKey: 'Title',
-        width: 300,
-        sortable: false
-        //align: 'center',
-      },
-      {
-        key: 'hhtv',
-        title: 'Hoa hồng tư vấn',
-        dataKey: 'hhtv',
-        width: 200,
-        sortable: false,
-        cellRenderer: () => (
-          <Input
-            placeholder="Nhập giá trị"
-            value={filters.key}
-            onChange={e =>
-              setFilters(prevState => ({
-                ...prevState,
-                key: e.target.value
-              }))
-            }
-          />
-        )
-      },
-      {
-        key: 'hhtv1',
-        title: 'Thử việc',
-        dataKey: 'hhtv1',
-        width: 200,
-        sortable: false,
-        cellRenderer: () => (
-          <Input
-            placeholder="Nhập giá trị"
-            value={filters.key}
-            onChange={e =>
-              setFilters(prevState => ({
-                ...prevState,
-                key: e.target.value
-              }))
-            }
-          />
-        )
-      },
-      {
-        key: 'hhtv2',
-        title: 'Nhân viên chính thức',
-        dataKey: 'hhtv2',
-        width: 200,
-        sortable: false,
-        cellRenderer: () => (
-          <Input
-            placeholder="Nhập giá trị"
-            value={filters.key}
-            onChange={e =>
-              setFilters(prevState => ({
-                ...prevState,
-                key: e.target.value
-              }))
-            }
-          />
-        )
-      },
-      {
-        key: 'hhtv3',
-        title: 'Chuyên gia',
-        dataKey: 'hhtv3',
-        width: 200,
-        sortable: false,
-        cellRenderer: () => (
-          <Input
-            placeholder="Nhập giá trị"
-            value={filters.key}
-            onChange={e =>
-              setFilters(prevState => ({
-                ...prevState,
-                key: e.target.value
-              }))
-            }
-          />
-        )
-      },
-      {
-        key: 'hhtv4',
-        title: 'Chuyên viên',
-        dataKey: 'hhtv4',
-        width: 200,
-        sortable: false,
-        cellRenderer: () => (
-          <Input
-            placeholder="Nhập giá trị"
-            value={filters.key}
-            onChange={e =>
-              setFilters(prevState => ({
-                ...prevState,
-                key: e.target.value
-              }))
-            }
-          />
-        )
+    () => {
+      let clms = [
+        {
+          key: 'ID',
+          title: 'ID',
+          dataKey: 'ID',
+          width: 120,
+          sortable: false
+        },
+        {
+          key: 'Title',
+          title: 'Tên mặt hàng',
+          dataKey: 'Title',
+          width: 300,
+          sortable: false
+          //align: 'center',
+        },
+        {
+          key: 'BonusSale',
+          title: 'Hoa hồng tư vấn',
+          dataKey: 'BonusSale',
+          width: 200,
+          sortable: false,
+          cellRenderer: props => <RendererBonusSale {...props} />
+        }
+      ]
+
+      for (let level of levels) {
+        clms.push({
+          key: level,
+          title: level,
+          dataKey: level,
+          width: 200,
+          sortable: false,
+          cellRenderer: props => <RendererLevels name={level} {...props} />
+        })
       }
-    ],
+
+      return clms
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [Lists]
   )
 
   return (
-    <div className="flex flex-col h-full px-8 pt-8 pb-5 mx-auto max-w-7xl">
+    <div className="flex flex-col h-full lg:px-8 lg:pt-8 lg:pb-5 p-4 mx-auto max-w-7xl">
       <div className="flex items-end justify-between mb-5">
-        <div>
-          <div className="text-3xl font-bold dark:text-white">
-            Hoa hồng tư vấn
+        {!LayoutIframe && (
+          <div>
+            <div className="text-3xl font-bold dark:text-white">
+              Hoa hồng tư vấn
+            </div>
+            <div className="mt-1.5">
+              Thêm và quản lý hoa hồng tư vấn trên từng mặt hàng
+            </div>
           </div>
-          <div className="mt-1.5">
-            Thêm và quản lý hoa hồng tư vấn trên từng mặt hàng
-          </div>
-        </div>
+        )}
+
         <div className="inline-flex rounded-md shadow-sm">
-          <div className="px-4 py-2.5 text-sm font-medium text-primary bg-white border border-gray-200 rounded-l-lg hover:bg-gray-100 cursor-pointer">
-            Sản phẩm
-          </div>
-          <div className="px-4 py-2.5 text-sm font-medium text-gray-900 bg-white border-t border-b border-r border-gray-200 hover:bg-gray-100 cursor-pointer">
-            Dịch vụ
-          </div>
-          <div className="px-4 py-2.5 text-sm font-medium text-gray-900 bg-white border-t border-b border-r border-gray-200 hover:bg-gray-100 cursor-pointer">
-            Phụ phí
-          </div>
-          <div className="px-4 py-2.5 text-sm font-medium text-gray-900 bg-white border-t border-b border-gray-200 hover:bg-gray-100 cursor-pointer">
-            Thẻ tiền
-          </div>
-          <div className="px-4 py-2.5 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-r-lg hover:bg-gray-100 cursor-pointer">
-            NVL
-          </div>
+          {Categories.data &&
+            Categories.data.map((item, index) => (
+              <div
+                className={clsx(
+                  'px-4 py-2.5 text-sm font-medium text-gray-900 bg-white border-t border-b border-r border-gray-200 hover:bg-gray-100 cursor-pointer first:rounded-l-lg first:border-l last:rounded-r-lg',
+                  Number(filters.types) === item.ID
+                    ? 'text-primary'
+                    : 'text-gray-900'
+                )}
+                onClick={() =>
+                  item.ID > 0 &&
+                  setFilters(prevState => ({
+                    ...prevState,
+                    types: item.ID
+                  }))
+                }
+                key={index}
+              >
+                {item.Title}
+              </div>
+            ))}
         </div>
       </div>
       <div

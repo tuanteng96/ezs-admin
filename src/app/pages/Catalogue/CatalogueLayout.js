@@ -47,20 +47,37 @@ function CatalogueLayout({ paths, isReceive }) {
       }}
     >
       <div className="flex h-full bg-white dark:bg-dark-app relative">
-        <PerfectScrollbar
-          options={perfectScrollbarOptions}
-          className={clsx(
-            'w-56 h-full px-3 py-4 overflow-auto border-r border-separator dark:border-dark-separator absolute xl:relative bg-white z-50 xl:visible',
-            !isOpenMenu && 'invisible'
-          )}
-        >
-          <div className="font-bold font-inter text-[17px] py-2 px-4 dark:text-white">
-            Danh mục
-          </div>
-          <ul>
-            {paths &&
-              paths.map(({ to, name }, index) => (
-                <li key={index}>
+        {isReceive && (
+          <PerfectScrollbar
+            options={perfectScrollbarOptions}
+            className={clsx(
+              'w-56 h-full px-3 py-4 overflow-auto border-r border-separator dark:border-dark-separator absolute xl:relative bg-white z-50 xl:visible',
+              !isOpenMenu && 'invisible'
+            )}
+          >
+            <div className="font-bold font-inter text-[17px] py-2 px-4 dark:text-white">
+              Danh mục
+            </div>
+            <ul>
+              {paths &&
+                paths.map(({ to, name }, index) => (
+                  <li key={index}>
+                    <NavLink
+                      className={({ isActive }) =>
+                        clsx(
+                          'block px-4 py-3 text-[15px] rounded-md font-medium hover:bg-primarylight hover:text-primary dark:hover:bg-dark-light transition mt-1 dark:text-white',
+                          isActive &&
+                            'bg-primarylight text-primary dark:bg-dark-light'
+                        )
+                      }
+                      to={to}
+                    >
+                      {name}
+                    </NavLink>
+                  </li>
+                ))}
+              {isReceive && data && data.length > 0 && (
+                <li>
                   <NavLink
                     className={({ isActive }) =>
                       clsx(
@@ -69,33 +86,18 @@ function CatalogueLayout({ paths, isReceive }) {
                           'bg-primarylight text-primary dark:bg-dark-light'
                       )
                     }
-                    to={to}
+                    to="/catalogue/ie-processed"
                   >
-                    {name}
+                    <span className="pr-2">Đơn cần xử lý</span>
+                    <span className="bg-danger text-white text-[10px] px-2 py-px rounded">
+                      {data.length}
+                    </span>
                   </NavLink>
                 </li>
-              ))}
-            {isReceive && data && data.length > 0 && (
-              <li>
-                <NavLink
-                  className={({ isActive }) =>
-                    clsx(
-                      'block px-4 py-3 text-[15px] rounded-md font-medium hover:bg-primarylight hover:text-primary dark:hover:bg-dark-light transition mt-1 dark:text-white',
-                      isActive &&
-                        'bg-primarylight text-primary dark:bg-dark-light'
-                    )
-                  }
-                  to="/catalogue/ie-processed"
-                >
-                  <span className="pr-2">Đơn cần xử lý</span>
-                  <span className="bg-danger text-white text-[10px] px-2 py-px rounded">
-                    {data.length}
-                  </span>
-                </NavLink>
-              </li>
-            )}
-          </ul>
-        </PerfectScrollbar>
+              )}
+            </ul>
+          </PerfectScrollbar>
+        )}
         <div
           className={clsx(
             'absolute inset-0 flex items-center justify-center z-40 bg-black/[.2] dark:bg-black/[.4] transition',
