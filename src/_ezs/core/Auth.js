@@ -41,10 +41,18 @@ const AuthProvider = ({ children }) => {
             label: x.Title
           }))
         : null
-      let newCrStock = !CrStocks
-        ? newStocksRights[0]
-        : newStocksRights.filter(x => x.ID === CrStocks.ID)[0]
+      let newCrStock = null
 
+      if (newStocksRights && newStocksRights.length > 0) {
+        newCrStock =
+          !CrStocks || CrStocks?.ID === 778
+            ? newStocksRights[0]
+            : newStocksRights.filter(x => x.ID === CrStocks.ID)[0]
+      } else {
+        newCrStock = {
+          ...auth.Stocks[0]
+        }
+      }
       setStocks(newStocks)
       setStockRights(newStocksRights)
       setCrStocks(newCrStock)

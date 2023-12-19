@@ -11,6 +11,7 @@ const ProductAdd = lazy(() => import('./pages/Products/ProductAdd'))
 const CategoryAdd = lazy(() => import('./pages/Category/CategoryAdd'))
 
 const ConsultingCommission = lazy(() => import('./pages/ConsultingCommission'))
+const TourSalary = lazy(() => import('./pages/TourSalary'))
 
 const Inventory = lazy(() => import('./pages/Inventory'))
 const InventoryFilters = lazy(() => import('./pages/Inventory/pages/Filters'))
@@ -135,6 +136,14 @@ function CataloguePage(props) {
           element={
             <SuspensedView>
               <ConsultingCommission />
+            </SuspensedView>
+          }
+        ></Route>
+        <Route
+          path="tour-salary"
+          element={
+            <SuspensedView>
+              <TourSalary />
             </SuspensedView>
           }
         ></Route>

@@ -217,7 +217,7 @@ const RendererLevels = ({ rowData, name }) => {
   )
 }
 
-function ConsultingCommission() {
+function TourSalary() {
   const [filters, setFilters] = useState({
     pi: 1,
     ps: 20,
@@ -352,10 +352,10 @@ function ConsultingCommission() {
         {!LayoutIframe && (
           <div>
             <div className="text-3xl font-bold dark:text-white">
-              Cài đặt hoa hồng
+              Cài đặt lương Tour
             </div>
             <div className="mt-1.5">
-              Thêm và quản lý hoa hồng trên từng mặt hàng
+              Thêm và quản lý lương Tour trên từng mặt hàng
             </div>
           </div>
         )}
@@ -450,4 +450,4 @@ function ConsultingCommission() {
   )
 }
 
-export default ConsultingCommission
+export default TourSalary
