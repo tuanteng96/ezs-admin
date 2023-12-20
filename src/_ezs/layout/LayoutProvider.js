@@ -10,7 +10,7 @@ const useLayout = () => {
 
 const LayoutProvider = ({ children }) => {
   const [loadingContent, setLoadingContent] = useState(false)
-  const [LayoutIframe] = useState(window?.top?.token || 'adad')
+  const [LayoutIframe] = useState(window?.top?.token)
   const [GlobalConfig, setGlobalConfig] = useState(null)
 
   const updateLoadingContent = loading => {

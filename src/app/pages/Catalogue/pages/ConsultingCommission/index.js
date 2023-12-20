@@ -1,7 +1,6 @@
 import {
   useInfiniteQuery,
   useMutation,
-  useQuery,
   useQueryClient
 } from '@tanstack/react-query'
 import clsx from 'clsx'
@@ -83,9 +82,25 @@ const RendererBonusSale = ({ rowData }) => {
     }
   }
 
+  const getActive = () => {
+    if (!rowData?.filters) {
+      let BonusSaleJSON = JSON.parse(rowData.BonusSaleJSON)
+      if (rowData.BonusSale > 0 && BonusSaleJSON.some(x => x.Salary > 0)) {
+        return
+      } else {
+        if (rowData.BonusSale > 0) return true
+      }
+    }
+    return
+  }
+
   return (
     <InputNumber
-      className="px-3 py-2.5"
+      className={clsx(
+        'px-3 py-2.5',
+        getActive() &&
+          '!border-danger hover:!border-primary focus:!border-primary'
+      )}
       placeholder="Nhập giá trị"
       thousandSeparator={true}
       value={value}
@@ -132,7 +147,6 @@ const RendererLevels = ({ rowData, name }) => {
   const onSubmit = val => {
     if (rowData.filters) {
       let values = {
-        BonusSale: 0,
         updatebyFilter: rowData.filters,
         BonusSaleJSON: JSON.stringify([{ Level: name, Salary: val || null }])
       }
@@ -176,7 +190,6 @@ const RendererLevels = ({ rowData, name }) => {
         update: [
           {
             ID: rowData.ID,
-            BonusSale: 0,
             BonusSaleJSON: JSON.stringify(BonusSales)
           }
         ]
@@ -189,9 +202,23 @@ const RendererLevels = ({ rowData, name }) => {
     }
   }
 
+  const getActive = () => {
+    if (!rowData?.filters) {
+      let BonusSaleJSON = JSON.parse(rowData.BonusSaleJSON)
+      if (BonusSaleJSON.some(x => x.Salary > 0)) {
+        return true
+      }
+    }
+    return
+  }
+
   return (
     <InputNumber
-      className="px-3 py-2.5"
+      className={clsx(
+        'px-3 py-2.5',
+        getActive() &&
+          '!border-danger hover:!border-primary focus:!border-primary'
+      )}
       placeholder="Nhập giá trị"
       thousandSeparator={true}
       value={value}
@@ -223,7 +250,7 @@ function ConsultingCommission() {
     ps: 20,
     hascombo: 1,
     key: '',
-    types: 794,
+    types: '',
     display: 1,
     setBonus: 1
   })
@@ -244,59 +271,6 @@ function ConsultingCommission() {
     },
     getNextPageParam: (lastPage, pages) =>
       lastPage.pi === lastPage.pcount ? undefined : lastPage.pi + 1
-  })
-
-  const Categories = useQuery({
-    queryKey: ['Categories-products'],
-    queryFn: async () => {
-      const { data } = await ProdsAPI.getListCategory()
-      return data
-        ? [
-            {
-              Title: 'Sản phẩm',
-              ID: data['SP'][0].ID
-            },
-            {
-              Title: 'Dịch vụ',
-              ID: data['DV'][0].ID
-            },
-            {
-              Title: 'Phụ phí',
-              ID: data['PP'][0].ID
-            },
-            {
-              Title: 'Thẻ tiền',
-              ID: data['TT'][0].ID
-            },
-            {
-              Title: 'NVL',
-              ID: data['NVL'][0].ID
-            }
-          ]
-        : []
-    },
-    initialData: [
-      {
-        Title: 'Sản phẩm',
-        ID: 794
-      },
-      {
-        Title: 'Dịch vụ',
-        ID: 0
-      },
-      {
-        Title: 'Phụ phí',
-        ID: 0
-      },
-      {
-        Title: 'Thẻ tiền',
-        ID: 0
-      },
-      {
-        Title: 'NVL',
-        ID: 0
-      }
-    ]
   })
 
   const Lists = formatArray.useInfiniteQuery(data?.pages, 'list')
@@ -360,7 +334,7 @@ function ConsultingCommission() {
           </div>
         )}
 
-        <div className="inline-flex rounded-md shadow-sm">
+        {/* <div className="inline-flex rounded-md shadow-sm">
           {Categories.data &&
             Categories.data.map((item, index) => (
               <div
@@ -382,7 +356,7 @@ function ConsultingCommission() {
                 {item.Title}
               </div>
             ))}
-        </div>
+        </div> */}
         {LayoutIframe && (
           <div className="w-full mt-2.5 textx-muted text-gray-600">
             Trường hợp setup cả 2 hệ thống sẽ ưu tiên tính toán theo hoa hồng
