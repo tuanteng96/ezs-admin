@@ -221,11 +221,9 @@ function TourSalary() {
   const [filters, setFilters] = useState({
     pi: 1,
     ps: 20,
-    hascombo: 1,
     key: '',
-    types: 794,
-    display: 1,
-    setBonus: 1
+    types: 795,
+    setTour: 1
   })
 
   const [levels, setLevels] = useState([])
@@ -240,63 +238,18 @@ function TourSalary() {
         pi: pageParam
       })
       pageParam === 1 && setLevels(data.levels)
-      return data
+      return {
+        ...data,
+        list: data.list
+          ? data.list.map(x => ({
+              ...x,
+              children: x.Children
+            }))
+          : []
+      }
     },
     getNextPageParam: (lastPage, pages) =>
       lastPage.pi === lastPage.pcount ? undefined : lastPage.pi + 1
-  })
-
-  const Categories = useQuery({
-    queryKey: ['Categories-products'],
-    queryFn: async () => {
-      const { data } = await ProdsAPI.getListCategory()
-      return data
-        ? [
-            {
-              Title: 'Sản phẩm',
-              ID: data['SP'][0].ID
-            },
-            {
-              Title: 'Dịch vụ',
-              ID: data['DV'][0].ID
-            },
-            {
-              Title: 'Phụ phí',
-              ID: data['PP'][0].ID
-            },
-            {
-              Title: 'Thẻ tiền',
-              ID: data['TT'][0].ID
-            },
-            {
-              Title: 'NVL',
-              ID: data['NVL'][0].ID
-            }
-          ]
-        : []
-    },
-    initialData: [
-      {
-        Title: 'Sản phẩm',
-        ID: 794
-      },
-      {
-        Title: 'Dịch vụ',
-        ID: 0
-      },
-      {
-        Title: 'Phụ phí',
-        ID: 0
-      },
-      {
-        Title: 'Thẻ tiền',
-        ID: 0
-      },
-      {
-        Title: 'NVL',
-        ID: 0
-      }
-    ]
   })
 
   const Lists = formatArray.useInfiniteQuery(data?.pages, 'list')
@@ -346,6 +299,11 @@ function TourSalary() {
     [Lists]
   )
 
+  const rowRenderer = ({ rowData, cells }) => {
+    if (rowData.content) return <div className="p-6">a</div>
+    return cells
+  }
+
   return (
     <div className="flex flex-col h-full lg:px-8 lg:pt-8 lg:pb-5 p-4 mx-auto max-w-7xl">
       <div className="flex items-end flex-wrap justify-between mb-5">
@@ -359,30 +317,6 @@ function TourSalary() {
             </div>
           </div>
         )}
-
-        <div className="inline-flex rounded-md shadow-sm">
-          {Categories.data &&
-            Categories.data.map((item, index) => (
-              <div
-                className={clsx(
-                  'px-4 py-2.5 text-sm font-medium text-gray-900 bg-white border-t border-b border-r border-gray-200 hover:bg-gray-100 cursor-pointer first:rounded-l-lg first:border-l last:rounded-r-lg',
-                  Number(filters.types) === item.ID
-                    ? 'text-primary'
-                    : 'text-gray-900'
-                )}
-                onClick={() =>
-                  item.ID > 0 &&
-                  setFilters(prevState => ({
-                    ...prevState,
-                    types: item.ID
-                  }))
-                }
-                key={index}
-              >
-                {item.Title}
-              </div>
-            ))}
-        </div>
         {LayoutIframe && (
           <div className="w-full mt-2.5 textx-muted text-gray-600">
             Trường hợp setup cả 2 hệ thống sẽ ưu tiên tính toán theo hoa hồng
@@ -403,7 +337,7 @@ function TourSalary() {
         />
         <SelectCategories
           allOptions={true}
-          isClearable
+          //isClearable
           value={filters.types}
           onChange={val =>
             setFilters(prevState => ({
@@ -411,7 +345,7 @@ function TourSalary() {
               types: val ? val.value : ''
             }))
           }
-          Type="SP,DV,NH,NVL,PP,TT"
+          Type="DV,PP"
           className="select-control"
           menuPosition="fixed"
           styles={{
@@ -444,6 +378,8 @@ function TourSalary() {
           frozenData={[
             { filters, Title: 'Cập nhập tất cả theo bộ lọc', levels }
           ]}
+          expandColumnKey={columns[0].key}
+          rowRenderer={rowRenderer}
         />
       </div>
     </div>
