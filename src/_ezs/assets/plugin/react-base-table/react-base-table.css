@@ -139,6 +139,23 @@ html.dark {
 
 .BaseTable__row {
     background-color: var(--tabel-bs-bg);
+    svg {
+        @apply transition
+    }
+    &.BaseTable__row--depth-1 {
+        background-color: #f8f8f8;
+        &:hover {
+            background-color: #f8f8f8;
+        }
+        .BaseTable__row-cell:first-child {
+            justify-content: center;
+        }
+    }
+    &.BaseTable__row--expanded {
+        svg {
+            transform: rotate(180deg);
+        }
+    }
 }
 
 .BaseTable__row:hover,
@@ -169,6 +186,7 @@ html.dark {
     opacity: 0;
     transition: all 200ms !important;
     z-index: 2;
+    transform: rotate(0deg) !important;
 }
 
 .BaseTable__expand-icon.BaseTable__expand-icon--expanded~div .icon-expanded {

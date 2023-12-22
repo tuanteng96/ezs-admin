@@ -1,13 +1,11 @@
+import { ChevronDownIcon } from '@heroicons/react/24/outline'
 import {
   useInfiniteQuery,
   useMutation,
-  useQuery,
   useQueryClient
 } from '@tanstack/react-query'
-import clsx from 'clsx'
 import React, { useEffect, useRef } from 'react'
-import { useMemo } from 'react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import ProdsAPI from 'src/_ezs/api/prods.api'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import { Input, InputNumber } from 'src/_ezs/partials/forms'
@@ -15,6 +13,7 @@ import { SelectCategories } from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { formatArray } from 'src/_ezs/utils/formatArray'
 import Swal from 'sweetalert2'
+import Text from 'react-texty'
 
 const RendererBonusSale = ({ rowData }) => {
   const [value, setValue] = useState(null)
@@ -23,7 +22,7 @@ const RendererBonusSale = ({ rowData }) => {
   const typingTimeoutRef = useRef(null)
 
   useEffect(() => {
-    setValue(rowData.BonusSale)
+    setValue(rowData.Bonus)
   }, [rowData])
 
   const updateMutation = useMutation({
@@ -35,13 +34,13 @@ const RendererBonusSale = ({ rowData }) => {
       update: [
         {
           ID: rowData.ID,
-          BonusSale: val
+          Bonus: val
         }
       ]
     }
     if (rowData.filters) {
       values = {
-        BonusSale: val,
+        Bonus: val,
         updatebyFilter: rowData.filters
       }
       Swal.fire({
@@ -49,7 +48,7 @@ const RendererBonusSale = ({ rowData }) => {
           confirmButton: 'bg-success'
         },
         title: 'Xác nhận cập nhập ?',
-        html: `Tất cả các sản phẩm được tìm kiếm theo bộ lọc sẽ được cập nhật về loại hoa hồng tư vấn : ${
+        html: `Tất cả các sản phẩm được tìm kiếm theo bộ lọc sẽ được cập nhật về loại lương Tour : ${
           val || 0
         } và không thể khôi phục.`,
         icon: 'warning',
@@ -118,8 +117,8 @@ const RendererLevels = ({ rowData, name }) => {
   const typingTimeoutRef = useRef(null)
 
   useEffect(() => {
-    if (rowData.BonusSaleJSON) {
-      let BonusSales = JSON.parse(rowData.BonusSaleJSON)
+    if (rowData.BonusJSON) {
+      let BonusSales = JSON.parse(rowData.BonusJSON)
       let index = BonusSales.findIndex(x => x.Level === name)
       if (index > -1) setValue(BonusSales[index].Salary || 0)
     }
@@ -132,9 +131,9 @@ const RendererLevels = ({ rowData, name }) => {
   const onSubmit = val => {
     if (rowData.filters) {
       let values = {
-        BonusSale: 0,
+        Bonus: 0,
         updatebyFilter: rowData.filters,
-        BonusSaleJSON: JSON.stringify([{ Level: name, Salary: val || null }])
+        BonusJSON: JSON.stringify([{ Level: name, Salary: val || null }])
       }
       Swal.fire({
         customClass: {
@@ -167,7 +166,7 @@ const RendererLevels = ({ rowData, name }) => {
         }
       })
     } else {
-      let BonusSales = JSON.parse(rowData.BonusSaleJSON)
+      let BonusSales = JSON.parse(rowData.BonusJSON)
       let index = BonusSales.findIndex(x => x.Level === name)
 
       BonusSales[index].Salary = val
@@ -176,8 +175,8 @@ const RendererLevels = ({ rowData, name }) => {
         update: [
           {
             ID: rowData.ID,
-            BonusSale: 0,
-            BonusSaleJSON: JSON.stringify(BonusSales)
+            Bonus: 0,
+            BonusJSON: JSON.stringify(BonusSales)
           }
         ]
       }
@@ -243,7 +242,7 @@ function TourSalary() {
         list: data.list
           ? data.list.map(x => ({
               ...x,
-              children: x.Children
+              children: x.IsAddFee === 0 ? x.Children : null
             }))
           : []
       }
@@ -269,13 +268,27 @@ function TourSalary() {
           title: 'Tên mặt hàng',
           dataKey: 'Title',
           width: 300,
-          sortable: false
+          sortable: false,
+          cellRenderer: ({ rowData }) => (
+            <>
+              <div className="flex w-full">
+                <Text className="flex-1" tooltipMaxWidth={280}>
+                  {rowData.Title}
+                </Text>
+                {!rowData.filters &&
+                  rowData.children &&
+                  rowData.children.length > 0 && (
+                    <ChevronDownIcon className="w-3.5 ml-1" />
+                  )}
+              </div>
+            </>
+          )
           //align: 'center',
         },
         {
-          key: 'BonusSale',
-          title: 'Hoa hồng tư vấn',
-          dataKey: 'BonusSale',
+          key: 'Bonus',
+          title: 'Lương Tour chung',
+          dataKey: 'Bonus',
           width: 180,
           sortable: false,
           cellRenderer: props => <RendererBonusSale {...props} />
@@ -300,7 +313,6 @@ function TourSalary() {
   )
 
   const rowRenderer = ({ rowData, cells }) => {
-    if (rowData.content) return <div className="p-6">a</div>
     return cells
   }
 
@@ -319,7 +331,7 @@ function TourSalary() {
         )}
         {LayoutIframe && (
           <div className="w-full mt-2.5 textx-muted text-gray-600">
-            Trường hợp setup cả 2 hệ thống sẽ ưu tiên tính toán theo hoa hồng
+            Trường hợp setup cả 2 hệ thống sẽ ưu tiên tính toán theo lương Tour
             cấp bậc
           </div>
         )}
@@ -378,8 +390,28 @@ function TourSalary() {
           frozenData={[
             { filters, Title: 'Cập nhập tất cả theo bộ lọc', levels }
           ]}
-          expandColumnKey={columns[0].key}
+          expandColumnKey={columns[1].key}
           rowRenderer={rowRenderer}
+          // expandIconProps={({ expandable, expanded, onExpand }) => {
+          //   let cls = 'table__expandicon'
+
+          //   if (expandable === false) {
+          //     return null
+          //   }
+
+          //   if (expanded === true) {
+          //     cls += ' expanded'
+          //   }
+
+          //   return (
+          //     <span
+          //       className={cls}
+          //       onClick={() => {
+          //         onExpand(!expanded)
+          //       }}
+          //     />
+          //   )
+          // }}
         />
       </div>
     </div>
