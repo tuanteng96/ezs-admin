@@ -131,7 +131,6 @@ const RendererLevels = ({ rowData, name }) => {
   const onSubmit = val => {
     if (rowData.filters) {
       let values = {
-        Bonus: 0,
         updatebyFilter: rowData.filters,
         BonusJSON: JSON.stringify([{ Level: name, Salary: val || null }])
       }
@@ -175,7 +174,6 @@ const RendererLevels = ({ rowData, name }) => {
         update: [
           {
             ID: rowData.ID,
-            Bonus: 0,
             BonusJSON: JSON.stringify(BonusSales)
           }
         ]
