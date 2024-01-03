@@ -126,7 +126,7 @@ const RendererBonusSale = ({ rowData }) => {
   )
 }
 
-const RendererLevels = ({ rowData, name }) => {
+const RendererLevels = ({ rowData, name, levels }) => {
   const [value, setValue] = useState()
   const queryClient = useQueryClient()
 
@@ -138,7 +138,7 @@ const RendererLevels = ({ rowData, name }) => {
       let index = BonusSales.findIndex(x => x.Level === name)
       if (index > -1) setValue(BonusSales[index].Salary || 0)
     }
-  }, [rowData, name])
+  }, [rowData, name, levels])
 
   const updateMutation = useMutation({
     mutationFn: body => ProdsAPI.prod24UpdateKPI(body)
@@ -267,7 +267,23 @@ function ConsultingCommission() {
         pi: pageParam
       })
       pageParam === 1 && setLevels(data.levels)
-      return data
+      return {
+        ...data,
+        list: data.list
+          ? data.list.map(x => ({
+              ...x,
+              BonusSaleJSON:
+                x.BonusSaleJSON && x.BonusSaleJSON !== 'null'
+                  ? x.BonusSaleJSON
+                  : JSON.stringify(
+                      data.levels.map(o => ({
+                        Level: o,
+                        Salary: null
+                      }))
+                    )
+            }))
+          : []
+      }
     },
     getNextPageParam: (lastPage, pages) =>
       lastPage.pi === lastPage.pcount ? undefined : lastPage.pi + 1
@@ -310,7 +326,9 @@ function ConsultingCommission() {
           dataKey: level,
           width: 150,
           sortable: false,
-          cellRenderer: props => <RendererLevels name={level} {...props} />
+          cellRenderer: props => (
+            <RendererLevels name={level} levels={levels} {...props} />
+          )
         })
       }
 
