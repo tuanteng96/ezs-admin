@@ -224,7 +224,7 @@ function WareHouseExport(props) {
                 <>
                   {typeof field.value !== 'undefined' && !field.value && (
                     <div className="text-danger text-[12px] mt-1.5">
-                      Dữ liệu không hợp lệ - Lỗi dòng {rowData?.ExcelRowIndex}{' '}
+                      {rowData.ExcelDesc} - Lỗi dòng {rowData?.ExcelRowIndex}{' '}
                       trên file Excel.
                     </div>
                   )}
@@ -596,6 +596,7 @@ function WareHouseExport(props) {
             0
           )
           setValue('ie.Total', total)
+          setValue('ie.ToPay', total)
         }
       }
     })
