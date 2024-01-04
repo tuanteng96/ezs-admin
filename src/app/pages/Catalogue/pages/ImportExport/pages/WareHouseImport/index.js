@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import {
   ExclamationCircleIcon,
   PlusIcon,
@@ -8,7 +9,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { LayoutGroup, m } from 'framer-motion'
 import moment from 'moment'
-import React, { useMemo } from 'react'
+import React, { useMemo, useRef } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -26,6 +27,7 @@ import {
 } from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { ConversionTools } from '../../components'
+import UploadsAPI from 'src/_ezs/api/uploads.api'
 
 function WareHouseImport(props) {
   const { auth } = useAuth()
@@ -214,9 +216,24 @@ function WareHouseImport(props) {
                           : 0
                         : 0
                     )
+                    setValue(`items[${rowIndex}].Valid`, true)
                     onUpdate()
                   }}
                 />
+              )}
+            />
+            <Controller
+              name={`items[${rowIndex}].Valid`}
+              control={control}
+              render={({ field: { ref, ...field }, fieldState }) => (
+                <>
+                  {typeof field.value !== 'undefined' && !field.value && (
+                    <div className="text-danger text-[12px] mt-1.5">
+                      Dữ liệu không hợp lệ - Lỗi dòng {rowData?.ExcelRowIndex}{' '}
+                      trên file Excel.
+                    </div>
+                  )}
+                </>
               )}
             />
           </div>
@@ -544,6 +561,51 @@ function WareHouseImport(props) {
     )
   }
 
+  const fileInput = useRef(null)
+
+  const handleClick = () => {
+    fileInput.current.click()
+  }
+
+  const uploadMutation = useMutation({
+    mutationFn: async body => {
+      const file = await UploadsAPI.sendFile(body)
+      return WarehouseAPI.importExcelFile({ file: file?.data?.data })
+    }
+  })
+
+  const handleFileChange = event => {
+    const data = new FormData()
+    data.append(event.target.files[0].name, event.target.files[0])
+    uploadMutation.mutate(data, {
+      onSuccess: ({ data }) => {
+        fileInput.current.value = ''
+        if (data.items && data.items.length > 0) {
+          setValue(
+            'items',
+            data.items.map(x => ({
+              ...x,
+              ProdTitle: x.ProdTitle
+                ? {
+                    label: x.ProdTitle,
+                    value: x.ProdID
+                  }
+                : '',
+              ProdId: x.ProdID,
+              Other: x?.Desc || '',
+              convert: null
+            }))
+          )
+          const total = data.items.reduce(
+            (n, { ImportPrice, Qty }) => n + ImportPrice * Qty,
+            0
+          )
+          setValue('ie.Total', total)
+        }
+      }
+    })
+  }
+
   return (
     <LayoutGroup key={pathname}>
       <div className="fixed w-full h-full z-[1002] top-0 left-0">
@@ -567,10 +629,39 @@ function WareHouseImport(props) {
           animate={{ x: '0' }}
         >
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between px-4 py-4 border-b lg:px-6 border-separator dark:border-dark-separator">
-              <div className="w-10/12 text-xl font-bold truncate lg:text-2xl dark:text-graydark-800">
-                {!id ? 'Đơn nhập kho mới' : 'Chỉnh sửa đơn nhập kho'}
+            <div className="flex items-center justify-between px-4 py-4 border-b lg:px-6 border-separator dark:border-dark-separator md:h-[90px] md:min-h-[90px]">
+              <div className="w-10/12">
+                <div className="text-xl font-bold truncate lg:text-2xl dark:text-graydark-800">
+                  {!id ? 'Đơn nhập kho mới' : 'Chỉnh sửa đơn nhập kho'}
+                </div>
+                {!id && (
+                  <div className="mt-1">
+                    Bạn có thể
+                    <a
+                      href="/v2/filemau1.xlsx"
+                      className="text-primary pl-1.5 cursor-pointer"
+                      download
+                    >
+                      tải file Excel mẫu
+                    </a>
+                    <span className="pl-1.5">và chọn</span>
+                    <span
+                      className="text-primary pl-1.5 cursor-pointer"
+                      onClick={handleClick}
+                    >
+                      Import từ Excel
+                    </span>
+                    <span className="pl-1.5">để tải lên.</span>
+                    <input
+                      className="hidden"
+                      type="file"
+                      onChange={e => handleFileChange(e)}
+                      ref={fileInput}
+                    />
+                  </div>
+                )}
               </div>
+
               <div
                 className="flex items-center justify-center w-10 h-10 transition cursor-pointer lg:w-12 lg:h-12 dark:text-graydark-800 hover:text-primary"
                 onClick={() =>
@@ -802,6 +893,9 @@ function WareHouseImport(props) {
                 <div className="px-4 py-4 border-t lg:px-6 border-separator">
                   <Button
                     disabled={
+                      watchForm.items.some(
+                        x => typeof x.Valid !== 'undefined' && !x.Valid
+                      ) ||
                       updateMutation.isLoading ||
                       (auth.User.ID !== 1 &&
                         data &&
@@ -825,7 +919,7 @@ function WareHouseImport(props) {
               </div>
               <LoadingComponentFull
                 bgClassName="bg-white dark:bg-dark-aside z-[10]"
-                loading={isLoading}
+                loading={isLoading || uploadMutation.isLoading}
               />
             </form>
           </div>

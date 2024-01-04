@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/anchor-is-valid */
 import {
   ExclamationCircleIcon,
   PlusIcon,
@@ -8,7 +9,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { LayoutGroup, m } from 'framer-motion'
 import moment from 'moment'
-import React, { useMemo } from 'react'
+import React, { useMemo, useRef } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -22,6 +23,7 @@ import { Input, InputNumber, InputTextarea } from 'src/_ezs/partials/forms'
 import { SelectProdCode, SelectStocksWareHouse } from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { ConversionTools } from '../../components'
+import UploadsAPI from 'src/_ezs/api/uploads.api'
 
 function WareHouseExportStock(props) {
   const { auth } = useAuth()
@@ -208,9 +210,24 @@ function WareHouseExportStock(props) {
                           : 0
                         : 0
                     )
+                    setValue(`items[${rowIndex}].Valid`, true)
                     onUpdate()
                   }}
                 />
+              )}
+            />
+            <Controller
+              name={`items[${rowIndex}].Valid`}
+              control={control}
+              render={({ field: { ref, ...field }, fieldState }) => (
+                <>
+                  {typeof field.value !== 'undefined' && !field.value && (
+                    <div className="text-danger text-[12px] mt-1.5">
+                      Dữ liệu không hợp lệ - Lỗi dòng {rowData?.ExcelRowIndex}{' '}
+                      trên file Excel.
+                    </div>
+                  )}
+                </>
               )}
             />
           </div>
@@ -537,6 +554,52 @@ function WareHouseExportStock(props) {
       }
     )
   }
+
+  const fileInput = useRef(null)
+
+  const handleClick = () => {
+    fileInput.current.click()
+  }
+
+  const uploadMutation = useMutation({
+    mutationFn: async body => {
+      const file = await UploadsAPI.sendFile(body)
+      return WarehouseAPI.importExcelFile({ file: file?.data?.data })
+    }
+  })
+
+  const handleFileChange = event => {
+    const data = new FormData()
+    data.append(event.target.files[0].name, event.target.files[0])
+    uploadMutation.mutate(data, {
+      onSuccess: ({ data }) => {
+        fileInput.current.value = ''
+        if (data.items && data.items.length > 0) {
+          setValue(
+            'items',
+            data.items.map(x => ({
+              ...x,
+              ProdTitle: x.ProdTitle
+                ? {
+                    label: x.ProdTitle,
+                    value: x.ProdID
+                  }
+                : '',
+              ProdId: x.ProdID,
+              Other: x?.Desc || '',
+              convert: null
+            }))
+          )
+          const total = data.items.reduce(
+            (n, { ImportPrice, Qty }) => n + ImportPrice * Qty,
+            0
+          )
+          setValue('ie.Total', total)
+        }
+      }
+    })
+  }
+
   return (
     <LayoutGroup key={pathname}>
       <div className="fixed w-full h-full z-[1002] top-0 left-0">
@@ -561,10 +624,38 @@ function WareHouseExportStock(props) {
         >
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-separator dark:border-dark-separator">
-              <div className="text-xl lg:text-2xl font-bold dark:text-graydark-800 truncate w-10/12">
-                {!id
-                  ? 'Xuất kho chuyển đổi cơ sở'
-                  : 'Chỉnh sửa xuất kho chuyển đổi cơ sở'}
+              <div className="w-10/12">
+                <div className="text-xl lg:text-2xl font-bold dark:text-graydark-800 truncate">
+                  {!id
+                    ? 'Xuất kho chuyển đổi cơ sở'
+                    : 'Chỉnh sửa xuất kho chuyển đổi cơ sở'}
+                </div>
+                {!id && (
+                  <div className="mt-1">
+                    Bạn có thể
+                    <a
+                      href="/v2/filemau1.xlsx"
+                      className="text-primary pl-1.5 cursor-pointer"
+                      download
+                    >
+                      tải file Excel mẫu
+                    </a>
+                    <span className="pl-1.5">và chọn</span>
+                    <span
+                      className="text-primary pl-1.5 cursor-pointer"
+                      onClick={handleClick}
+                    >
+                      Import từ Excel
+                    </span>
+                    <span className="pl-1.5">để tải lên.</span>
+                    <input
+                      className="hidden"
+                      type="file"
+                      onChange={e => handleFileChange(e)}
+                      ref={fileInput}
+                    />
+                  </div>
+                )}
               </div>
               <div
                 className="flex items-center justify-center w-12 h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"

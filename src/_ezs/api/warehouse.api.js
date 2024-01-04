@@ -22,7 +22,9 @@ const WarehouseAPI = {
   getReceiveStock: body =>
     http.post(`/api/v3/WHouse24@targetList`, JSON.stringify(body)),
   getConvert: body =>
-    http.post(`/api/v3/whouse2@getconvert`, JSON.stringify(body))
+    http.post(`/api/v3/whouse2@getconvert`, JSON.stringify(body)),
+  importExcelFile: body =>
+    http.post(`api/v3/WHouse24@importExcel`, JSON.stringify(body))
 }
 
 export default WarehouseAPI
