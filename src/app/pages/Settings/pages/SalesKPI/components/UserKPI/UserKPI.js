@@ -247,6 +247,7 @@ function UserKPI({ indexUser }) {
               render={({ field: { ref, ...field }, fieldState }) => (
                 <>
                   <SelectTypeGenerate
+                    allOption={[{ value: -1, label: 'Tất cả' }]}
                     isDisabled={rowData.isDisabled}
                     isMulti
                     isClearable
