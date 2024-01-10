@@ -10,6 +10,7 @@ import { m } from 'framer-motion'
 import {
   ArrowSmallLeftIcon,
   FaceSmileIcon,
+  PlusIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline'
 import { Button } from 'src/_ezs/partials/button'
@@ -32,6 +33,24 @@ import { toast } from 'react-toastify'
 
 import PopverPickerEmoji from './PopverPickerEmoji'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
+import { CkEditor5 } from 'src/_ezs/partials/ckeditor'
+import Thumbnail from './Thumbnail'
+
+const Templates = [
+  {
+    Title: 'Tin nhắn khuyến mại',
+    Children: [
+      {
+        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
+        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
+        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
+        LinkIframe: '',
+        Thumbnail:
+          'https://mir-s3-cdn-cf.behance.net/projects/404/8e5607175374429.Y3JvcCwxMjAwLDkzOCwwLDA.png'
+      }
+    ]
+  }
+]
 
 const SelectTypeLink = ({ value, ...props }) => {
   const [data] = useState([
@@ -125,9 +144,9 @@ class TextArea extends React.Component {
   render() {
     return (
       <textarea
-        className="w-full px-5 py-3 placeholder:font-normal font-medium text-gray-700 transition bg-white border rounded outline-none dark:bg-site-aside disabled:bg-gray-200 disabled:border-gray-200 dark:disabled:bg-graydark-200 dark:text-graydark-700 block border-gray-300 dark:border-graydark-400 focus:border-primary dark:focus:border-primary"
+        className="w-full px-3.5 py-3 placeholder:font-normal font-medium text-gray-700 transition bg-white border rounded outline-none dark:bg-site-aside disabled:bg-gray-200 disabled:border-gray-200 dark:disabled:bg-graydark-200 dark:text-graydark-700 block border-gray-300 dark:border-graydark-400 focus:border-primary dark:focus:border-primary"
         id="text-area"
-        rows="8"
+        rows="5"
         value={this.props.text}
         onChange={this.handleChange}
         onMouseUp={this.handleMouseUp}
@@ -142,6 +161,7 @@ function AddEdit(props) {
   let { id } = useParams()
 
   const [isEditLink, setIsEditLink] = useState(true)
+  const [isTemplate, setIsTemplate] = useState(true)
 
   const queryClient = useQueryClient()
 
@@ -174,7 +194,9 @@ function AddEdit(props) {
       AudioSrc: '',
       SumInfo: '',
       Link: '',
-      TypeLink: ''
+      TypeLink: '',
+      Thumbnail: '',
+      Html: ''
     },
     resolver: yupResolver(schemaUsers)
   })
@@ -297,115 +319,80 @@ function AddEdit(props) {
                 <XMarkIcon className="w-8" />
               </NavLink>
             </div>
-            <div className="relative p-5 grow overflow-auto">
-              <LoadingComponentFull
-                bgClassName="bg-white dark:bg-dark-aside"
-                loading={!isAddMode && isLoading}
-              />
-              {((id && !isLoading) || !id) && (
-                <>
-                  <div className="mb-3.5">
-                    <div className="font-medium">Tiêu đề</div>
-                    <div className="mt-1">
-                      <Controller
-                        name="Title"
-                        control={control}
-                        render={({ field: { ref, ...field }, fieldState }) => (
-                          <Input
-                            placeholder="Nhập tiêu đề"
-                            autoComplete="off"
-                            type="text"
-                            errorMessageForce={fieldState?.invalid}
-                            errorMessage={fieldState?.error?.message}
-                            {...field}
-                          />
-                        )}
-                      />
-                    </div>
-                  </div>
-                  <div className="mb-3.5">
-                    <div className="font-medium">Tóm tắt</div>
-                    <div className="mt-1">
-                      <Controller
-                        name="Content"
-                        control={control}
-                        render={({ field: { ref, ...field }, fieldState }) => (
-                          <div className="relative">
-                            <TextArea
-                              text={field.value}
-                              onChange={val => field.onChange(val)}
-                            />
-                            <PopverPickerEmoji
-                              value={field.value}
-                              trigger={
-                                <div className="absolute w-12 h-12 flex justify-center items-center right-0 bottom-0 cursor-pointer">
-                                  <FaceSmileIcon className="w-6" />
+            {isTemplate && (
+              <div className="relative p-5 grow overflow-auto">
+                <div
+                  className="flex justify-center items-center mb-5 h-11 bg-success rounded text-white cursor-pointer"
+                  onClick={() => setIsTemplate(false)}
+                >
+                  <PlusIcon className="w-5 mr-2" />
+                  <div className="text-sm">Tạo mới tin nhắn</div>
+                </div>
+                <div>
+                  {Templates &&
+                    Templates.map((group, i) => (
+                      <div className="mb-5 last:mb-0" key={i}>
+                        <div className="uppercase text-[13px] font-medium text-muted mb-2">
+                          {group.Title}
+                        </div>
+                        <div className="grid grid-cols-3 gap-5">
+                          {group.Children &&
+                            group.Children.map((item, index) => (
+                              <div
+                                className="cursor-pointer"
+                                key={index}
+                                onClick={() => {
+                                  setValue('Title', item.Title)
+                                  setValue('Content', item.Desc)
+                                  setValue('Html', item.Html)
+                                  setValue('Thumbnail', item.Thumbnail)
+                                  setIsTemplate(false)
+                                }}
+                              >
+                                <div>
+                                  <img
+                                    className="rounded-sm"
+                                    src={item.Thumbnail}
+                                    alt={item.Title}
+                                  />
                                 </div>
-                              }
-                              onChange={val => field.onChange(val)}
-                            />
-                          </div>
-                        )}
-                      />
-                    </div>
-                  </div>
-                  {isEditLink && (
-                    <div className="mb-3.5">
-                      <div className="font-medium">Loại Link</div>
-                      <div className="mt-1">
-                        <Controller
-                          name="TypeLink"
-                          control={control}
-                          render={({
-                            field: { ref, ...field },
-                            fieldState
-                          }) => (
-                            <SelectTypeLink
-                              value={field.value}
-                              onChange={val => {
-                                field.onChange(val?.value || '')
-                                if (!val?.value) {
-                                  setValue('Link', '')
-                                } else if (
-                                  ['SALE', 'VOUCHER', 'FORM_SALES'].includes(
-                                    val.value
-                                  )
-                                ) {
-                                  if (val.value === 'SALE') {
-                                    setValue('Link', '/shop/hot')
-                                  }
-                                  if (val.value === 'VOUCHER') {
-                                    setValue('Link', '/voucher/')
-                                  }
-                                  if (val.value === 'FORM_SALES') {
-                                    setValue('Link', '/pupup-contact/')
-                                  }
-                                } else {
-                                  setValue('Link', '')
-                                }
-                              }}
-                            />
-                          )}
-                        />
-                        <RenderTypeLink />
+                                <div className="pt-2.5">
+                                  <div className="mb-1 font-medium line-clamp-2">
+                                    {item.Title}
+                                  </div>
+                                  <div className="text-sm text-muted2 font-light line-clamp-2">
+                                    {item.Desc}
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  {!isEditLink && (
-                    <div>
+                    ))}
+                </div>
+              </div>
+            )}
+            {!isTemplate && (
+              <>
+                <div className="relative p-5 grow overflow-auto">
+                  <LoadingComponentFull
+                    bgClassName="bg-white dark:bg-dark-aside"
+                    loading={!isAddMode && isLoading}
+                  />
+                  {((id && !isLoading) || !id) && (
+                    <>
                       <div className="mb-3.5">
-                        <div className="font-medium">Link</div>
-                        <div className="mt-1 relative">
+                        <div className="font-medium">Tiêu đề</div>
+                        <div className="mt-1">
                           <Controller
-                            name="Link"
+                            name="Title"
                             control={control}
                             render={({
                               field: { ref, ...field },
                               fieldState
                             }) => (
                               <Input
-                                disabled
-                                placeholder="Link"
+                                placeholder="Nhập tiêu đề"
                                 autoComplete="off"
                                 type="text"
                                 errorMessageForce={fieldState?.invalid}
@@ -414,153 +401,296 @@ function AddEdit(props) {
                               />
                             )}
                           />
-                          <div
-                            className="absolute right-0 top-0 px-4 h-full flex items-center justify-center cursor-pointer text-sm font-medium text-success"
-                            onClick={() => setIsEditLink(true)}
-                          >
-                            Chỉnh sửa
-                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
-                  <div className="mb-3.5">
-                    <div className="font-medium">Khách hàng</div>
-                    <div className="mt-1">
-                      <Controller
-                        name="ToMembers"
-                        control={control}
-                        render={({ field: { ref, ...field }, fieldState }) => (
-                          <SelectMemberNotification
-                            isMulti
-                            value={field.value}
-                            onChange={val => field.onChange(val)}
-                            className="select-control"
-                            menuPosition="fixed"
-                            styles={{
-                              menuPortal: base => ({
-                                ...base,
-                                zIndex: 9999
-                              })
-                            }}
-                            menuPortalTarget={document.body}
-                          />
-                        )}
-                      />
-                    </div>
-                  </div>
-                  <div className="mb-3.5">
-                    <div className="font-medium">Nhân viên</div>
-                    <div className="mt-1">
-                      <Controller
-                        name="ToUsers"
-                        control={control}
-                        render={({ field: { ref, ...field }, fieldState }) => (
-                          <SelectUserNotification
-                            isMulti
-                            value={field.value}
-                            onChange={val => field.onChange(val)}
-                            className="select-control"
-                            menuPosition="fixed"
-                            styles={{
-                              menuPortal: base => ({
-                                ...base,
-                                zIndex: 9999
-                              })
-                            }}
-                            menuPortalTarget={document.body}
-                            menuPlacement="top"
-                          />
-                        )}
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <div className="flex items-center justify-between">
-                      <div className="font-medium text-[15px]">
-                        Hẹn thời gian gửi
-                      </div>
-                      <Controller
-                        name="IsSent"
-                        control={control}
-                        render={({ field }) => (
-                          <Switch
-                            checked={field.value}
-                            onChange={val => {
-                              field.onChange(val)
-                              setValue('SentDate', new Date())
-                            }}
-                            as={Fragment}
-                          >
-                            {({ checked }) => (
-                              <button
-                                className={clsx(
-                                  'relative inline-flex h-6 w-11 items-center rounded-full transition',
-                                  checked ? 'bg-primary' : 'bg-gray-300'
-                                )}
-                              >
-                                <span className="sr-only">
-                                  Enable notifications
-                                </span>
-                                <span
-                                  className={clsx(
-                                    'inline-block h-4 w-4 transform rounded-full bg-white transition',
-                                    checked ? 'translate-x-6' : 'translate-x-1'
-                                  )}
+                      <div className="mb-3.5">
+                        <div className="font-medium">Tóm tắt</div>
+                        <div className="mt-1">
+                          <Controller
+                            name="Content"
+                            control={control}
+                            render={({
+                              field: { ref, ...field },
+                              fieldState
+                            }) => (
+                              <div className="relative">
+                                <TextArea
+                                  text={field.value}
+                                  onChange={val => field.onChange(val)}
                                 />
-                              </button>
+                                <PopverPickerEmoji
+                                  value={field.value}
+                                  trigger={
+                                    <div className="absolute w-12 h-12 flex justify-center items-center right-0 bottom-0 cursor-pointer">
+                                      <FaceSmileIcon className="w-6" />
+                                    </div>
+                                  }
+                                  onChange={val => field.onChange(val)}
+                                />
+                              </div>
                             )}
-                          </Switch>
-                        )}
-                      />
-                    </div>
-                    {watchForm.IsSent && (
-                      <div className="mt-3">
-                        <Controller
-                          name="SentDate"
-                          control={control}
-                          render={({
-                            field: { ref, ...field },
-                            fieldState
-                          }) => (
-                            <InputDatePicker
-                              placeholderText="Chọn thời gian"
-                              autoComplete="off"
-                              onChange={field.onChange}
-                              dateFormat="HH:mm dd/MM/yyyy"
-                              selected={field.value ? field.value : null}
-                              {...field}
-                            />
-                          )}
-                        />
+                          />
+                        </div>
                       </div>
-                    )}
+                      <div className="mb-3.5">
+                        <div className="font-medium">Chi tiết</div>
+                        <div className="mt-1">
+                          <Controller
+                            name="Html"
+                            control={control}
+                            render={({
+                              field: { ref, ...field },
+                              fieldState
+                            }) => (
+                              <div className="relative">
+                                <CkEditor5
+                                  //className="ck-content"
+                                  value={field.value}
+                                  onChange={val => field.onChange(val)}
+                                  placeholder="Nhập chi tiết"
+                                />
+                              </div>
+                            )}
+                          />
+                        </div>
+                      </div>
+                      {isEditLink && (
+                        <div className="mb-3.5">
+                          <div className="font-medium">Loại Link</div>
+                          <div className="mt-1">
+                            <Controller
+                              name="TypeLink"
+                              control={control}
+                              render={({
+                                field: { ref, ...field },
+                                fieldState
+                              }) => (
+                                <SelectTypeLink
+                                  value={field.value}
+                                  onChange={val => {
+                                    field.onChange(val?.value || '')
+                                    if (!val?.value) {
+                                      setValue('Link', '')
+                                    } else if (
+                                      [
+                                        'SALE',
+                                        'VOUCHER',
+                                        'FORM_SALES'
+                                      ].includes(val.value)
+                                    ) {
+                                      if (val.value === 'SALE') {
+                                        setValue('Link', '/shop/hot')
+                                      }
+                                      if (val.value === 'VOUCHER') {
+                                        setValue('Link', '/voucher/')
+                                      }
+                                      if (val.value === 'FORM_SALES') {
+                                        setValue('Link', '/pupup-contact/')
+                                      }
+                                    } else {
+                                      setValue('Link', '')
+                                    }
+                                  }}
+                                />
+                              )}
+                            />
+                            <RenderTypeLink />
+                          </div>
+                        </div>
+                      )}
+                      {!isEditLink && (
+                        <div>
+                          <div className="mb-3.5">
+                            <div className="font-medium">Link</div>
+                            <div className="mt-1 relative">
+                              <Controller
+                                name="Link"
+                                control={control}
+                                render={({
+                                  field: { ref, ...field },
+                                  fieldState
+                                }) => (
+                                  <Input
+                                    disabled
+                                    placeholder="Link"
+                                    autoComplete="off"
+                                    type="text"
+                                    errorMessageForce={fieldState?.invalid}
+                                    errorMessage={fieldState?.error?.message}
+                                    {...field}
+                                  />
+                                )}
+                              />
+                              <div
+                                className="absolute right-0 top-0 px-4 h-full flex items-center justify-center cursor-pointer text-sm font-medium text-success"
+                                onClick={() => setIsEditLink(true)}
+                              >
+                                Chỉnh sửa
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      <div className="mb-3.5">
+                        <div className="font-medium">Hình ảnh</div>
+                        <div className="mt-1">
+                          <Controller
+                            name="Thumbnail"
+                            control={control}
+                            render={({
+                              field: { ref, ...field },
+                              fieldState
+                            }) => <Thumbnail {...field} />}
+                          />
+                        </div>
+                      </div>
+                      <div className="mb-3.5">
+                        <div className="font-medium">Khách hàng</div>
+                        <div className="mt-1">
+                          <Controller
+                            name="ToMembers"
+                            control={control}
+                            render={({
+                              field: { ref, ...field },
+                              fieldState
+                            }) => (
+                              <SelectMemberNotification
+                                isMulti
+                                value={field.value}
+                                onChange={val => field.onChange(val)}
+                                className="select-control"
+                                menuPosition="fixed"
+                                styles={{
+                                  menuPortal: base => ({
+                                    ...base,
+                                    zIndex: 9999
+                                  })
+                                }}
+                                menuPortalTarget={document.body}
+                              />
+                            )}
+                          />
+                        </div>
+                      </div>
+                      <div className="mb-3.5">
+                        <div className="font-medium">Nhân viên</div>
+                        <div className="mt-1">
+                          <Controller
+                            name="ToUsers"
+                            control={control}
+                            render={({
+                              field: { ref, ...field },
+                              fieldState
+                            }) => (
+                              <SelectUserNotification
+                                isMulti
+                                value={field.value}
+                                onChange={val => field.onChange(val)}
+                                className="select-control"
+                                menuPosition="fixed"
+                                styles={{
+                                  menuPortal: base => ({
+                                    ...base,
+                                    zIndex: 9999
+                                  })
+                                }}
+                                menuPortalTarget={document.body}
+                                menuPlacement="top"
+                              />
+                            )}
+                          />
+                        </div>
+                      </div>
+                      <div>
+                        <div className="flex items-center justify-between">
+                          <div className="font-medium text-[15px]">
+                            Hẹn thời gian gửi
+                          </div>
+                          <Controller
+                            name="IsSent"
+                            control={control}
+                            render={({ field }) => (
+                              <Switch
+                                checked={field.value}
+                                onChange={val => {
+                                  field.onChange(val)
+                                  setValue('SentDate', new Date())
+                                }}
+                                as={Fragment}
+                              >
+                                {({ checked }) => (
+                                  <button
+                                    className={clsx(
+                                      'relative inline-flex h-6 w-11 items-center rounded-full transition',
+                                      checked ? 'bg-primary' : 'bg-gray-300'
+                                    )}
+                                  >
+                                    <span className="sr-only">
+                                      Enable notifications
+                                    </span>
+                                    <span
+                                      className={clsx(
+                                        'inline-block h-4 w-4 transform rounded-full bg-white transition',
+                                        checked
+                                          ? 'translate-x-6'
+                                          : 'translate-x-1'
+                                      )}
+                                    />
+                                  </button>
+                                )}
+                              </Switch>
+                            )}
+                          />
+                        </div>
+                        {watchForm.IsSent && (
+                          <div className="mt-3">
+                            <Controller
+                              name="SentDate"
+                              control={control}
+                              render={({
+                                field: { ref, ...field },
+                                fieldState
+                              }) => (
+                                <InputDatePicker
+                                  placeholderText="Chọn thời gian"
+                                  autoComplete="off"
+                                  onChange={field.onChange}
+                                  dateFormat="HH:mm dd/MM/yyyy"
+                                  selected={field.value ? field.value : null}
+                                  {...field}
+                                />
+                              )}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+                <div className="flex justify-end p-5 border-t border-separator dark:border-dark-separator">
+                  <div className="flex">
+                    <NavLink
+                      to={{
+                        pathname: '/notifications/danh-sach',
+                        search: search
+                      }}
+                      type="button"
+                      className="relative flex items-center px-4 transition border border-gray-300 rounded shadow-lg dark:border-gray-700 h-11 hover:border-gray-800 focus:outline-none focus:shadow-none"
+                    >
+                      Hủy
+                    </NavLink>
+                    <Button
+                      loading={updateMutation.isLoading}
+                      disabled={updateMutation.isLoading}
+                      type="submit"
+                      className="relative flex items-center px-4 ml-2 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-11 focus:outline-none focus:shadow-none disabled:opacity-70"
+                    >
+                      Thực hiện gửi
+                    </Button>
                   </div>
-                </>
-              )}
-            </div>
-            <div className="flex justify-end p-5 border-t border-separator dark:border-dark-separator">
-              <div className="flex">
-                <NavLink
-                  to={{
-                    pathname: '/notifications/danh-sach',
-                    search: search
-                  }}
-                  type="button"
-                  className="relative flex items-center px-4 transition border border-gray-300 rounded shadow-lg dark:border-gray-700 h-11 hover:border-gray-800 focus:outline-none focus:shadow-none"
-                >
-                  Hủy
-                </NavLink>
-                <Button
-                  loading={updateMutation.isLoading}
-                  disabled={updateMutation.isLoading}
-                  type="submit"
-                  className="relative flex items-center px-4 ml-2 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-11 focus:outline-none focus:shadow-none disabled:opacity-70"
-                >
-                  Thực hiện gửi
-                </Button>
-              </div>
-            </div>
+                </div>
+              </>
+            )}
           </div>
         </m.div>
       </form>

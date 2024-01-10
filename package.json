@@ -2,7 +2,7 @@
     "name": "ezs-admin",
     "version": "0.1.0",
     "private": true,
-    "homepage": "/v2/",
+    "_homepage": "/v2/",
     "dependencies": {
         "@ckeditor/ckeditor5-build-classic": "^38.0.1",
         "@ckeditor/ckeditor5-react": "^6.0.0",
@@ -91,6 +91,7 @@
     },
     "devDependencies": {
         "@craco/craco": "^7.1.0",
+        "@tailwindcss/line-clamp": "^0.4.4",
         "eslint-config-prettier": "^8.5.0",
         "eslint-plugin-prettier": "^4.0.0",
         "prettier": "^2.6.2",

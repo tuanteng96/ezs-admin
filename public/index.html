@@ -36,6 +36,22 @@
     <script src="https://cser.vn/admin/SpreadJSExcelIO/13/gc.spread.sheets.print.13.2.2.min.js?t=1"></script>
     <script src="https://cser.vn/admin/SpreadJSExcelIO/13/FileSaver.min.js?t=1"></script>
     <script src="https://cser.vn/admin/SpreadJSExcelIO/13/gc.spread.excelio.13.2.2.min.js?t=1"></script>
+
+    <!-- <script>
+        window.addEventListener("message", (function({
+            data
+        }) {
+            if (typeof data === "string" && data.indexOf('setImmediate') === -1) {
+                const IfameBody = JSON.parse(data || '');
+                if (IfameBody.token) {
+                    window.isApp = true
+                    window.AppToken = IfameBody.token
+                    window.Info = IfameBody.Info;
+                    window.CrStock = IfameBody.CrStock
+                }
+            }
+        }))
+    </script> -->
 </head>
 
 <body>
