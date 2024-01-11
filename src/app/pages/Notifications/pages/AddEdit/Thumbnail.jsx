@@ -3,6 +3,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline'
 import { useMutation } from '@tanstack/react-query'
 import UploadsAPI from 'src/_ezs/api/uploads.api'
 import { toast } from 'react-toastify'
+import { m } from 'framer-motion'
 
 function Thumbnail({ value, onChange }) {
   const uploadMutation = useMutation({
@@ -33,6 +34,19 @@ function Thumbnail({ value, onChange }) {
       }
     })
   }
+
+  const onCreateImage = () => {}
+
+  window.addEventListener(
+    'message',
+    function ({ data }) {
+      let dataJson = JSON.parse(data)
+      if (dataJson?.Image) {
+        console.log(dataJson?.Image)
+      }
+    },
+    false
+  )
 
   return (
     <div className="flex items-end">
@@ -84,10 +98,36 @@ function Thumbnail({ value, onChange }) {
         )}
       </div>
       {value && (
-        <div className="pl-5 text-primary text-sm cursor-pointer">
+        <div
+          className="pl-5 text-primary text-sm cursor-pointer"
+          onClick={onCreateImage}
+        >
           Chỉnh sửa ảnh
         </div>
       )}
+      <div className="fixed inset-0 flex items-center justify-center z-[1011]">
+        <m.div
+          className="fixed inset-0 bg-black/[.2] dark:bg-black/[.4] z-[1010]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        ></m.div>
+        <m.div
+          className="absolute flex flex-col justify-center h-[95%] max-w-full w-[450px] px-4 sm:px-0 z-[1011]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <div className="bg-white w-full h-full rounded overflow-hidden">
+            <iframe
+              id="Demo1"
+              className="block w-full h-full"
+              src="https://cser.vn/Thietke/source/index.html/1"
+              title="Mẫu 1"
+            ></iframe>
+          </div>
+        </m.div>
+      </div>
     </div>
   )
 }

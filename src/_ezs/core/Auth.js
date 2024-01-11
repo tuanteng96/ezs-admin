@@ -17,7 +17,7 @@ const useAuth = () => {
 const AuthProvider = ({ children }) => {
   const [auth, setAuth] = useState(null)
   const [accessToken, setAccessToken] = useState(
-    (!window?.isApp && getLocalStorage('access_token')) || null
+    getLocalStorage('access_token') || null
   )
   const [CrStocks, setCrStocks] = useState(getLocalStorage('access_stock'))
   const [StockRights, setStockRights] = useState(null)
@@ -119,20 +119,12 @@ const AuthInit = ({ children }) => {
   })
 
   useEffect(() => {
-    if (!window?.isApp && window?.top?.token) {
-      console.log('1')
+    if (window?.top?.token) {
       saveAuth({
         auth: window?.top?.Info,
         token: window?.top?.token
       })
-    } else if (window?.isApp && window.AppToken && window.Info) {
-      console.log('2')
-      saveAuth({
-        auth: window.Info,
-        token: window.AppToken
-      })
     } else if (!accessToken) {
-      console.log('3')
       setShowSplashScreen(false)
     }
 
