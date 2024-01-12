@@ -42,15 +42,15 @@ function Home(props) {
         title: 'Tiêu đề',
         dataKey: 'Title',
         cellRenderer: ({ rowData }) => <div>{rowData.Title}</div>,
-        width: 250
-      },
-      {
-        key: 'Content',
-        title: 'Nội dung',
-        dataKey: 'Content',
-        cellRenderer: ({ rowData }) => <div>{rowData.Content}</div>,
         width: 350
       },
+      // {
+      //   key: 'Content',
+      //   title: 'Nội dung',
+      //   dataKey: 'Content',
+      //   cellRenderer: ({ rowData }) => <div>{rowData.Content}</div>,
+      //   width: 350
+      // },
       {
         key: 'ToUserTextToMemberText',
         title: 'Người nhận',
@@ -79,7 +79,11 @@ function Home(props) {
         dataKey: 'IsSent',
         width: 150,
         cellRenderer: ({ rowData }) =>
-          rowData.IsSent ? 'Đã gửi' : 'Đang thực hiện'
+          rowData.IsSent ? (
+            <span className="text-success">Đã gửi</span>
+          ) : (
+            <span className="text-warning">Đang thực hiện</span>
+          )
       },
       {
         key: 'Action',
