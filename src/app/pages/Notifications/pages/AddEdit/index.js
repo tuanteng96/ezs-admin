@@ -35,6 +35,7 @@ import PopverPickerEmoji from './PopverPickerEmoji'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import { CkEditor5 } from 'src/_ezs/partials/ckeditor'
 import Thumbnail from './Thumbnail'
+import moment from 'moment'
 
 const Templates = [
   {
@@ -182,37 +183,37 @@ const Templates = [
     Title: 'Trước Sau',
     Children: [
       {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
+        Title: 'Vẫn là cô ấy, nhưng đẹp hơn !',
+        Desc: 'Chỉ dành ra chút thời gian thôi mà nhìn thần thái gương mặt khác hẳn. "Tên Dịch vụ" ngày càng chiếm trọn trái tim của chị em yêu cái đẹp mất rồi  ',
+        Html: '',
         PathFrame: '/Thietke/source/index.html/19',
         Thumbnail: '/Thietke/myimage/19.png'
       },
       {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
+        Title: 'Chị đẹp U40 hóa Hotgirl !',
+        Desc: 'Rất nhiều khách hàng có thắc mắc về những dịch vụ mà các Chị Đẹp đã trải nghiệm.',
+        Html: '',
         PathFrame: '/Thietke/source/index.html/20',
         Thumbnail: '/Thietke/myimage/20.png'
       },
       {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
+        Title: 'Bí quyết trẻ hóa - ăn gian tuổi, đẩy lùi lão hoá',
+        Desc: 'Các “phù thuỷ” trẻ hoá đã giúp khách hàng “sống đúng tuổi thật”, tìm lại nhan sắc vốn có của mình',
+        Html: '',
         PathFrame: '/Thietke/source/index.html/21',
         Thumbnail: '/Thietke/myimage/21.png'
       },
       {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
+        Title: 'Feedback đẹp chạm đỉnh từ khách hàng',
+        Desc: 'Thay đổi toàn diện về gương mặt cũng như tinh thần vui tươi, tích cực hơn rất nhiều',
+        Html: '',
         PathFrame: '/Thietke/source/index.html/22',
         Thumbnail: '/Thietke/myimage/22.png'
       },
       {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
+        Title: 'Lý do gì khiến bạn vẫn chần chừ làm đẹp ?',
+        Desc: 'Chắc chắn rằng khi bạn đẹp bạn sẽ luôn tươi cười, tự tin diện bộ trang phục bắt mắt khiến ai nấy đều mê mẩn, xuýt xoa trước vẻ đẹp của bạn',
+        Html: '',
         PathFrame: '/Thietke/source/index.html/23',
         Thumbnail: '/Thietke/myimage/23.png'
       },
@@ -424,7 +425,8 @@ function AddEdit(props) {
       TypeLink: '',
       Thumbnail: '',
       Html: '',
-      PathFrame: ''
+      PathFrame: '',
+      IsSchedule: false
     },
     resolver: yupResolver(schemaUsers)
   })
@@ -451,19 +453,20 @@ function AddEdit(props) {
       reset({
         ...data,
         ID: 0,
-        SentDate: data.SentDate ? new Date(data.SentDate) : '',
-        ToMembers: data.ToMembersList
-          ? data.ToMembersList.map(x => ({
+        NotiDate: data.NotiDate ? new Date(data.NotiDate) : '',
+        SetNotiDate: Boolean(data.NotiDate),
+        ToMembers: data?.ToMemberText
+          ? JSON.parse(data?.ToMemberText).map(x => ({
               ...x,
-              label: x?.Title,
-              value: x?.ID
+              label: x?.text === 'TAT_CA' ? 'Tất cả khách hàng' : x?.text,
+              value: x?.id
             }))
           : '',
-        ToUsers: data.ToUsersList
-          ? data.ToUsersList.map(x => ({
+        ToUsers: data?.ToUserText
+          ? JSON.parse(data?.ToUserText).map(x => ({
               ...x,
-              label: x?.Title,
-              value: x?.ID
+              label: x?.text === 'TAT_CA' ? 'Tất cả nhân viên' : x?.text,
+              value: x?.id
             }))
           : ''
       })
@@ -486,7 +489,10 @@ function AddEdit(props) {
             : '',
           ToUsers: values.ToUsers
             ? values.ToUsers.map(x => x.value).toString()
-            : ''
+            : '',
+          NotiDate: values.NotiDate
+            ? moment(values.NotiDate).format('YYYY-MM-DD HH:mm')
+            : null
         }
       },
       {
@@ -847,14 +853,14 @@ function AddEdit(props) {
                             Hẹn thời gian gửi
                           </div>
                           <Controller
-                            name="IsSent"
+                            name="IsSchedule"
                             control={control}
                             render={({ field }) => (
                               <Switch
                                 checked={field.value}
                                 onChange={val => {
                                   field.onChange(val)
-                                  setValue('SentDate', new Date())
+                                  setValue('NotiDate', new Date())
                                 }}
                                 as={Fragment}
                               >
@@ -882,10 +888,10 @@ function AddEdit(props) {
                             )}
                           />
                         </div>
-                        {watchForm.IsSent && (
+                        {watchForm.IsSchedule && (
                           <div className="mt-3">
                             <Controller
-                              name="SentDate"
+                              name="NotiDate"
                               control={control}
                               render={({
                                 field: { ref, ...field },
@@ -927,7 +933,7 @@ function AddEdit(props) {
                       type="submit"
                       className="relative flex items-center px-4 ml-2 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-11 focus:outline-none focus:shadow-none disabled:opacity-70"
                     >
-                      {watchForm.IsSent ? 'Đặt lịch gửi' : 'Thực hiện gửi'}
+                      {watchForm.IsSchedule ? 'Đặt lịch gửi' : 'Thực hiện gửi'}
                     </Button>
                   </div>
                 </div>

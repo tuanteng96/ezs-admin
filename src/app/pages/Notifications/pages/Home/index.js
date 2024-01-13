@@ -57,9 +57,31 @@ function Home(props) {
         dataKey: 'ToUserTextToMemberText',
         cellRenderer: ({ rowData }) => (
           <div>
-            {rowData.ToUserText && <div>Nhân viên : {rowData.ToUserText}</div>}
+            {rowData.ToUserText && (
+              <div>
+                <span className="pr-1.5">Nhân viên :</span>
+                {JSON.parse(rowData?.ToUserText)
+                  .map(x => ({
+                    ...x,
+                    label: x?.text === 'TAT_CA' ? 'Tất cả' : x?.text,
+                    value: x?.id
+                  }))
+                  .map(x => x.label)
+                  .join(', ')}
+              </div>
+            )}
             {rowData.ToMemberText && (
-              <div>Khách hàng : {rowData.ToMemberText}</div>
+              <div>
+                <span className="pr-1.5">Khách hàng :</span>
+                {JSON.parse(rowData?.ToMemberText)
+                  .map(x => ({
+                    ...x,
+                    label: x?.text === 'TAT_CA' ? 'Tất cả' : x?.text,
+                    value: x?.id
+                  }))
+                  .map(x => x.label)
+                  .join(', ')}
+              </div>
             )}
           </div>
         ),
@@ -211,8 +233,8 @@ function Home(props) {
           onChange={({ pageIndex, pageSize }) => {
             setFilters(prevState => ({
               ...prevState,
-              Pi: pageIndex,
-              Ps: pageSize
+              pi: pageIndex,
+              ps: pageSize
             }))
           }}
           // rowEventHandlers={{
