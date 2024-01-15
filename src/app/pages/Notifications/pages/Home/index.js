@@ -1,4 +1,4 @@
-import { EllipsisHorizontalIcon } from '@heroicons/react/24/outline'
+import { EllipsisHorizontalIcon, PlusIcon } from '@heroicons/react/24/outline'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import moment from 'moment'
 import React, { useMemo, useState } from 'react'
@@ -194,10 +194,10 @@ function Home(props) {
       <div className="flex flex-col h-full px-8 pt-8 pb-5 mx-auto max-w-7xl">
         <div className="flex items-end justify-between mb-5">
           <div>
-            <div className="text-3xl font-bold dark:text-white">
+            <div className="text-lg md:text-3xl font-bold dark:text-white">
               Danh sách tin nhắn APP
             </div>
-            <div className="mt-1.5">
+            <div className="mt-1.5 hidden md:block">
               Quản lý lịch sử gửi tin nhắn trên APP tới khách hàng & nhân viên.
             </div>
           </div>
@@ -206,7 +206,8 @@ function Home(props) {
               to="them-moi"
               className="relative flex items-center justify-center w-10 h-10 text-white transition rounded shadow-lg sm:w-12 sm:h-12 md:w-auto md:px-4 bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
             >
-              Tạo mới tin nhắn
+              <span className="hidden md:block">Tạo mới tin nhắn</span>
+              <PlusIcon className="w-6 md:hidden" />
             </NavLink>
           </div>
         </div>

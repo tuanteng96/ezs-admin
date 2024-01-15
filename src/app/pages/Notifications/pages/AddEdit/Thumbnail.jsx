@@ -5,9 +5,11 @@ import UploadsAPI from 'src/_ezs/api/uploads.api'
 import { toast } from 'react-toastify'
 import { m } from 'framer-motion'
 import { useAuth } from 'src/_ezs/core/Auth'
+import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 
 function Thumbnail({ value, onChange, PathFrame }) {
   const [isCreate, setIsCreate] = useState(false)
+  const [loading, setLoading] = useState(true)
 
   const uploadMutation = useMutation({
     mutationFn: body => UploadsAPI.sendFile(body)
@@ -46,9 +48,16 @@ function Thumbnail({ value, onChange, PathFrame }) {
         onChange('/upload/image/' + dataJson?.Image)
         setIsCreate(false)
       }
+      if (dataJson?.isClose) {
+        setIsCreate(false)
+      }
     },
     false
   )
+
+  const handleIfrmeLoad = () => {
+    setLoading(false)
+  }
 
   return (
     <div className="flex items-end">
@@ -129,8 +138,11 @@ function Thumbnail({ value, onChange, PathFrame }) {
                   className="block w-full h-full"
                   src={`https://cser.vn${PathFrame}?token=${accessToken}`}
                   title="Mẫu 1"
+                  onLoad={handleIfrmeLoad}
+                  scrolling="no"
                 ></iframe>
               )}
+              <LoadingComponentFull loading={loading} />
             </div>
           </m.div>
         </div>
