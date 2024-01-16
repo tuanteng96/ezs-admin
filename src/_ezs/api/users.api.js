@@ -22,9 +22,7 @@ const UsersAPI = {
       `/api/gl/select2?cmd=group_and_user&&term=${key}&_type=query&q=${key}`
     ),
   listMembersNotification: ({ key = '' }) =>
-    http.get(
-      `https://cser.vn/api/gl/select2?cmd=group_and_member&ignore_member=1`
-    )
+    http.get(`/api/gl/select2?cmd=group_and_member&ignore_member=1`)
 }
 
 export default UsersAPI
