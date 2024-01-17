@@ -137,6 +137,25 @@ body .react-viewer-list>li>img {
     min-height: 250px !important;
 }
 
+.ck.ck-editor__editable_inline {
+    padding: 0 0.875rem !important;
+}
+
+.ck.ck-editor__editable_inline ol,
+.ck.ck-editor__editable_inline ul,
+.ck.ck-editor__editable_inline menu {
+    margin: inherit;
+    padding: inherit;
+}
+
+.ck.ck-balloon-panel {
+    z-index: 1400 !important;
+}
+
+.ck.ck-balloon-panel.ck-powered-by-balloon {
+    display: none !important;
+}
+
 
 /* */
 

@@ -36,275 +36,7 @@ import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/Loading
 import { CkEditor5 } from 'src/_ezs/partials/ckeditor'
 import Thumbnail from './Thumbnail'
 import moment from 'moment'
-
-const Templates = [
-  {
-    Title: 'Tin nhắn khuyến mại',
-    Children: [
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/1',
-        Thumbnail: '/Thietke/myimage/1.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/2',
-        Thumbnail: '/Thietke/myimage/2.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/3',
-        Thumbnail: '/Thietke/myimage/3.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/4',
-        Thumbnail: '/Thietke/myimage/4.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/5',
-        Thumbnail: '/Thietke/myimage/5.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/6',
-        Thumbnail: '/Thietke/myimage/6.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/7',
-        Thumbnail: '/Thietke/myimage/7.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/8',
-        Thumbnail: '/Thietke/myimage/8.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/9',
-        Thumbnail: '/Thietke/myimage/9.png'
-      }
-    ]
-  },
-  {
-    Title: 'Voucher',
-    Children: [
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/10',
-        Thumbnail: '/Thietke/myimage/10.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/11',
-        Thumbnail: '/Thietke/myimage/11.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/12',
-        Thumbnail: '/Thietke/myimage/12.png'
-      }
-    ]
-  },
-  {
-    Title: 'Giới thiệu dịch vụ',
-    Children: [
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/13',
-        Thumbnail: '/Thietke/myimage/13.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/14',
-        Thumbnail: '/Thietke/myimage/14.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/15',
-        Thumbnail: '/Thietke/myimage/15.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/13',
-        Thumbnail: '/Thietke/myimage/16.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/14',
-        Thumbnail: '/Thietke/myimage/17.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/15',
-        Thumbnail: '/Thietke/myimage/18.png'
-      }
-    ]
-  },
-  {
-    Title: 'Giới thiệu sản phẩm',
-    Children: [
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/16',
-        Thumbnail: '/Thietke/myimage/19.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/17',
-        Thumbnail: '/Thietke/myimage/20.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/18',
-        Thumbnail: '/Thietke/myimage/21.png'
-      }
-    ]
-  },
-  {
-    Title: 'Trước Sau',
-    Children: [
-      {
-        Title: 'Vẫn là cô ấy, nhưng đẹp hơn !',
-        Desc: 'Chỉ dành ra chút thời gian thôi mà nhìn thần thái gương mặt khác hẳn. "Tên Dịch vụ" ngày càng chiếm trọn trái tim của chị em yêu cái đẹp mất rồi  ',
-        Html: '',
-        PathFrame: '/Thietke/source/index.html/19',
-        Thumbnail: '/Thietke/myimage/22.png'
-      },
-      {
-        Title: 'Chị đẹp U40 hóa Hotgirl !',
-        Desc: 'Rất nhiều khách hàng có thắc mắc về những dịch vụ mà các Chị Đẹp đã trải nghiệm.',
-        Html: '',
-        PathFrame: '/Thietke/source/index.html/20',
-        Thumbnail: '/Thietke/myimage/23.png'
-      },
-      {
-        Title: 'Bí quyết trẻ hóa - ăn gian tuổi, đẩy lùi lão hoá',
-        Desc: 'Các “phù thuỷ” trẻ hoá đã giúp khách hàng “sống đúng tuổi thật”, tìm lại nhan sắc vốn có của mình',
-        Html: '',
-        PathFrame: '/Thietke/source/index.html/21',
-        Thumbnail: '/Thietke/myimage/24.png'
-      },
-      {
-        Title: 'Feedback đẹp chạm đỉnh từ khách hàng',
-        Desc: 'Thay đổi toàn diện về gương mặt cũng như tinh thần vui tươi, tích cực hơn rất nhiều',
-        Html: '',
-        PathFrame: '/Thietke/source/index.html/22',
-        Thumbnail: '/Thietke/myimage/25.png'
-      },
-      {
-        Title: 'Lý do gì khiến bạn vẫn chần chừ làm đẹp ?',
-        Desc: 'Chắc chắn rằng khi bạn đẹp bạn sẽ luôn tươi cười, tự tin diện bộ trang phục bắt mắt khiến ai nấy đều mê mẩn, xuýt xoa trước vẻ đẹp của bạn',
-        Html: '',
-        PathFrame: '/Thietke/source/index.html/23',
-        Thumbnail: '/Thietke/myimage/26.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/24',
-        Thumbnail: '/Thietke/myimage/27.png'
-      }
-    ]
-  },
-  {
-    Title: 'Sinh Nhật - Khai trương',
-    Children: [
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/25',
-        Thumbnail: '/Thietke/myimage/28.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/26',
-        Thumbnail: '/Thietke/myimage/29.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/27',
-        Thumbnail: '/Thietke/myimage/30.png'
-      }
-    ]
-  },
-  {
-    Title: 'TIP',
-    Children: [
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/28',
-        Thumbnail: '/Thietke/myimage/31.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/29',
-        Thumbnail: '/Thietke/myimage/32.png'
-      },
-      {
-        Title: '1. Mô hình spa chăm sóc sắc đẹp chuẩn nhất hiện nay',
-        Desc: 'Với sự kết hợp của các yếu tố như liệu pháp chăm sóc sắc đẹp, không gian thư giãn yên bình, ấm cúng, âm nhạc, hương tinh dầu nhẹ nhàng …',
-        Html: 'Huyết áp cao là một trong những bệnh lý phổ biến trong đời sống hiện nay. Nguyên nhân chủ yếu dẫn đến tình trạng này là việc áp lực, căng thẳng, mệt mỏi hay thói quen ăn uống không lành mạnh. Các kĩ thuật mát xa bàn chân sẽ giúp cho những người bị huyết áp cao cải thiện lưu lượng máu và thư giãn từ đó giúp hạ huyết áp hiệu quả hơn.',
-        PathFrame: '/Thietke/source/index.html/30',
-        Thumbnail: '/Thietke/myimage/33.png'
-      }
-    ]
-  }
-]
+import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 
 const SelectTypeLink = ({ value, ...props }) => {
   const [data] = useState([
@@ -417,6 +149,8 @@ function AddEdit(props) {
   const [isEditLink, setIsEditLink] = useState(true)
   const [isTemplate, setIsTemplate] = useState(true)
 
+  const { GlobalConfig } = useLayout()
+
   const queryClient = useQueryClient()
 
   const navigate = useNavigate()
@@ -461,10 +195,14 @@ function AddEdit(props) {
   const watchForm = watch()
 
   useEffect(() => {
-    if (!isAddMode) {
+    if (
+      !isAddMode ||
+      !GlobalConfig?.TemplatesNoti ||
+      GlobalConfig?.TemplatesNoti.length === 0
+    ) {
       setIsTemplate(false)
     }
-  }, [isAddMode])
+  }, [isAddMode, GlobalConfig])
 
   const { isLoading } = useQuery({
     queryKey: ['NotificationID', id],
@@ -595,8 +333,8 @@ function AddEdit(props) {
                   <div className="text-sm">Tạo mới tin nhắn</div>
                 </div>
                 <div>
-                  {Templates &&
-                    Templates.map((group, i) => (
+                  {GlobalConfig?.TemplatesNoti &&
+                    GlobalConfig?.TemplatesNoti.map((group, i) => (
                       <div className="mb-5 last:mb-0" key={i}>
                         <div className="uppercase text-[13px] font-bold mb-2">
                           {group.Title}
@@ -715,6 +453,20 @@ function AddEdit(props) {
                                   value={field.value}
                                   onChange={val => field.onChange(val)}
                                   placeholder="Nhập chi tiết"
+                                  toolbar={[
+                                    'undo',
+                                    'redo',
+                                    '|',
+                                    'bold',
+                                    'italic',
+                                    'link',
+                                    'bulletedList',
+                                    'numberedList',
+                                    'blockQuote',
+                                    '|',
+                                    'uploadImage',
+                                    'mediaEmbed'
+                                  ]}
                                 />
                               </div>
                             )}

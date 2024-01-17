@@ -5,6 +5,7 @@
     "homepage": "/v2/",
     "dependencies": {
         "@ckeditor/ckeditor5-build-classic": "^38.0.1",
+        "@ckeditor/ckeditor5-font": "^40.2.0",
         "@ckeditor/ckeditor5-react": "^6.0.0",
         "@ckeditor/ckeditor5-upload": "^38.0.1",
         "@floating-ui/react": "^0.22.3",
