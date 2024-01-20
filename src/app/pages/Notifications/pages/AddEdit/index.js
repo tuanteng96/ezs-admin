@@ -216,7 +216,7 @@ function AddEdit(props) {
     onSuccess: data => {
       reset({
         ...data,
-        ID: 0,
+        ID: data.ID,
         NotiDate: data.NotiDate ? new Date(data.NotiDate) : '',
         SetNotiDate: Boolean(data.NotiDate),
         ToMembers: data?.ToMemberText
