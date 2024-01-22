@@ -112,7 +112,17 @@ const SelectTypeLink = ({ value, ...props }) => {
 
 const schemaUsers = yup
   .object({
-    Title: yup.string().required('Vui lòng nhập tiêu đề.')
+    Title: yup.string().required('Vui lòng nhập tiêu đề.'),
+    ToMembers: yup.array().test(function (value) {
+      const { ToUsers } = this.parent
+      if (!ToUsers || ToUsers.length === 0) return value.length > 0
+      return true
+    }),
+    ToUsers: yup.array().test(function (value) {
+      const { ToMembers } = this.parent
+      if (!ToMembers || ToMembers.length === 0) return value.length > 0
+      return true
+    })
   })
   .required()
 
@@ -158,7 +168,7 @@ function AddEdit(props) {
   const methods = useForm({
     defaultValues: {
       ID: 0,
-      ToMembers: '', //gui cho kh
+      ToMembers: [], //gui cho kh
       SetNotiDate: false,
       ToUserText: '',
       ToMemberText: '',
@@ -168,7 +178,7 @@ function AddEdit(props) {
       IsWrapedEmail: false,
       TitleEmail: '',
       ContentEmail: '',
-      ToUsers: '',
+      ToUsers: [],
       NotiDate: null,
       CreateDate: '',
       Type: '',
@@ -191,7 +201,8 @@ function AddEdit(props) {
     resolver: yupResolver(schemaUsers)
   })
 
-  const { control, handleSubmit, setValue, watch, reset } = methods
+  const { control, handleSubmit, setValue, watch, reset, trigger } = methods
+
   const watchForm = watch()
 
   useEffect(() => {
@@ -225,14 +236,14 @@ function AddEdit(props) {
               label: x?.text === 'TAT_CA' ? 'Tất cả khách hàng' : x?.text,
               value: x?.id
             }))
-          : '',
+          : [],
         ToUsers: data?.ToUserText
           ? JSON.parse(data?.ToUserText).map(x => ({
               ...x,
               label: x?.text === 'TAT_CA' ? 'Tất cả nhân viên' : x?.text,
               value: x?.id
             }))
-          : ''
+          : []
       })
       data.Link && setIsEditLink(false)
     },
@@ -248,12 +259,14 @@ function AddEdit(props) {
       {
         noti: {
           ...values,
-          ToMembers: values.ToMembers
-            ? values.ToMembers.map(x => x.value).toString()
-            : '',
-          ToUsers: values.ToUsers
-            ? values.ToUsers.map(x => x.value).toString()
-            : '',
+          ToMembers:
+            values.ToMembers && values.ToMembers.length > 0
+              ? values.ToMembers.map(x => x.value).toString()
+              : '',
+          ToUsers:
+            values.ToUsers && values.ToUsers.length > 0
+              ? values.ToUsers.map(x => x.value).toString()
+              : '',
           NotiDate: values.NotiDate
             ? moment(values.NotiDate).format('YYYY-MM-DD HH:mm')
             : null
@@ -581,8 +594,14 @@ function AddEdit(props) {
                               <SelectMemberNotification
                                 isMulti
                                 value={field.value}
-                                onChange={val => field.onChange(val)}
-                                className="select-control"
+                                onChange={val => {
+                                  field.onChange(val)
+                                  trigger('ToUsers')
+                                }}
+                                className={clsx(
+                                  'select-control',
+                                  fieldState?.invalid && 'select-control-error'
+                                )}
                                 menuPosition="fixed"
                                 styles={{
                                   menuPortal: base => ({
@@ -606,21 +625,30 @@ function AddEdit(props) {
                               field: { ref, ...field },
                               fieldState
                             }) => (
-                              <SelectUserNotification
-                                isMulti
-                                value={field.value}
-                                onChange={val => field.onChange(val)}
-                                className="select-control"
-                                menuPosition="fixed"
-                                styles={{
-                                  menuPortal: base => ({
-                                    ...base,
-                                    zIndex: 9999
-                                  })
-                                }}
-                                menuPortalTarget={document.body}
-                                menuPlacement="top"
-                              />
+                              <>
+                                <SelectUserNotification
+                                  isMulti
+                                  value={field.value}
+                                  onChange={val => {
+                                    field.onChange(val)
+                                    trigger('ToMembers')
+                                  }}
+                                  className={clsx(
+                                    'select-control',
+                                    fieldState?.invalid &&
+                                      'select-control-error'
+                                  )}
+                                  menuPosition="fixed"
+                                  styles={{
+                                    menuPortal: base => ({
+                                      ...base,
+                                      zIndex: 9999
+                                    })
+                                  }}
+                                  menuPortalTarget={document.body}
+                                  menuPlacement="top"
+                                />
+                              </>
                             )}
                           />
                         </div>

@@ -60,7 +60,7 @@ function Home(props) {
         dataKey: 'ToUserTextToMemberText',
         cellRenderer: ({ rowData }) => (
           <div>
-            {rowData.ToUserText && (
+            {rowData.ToUserText && !rowData.ToUserText.includes('[]') && (
               <div>
                 <span className="pr-1.5">Nhân viên :</span>
                 {JSON.parse(rowData?.ToUserText)
@@ -73,7 +73,7 @@ function Home(props) {
                   .join(', ')}
               </div>
             )}
-            {rowData.ToMemberText && (
+            {rowData.ToMemberText && !rowData.ToMemberText.includes('[]') && (
               <div>
                 <span className="pr-1.5">Khách hàng :</span>
                 {JSON.parse(rowData?.ToMemberText)
