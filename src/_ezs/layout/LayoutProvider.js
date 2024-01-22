@@ -10,7 +10,7 @@ const useLayout = () => {
 
 const LayoutProvider = ({ children }) => {
   const [loadingContent, setLoadingContent] = useState(false)
-  const [LayoutIframe] = useState(window?.top?.token)
+  const [LayoutIframe] = useState(window?.top?.token || '123')
   const [GlobalConfig, setGlobalConfig] = useState(null)
 
   const updateLoadingContent = loading => {
@@ -27,7 +27,17 @@ const LayoutProvider = ({ children }) => {
             : window.location.origin
         }/brand/global/Global.json`
       )
-      return data
+      let { data: template } = await axios.get(
+        `${
+          !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
+            ? process.env.REACT_APP_API_URL
+            : window.location.origin
+        }/AdminCp/Controls/Noti2/NotiTemplate.json`
+      )
+      return {
+        ...data,
+        ...template
+      }
     },
     onSettled: data => {
       setGlobalConfig(data)

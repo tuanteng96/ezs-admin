@@ -17,7 +17,8 @@ const SearchPage = lazy(() => import('../pages/Search'))
 const UnauthorizedPage = lazy(() => import('../pages/Unauthorized'))
 
 function PrivateRoutes(props) {
-  const { pos_mng } = useRoles(['pos_mng'])
+  const { pos_mng, notification } = useRoles(['pos_mng', 'notification'])
+
   return (
     <Routes>
       <Route element={<MasterLayout />}>
@@ -69,14 +70,16 @@ function PrivateRoutes(props) {
           />
         </Route>
         <Route path="catalogue/*" element={<CataloguePage />} />
-        <Route
-          path="notifications/*"
-          element={
-            <SuspensedView>
-              <NotificationsPage />
-            </SuspensedView>
-          }
-        />
+        <Route element={<RoleAccess roles={notification.hasRight} />}>
+          <Route
+            path="notifications/*"
+            element={
+              <SuspensedView>
+                <NotificationsPage />
+              </SuspensedView>
+            }
+          />
+        </Route>
         <Route
           path="settings/*"
           element={

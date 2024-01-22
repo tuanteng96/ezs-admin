@@ -8,6 +8,7 @@ import NotificationsAPI from 'src/_ezs/api/notifications.api'
 import { DropdownMenu } from 'src/_ezs/partials/dropdown'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import Swal from 'sweetalert2'
+import { useWindowSize } from 'src/_ezs/hooks/useWindowSize'
 
 function Home(props) {
   const [filters, setFilters] = useState({
@@ -16,6 +17,7 @@ function Home(props) {
   })
 
   const navigate = useNavigate()
+  const { width } = useWindowSize()
 
   const { data, isLoading, isPreviousData, refetch } = useQuery({
     queryKey: ['ListNotifications', filters],
@@ -35,7 +37,8 @@ function Home(props) {
         key: 'ID',
         title: 'ID',
         dataKey: 'ID',
-        width: 120
+        width: 120,
+        hidden: width < 767
       },
       {
         key: 'Title',
@@ -88,12 +91,12 @@ function Home(props) {
         width: 300
       },
       {
-        key: 'CreateDate',
+        key: 'SentDate',
         title: 'Ngày gửi',
-        dataKey: 'CreateDate',
+        dataKey: 'SentDate',
         width: 200,
         cellRenderer: ({ rowData }) =>
-          moment(rowData.CreateDate).format('HH:mm DD-MM-YYYY')
+          moment(rowData.SentDate).format('HH:mm DD-MM-YYYY')
       },
       {
         key: 'IsSent',
@@ -154,7 +157,7 @@ function Home(props) {
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [width]
   )
 
   const deleteMutation = useMutation({
@@ -191,7 +194,7 @@ function Home(props) {
 
   return (
     <div className="bg-white w-full h-full">
-      <div className="flex flex-col h-full px-8 pt-8 pb-5 mx-auto max-w-7xl">
+      <div className="flex flex-col h-full md:px-8 md:pt-8 p-4 md:pb-5 mx-auto max-w-7xl">
         <div className="flex items-end justify-between mb-5">
           <div>
             <div className="text-lg md:text-3xl font-bold dark:text-white">
