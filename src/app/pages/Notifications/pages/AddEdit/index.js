@@ -228,7 +228,8 @@ function AddEdit(props) {
       reset({
         ...data,
         ID: data.ID,
-        NotiDate: data.NotiDate ? new Date(data.NotiDate) : '',
+        NotiDate:
+          data.IsSchedule && data.NotiDate ? new Date(data.NotiDate) : null,
         SetNotiDate: Boolean(data.NotiDate),
         ToMembers: data?.ToMemberText
           ? JSON.parse(data?.ToMemberText).map(x => ({
@@ -267,9 +268,10 @@ function AddEdit(props) {
             values.ToUsers && values.ToUsers.length > 0
               ? values.ToUsers.map(x => x.value).toString()
               : '',
-          NotiDate: values.NotiDate
-            ? moment(values.NotiDate).format('YYYY-MM-DD HH:mm')
-            : null
+          NotiDate:
+            values.IsSchedule && values.NotiDate
+              ? moment(values.NotiDate).format('YYYY-MM-DD HH:mm')
+              : null
         }
       },
       {
@@ -731,16 +733,22 @@ function AddEdit(props) {
                       type="button"
                       className="relative flex items-center px-4 transition border border-gray-300 rounded shadow-lg dark:border-gray-700 h-11 hover:border-gray-800 focus:outline-none focus:shadow-none"
                     >
-                      Hủy
+                      Đóng
                     </NavLink>
-                    <Button
-                      loading={updateMutation.isLoading}
-                      disabled={updateMutation.isLoading}
-                      type="submit"
-                      className="relative flex items-center px-4 ml-2 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-11 focus:outline-none focus:shadow-none disabled:opacity-70"
-                    >
-                      {watchForm.IsSchedule ? 'Đặt lịch gửi' : 'Thực hiện gửi'}
-                    </Button>
+                    {(!watchForm.ID || (watchForm.ID && !watchForm.IsSent)) && (
+                      <Button
+                        loading={updateMutation.isLoading}
+                        disabled={updateMutation.isLoading}
+                        type="submit"
+                        className="relative flex items-center px-4 ml-2 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-11 focus:outline-none focus:shadow-none disabled:opacity-70"
+                      >
+                        {watchForm.IsSchedule ? (
+                          <>{watchForm.ID ? 'Cập nhập' : 'Đặt lịch gửi'}</>
+                        ) : (
+                          'Thực hiện gửi'
+                        )}
+                      </Button>
+                    )}
                   </div>
                 </div>
               </>

@@ -107,7 +107,7 @@ function Home(props) {
           rowData.IsSent ? (
             <span className="text-success">Đã gửi</span>
           ) : (
-            <span className="text-warning">Đang thực hiện</span>
+            <span className="text-warning">Chờ gửi</span>
           )
       },
       {
