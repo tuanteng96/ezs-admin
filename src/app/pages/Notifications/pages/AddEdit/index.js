@@ -578,6 +578,7 @@ function AddEdit(props) {
                               <Thumbnail
                                 {...field}
                                 PathFrame={watchForm.PathFrame}
+                                ID={watchForm?.ID}
                               />
                             )}
                           />

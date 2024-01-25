@@ -7,7 +7,7 @@ import { m } from 'framer-motion'
 import { useAuth } from 'src/_ezs/core/Auth'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 
-function Thumbnail({ value, onChange, PathFrame }) {
+function Thumbnail({ value, onChange, PathFrame, ID }) {
   const [isCreate, setIsCreate] = useState(false)
   const [loading, setLoading] = useState(true)
 
@@ -108,7 +108,7 @@ function Thumbnail({ value, onChange, PathFrame }) {
           </div>
         )}
       </div>
-      {value && (
+      {!ID && value && (
         <div
           className="pl-5 text-primary text-sm cursor-pointer"
           onClick={onCreateImage}
