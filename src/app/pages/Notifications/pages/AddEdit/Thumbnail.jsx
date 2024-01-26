@@ -126,7 +126,7 @@ function Thumbnail({ value, onChange, PathFrame, ID }) {
             onClick={() => setIsCreate(false)}
           ></m.div>
           <m.div
-            className="absolute flex flex-col justify-center h-[95%] max-w-full w-[450px] px-4 sm:px-0 z-[1011]"
+            className="absolute flex flex-col justify-center h-[90%] max-w-full w-[450px] px-4 sm:px-0 z-[1011]"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
