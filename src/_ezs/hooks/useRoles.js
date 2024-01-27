@@ -17,6 +17,7 @@ const hasRolesAuth = data => {
         : []
     }))
   }
+
   return { hasRoles: newHasRoles }
 }
 

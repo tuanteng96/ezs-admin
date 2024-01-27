@@ -33,7 +33,10 @@ function ImportExport(props) {
   const navigate = useNavigate()
   const { pathname, search } = useLocation()
   const queryParams = useQueryParams()
-  const { xuat_nhap_diem } = useRoles(['xuat_nhap_diem'])
+  const { xuat_nhap_diem, adminTools_byStock } = useRoles([
+    'xuat_nhap_diem',
+    'adminTools_byStock'
+  ])
 
   const queryConfig = {
     cmd: 'getie',
@@ -303,8 +306,8 @@ function ImportExport(props) {
                   </NavLink>
                 </div>
               )}
-              {(auth.User.ID === 1 ||
-                (auth.User.ID !== 1 &&
+              {(adminTools_byStock?.hasRight ||
+                (!adminTools_byStock?.hasRight &&
                   moment().format('DD-MM-YYYY') ===
                     moment(rowData.CreateDate).format('DD-MM-YYYY'))) && (
                 <div>
