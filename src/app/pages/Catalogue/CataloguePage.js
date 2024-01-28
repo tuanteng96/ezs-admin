@@ -20,6 +20,9 @@ const ImportExport = lazy(() => import('./pages/ImportExport'))
 const ImportExportFilters = lazy(() =>
   import('./pages/ImportExport/pages/Filters')
 )
+const WareHouseDate = lazy(() =>
+  import('./pages/ImportExport/pages/WareHouseDate')
+)
 const WareHouseImport = lazy(() =>
   import('./pages/ImportExport/pages/WareHouseImport')
 )
@@ -196,6 +199,7 @@ function CataloguePage(props) {
             }
           >
             <Route path="filters" element={<ImportExportFilters />}></Route>
+            <Route path="change-date/:id" element={<WareHouseDate />}></Route>
             <Route
               path="material-conversion"
               element={<ImportExportMaterial />}

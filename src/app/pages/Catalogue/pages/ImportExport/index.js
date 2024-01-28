@@ -148,7 +148,7 @@ function ImportExport(props) {
             </div>
           </div>
         ),
-        frozen: window.top.innerWidth > 993 ? 'left' : ''
+        frozen: window.top.innerWidth > 993 ? 'left' : false
       },
       {
         key: 'CreateDate',
@@ -303,6 +303,23 @@ function ImportExport(props) {
                     className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
                   >
                     Thanh toán
+                  </NavLink>
+                </div>
+              )}
+              {adminTools_byStock?.hasRight && (
+                <div>
+                  <NavLink
+                    to={{
+                      pathname: 'change-date/' + rowData.ID,
+                      search: search
+                    }}
+                    state={{
+                      prevFrom: pathname,
+                      queryConfig
+                    }}
+                    className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                  >
+                    Đổi ngày
                   </NavLink>
                 </div>
               )}
