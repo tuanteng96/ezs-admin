@@ -14,7 +14,6 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
-import { useAuth } from 'src/_ezs/core/Auth'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import { Button } from 'src/_ezs/partials/button'
@@ -30,13 +29,13 @@ import { ConversionTools } from '../../components'
 import UploadsAPI from 'src/_ezs/api/uploads.api'
 
 function WareHouseExport(props) {
-  const { auth } = useAuth()
   const navigate = useNavigate()
   const { pathname, state, search } = useLocation()
   const { id } = useParams()
-  const { xuat_nhap_diem, xuat_nhap_ten_slg } = useRoles([
+  const { xuat_nhap_diem, xuat_nhap_ten_slg, adminTools_byStock } = useRoles([
     'xuat_nhap_diem',
-    'xuat_nhap_ten_slg'
+    'xuat_nhap_ten_slg',
+    'adminTools_byStock'
   ])
   const queryClient = useQueryClient()
 
@@ -892,7 +891,7 @@ function WareHouseExport(props) {
                         x => typeof x.Valid !== 'undefined' && !x.Valid
                       ) ||
                       updateMutation.isLoading ||
-                      (auth.User.ID !== 1 &&
+                      (!adminTools_byStock?.hasRight &&
                         data &&
                         moment().format('DD-MM-YYYY') !==
                           moment(data?.CreateDate).format('DD-MM-YYYY'))
@@ -901,7 +900,7 @@ function WareHouseExport(props) {
                     type="submit"
                     className="relative flex items-center justify-center w-full h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
                   >
-                    {auth.User.ID !== 1 &&
+                    {!adminTools_byStock?.hasRight &&
                     data &&
                     moment().format('DD-MM-YYYY') !==
                       moment(data?.CreateDate).format('DD-MM-YYYY') ? (
