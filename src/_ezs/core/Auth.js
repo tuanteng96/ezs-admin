@@ -53,6 +53,7 @@ const AuthProvider = ({ children }) => {
           ...auth.Stocks[0]
         }
       }
+
       setStocks(newStocks)
       setStockRights(newStocksRights)
       setCrStocks(newCrStock)

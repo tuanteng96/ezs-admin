@@ -317,15 +317,21 @@ function AddEdit(props) {
           <div className="flex flex-col h-full bg-white rounded shadow-lg dark:bg-dark-aside">
             <div className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
               <div className="flex items-center text-2xl font-semibold">
-                <NavLink
-                  to={{
-                    pathname: '/notifications/danh-sach',
-                    search: search
+                <div
+                  onClick={() => {
+                    if (isAddMode && !isTemplate) {
+                      setIsTemplate(true)
+                    } else {
+                      navigate({
+                        pathname: '/notifications/danh-sach',
+                        search: search
+                      })
+                    }
                   }}
-                  className="mr-2"
+                  className="mr-2 cursor-pointer"
                 >
                   <ArrowSmallLeftIcon className="w-7" />
-                </NavLink>
+                </div>
                 {isAddMode ? 'Tạo mới tin nhắn' : 'Chỉnh sửa tin nhắn'}
               </div>
               <NavLink
