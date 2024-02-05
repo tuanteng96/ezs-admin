@@ -114,7 +114,10 @@ function Inventory(props) {
         width: 320,
         cellRenderer: ({ rowData }) => (
           <div>
-            <div className="font-semibold">{rowData.Title}</div>
+            <div className="font-semibold">
+              {rowData?.OnStocks === '' ? '[Ngừng kinh doanh] ' : ''}{' '}
+              {rowData.Title}
+            </div>
             <div className="text-sm">{rowData.ProdCode}</div>
           </div>
         ),
@@ -198,10 +201,10 @@ function Inventory(props) {
   )
 
   return (
-    <div className="flex flex-col h-full lg:px-8 lg:pt-8 lg:pb-5 p-4 mx-auto max-w-7xl">
+    <div className="flex flex-col h-full p-4 mx-auto lg:px-8 lg:pt-8 lg:pb-5 max-w-7xl">
       <div className="flex items-end justify-between mb-5">
         <div>
-          <div className="text-xl sm:text-3xl font-bold dark:text-white">
+          <div className="text-xl font-bold sm:text-3xl dark:text-white">
             Kho & hàng tồn
           </div>
           <div className="mt-1.5 hidden sm:block">
@@ -210,7 +213,7 @@ function Inventory(props) {
         </div>
         <div className="flex sm:pb-1">
           <NavLink
-            className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 text-gray-900 border rounded bg-light border-light dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
+            className="flex items-center justify-center w-10 h-10 text-gray-900 border rounded sm:w-12 sm:h-12 bg-light border-light dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
             to={{
               pathname: 'filters',
               search: search
@@ -223,7 +226,7 @@ function Inventory(props) {
             <AdjustmentsVerticalIcon className="w-6 sm:w-7" />
           </NavLink>
           <button
-            className="relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70 ml-2 xl:hidden"
+            className="relative flex items-center justify-center w-10 h-10 ml-2 text-white transition rounded shadow-lg sm:w-12 sm:h-12 bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70 xl:hidden"
             onClick={openMenu}
           >
             <Bars3Icon className="w-6 sm:w-7" />

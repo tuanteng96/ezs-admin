@@ -23,7 +23,9 @@ function SelectProdCode({ Params, Key = '', ...props }) {
         if (index > -1) {
           options[index].options.push({
             ...item,
-            label: item.text,
+            label: `${
+              item.source.OnStocks === '' ? '[Ngừng kinh doanh] ' : ''
+            }${item.text}`,
             value: item.source.ID
           })
         }
