@@ -18,7 +18,10 @@ function IeProcessed(props) {
   const { pathname, search } = useLocation()
   const queryParams = useQueryParams()
 
-  const { xuat_nhap_diem } = useRoles(['xuat_nhap_diem'])
+  const { xuat_nhap_diem, xuat_nhap } = useRoles([
+    'xuat_nhap_diem',
+    'xuat_nhap'
+  ])
 
   const queryConfig = {
     cmd: 'getie',
@@ -43,7 +46,8 @@ function IeProcessed(props) {
         '(filter)Type': queryConfig.Type || 'N,X',
         '(filter)Receive': queryConfig.Receive,
         '(filter)TargetCreated': queryConfig.TargetCreated,
-        '(filter)FromID': queryConfig.FromID
+        '(filter)FromID': queryConfig.FromID,
+        IsAllStock: xuat_nhap.IsStocks
       }
       let { data } = await WarehouseAPI.getListInventory(newQueryConfig)
       return {
