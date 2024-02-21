@@ -5,6 +5,7 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 import { useAuth } from 'src/_ezs/core/Auth'
 import { useQuery } from '@tanstack/react-query'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 
 const perfectScrollbarOptions = {
   wheelSpeed: 2,
@@ -22,6 +23,8 @@ function CatalogueLayout({ paths, isReceive }) {
   const { CrStocks } = useAuth()
   const [isOpenMenu, setIsOpenMenu] = useState(false)
 
+  const { xuat_nhap } = useRoles(['xuat_nhap'])
+
   useEffect(() => {
     if (isOpenMenu) setIsOpenMenu(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -31,7 +34,8 @@ function CatalogueLayout({ paths, isReceive }) {
     queryKey: ['ReceiveStock', CrStocks],
     queryFn: async () => {
       let { data } = await WarehouseAPI.getReceiveStock({
-        StockID: CrStocks?.ID
+        StockID: CrStocks?.ID,
+        IsAllStock: xuat_nhap.IsStocks
       })
       return data?.lst || []
     },
