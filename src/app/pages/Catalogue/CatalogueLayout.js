@@ -23,7 +23,11 @@ function CatalogueLayout({ paths, isReceive }) {
   const { CrStocks } = useAuth()
   const [isOpenMenu, setIsOpenMenu] = useState(false)
 
-  const { xuat_nhap } = useRoles(['xuat_nhap'])
+  const { xuat_nhap, xuat_nhap_ten_slg, xuat_nhap_diem } = useRoles([
+    'xuat_nhap',
+    'xuat_nhap_diem',
+    'xuat_nhap_ten_slg'
+  ])
 
   useEffect(() => {
     if (isOpenMenu) setIsOpenMenu(false)
@@ -35,7 +39,9 @@ function CatalogueLayout({ paths, isReceive }) {
     queryFn: async () => {
       let { data } = await WarehouseAPI.getReceiveStock({
         StockID: CrStocks?.ID,
-        IsAllStock: xuat_nhap.IsStocks
+        IsAllStock:
+          xuat_nhap.IsStocks ||
+          (xuat_nhap_diem.IsStocks && xuat_nhap_ten_slg.IsStocks)
       })
       return data?.lst || []
     },

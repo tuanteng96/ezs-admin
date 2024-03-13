@@ -134,10 +134,10 @@ function Thumbnail({ value, onChange, PathFrame, ID }) {
             <div className="bg-white w-full h-full rounded overflow-hidden">
               {PathFrame && (
                 <iframe
-                  id="Demo1"
+                  id={ID}
                   className="block w-full h-full"
-                  src={`https://cser.vn${PathFrame}?token=${accessToken}`}
-                  title="Mẫu 1"
+                  src={`${PathFrame}?token=${accessToken}`}
+                  title="Template"
                   onLoad={handleIfrmeLoad}
                   scrolling="no"
                 ></iframe>
