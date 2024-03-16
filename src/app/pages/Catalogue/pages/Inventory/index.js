@@ -1,5 +1,6 @@
 import {
   AdjustmentsVerticalIcon,
+  ArrowPathIcon,
   ArrowRightIcon,
   Bars3Icon
 } from '@heroicons/react/24/outline'
@@ -47,7 +48,7 @@ function Inventory(props) {
     NotDelv: queryParams.NotDelv || false
   }
 
-  const { data, isLoading, isPreviousData } = useQuery({
+  const { data, isLoading, isPreviousData, refetch } = useQuery({
     queryKey: ['ListInventory', queryConfig],
     queryFn: async () => {
       let newQueryConfig = {
@@ -212,6 +213,12 @@ function Inventory(props) {
           </div>
         </div>
         <div className="flex sm:pb-1">
+          <button
+            className="flex items-center justify-center w-10 h-10 text-gray-900 border rounded sm:w-12 sm:h-12 bg-light border-light dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary mr-2"
+            onClick={refetch}
+          >
+            <ArrowPathIcon className="w-5 sm:w-6" />
+          </button>
           <NavLink
             className="flex items-center justify-center w-10 h-10 text-gray-900 border rounded sm:w-12 sm:h-12 bg-light border-light dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
             to={{
