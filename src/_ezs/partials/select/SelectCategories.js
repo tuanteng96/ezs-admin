@@ -55,7 +55,8 @@ function SelectCategories({ Type, allOptions = false, value, ...props }) {
                       i === 0
                         ? 'Tất cả ' + getNameType(types.toUpperCase())
                         : x.Title,
-                    value: x.ID
+                    value: x.ID,
+                    typeOpt: types.toUpperCase()
                   })
                 })
               } else {
@@ -64,7 +65,8 @@ function SelectCategories({ Type, allOptions = false, value, ...props }) {
                     obj.options.push({
                       ...x,
                       label: x.Title,
-                      value: x.ID
+                      value: x.ID,
+                      typeOpt: types.toUpperCase()
                     })
                   }
                 })
@@ -74,6 +76,7 @@ function SelectCategories({ Type, allOptions = false, value, ...props }) {
           }
         }
       }
+      console.log(result)
       return result || []
     },
     cacheTime: 0,

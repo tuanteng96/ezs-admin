@@ -228,12 +228,13 @@ function SalesKPIClassify() {
                 allOptions={true}
                 isClearable
                 value={filters.types}
-                onChange={val =>
+                onChange={val => {
                   setFilters(prevState => ({
                     ...prevState,
-                    types: val ? val.value : ''
+                    types: val ? val.value : '',
+                    hascombo: val?.typeOpt === 'TT' ? 0 : 1
                   }))
-                }
+                }}
                 Type="SP,DV,NH,NVL,PP,TT"
                 className="select-control"
                 menuPosition="fixed"
