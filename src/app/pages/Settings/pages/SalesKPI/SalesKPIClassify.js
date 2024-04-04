@@ -119,7 +119,7 @@ function SalesKPIClassify() {
   const [filters, setFilters] = useState({
     pi: 1,
     ps: 20,
-    hascombo: 1,
+    hascombo: 0,
     key: '',
     types: '',
     display: 1,
@@ -234,7 +234,8 @@ function SalesKPIClassify() {
                   setFilters(prevState => ({
                     ...prevState,
                     types: val ? val.value : '',
-                    hascombo: val?.typeOpt === 'TT' ? 0 : 1
+                    hascombo:
+                      val?.typeOpt === 'DV' || val?.typeOpt === 'PP' ? 1 : 0
                   }))
                 }}
                 Type="SP,DV,NH,NVL,PP,TT"
