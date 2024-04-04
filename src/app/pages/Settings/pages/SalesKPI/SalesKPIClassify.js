@@ -122,7 +122,8 @@ function SalesKPIClassify() {
     hascombo: 1,
     key: '',
     types: '',
-    display: 1
+    display: 1,
+    KpiType: ''
   })
   const { pathname, state, search } = useLocation()
   const navigate = useNavigate()
@@ -134,6 +135,7 @@ function SalesKPIClassify() {
     queryFn: async ({ pageParam = 1 }) => {
       const { data } = await ProdsAPI.getListProd24({
         ...filters,
+        KpiType: filters?.KpiType ? filters?.KpiType?.value : '',
         pi: pageParam
       })
       return data
@@ -213,7 +215,7 @@ function SalesKPIClassify() {
                 <XMarkIcon className="w-7 lg:w-9" />
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-6 px-6 pt-6">
+            <div className="grid grid-cols-3 gap-6 px-6 pt-6">
               <Input
                 placeholder="Nhập từ khóa ..."
                 value={filters.key}
@@ -248,6 +250,26 @@ function SalesKPIClassify() {
                 placeholder="Chọn danh mục"
                 noOptionsMessage={() => 'Danh mục trống.'}
                 isValidNewOption={() => false}
+              />
+              <SelectTypeGenerate
+                allOption={[{ label: 'Chưa chọn', value: 0 }]}
+                isClearable
+                value={filters.KpiType}
+                onChange={val => {
+                  setFilters(prevState => ({
+                    ...prevState,
+                    KpiType: val
+                  }))
+                }}
+                className="w-full select-control"
+                menuPortalTarget={document.body}
+                menuPosition="fixed"
+                styles={{
+                  menuPortal: base => ({
+                    ...base,
+                    zIndex: 9999
+                  })
+                }}
               />
             </div>
             <form
