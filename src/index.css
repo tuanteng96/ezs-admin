@@ -156,6 +156,11 @@ body .react-viewer-list>li>img {
     display: none !important;
 }
 
+.ck.ck-dropdown .ck-dropdown__panel.ck-dropdown__panel_ne,
+.ck.ck-dropdown .ck-dropdown__panel.ck-dropdown__panel_se {
+    right: 0 I !important;
+}
+
 
 /* */
 

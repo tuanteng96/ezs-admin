@@ -9,7 +9,8 @@ import {
   IdentificationIcon,
   MegaphoneIcon,
   QuestionMarkCircleIcon,
-  TagIcon
+  TagIcon,
+  PhotoIcon
 } from '@heroicons/react/24/outline'
 import Tooltip from 'rc-tooltip'
 import { AsideMenuItem } from './AsideMenuItem'
@@ -19,6 +20,11 @@ const AsideMenuList = [
     to: '/dashboard',
     icon: () => <HomeIcon className="w-8 h-8 text-white" />,
     title: 'Home'
+  },
+  {
+    to: '/banners',
+    icon: () => <PhotoIcon className="w-8 h-8 text-white" />,
+    title: 'Banners'
   },
   {
     to: '/calendar',

@@ -76,7 +76,6 @@ function SelectCategories({ Type, allOptions = false, value, ...props }) {
           }
         }
       }
-      console.log(result)
       return result || []
     },
     cacheTime: 0,

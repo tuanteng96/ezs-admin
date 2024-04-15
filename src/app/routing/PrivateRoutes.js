@@ -8,6 +8,7 @@ import { useRoles } from 'src/_ezs/hooks/useRoles'
 const ProfilePage = lazy(() => import('../pages/Profile'))
 const DashboardPage = lazy(() => import('../pages/Dashboard'))
 const CalendarPage = lazy(() => import('../pages/Calendar'))
+const BannersPage = lazy(() => import('../pages/Banners'))
 const ClientsPage = lazy(() => import('../pages/Clients'))
 const AppointmentsPage = lazy(() => import('../pages/Appointments'))
 const CataloguePage = lazy(() => import('../pages/Catalogue'))
@@ -69,6 +70,7 @@ function PrivateRoutes(props) {
             }
           />
         </Route>
+        <Route path="banners/*" element={<BannersPage />} />
         <Route path="catalogue/*" element={<CataloguePage />} />
         <Route element={<RoleAccess roles={notification.hasRight} />}>
           <Route

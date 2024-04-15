@@ -1,4 +1,5 @@
 import { SelectAdvs } from './SelectAdvs'
+import { SelectBannersCategories } from './SelectBannersCategories'
 import { SelectCategories } from './SelectCategories'
 import { SelectCategoriesAsync } from './SelectCategoriesAsync'
 import { SelectCategoryProds } from './SelectCategoryProds'
@@ -49,5 +50,6 @@ export {
   SelectAdvs,
   SelectOriginalService,
   SelectCategoriesAsync,
-  SelectMemberNotification
+  SelectMemberNotification,
+  SelectBannersCategories
 }
