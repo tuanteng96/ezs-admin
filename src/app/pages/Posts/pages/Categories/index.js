@@ -1,17 +1,91 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { AnimatePresence, m } from 'framer-motion'
 import { useLocation, useNavigate } from 'react-router'
 import { PlusCircleIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { NavLink } from 'react-router-dom'
 import PerfectScrollbar from 'react-perfect-scrollbar'
-import { useInfiniteQuery } from '@tanstack/react-query'
-import BannersAPI from 'src/_ezs/api/banners.api'
-import { formatArray } from 'src/_ezs/utils/formatArray'
-import useInfiniteScroll from 'react-infinite-scroll-hook'
+import { useQuery } from '@tanstack/react-query'
+import PostsAPI from 'src/_ezs/api/posts.api'
+import SortableList, { SortableItem, SortableKnob } from 'react-easy-sort'
+import { arrayMoveImmutable } from 'array-move'
 
 const perfectScrollbarOptions = {
   wheelSpeed: 2,
   wheelPropagation: false
+}
+
+const SortableIcon = () => (
+  <SortableKnob>
+    <div className="flex items-center justify-center w-16">
+      <svg
+        className="w-4"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 39 39"
+      >
+        <path
+          d="M 5 0 C 7.761 0 10 2.239 10 5 C 10 7.761 7.761 10 5 10 C 2.239 10 0 7.761 0 5 C 0 2.239 2.239 0 5 0 Z"
+          fill="#CCC"
+        ></path>
+        <path
+          d="M 19 0 C 21.761 0 24 2.239 24 5 C 24 7.761 21.761 10 19 10 C 16.239 10 14 7.761 14 5 C 14 2.239 16.239 0 19 0 Z"
+          fill="#CCC"
+        ></path>
+        <path
+          d="M 33 0 C 35.761 0 38 2.239 38 5 C 38 7.761 35.761 10 33 10 C 30.239 10 28 7.761 28 5 C 28 2.239 30.239 0 33 0 Z"
+          fill="#CCC"
+        ></path>
+        <path
+          d="M 33 14 C 35.761 14 38 16.239 38 19 C 38 21.761 35.761 24 33 24 C 30.239 24 28 21.761 28 19 C 28 16.239 30.239 14 33 14 Z"
+          fill="#CCC"
+        ></path>
+        <path
+          d="M 19 14 C 21.761 14 24 16.239 24 19 C 24 21.761 21.761 24 19 24 C 16.239 24 14 21.761 14 19 C 14 16.239 16.239 14 19 14 Z"
+          fill="#CCC"
+        ></path>
+        <path
+          d="M 5 14 C 7.761 14 10 16.239 10 19 C 10 21.761 7.761 24 5 24 C 2.239 24 0 21.761 0 19 C 0 16.239 2.239 14 5 14 Z"
+          fill="#CCC"
+        ></path>
+        <path
+          d="M 5 28 C 7.761 28 10 30.239 10 33 C 10 35.761 7.761 38 5 38 C 2.239 38 0 35.761 0 33 C 0 30.239 2.239 28 5 28 Z"
+          fill="#CCC"
+        ></path>
+        <path
+          d="M 19 28 C 21.761 28 24 30.239 24 33 C 24 35.761 21.761 38 19 38 C 16.239 38 14 35.761 14 33 C 14 30.239 16.239 28 19 28 Z"
+          fill="#CCC"
+        ></path>
+        <path
+          d="M 33 28 C 35.761 28 38 30.239 38 33 C 38 35.761 35.761 38 33 38 C 30.239 38 28 35.761 28 33 C 28 30.239 30.239 28 33 28 Z"
+          fill="#CCC"
+        ></path>
+      </svg>
+    </div>
+  </SortableKnob>
+)
+
+const SortableItems = ({ item, prevPath }) => {
+  const { pathname, search } = useLocation()
+
+  return (
+    <SortableItem>
+      <div className="flex z-[10001] bg-white border-b cursor-pointer border-separator dark:border-dark-separator hover:bg-light">
+        <NavLink
+          to={{
+            pathname: ``,
+            search: search
+          }}
+          state={{
+            prevFrom: pathname
+          }}
+          className="flex-1 block px-5 py-4"
+        >
+          <div className="font-semibold">{item.Title}</div>
+          <div className="text-muted2 font-light">{item?.Count} bài viết</div>
+        </NavLink>
+        <SortableIcon />
+      </div>
+    </SortableItem>
+  )
 }
 
 function Categories(props) {
@@ -19,25 +93,23 @@ function Categories(props) {
   const path = pathname.replace('/categories', '')
   const navigate = useNavigate()
 
-  const { data, isLoading, hasNextPage, fetchNextPage } = useInfiniteQuery({
-    queryKey: ['BannersCategories'],
+  const [Items, setItems] = useState([])
+
+  const { isLoading } = useQuery({
+    queryKey: ['PostsCategories'],
     queryFn: async ({ pageParam = 1 }) => {
-      const { data } = await BannersAPI.categories({
+      const { data } = await PostsAPI.categories({
         pi: pageParam,
-        ps: 10
+        ps: 10,
+        filter: {
+          ApplicationKey: 'article'
+        }
       })
-      return data
+      return data?.list || []
     },
-    getNextPageParam: (lastPage, pages) =>
-      lastPage.pi === lastPage.pCount ? undefined : lastPage.pi + 1
-  })
-
-  const Lists = formatArray.useInfiniteQuery(data?.pages, 'list')
-
-  const [sentryRef, { rootRef }] = useInfiniteScroll({
-    loading: isLoading,
-    hasNextPage: hasNextPage,
-    onLoadMore: () => fetchNextPage()
+    onSuccess: data => {
+      setItems(data)
+    }
   })
 
   const onToBack = () => {
@@ -45,6 +117,12 @@ function Categories(props) {
       pathname: path,
       search: search
     })
+  }
+
+  const onSortEnd = (oldIndex, newIndex) => {
+    const ItemsMove = arrayMoveImmutable(Items, oldIndex, newIndex)
+    setItems(ItemsMove)
+    //updateCategoryMutation.mutate(dataUpdate)
   }
 
   return (
@@ -67,7 +145,7 @@ function Categories(props) {
         >
           <div className="bg-white dark:bg-dark-aside max-w-full w-[500px] h-full rounded shadow-lg flex flex-col overflow-hidden">
             <div className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
-              <div className="text-2xl font-semibold">Quản lý vị trí</div>
+              <div className="text-2xl font-semibold">Quản lý danh mục</div>
               <div
                 className="absolute flex items-center justify-center w-12 h-12 cursor-pointer right-2 top-2/4 -translate-y-2/4"
                 onClick={onToBack}
@@ -90,7 +168,6 @@ function Categories(props) {
             <PerfectScrollbar
               options={perfectScrollbarOptions}
               className="relative grow"
-              containerRef={rootRef}
             >
               {isLoading && (
                 <>
@@ -113,39 +190,19 @@ function Categories(props) {
               )}
               {!isLoading && (
                 <>
-                  {Lists &&
-                    Lists.map((item, index) => (
-                      <div
-                        ref={sentryRef}
-                        key={index}
-                        className="flex z-[10001] bg-white border-b cursor-pointer border-separator dark:border-dark-separator hover:bg-light"
-                      >
-                        <NavLink
-                          className="flex-1 block px-5 py-4"
-                          to={{
-                            pathname: item?.ID.toString(),
-                            search: search
-                          }}
-                          state={{
-                            formState: item
-                          }}
-                        >
-                          <div className="font-semibold">
-                            <span>{item?.Title}</span>
-                          </div>
-                          <div className="text-muted2 font-light">
-                            {item?.Count} bài viết
-                            {item.IsPublic !== 1 && (
-                              <span className="text-danger pl-1 font-medium text-sm">
-                                - Ẩn trên Web/App
-                              </span>
-                            )}
-                          </div>
-                        </NavLink>
-                      </div>
-                    ))}
+                  {Items && Items.length > 0 && (
+                    <SortableList
+                      onSortEnd={onSortEnd}
+                      className="list"
+                      draggedItemClassName="shadow-lg bg-white z-[10001]"
+                    >
+                      {Items.map((item, index) => (
+                        <SortableItems key={index} item={item} />
+                      ))}
+                    </SortableList>
+                  )}
 
-                  {(!Lists || Lists.length === 0) && (
+                  {(!Items || Items.length === 0) && (
                     <div className="flex flex-col items-center justify-center h-full">
                       <svg
                         className="w-16"
@@ -162,7 +219,7 @@ function Categories(props) {
                         </g>
                       </svg>
                       <div className="mt-4 text-lg font-bold">
-                        Chưa có vị trí nào ở đây.
+                        Chưa có danh mục nào ở đây.
                       </div>
                     </div>
                   )}

@@ -68,6 +68,7 @@ module.exports = withMT({
       successhv: '#0BB7AF',
       warning: '#FFA800',
       warninglight: '#fff8dd',
+      info: '#8950FC',
       muted: '#A1A5B7',
       orange: '#f26353',
       muted2: '#878c93',
@@ -108,6 +109,7 @@ module.exports = withMT({
       light: '#EBEDF3',
       warning: '#FFA800',
       orange: '#f26353',
+      info: '#8950FC',
       transparent: 'transparent',
       dark: {
         separator: '#2B2B40',

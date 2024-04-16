@@ -8,15 +8,16 @@ import { identity, pickBy } from 'lodash-es'
 import React, { useMemo } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router'
 import { NavLink, createSearchParams } from 'react-router-dom'
-import BannersAPI from 'src/_ezs/api/banners.api'
 import useQueryParams from 'src/_ezs/hooks/useQueryParams'
 import { Button } from 'src/_ezs/partials/button'
 import { ImageLazy } from 'src/_ezs/partials/images'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
-import { IsPublicComponent, OrderComponent } from './components'
+// import { IsPublicComponent, OrderComponent } from './components'
 import Swal from 'sweetalert2'
 import { toast } from 'react-toastify'
+import PostsAPI from 'src/_ezs/api/posts.api'
+import { IsPublicComponent, OrderComponent } from './components'
 
 function Lists() {
   const navigate = useNavigate()
@@ -26,29 +27,28 @@ function Lists() {
   const queryConfig = {
     pi: queryParams.pi || 1,
     ps: queryParams.ps || 15,
-    Key: queryParams?.Key || '',
-    PosID: queryParams?.PosID || '',
+    key: queryParams?.key || '',
+    cateid: queryParams?.cateid || '',
     byOrder: true
   }
 
   const { data, isLoading, isPreviousData, refetch } = useQuery({
-    queryKey: ['ListBanners', queryConfig],
+    queryKey: ['ListPosts', queryConfig],
     queryFn: () =>
-      BannersAPI.list({
+      PostsAPI.list({
         pi: queryConfig.pi,
         ps: queryConfig.ps,
         filter: {
-          ID: '',
           byOrder: true,
-          PosID: queryConfig.PosID,
-          Key: queryConfig.Key
+          cateid: queryConfig.cateid,
+          key: queryConfig.key
         }
       }),
     keepPreviousData: true
   })
 
   const deleteMutation = useMutation({
-    mutationFn: body => BannersAPI.delete(body)
+    mutationFn: body => PostsAPI.delete(body)
   })
 
   const onDelete = id => {
@@ -76,7 +76,7 @@ function Lists() {
     }).then(result => {
       if (result.isConfirmed) {
         if (!result?.value?.data?.error) {
-          toast.success('Đã xóa.')
+          toast.success('Đã xóa .')
         } else {
           toast.error('Xảy ra lỗi không xác định.')
         }
@@ -94,11 +94,12 @@ function Lists() {
         sortable: false
       },
       {
-        key: 'PositionTitle',
-        title: 'Vị trí',
-        dataKey: 'PositionTitle',
-        width: 210,
-        sortable: false
+        key: 'CateTitle',
+        title: 'Danh mục',
+        dataKey: 'CateTitle',
+        width: 250,
+        sortable: false,
+        cellRenderer: ({ rowData }) => rowData?.CateTitle
       },
       {
         key: 'Title',
@@ -109,18 +110,18 @@ function Lists() {
         cellRenderer: ({ rowData }) => rowData?.Title
       },
       {
-        key: 'FileName',
-        title: 'Ảnh 1',
-        dataKey: 'FileName',
+        key: 'Thumbnail',
+        title: 'Ảnh đại diện',
+        dataKey: 'Thumbnail',
         cellRenderer: ({ rowData }) => (
           <div className="flex justify-center w-full">
             <div className="border border-separator">
-              {rowData?.FileName ? (
+              {rowData?.Thumbnail ? (
                 <ImageLazy
                   wrapperClassName="object-cover w-20 h-20 !block"
                   className="object-contain w-20 h-20"
                   effect="blur"
-                  src={toAbsolutePath(rowData?.FileName)}
+                  src={toAbsolutePath(rowData?.Thumbnail)}
                   alt={rowData.Title}
                 />
               ) : (
@@ -143,41 +144,19 @@ function Lists() {
         sortable: false
       },
       {
-        key: 'FileName2',
-        title: 'Ảnh 2',
-        dataKey: 'FileName2',
-        cellRenderer: ({ rowData }) => (
-          <div className="flex justify-center w-full">
-            <div className="border border-separator">
-              {rowData?.FileName2 && (
-                <ImageLazy
-                  wrapperClassName="object-cover w-20 h-20 !block"
-                  className="object-contain w-20 h-20"
-                  effect="blur"
-                  src={toAbsolutePath(rowData?.FileName2)}
-                  alt={rowData.Title}
-                />
-              )}
-            </div>
-          </div>
-        ),
-        width: 120,
-        sortable: false
-      },
-      {
         key: 'Order',
         title: 'Thứ tự',
         dataKey: 'Order',
         cellRenderer: props => <OrderComponent {...props} />,
-        width: 100,
+        width: 120,
         sortable: false
       },
       {
         key: 'IsPublic',
-        title: 'Hiển thị',
+        title: 'Hiển thị Web/APP',
         dataKey: 'IsPublic',
         cellRenderer: props => <IsPublicComponent {...props} />,
-        width: 100,
+        width: 160,
         sortable: false
       },
       {
@@ -223,9 +202,11 @@ function Lists() {
         <div className="flex items-end justify-between mb-5">
           <div>
             <div className="text-3xl font-bold dark:text-white">
-              Media / Video
+              Bài viết & Blogs
             </div>
-            <div className="mt-1.5">Thêm mới và quản lý các Media / Video</div>
+            <div className="mt-1.5">
+              Thêm mới và quản lý các bài viết & Blogs
+            </div>
           </div>
           <div className="flex pb-1">
             <NavLink
@@ -244,7 +225,7 @@ function Lists() {
               }}
               className="flex items-center px-3.5 border border-gray-300 dark:border-gray-700 hover:border-gray-700 dark:hover:border-graydark-700 transition rounded h-12 bg-white mr-2.5 font-semibold"
             >
-              Quản lý vị trí
+              Quản lý danh mục
             </NavLink>
             <NavLink
               to={{

@@ -4,11 +4,8 @@ import SuspensedView from 'src/app/routing/SuspensedView'
 
 const Lists = lazy(() => import('./pages/Lists'))
 const Categories = lazy(() => import('./pages/Categories'))
-const CategoriesAdd = lazy(() => import('./pages/CategoriesAdd'))
-const AddEdit = lazy(() => import('./pages/AddEdit'))
-const Filters = lazy(() => import('./pages/Filters'))
 
-function BannersPage(props) {
+function PostsPage(props) {
   return (
     <Routes>
       <Route index element={<Navigate to="list" />} />
@@ -20,13 +17,13 @@ function BannersPage(props) {
           </SuspensedView>
         }
       >
-        <Route path="filter" element={<Filters />} />
-        <Route path="categories/:id" element={<CategoriesAdd />} />
+        {/* <Route path="filter" element={<Filters />} />
+        <Route path="categories/:id" element={<CategoriesAdd />} /> */}
         <Route path="categories" element={<Categories />} />
-        <Route path=":id" element={<AddEdit />} />
+        {/* <Route path=":id" element={<AddEdit />} /> */}
       </Route>
     </Routes>
   )
 }
 
-export default BannersPage
+export default PostsPage
