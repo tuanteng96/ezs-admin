@@ -7,6 +7,7 @@ import UploadsAPI from 'src/_ezs/api/uploads.api'
 import { toAbsolutePath, toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 
 const UploadFilePlus = ({
+  onlyImages = false,
   value,
   onChange,
   placeholder,
@@ -57,11 +58,32 @@ const UploadFilePlus = ({
               : 'border-separator dark:border-dark-separator'
           )}
         >
-          <img
-            className="w-10/12"
-            src={toAbsoluteUrl('/assets/images/files/no-file.png')}
-            alt="No Files"
-          />
+          {onlyImages && (
+            <>
+              <svg
+                className="w-9"
+                viewBox="0 0 25 23"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  className="fill-primary opacity-90"
+                  d="M21.072 16.002a.75.75 0 01.75.75v1.842h1.842a.75.75 0 01.743.648l.007.102a.75.75 0 01-.75.75h-1.842v1.842a.75.75 0 01-.648.743l-.102.007a.75.75 0 01-.75-.75v-1.842H18.48a.75.75 0 01-.743-.648l-.007-.102a.75.75 0 01.75-.75h1.842v-1.842a.75.75 0 01.648-.743zM14.102.45a.75.75 0 01.624.334l1.621 2.43h3.285a2.593 2.593 0 012.593 2.594v7.494a.75.75 0 11-1.5 0V5.808c0-.604-.49-1.093-1.093-1.093h-3.686a.75.75 0 01-.624-.334L13.7 1.95H8.974l-1.62 2.43a.75.75 0 01-.624.335H3.043c-.604 0-1.093.49-1.093 1.093v11.98c0 .605.49 1.094 1.093 1.094h11.691a.75.75 0 110 1.5H3.044A2.593 2.593 0 01.45 17.789V5.808a2.593 2.593 0 012.593-2.593h3.285L7.948.784A.75.75 0 018.574.45zm-2.764 5.53a5.358 5.358 0 110 10.716 5.358 5.358 0 010-10.716zm0 1.5a3.858 3.858 0 100 7.716 3.858 3.858 0 000-7.716zM4.08 5.808a1.037 1.037 0 110 2.074 1.037 1.037 0 010-2.074z"
+                  fillRule="evenodd"
+                />
+              </svg>
+              <div className={clsx('text-muted mt-2', 'text-xs')}>
+                Thêm ảnh khác
+              </div>
+            </>
+          )}
+          {!onlyImages && (
+            <img
+              className="w-10/12"
+              src={toAbsoluteUrl('/assets/images/files/no-file.png')}
+              alt="No Files"
+            />
+          )}
+
           <input
             value=""
             className="absolute top-0 left-0 z-0 w-full h-full opacity-0 cursor-pointer"

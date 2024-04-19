@@ -50,5 +50,16 @@ export const formatString = {
       obj.ID = 4
     }
     return obj
+  },
+  fixedContentDomain: content => {
+    if (!content) return ''
+    return content.replace(
+      /src="\//g,
+      'src="' +
+        (!process.env.NODE_ENV || process.env.NODE_ENV === 'development'
+          ? process.env.REACT_APP_API_URL
+          : '') +
+        '/'
+    )
   }
 }

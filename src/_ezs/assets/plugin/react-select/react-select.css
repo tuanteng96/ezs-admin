@@ -93,10 +93,20 @@ html.dark {
     color: var(--ezs-datepicker-bg-selected);
 }
 
+.select__menu-portal .select__menu .select__option:hover .line,
+.select-control .select__menu .select__option:hover .line {
+    background: var(--ezs-datepicker-bg-selected) !important;
+}
+
 .select__menu-portal .select__menu .select__option.select__option--is-selected,
 .select-control .select__menu .select__option.select__option--is-selected {
     background-color: var(--select-bg-item-hover);
     color: var(--ezs-datepicker-bg-selected);
+}
+
+.select__menu-portal .select__menu .select__option.select__option--is-selected .line,
+.select-control .select__menu .select__option.select__option--is-selected .line {
+    background: var(--ezs-datepicker-bg-selected) !important;
 }
 
 .select__menu-portal .select__control.select__control--is-disabled,

@@ -23,7 +23,9 @@ import PerfectScrollbar from 'react-perfect-scrollbar'
 import useEscape from 'src/_ezs/hooks/useEscape'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import Swal from 'sweetalert2'
-import BannersAPI from 'src/_ezs/api/banners.api'
+import PostsAPI from 'src/_ezs/api/posts.api'
+import { SelectPostsCategories } from 'src/_ezs/partials/select'
+import { UploadFile } from 'src/_ezs/partials/files'
 
 const perfectScrollbarOptions = {
   wheelSpeed: 2,
@@ -32,24 +34,27 @@ const perfectScrollbarOptions = {
 
 const schemaAdd = yup
   .object({
-    Title: yup.string().required('Vui lòng nhập tên vị trí')
+    Title: yup.string().required('Vui lòng nhập tên vị trí'),
+    ParentID: yup.object().required('Vui lòng chọn danh mục')
   })
   .required()
 
 const initialValues = {
-  ID: '',
+  ID: 0,
   Title: '',
   Desc: '',
   IsPublic: 1,
-  Order: 0
+  Order: 0,
+  ApplicationKey: 'article',
+  ParentID: null
 }
 
 function CategoriesAdd(props) {
   const { search, state } = useLocation()
-  let path = '/banners/list/categories'
+  let path = '/posts/list/categories'
 
   const { id } = useParams()
-  const addMode = useMatch('/banners/list/categories/add')
+  const addMode = useMatch('/posts/list/categories/add')
   const navigate = useNavigate()
 
   useEscape(() =>
@@ -62,6 +67,7 @@ function CategoriesAdd(props) {
   const { control, handleSubmit, reset } = useForm({
     defaultValues: state?.formState
       ? {
+          ...initialValues,
           ID: state?.formState?.ID,
           Title: state?.formState?.Title,
           Desc: state?.formState?.Desc,
@@ -75,9 +81,9 @@ function CategoriesAdd(props) {
   })
 
   const { isLoading } = useQuery({
-    queryKey: ['BannersCategoryID', id],
+    queryKey: ['PostsCategoryID', id],
     queryFn: async () => {
-      const { data } = await BannersAPI.categories({
+      const { data } = await PostsAPI.categories({
         pi: 1,
         ps: 10,
         filter: {
@@ -94,6 +100,7 @@ function CategoriesAdd(props) {
         })
       } else {
         reset({
+          ...initialValues,
           ID: data?.ID,
           Title: data?.Title,
           Desc: data?.Desc,
@@ -102,31 +109,34 @@ function CategoriesAdd(props) {
         })
       }
     },
-    enabled: !addMode
+    enabled: Boolean(!addMode)
   })
 
   const addUpdateMutation = useMutation({
-    mutationFn: body => BannersAPI.categoriesAddEdit(body)
+    mutationFn: body => PostsAPI.categoriesAddEdit(body)
   })
 
   const deleteMutation = useMutation({
-    mutationFn: body => BannersAPI.categoriesDelete(body)
+    mutationFn: body => PostsAPI.categoriesDelete(body)
   })
 
   const onSubmit = values => {
     const dataPost = {
       arr: [
         {
-          ...values
+          ...values,
+          ParentID: values?.ParentID?.value || null,
+          Order: Number(values.Order)
         }
       ]
     }
+
     addUpdateMutation.mutate(dataPost, {
       onSuccess: ({ data }) => {
         if (!data.error) {
           toast.success(
             addMode
-              ? 'Thêm mới vị trí thành công'
+              ? 'Thêm mới danh mục thành công'
               : 'Danh mục đã được chỉnh sửa'
           )
           navigate({
@@ -149,8 +159,8 @@ function CategoriesAdd(props) {
       customClass: {
         confirmButton: '!bg-danger'
       },
-      title: 'Xóa bài viết ?',
-      html: `Bạn có chắc chắn muốn xóa vài viết này? Hành động này không thể được hoàn tác.`,
+      title: 'Xóa danh mục ?',
+      html: `Bạn có chắc chắn muốn xóa danh mục này? Hành động này không thể được hoàn tác.`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Thực hiện xóa',
@@ -165,7 +175,7 @@ function CategoriesAdd(props) {
     }).then(result => {
       if (result.isConfirmed) {
         if (!result?.value?.data?.error) {
-          toast.success('Đã xóa vị trí.')
+          toast.success('Đã xóa danh mục.')
           navigate({
             pathname: path,
             search: search
@@ -207,7 +217,7 @@ function CategoriesAdd(props) {
                 >
                   <ArrowSmallLeftIcon className="w-7" />
                 </NavLink>
-                {addMode ? 'Thêm mới vị trí' : 'Chỉnh sửa vị trí'}
+                {addMode ? 'Thêm mới danh mục' : 'Chỉnh sửa danh mục'}
               </div>
               <NavLink
                 to={{
@@ -224,19 +234,45 @@ function CategoriesAdd(props) {
               className="relative p-5 grow"
             >
               <div className="mb-3.5">
-                <div className="font-medium">Tên vị trí</div>
+                <div className="font-medium">Tên danh mục</div>
                 <div className="mt-1">
                   <Controller
                     name="Title"
                     control={control}
                     render={({ field: { ref, ...field }, fieldState }) => (
                       <Input
-                        placeholder="e.g Tên vị trí"
+                        placeholder="e.g Tên danh mục"
                         autoComplete="off"
                         type="text"
                         errorMessageForce={fieldState?.invalid}
                         errorMessage={fieldState?.error?.message}
                         {...field}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+              <div className="mb-3.5">
+                <div className="font-medium">Danh mục</div>
+                <div className="mt-1">
+                  <Controller
+                    name="ParentID"
+                    control={control}
+                    render={({ field: { ref, ...field }, fieldState }) => (
+                      <SelectPostsCategories
+                        isClearable
+                        value={field.value}
+                        onChange={val => {
+                          field.onChange(val)
+                        }}
+                        className={clsx(
+                          'select-control',
+                          fieldState?.invalid && 'select-control-error'
+                        )}
+                        placeholder="Chọn danh mục"
+                        noOptionsMessage={() => 'Chưa có danh mục.'}
+                        errorMessageForce={fieldState?.invalid}
+                        errorMessage={fieldState?.error?.message}
                       />
                     )}
                   />
@@ -253,6 +289,44 @@ function CategoriesAdd(props) {
                         value={field.value}
                         onChange={val => field.onChange(val)}
                         placeholder="Nhập mô tả"
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+              <div className="mb-3.5">
+                <div className="font-medium">Ảnh đại diện</div>
+                <div className="mt-1">
+                  <Controller
+                    name="Thumbnail"
+                    control={control}
+                    render={({ field }) => (
+                      <UploadFile
+                        size="xs"
+                        width="w-[130px]"
+                        height="h-[130px]"
+                        value={field.value}
+                        placeholder="Các tệp cho phép: png, jpg, jpeg."
+                        onChange={field.onChange}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+              <div className="mb-3.5">
+                <div className="font-medium">Ảnh đại diện 2</div>
+                <div className="mt-1">
+                  <Controller
+                    name="Thumbnail2"
+                    control={control}
+                    render={({ field }) => (
+                      <UploadFile
+                        size="xs"
+                        width="w-[130px]"
+                        height="h-[130px]"
+                        value={field.value}
+                        placeholder="Các tệp cho phép: png, jpg, jpeg."
+                        onChange={field.onChange}
                       />
                     )}
                   />

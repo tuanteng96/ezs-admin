@@ -11,6 +11,7 @@ import { SelectNews } from './SelectNews'
 import { SelectNewsCategories } from './SelectNewsCategories'
 import { SelectOriginalService } from './SelectOriginalService'
 import { SelectPaymentMethods } from './SelectPaymentMethods'
+import { SelectPostsCategories } from './SelectPostsCategories'
 import { SelectProdCode } from './SelectProdCode'
 import { SelectProdDynamic } from './SelectProdDynamic'
 import { SelectProdProducts } from './SelectProdProducts'
@@ -51,5 +52,6 @@ export {
   SelectOriginalService,
   SelectCategoriesAsync,
   SelectMemberNotification,
-  SelectBannersCategories
+  SelectBannersCategories,
+  SelectPostsCategories
 }
