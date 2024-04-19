@@ -356,12 +356,15 @@ function AddEdit(props) {
                   <div className="grid grid-cols-5 gap-4 mt-1">
                     {fields &&
                       fields.map((image, index) => (
-                        <div className="relative group" key={image.id}>
+                        <div
+                          className="relative group border border-separator rounded p-2"
+                          key={image.id}
+                        >
                           <div
-                            className="absolute z-10 flex items-center justify-center w-6 h-6 text-gray-700 transition bg-white rounded-full shadow-lg opacity-0 cursor-pointer dark:text-darkgray-800 dark:bg-graydark-200 -top-3 -right-3 hover:text-primary group-hover:opacity-100"
+                            className="absolute z-10 flex items-center justify-center w-6 h-6 text-gray-700 transition bg-white rounded-full shadow-xl opacity-0 cursor-pointer dark:text-darkgray-800 dark:bg-graydark-200 -top-3 -right-3 hover:text-primary group-hover:opacity-100"
                             onClick={() => remove(index)}
                           >
-                            <XMarkIcon className="w-3" />
+                            <XMarkIcon className="w-4" />
                           </div>
                           <img
                             className="object-cover w-full rounded aspect-square"
@@ -371,12 +374,11 @@ function AddEdit(props) {
                         </div>
                       ))}
                     <div className="aspect-square">
-                      <UploadFilePlus
+                      <UploadFile
+                        size="xs"
                         width="w-full"
                         height="h-full"
                         onChange={val => prepend({ Src: val })}
-                        multiple
-                        onlyImages
                       />
                     </div>
                   </div>

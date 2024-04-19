@@ -64,7 +64,7 @@ function CategoriesAdd(props) {
     })
   )
 
-  const { control, handleSubmit, reset } = useForm({
+  const { control, handleSubmit, reset, watch } = useForm({
     defaultValues: state?.formState
       ? {
           ...initialValues,
@@ -87,7 +87,10 @@ function CategoriesAdd(props) {
         pi: 1,
         ps: 10,
         filter: {
-          ID: id
+          ID: id,
+          ApplicationKey: 'article',
+          ParentID: 0,
+          key: ''
         }
       })
       return data && data?.list?.length > 0 ? data?.list[0] : null
@@ -396,18 +399,23 @@ function CategoriesAdd(props) {
             </PerfectScrollbar>
             <div className="flex justify-between p-5 border-t border-separator dark:border-dark-separator">
               <div>
-                {!addMode && (
-                  <Button
-                    loading={deleteMutation.isLoading}
-                    disabled={deleteMutation.isLoading}
-                    type="button"
-                    className="relative flex items-center px-4 text-danger transition rounded bg-white h-11 focus:outline-none focus:shadow-none disabled:opacity-70 border border-gray-300 hover:border-danger"
-                    onClick={onDelete}
-                  >
-                    Xóa
-                  </Button>
+                {watch().ParentID !== 2 && (
+                  <>
+                    {!addMode && (
+                      <Button
+                        loading={deleteMutation.isLoading}
+                        disabled={deleteMutation.isLoading}
+                        type="button"
+                        className="relative flex items-center px-4 text-danger transition rounded bg-white h-11 focus:outline-none focus:shadow-none disabled:opacity-70 border border-gray-300 hover:border-danger"
+                        onClick={onDelete}
+                      >
+                        Xóa
+                      </Button>
+                    )}
+                  </>
                 )}
               </div>
+
               <div className="flex">
                 <NavLink
                   to={{
