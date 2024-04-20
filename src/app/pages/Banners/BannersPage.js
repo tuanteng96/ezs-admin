@@ -1,5 +1,7 @@
 import React, { lazy } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
+import { RoleAccess } from 'src/_ezs/layout/RoleAccess'
 import SuspensedView from 'src/app/routing/SuspensedView'
 
 const Lists = lazy(() => import('./pages/Lists'))
@@ -9,21 +11,24 @@ const AddEdit = lazy(() => import('./pages/AddEdit'))
 const Filters = lazy(() => import('./pages/Filters'))
 
 function BannersPage(props) {
+  const { adv } = useRoles(['adv'])
   return (
     <Routes>
-      <Route index element={<Navigate to="list" />} />
-      <Route
-        path="list"
-        element={
-          <SuspensedView>
-            <Lists />
-          </SuspensedView>
-        }
-      >
-        <Route path="filter" element={<Filters />} />
-        <Route path="categories/:id" element={<CategoriesAdd />} />
-        <Route path="categories" element={<Categories />} />
-        <Route path=":id" element={<AddEdit />} />
+      <Route element={<RoleAccess roles={adv.hasRight} />}>
+        <Route index element={<Navigate to="list" />} />
+        <Route
+          path="list"
+          element={
+            <SuspensedView>
+              <Lists />
+            </SuspensedView>
+          }
+        >
+          <Route path="filter" element={<Filters />} />
+          <Route path="categories/:id" element={<CategoriesAdd />} />
+          <Route path="categories" element={<Categories />} />
+          <Route path=":id" element={<AddEdit />} />
+        </Route>
       </Route>
     </Routes>
   )

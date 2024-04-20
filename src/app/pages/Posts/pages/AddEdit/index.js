@@ -29,7 +29,7 @@ import useEscape from 'src/_ezs/hooks/useEscape'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import Swal from 'sweetalert2'
 import { SelectPostsCategories } from 'src/_ezs/partials/select'
-import { UploadFile, UploadFilePlus } from 'src/_ezs/partials/files'
+import { UploadFile } from 'src/_ezs/partials/files'
 import PostsAPI from 'src/_ezs/api/posts.api'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
@@ -53,7 +53,7 @@ const initialValues = {
   Title: '',
   Desc: '',
   Content: '',
-  Thumbnail: '',
+  Thumbnail: null,
   PhotoList: [],
   Channels: null,
   CreateDate: new Date(),
@@ -120,6 +120,13 @@ function AddEdit(props) {
           search: search
         })
       } else {
+        let newPhotoList = []
+        let Thumbnail = ''
+        if (data?.PhotoList && data?.PhotoList.length > 0) {
+          Thumbnail = data?.PhotoList[0]
+          newPhotoList = [...data?.PhotoList]
+          newPhotoList.shift()
+        }
         reset({
           ID: data?.ID,
           Title: data?.Title,
@@ -127,12 +134,17 @@ function AddEdit(props) {
           Content: formatString.fixedContentDomain(data?.Content),
           Order: data?.Order,
           IsPublic: data?.IsPublic,
-          PhotoList: data?.PhotoList
-            ? data?.PhotoList.map(x => ({
-                Src: x
-              }))
-            : null,
-          Thumbnail: data?.Thumbnail
+          PhotoList:
+            newPhotoList.length > 0
+              ? newPhotoList.map(x => ({
+                  Src: x
+                }))
+              : null,
+          Thumbnail,
+          Channels:
+            data?.Channels && data?.ChannelList
+              ? data?.ChannelList.map(x => ({ label: x.Title, value: x.ID }))
+              : null
         })
       }
     },
@@ -148,14 +160,20 @@ function AddEdit(props) {
   })
 
   const onSubmit = values => {
+    let newPhotoList = []
+    newPhotoList.push(values.Thumbnail)
+    if (values.PhotoList && values.PhotoList.length > 0) {
+      for (let img of values.PhotoList) {
+        newPhotoList.push(img.Src)
+      }
+    }
+
     const dataPost = {
       arr: [
         {
           ...values,
-          PhotoList:
-            values.PhotoList && values.PhotoList.length > 0
-              ? values.PhotoList.map(x => x.Src)
-              : [],
+          Thumbnail: '',
+          PhotoList: newPhotoList,
           Channels: values?.Channels
             ? values?.Channels.map(x => x.ID).toString()
             : '',
@@ -165,8 +183,9 @@ function AddEdit(props) {
         }
       ]
     }
+
     addUpdateMutation.mutate(dataPost, {
-      onSuccess: data => {
+      onSuccess: ({ data }) => {
         if (!data.error) {
           queryClient
             .invalidateQueries({ queryKey: ['ListPosts'] })
@@ -181,6 +200,8 @@ function AddEdit(props) {
                 search: search
               })
             })
+        } else {
+          toast.error('Lỗi - ' + data.error)
         }
       },
       onError: error => console.log(error)
@@ -333,57 +354,6 @@ function AddEdit(props) {
                   </div>
                 </div>
                 <div className="mb-3.5">
-                  <div className="font-medium">Ảnh đại diện</div>
-                  <div className="mt-1">
-                    <Controller
-                      name="Thumbnail"
-                      control={control}
-                      render={({ field }) => (
-                        <UploadFile
-                          size="xs"
-                          width="w-[130px]"
-                          height="h-[130px]"
-                          value={field.value}
-                          placeholder="Các tệp cho phép: png, jpg, jpeg."
-                          onChange={field.onChange}
-                        />
-                      )}
-                    />
-                  </div>
-                </div>
-                <div className="mb-3.5">
-                  <div className="font-medium">Ảnh khác</div>
-                  <div className="grid grid-cols-5 gap-4 mt-1">
-                    {fields &&
-                      fields.map((image, index) => (
-                        <div
-                          className="relative group border border-separator rounded p-2"
-                          key={image.id}
-                        >
-                          <div
-                            className="absolute z-10 flex items-center justify-center w-6 h-6 text-gray-700 transition bg-white rounded-full shadow-xl opacity-0 cursor-pointer dark:text-darkgray-800 dark:bg-graydark-200 -top-3 -right-3 hover:text-primary group-hover:opacity-100"
-                            onClick={() => remove(index)}
-                          >
-                            <XMarkIcon className="w-4" />
-                          </div>
-                          <img
-                            className="object-cover w-full rounded aspect-square"
-                            src={toAbsolutePath(image.Src)}
-                            alt=""
-                          />
-                        </div>
-                      ))}
-                    <div className="aspect-square">
-                      <UploadFile
-                        size="xs"
-                        width="w-full"
-                        height="h-full"
-                        onChange={val => prepend({ Src: val })}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="mb-3.5">
                   <div className="font-medium">Nội dung</div>
                   <div className="mt-1">
                     <Controller
@@ -397,6 +367,54 @@ function AddEdit(props) {
                         />
                       )}
                     />
+                  </div>
+                </div>
+                <div className="mb-3.5">
+                  <div className="font-medium">Ảnh đại diện</div>
+                  <div className="mt-1">
+                    <div className="grid grid-cols-5 gap-4">
+                      <Controller
+                        name="Thumbnail"
+                        control={control}
+                        render={({ field }) => (
+                          <UploadFile
+                            size="xs"
+                            width="w-full"
+                            height="h-full"
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        )}
+                      />
+                      {fields &&
+                        fields.map((image, index) => (
+                          <div
+                            className="relative group border border-separator rounded p-2"
+                            key={image.id}
+                          >
+                            <div
+                              className="absolute z-10 flex items-center justify-center w-6 h-6 text-gray-700 transition bg-white rounded-full shadow-xl opacity-0 cursor-pointer dark:text-darkgray-800 dark:bg-graydark-200 -top-3 -right-3 hover:text-primary group-hover:opacity-100"
+                              onClick={() => remove(index)}
+                            >
+                              <XMarkIcon className="w-4" />
+                            </div>
+                            <img
+                              className="object-contain w-full rounded aspect-square"
+                              src={toAbsolutePath(image.Src)}
+                              alt=""
+                            />
+                          </div>
+                        ))}
+                      <div className="aspect-square">
+                        <UploadFile
+                          size="xs"
+                          width="w-full"
+                          height="h-full"
+                          onChange={val => prepend({ Src: val })}
+                          buttonText="Thêm ảnh khác"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div className="mb-3.5">
@@ -418,7 +436,7 @@ function AddEdit(props) {
                     />
                   </div>
                 </div>
-                <div className="mb-3.5">
+                {/* <div className="mb-3.5">
                   <div className="font-medium">Thứ tự</div>
                   <div className="mt-1">
                     <Controller
@@ -439,7 +457,7 @@ function AddEdit(props) {
                       )}
                     />
                   </div>
-                </div>
+                </div> */}
                 <div className="flex items-center">
                   <Controller
                     name="IsPublic"

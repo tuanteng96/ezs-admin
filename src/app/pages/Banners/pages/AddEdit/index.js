@@ -430,7 +430,7 @@ function AddEdit(props) {
                     />
                   </div>
                 </div>
-                <div className="mb-3.5">
+                {/* <div className="mb-3.5">
                   <div className="font-medium">Thứ tự</div>
                   <div className="mt-1">
                     <Controller
@@ -451,7 +451,7 @@ function AddEdit(props) {
                       )}
                     />
                   </div>
-                </div>
+                </div> */}
                 <div className="flex items-center">
                   <Controller
                     name="IsPublic"

@@ -3,6 +3,7 @@ import { Input } from '../forms'
 import { useMutation } from '@tanstack/react-query'
 import UploadsAPI from 'src/_ezs/api/uploads.api'
 import { toast } from 'react-toastify'
+import { toAbsolutePath, toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 
 function UploadInputFile({ value, onChange, ...props }) {
   const [completed, setCompleted] = useState(0)
@@ -45,6 +46,33 @@ function UploadInputFile({ value, onChange, ...props }) {
         onChange={onChange}
         {...props}
       />
+      {value && (
+        <a
+          href={toAbsolutePath(value)}
+          className="w-12 h-12 border-t border-b border-gray-300 flex items-center justify-center p-1"
+          target="_blank"
+          rel="noreferrer"
+        >
+          <img
+            className="h-full object-contain"
+            src={toAbsolutePath(value)}
+            alt=""
+            onError={e => {
+              if (
+                e.target.src !==
+                toAbsoluteUrl('/assets/images/files/image-default.png')
+              ) {
+                e.target.onerror = null
+                e.target.src = toAbsoluteUrl(
+                  '/assets/images/files/image-default.png'
+                )
+                console.log(e)
+              }
+            }}
+          />
+        </a>
+      )}
+
       <div className="px-4 flex items-center justify-center bg-[#d5d7da] rounded-r cursor-pointer font-medium transition w-[160px] relative">
         <input
           value=""
@@ -53,6 +81,7 @@ function UploadInputFile({ value, onChange, ...props }) {
           title="Chọn file"
           onChange={handleFileChange}
         />
+
         {!uploadMutation.isLoading && <div>Chọn File</div>}
         {uploadMutation.isLoading && (
           <div className="flex items-center">

@@ -72,7 +72,13 @@ function CategoriesAdd(props) {
           Title: state?.formState?.Title,
           Desc: state?.formState?.Desc,
           IsPublic: state?.formState?.IsPublic,
-          Order: state?.formState?.Order
+          Order: state?.formState?.Order,
+          ParentID: state?.formState?.ParentID
+            ? {
+                label: state?.formState?.ParentTitle || 'Bài viết',
+                value: state?.formState?.ParentID
+              }
+            : null
         }
       : {
           ...initialValues
@@ -93,7 +99,7 @@ function CategoriesAdd(props) {
           key: ''
         }
       })
-      return data && data?.list?.length > 0 ? data?.list[0] : null
+      return data && data?.list?.length > 0 ? data?.list : null
     },
     onSuccess: data => {
       if (!data) {
@@ -102,14 +108,32 @@ function CategoriesAdd(props) {
           search: search
         })
       } else {
-        reset({
-          ...initialValues,
-          ID: data?.ID,
-          Title: data?.Title,
-          Desc: data?.Desc,
-          IsPublic: data?.IsPublic,
-          Order: data?.Order
-        })
+        let checkCr = data => {
+          data.forEach(item => {
+            if (item.ID === Number(id)) {
+              reset({
+                ...initialValues,
+                ID: item?.ID,
+                Title: item?.Title,
+                Desc: item?.Desc,
+                IsPublic: item?.IsPublic,
+                Order: item?.Order,
+                ParentID: item?.ParentID
+                  ? {
+                      label: item?.ParentTitle || 'Bài viết',
+                      value: item?.ParentID
+                    }
+                  : null
+              })
+              return
+            } else {
+              if (item.Children) {
+                checkCr(item.Children)
+              }
+            }
+          })
+        }
+        checkCr(data)
       }
     },
     enabled: Boolean(!addMode)
@@ -190,6 +214,8 @@ function CategoriesAdd(props) {
     })
   }
 
+  const visible = Number(watch().ID) === 836 || Number(watch().ID) === 901
+
   return (
     <form
       className="fixed inset-0 flex items-center justify-center z-[1010]"
@@ -256,13 +282,14 @@ function CategoriesAdd(props) {
                 </div>
               </div>
               <div className="mb-3.5">
-                <div className="font-medium">Danh mục</div>
+                <div className="font-medium">Danh mục cha</div>
                 <div className="mt-1">
                   <Controller
                     name="ParentID"
                     control={control}
                     render={({ field: { ref, ...field }, fieldState }) => (
                       <SelectPostsCategories
+                        isDisabled={visible}
                         isClearable
                         value={field.value}
                         onChange={val => {
@@ -399,7 +426,7 @@ function CategoriesAdd(props) {
             </PerfectScrollbar>
             <div className="flex justify-between p-5 border-t border-separator dark:border-dark-separator">
               <div>
-                {watch().ParentID !== 2 && (
+                {!visible && (
                   <>
                     {!addMode && (
                       <Button

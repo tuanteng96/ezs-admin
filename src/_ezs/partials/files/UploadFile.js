@@ -17,6 +17,7 @@ const UploadFile = ({
   size,
   width = 'w-[160px]',
   height = 'h-[160px]',
+  buttonText = 'Thêm ảnh',
   ...props
 }) => {
   const [completed, setCompleted] = useState(0)
@@ -89,7 +90,7 @@ const UploadFile = ({
               size === 'xs' ? 'text-xs' : 'text-sm'
             )}
           >
-            Thêm ảnh
+            {buttonText}
           </div>
           <input
             value=""
