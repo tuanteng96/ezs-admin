@@ -142,7 +142,7 @@ function AddEdit(props) {
               : null,
           Thumbnail,
           Channels:
-            data?.Channels && data?.ChannelList
+            data?.ChannelList && data?.ChannelList
               ? data?.ChannelList.map(x => ({ label: x.Title, value: x.ID }))
               : null
         })
@@ -175,7 +175,7 @@ function AddEdit(props) {
           Thumbnail: '',
           PhotoList: newPhotoList,
           Channels: values?.Channels
-            ? values?.Channels.map(x => x.ID).toString()
+            ? values?.Channels.map(x => x.value).toString()
             : '',
           CreateDate: values?.CreateDate
             ? moment(values?.CreateDate).format('HH:mm YYYY-MM-DD')
@@ -257,15 +257,15 @@ function AddEdit(props) {
           exit={{ opacity: 0 }}
         ></m.div>
         <m.div
-          className="absolute flex flex-col justify-center py-10 h-full"
+          className="absolute flex flex-col justify-center h-full py-10"
           initial={{ opacity: 0, top: '60%' }}
           animate={{ opacity: 1, top: 'auto' }}
           exit={{ opacity: 0, top: '60%' }}
         >
-          <div className="h-full flex flex-col justify-center">
+          <div className="flex flex-col justify-center h-full">
             <div className="flex flex-col bg-white dark:bg-dark-aside max-w-full w-[650px] max-h-full rounded shadow-lg">
               <div className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
-                <div className="text-2xl font-semibold flex items-center">
+                <div className="flex items-center text-2xl font-semibold">
                   <NavLink
                     to={{
                       pathname: path,
@@ -389,7 +389,7 @@ function AddEdit(props) {
                       {fields &&
                         fields.map((image, index) => (
                           <div
-                            className="relative group border border-separator rounded p-2"
+                            className="relative p-2 border rounded group border-separator"
                             key={image.id}
                           >
                             <div
@@ -506,7 +506,7 @@ function AddEdit(props) {
                       loading={deleteMutation.isLoading}
                       disabled={deleteMutation.isLoading}
                       type="button"
-                      className="relative flex items-center px-4 text-danger transition rounded bg-white h-11 focus:outline-none focus:shadow-none disabled:opacity-70 border border-gray-300 hover:border-danger"
+                      className="relative flex items-center px-4 transition bg-white border border-gray-300 rounded text-danger h-11 focus:outline-none focus:shadow-none disabled:opacity-70 hover:border-danger"
                       onClick={onDelete}
                     >
                       Xóa
