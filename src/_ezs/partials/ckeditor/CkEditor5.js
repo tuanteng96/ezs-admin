@@ -1,6 +1,6 @@
 import React from 'react'
+import Editor from 'ckeditor5-custom-build/build/ckeditor'
 import { CKEditor } from '@ckeditor/ckeditor5-react'
-import ClassicEditor from '@ckeditor/ckeditor5-build-classic'
 
 import UploadAdapter from './UploadAdapter'
 
@@ -15,6 +15,7 @@ function CkEditor5({
     // '|',
     'heading',
     '|',
+    'alignment',
     'fontfamily',
     'fontsize',
     'fontColor',
@@ -44,13 +45,9 @@ function CkEditor5({
   return (
     <div className={className}>
       <CKEditor
-        editor={ClassicEditor}
+        editor={Editor}
         config={{
-          placeholder: placeholder,
-          fontSize: {
-            options: [9, 11, 13, 'default', 17, 19, 21]
-          },
-          toolbar: toolbar
+          placeholder: placeholder
         }}
         onReady={editor => {
           if (editor && editor.plugins) {
@@ -66,6 +63,30 @@ function CkEditor5({
           onChange(data)
         }}
       />
+      {/* <CKEditor
+        editor={ClassicEditor}
+        config={{
+          placeholder: placeholder,
+          fontSize: {
+            options: [9, 11, 13, 'default', 17, 19, 21]
+          },
+          toolbar: toolbar,
+          plugins: [Paragraph, Bold, Italic, Essentials]
+        }}
+        onReady={editor => {
+          if (editor && editor.plugins) {
+            editor.plugins.get('FileRepository').createUploadAdapter =
+              function (loader) {
+                return new UploadAdapter(loader)
+              }
+          }
+        }}
+        data={value}
+        onChange={(event, editor) => {
+          const data = editor.getData()
+          onChange(data)
+        }}
+      /> */}
     </div>
   )
 }
