@@ -10,7 +10,7 @@ import {
 } from 'react-router-dom'
 import { Controller, FormProvider, useForm } from 'react-hook-form'
 import { Button } from 'src/_ezs/partials/button'
-import { Input, InputNumber } from 'src/_ezs/partials/forms'
+import { Input } from 'src/_ezs/partials/forms'
 import { CkEditor5 } from 'src/_ezs/partials/ckeditor'
 import { Switch } from '@headlessui/react'
 import { Fragment } from 'react'
@@ -24,7 +24,11 @@ import useEscape from 'src/_ezs/hooks/useEscape'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import Swal from 'sweetalert2'
 import BannersAPI from 'src/_ezs/api/banners.api'
-import { SelectBannersCategories } from 'src/_ezs/partials/select'
+import {
+  SelectBannersCategories,
+  SelectProvinces,
+  SelectDistrictsOtp
+} from 'src/_ezs/partials/select'
 import { RenderTypeLink, SelectTypeLink } from '../../components'
 import { UploadInputFile } from 'src/_ezs/partials/files'
 
@@ -49,7 +53,10 @@ const initialValues = {
   Desc: '',
   PosID: null,
   Order: 0,
-  IsPublic: 1
+  IsPublic: 1,
+  Follow: '',
+  ProvinceID: '',
+  DistrictID: ''
 }
 
 function AddEdit(props) {
@@ -98,7 +105,7 @@ function AddEdit(props) {
     resolver: yupResolver(schemaAdd)
   })
 
-  const { control, handleSubmit, reset, setValue } = methods
+  const { control, handleSubmit, reset, setValue, watch } = methods
 
   const { isLoading } = useQuery({
     queryKey: ['BannersPostID', id],
@@ -119,6 +126,25 @@ function AddEdit(props) {
           search: search
         })
       } else {
+        let FollowObj = data?.Follow ? JSON.parse(data?.Follow) : null
+        let ProvinceID = ''
+        let DistrictID = ''
+        if (FollowObj?.place && FollowObj?.place.length > 0) {
+          let indexProvin = FollowObj?.place.findIndex(x => x.Parentid)
+          let indexDistr = FollowObj?.place.findIndex(x => x.ID)
+          if (indexProvin > -1) {
+            ProvinceID = {
+              label: FollowObj?.place[indexProvin].Title,
+              value: FollowObj?.place[indexProvin].Parentid
+            }
+          }
+          if (indexDistr > -1) {
+            DistrictID = {
+              label: FollowObj?.place[indexDistr].Title,
+              value: FollowObj?.place[indexDistr].ID
+            }
+          }
+        }
         reset({
           ID: data?.ID,
           Title: data?.Title,
@@ -133,7 +159,9 @@ function AddEdit(props) {
               }
             : null,
           Order: data?.Order,
-          IsPublic: data?.IsPublic
+          IsPublic: data?.IsPublic,
+          ProvinceID,
+          DistrictID
         })
         data.Link && setIsEditLink(false)
       }
@@ -150,11 +178,34 @@ function AddEdit(props) {
   })
 
   const onSubmit = values => {
+    let Follow = null
+    if (values?.PosID?.label === 'APP.COSO') {
+      let obj = {
+        place: []
+      }
+      if (values?.ProvinceID) {
+        obj.place.push({
+          Parentid: values?.ProvinceID?.value,
+          Title: values?.ProvinceID?.label
+        })
+      }
+      if (values?.DistrictID) {
+        obj.place.push({
+          ID: values?.DistrictID?.value,
+          Title: values?.DistrictID?.label
+        })
+      }
+      Follow = JSON.stringify(obj)
+    } else {
+      Follow = ''
+    }
+    
     const dataPost = {
       arr: [
         {
           ...values,
-          PosID: values?.PosID?.value
+          PosID: values?.PosID?.value,
+          Follow
         }
       ]
     }
@@ -229,15 +280,15 @@ function AddEdit(props) {
           exit={{ opacity: 0 }}
         ></m.div>
         <m.div
-          className="absolute flex flex-col justify-center py-10 h-full"
+          className="absolute flex flex-col justify-center h-full py-10"
           initial={{ opacity: 0, top: '60%' }}
           animate={{ opacity: 1, top: 'auto' }}
           exit={{ opacity: 0, top: '60%' }}
         >
-          <div className="h-full flex flex-col justify-center">
+          <div className="flex flex-col justify-center h-full">
             <div className="flex flex-col bg-white dark:bg-dark-aside max-w-full w-[650px] max-h-full rounded shadow-lg">
               <div className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
-                <div className="text-2xl font-semibold flex items-center">
+                <div className="flex items-center text-2xl font-semibold">
                   <NavLink
                     to={{
                       pathname: path,
@@ -310,6 +361,53 @@ function AddEdit(props) {
                     />
                   </div>
                 </div>
+                {watch()?.PosID?.label === 'APP.COSO' && (
+                  <div className="grid grid-cols-2 gap-4 mb-3.5">
+                    <Controller
+                      name="ProvinceID"
+                      control={control}
+                      render={({ field: { ref, ...field }, fieldState }) => (
+                        <div>
+                          <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
+                            Tỉnh / Thành phố
+                          </div>
+                          <SelectProvinces
+                            className="select-control"
+                            isClearable
+                            value={field.value}
+                            onChange={val => {
+                              field.onChange(val)
+                              setValue('DistrictID', '')
+                            }}
+                            noOptionsMessage={() => 'Không có dữ liệu'}
+                          />
+                        </div>
+                      )}
+                    />
+
+                    <Controller
+                      name="DistrictID"
+                      control={control}
+                      render={({ field: { ref, ...field }, fieldState }) => (
+                        <div>
+                          <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
+                            Quận huyện
+                          </div>
+                          <SelectDistrictsOtp
+                            className="select-control"
+                            isDisabled={!watch()?.ProvinceID?.value}
+                            isClearable
+                            ProvinceID={watch()?.ProvinceID?.value}
+                            value={field.value}
+                            onChange={val => field.onChange(val)}
+                            noOptionsMessage={() => 'Không có dữ liệu'}
+                          />
+                        </div>
+                      )}
+                    />
+                  </div>
+                )}
+
                 {isEditLink && (
                   <div className="mb-3.5">
                     <div className="font-medium">Loại Link</div>
@@ -353,7 +451,7 @@ function AddEdit(props) {
                   <div>
                     <div className="mb-3.5">
                       <div className="font-medium">Link</div>
-                      <div className="mt-1 relative">
+                      <div className="relative mt-1">
                         <Controller
                           name="Link"
                           control={control}
@@ -373,7 +471,7 @@ function AddEdit(props) {
                           )}
                         />
                         <div
-                          className="absolute right-0 top-0 px-4 h-full flex items-center justify-center cursor-pointer text-sm font-medium text-success"
+                          className="absolute top-0 right-0 flex items-center justify-center h-full px-4 text-sm font-medium cursor-pointer text-success"
                           onClick={() => setIsEditLink(true)}
                         >
                           Chỉnh sửa
@@ -500,7 +598,7 @@ function AddEdit(props) {
                       loading={deleteMutation.isLoading}
                       disabled={deleteMutation.isLoading}
                       type="button"
-                      className="relative flex items-center px-4 text-danger transition rounded bg-white h-11 focus:outline-none focus:shadow-none disabled:opacity-70 border border-gray-300 hover:border-danger"
+                      className="relative flex items-center px-4 transition bg-white border border-gray-300 rounded text-danger h-11 focus:outline-none focus:shadow-none disabled:opacity-70 hover:border-danger"
                       onClick={onDelete}
                     >
                       Xóa

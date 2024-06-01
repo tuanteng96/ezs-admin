@@ -25,8 +25,12 @@ import { SelectTypeGenerate } from './SelectTypeGenerate'
 import { SelectUserAdmin } from './SelectUserAdmin'
 import { SelectUserNotification } from './SelectUserNotification'
 import { SelectUsers } from './SelectUsers'
+import { SelectProvinces } from './SelectProvinces'
+import { SelectDistrictsOtp } from './SelectDistrictsOtp'
 
 export {
+  SelectDistrictsOtp,
+  SelectProvinces,
   SelectDistricts,
   SelectGender,
   SelectUserAdmin,

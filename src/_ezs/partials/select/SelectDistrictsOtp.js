@@ -4,7 +4,7 @@ import Select from 'react-select'
 import MoresAPI from 'src/_ezs/api/mores.api'
 import { useQuery } from '@tanstack/react-query'
 
-const SelectDistricts = ({ ProvinceID, value, ...props }) => {
+const SelectDistrictsOtp = ({ ProvinceID, ...props }) => {
   const ListDistricts = useQuery({
     queryKey: ['ListDistricts', ProvinceID],
     queryFn: async () => {
@@ -18,9 +18,6 @@ const SelectDistricts = ({ ProvinceID, value, ...props }) => {
   return (
     <div>
       <Select
-        value={
-          ListDistricts?.data?.filter(x => x.value === Number(value)) || null
-        }
         isLoading={ProvinceID && ListDistricts.isLoading}
         classNamePrefix="select"
         options={ListDistricts?.data || []}
@@ -39,8 +36,8 @@ const SelectDistricts = ({ ProvinceID, value, ...props }) => {
   )
 }
 
-SelectDistricts.propTypes = {
+SelectDistrictsOtp.propTypes = {
   ProvinceID: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 }
 
-export { SelectDistricts }
+export { SelectDistrictsOtp }
