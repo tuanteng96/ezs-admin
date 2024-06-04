@@ -193,11 +193,11 @@ function Lists() {
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [search]
   )
 
   return (
-    <div className="h-full bg-white dark:bg-dark-app relative">
+    <div className="relative h-full bg-white dark:bg-dark-app">
       <div className="flex flex-col h-full px-8 pt-8 pb-5 mx-auto max-w-7xl">
         <div className="flex items-end justify-between mb-5">
           <div>

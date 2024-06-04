@@ -199,7 +199,7 @@ function AddEdit(props) {
     } else {
       Follow = ''
     }
-    
+
     const dataPost = {
       arr: [
         {

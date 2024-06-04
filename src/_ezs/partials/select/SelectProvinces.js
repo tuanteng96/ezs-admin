@@ -7,8 +7,11 @@ const SelectProvinces = ({ ...props }) => {
   const ListProvinces = useQuery({
     queryKey: ['ListProvince'],
     queryFn: async () => {
-      const {data} = await MoresAPI.getProvinces({ Key : '', Pi : 1, Ps : 100 })
-      return data?.result?.Items.map(x => ({ ...x, value: x.Id, label: x.Title })) || []
+      const { data } = await MoresAPI.getProvinces({ Key: '', Pi: 1, Ps: 100 })
+      return (
+        data?.result?.Items.map(x => ({ ...x, value: x.Id, label: x.Title })) ||
+        []
+      )
     },
     onSuccess: () => {}
   })

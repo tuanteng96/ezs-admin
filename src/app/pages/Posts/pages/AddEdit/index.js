@@ -15,7 +15,7 @@ import {
   useForm
 } from 'react-hook-form'
 import { Button } from 'src/_ezs/partials/button'
-import { Input, InputNumber } from 'src/_ezs/partials/forms'
+import { Input } from 'src/_ezs/partials/forms'
 import { CkEditor5 } from 'src/_ezs/partials/ckeditor'
 import { Switch } from '@headlessui/react'
 import { Fragment } from 'react'
