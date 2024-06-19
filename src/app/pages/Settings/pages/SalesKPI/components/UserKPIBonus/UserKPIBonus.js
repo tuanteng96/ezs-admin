@@ -14,8 +14,8 @@ function UserKPIBonus({ indexUser, rowIndex, isDisabled }) {
     <>
       {fields &&
         fields.map((item, index) => (
-          <div className="mt-3 relative" key={item.id}>
-            <div className="font-medium text-sm">{item.label}</div>
+          <div className="relative mt-3" key={item.id}>
+            <div className="text-sm font-medium">{item.label}</div>
             <Controller
               name={`updateList[${indexUser}].Configs[${rowIndex}].BonusList[${index}].Bonus`}
               control={control}
@@ -29,7 +29,7 @@ function UserKPIBonus({ indexUser, rowIndex, isDisabled }) {
                     onValueChange={val => {
                       field.onChange(val.floatValue)
                     }}
-                    allowNegative={false}
+                    allowNegative={true}
                     disabled={isDisabled}
                     allowLeadingZeros
                   />
