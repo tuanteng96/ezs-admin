@@ -60,7 +60,7 @@ function Categories(props) {
         ></m.div>
 
         <m.div
-          className="absolute flex flex-col justify-center xxl:py-10 h-5/6 z-10"
+          className="absolute z-10 flex flex-col justify-center xxl:py-10 h-5/6"
           initial={{ opacity: 0, top: '60%' }}
           animate={{ opacity: 1, top: 'auto' }}
           exit={{ opacity: 0, top: '60%' }}
@@ -131,12 +131,12 @@ function Categories(props) {
                           }}
                         >
                           <div className="font-semibold">
-                            <span>{item?.Title}</span>
+                            <span>[{item?.ID}] {item?.Title}</span>
                           </div>
-                          <div className="text-muted2 font-light">
+                          <div className="font-light text-muted2">
                             {item?.Count} bài viết
                             {item.IsPublic !== 1 && (
-                              <span className="text-danger pl-1 font-medium text-sm">
+                              <span className="pl-1 text-sm font-medium text-danger">
                                 - Ẩn trên Web/App
                               </span>
                             )}
