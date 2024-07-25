@@ -24,9 +24,18 @@ function Categories(props) {
     queryFn: async ({ pageParam = 1 }) => {
       const { data } = await BannersAPI.categories({
         pi: pageParam,
-        ps: 10
+        ps: 100
       })
-      return data
+      return {
+        ...data,
+        list: data.list
+          ? data.list.sort((a, b) =>
+              (a['Title'] || '')
+                .toString()
+                .localeCompare((b['Title'] || '').toString())
+            )
+          : []
+      }
     },
     getNextPageParam: (lastPage, pages) =>
       lastPage.pi === lastPage.pCount ? undefined : lastPage.pi + 1
@@ -131,10 +140,12 @@ function Categories(props) {
                           }}
                         >
                           <div className="font-semibold">
-                            <span>[{item?.ID}] {item?.Title}</span>
+                            <span>
+                              {item?.Title}
+                            </span>
                           </div>
                           <div className="font-light text-muted2">
-                            {item?.Count} bài viết
+                            ID : {item?.ID} - {item?.Count} bài viết
                             {item.IsPublic !== 1 && (
                               <span className="pl-1 text-sm font-medium text-danger">
                                 - Ẩn trên Web/App

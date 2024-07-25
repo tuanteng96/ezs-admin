@@ -10,11 +10,11 @@ function SelectBannersCategories({
   async function loadOptions(search, loadedOptions, { page }) {
     let { data } = await BannersAPI.categories({
       pi: page,
-      ps: 10
+      ps: 100
     })
     return {
       options: data?.list
-        ? data.list.map(x => ({ ...x, label: x.Title, value: x.ID }))
+        ? data.list.map(x => ({ ...x, label: x.Title, value: x.ID })).sort((a, b) => (a["label"] || "").toString().localeCompare((b["label"] || "").toString()))
         : [],
       hasMore: page < data.pCount,
       additional: {
