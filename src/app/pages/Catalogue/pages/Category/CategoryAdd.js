@@ -52,7 +52,7 @@ function CategoryAdd(props) {
       search: search
     })
   )
-
+  
   const { control, handleSubmit, reset } = useForm({
     defaultValues: state?.formState
       ? {
@@ -195,7 +195,7 @@ function CategoryAdd(props) {
         >
           <div className="bg-white dark:bg-dark-aside max-w-full w-[470px] h-full rounded shadow-lg flex flex-col">
             <div className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
-              <div className="text-2xl font-semibold flex items-center">
+              <div className="flex items-center text-2xl font-semibold">
                 <NavLink
                   to={{
                     pathname: state?.prevFrom || '/',
@@ -322,7 +322,7 @@ function CategoryAdd(props) {
                     loading={deleteCategoryMutation.isLoading}
                     disabled={deleteCategoryMutation.isLoading}
                     type="button"
-                    className="relative flex items-center px-4 text-danger transition rounded bg-white h-11 focus:outline-none focus:shadow-none disabled:opacity-70 border border-gray-300 hover:border-danger"
+                    className="relative flex items-center px-4 transition bg-white border border-gray-300 rounded text-danger h-11 focus:outline-none focus:shadow-none disabled:opacity-70 hover:border-danger"
                     onClick={onDelete}
                   >
                     Xóa
