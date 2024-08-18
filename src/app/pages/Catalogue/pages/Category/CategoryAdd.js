@@ -52,7 +52,7 @@ function CategoryAdd(props) {
       search: search
     })
   )
-  
+
   const { control, handleSubmit, reset } = useForm({
     defaultValues: state?.formState
       ? {

@@ -111,7 +111,6 @@ function CategoriesAdd(props) {
         let checkCr = data => {
           data.forEach(item => {
             if (item.ID === Number(id)) {
-              
               reset({
                 ...initialValues,
                 ...item,
@@ -125,7 +124,7 @@ function CategoriesAdd(props) {
                       label: item?.ParentTitle || 'Bài viết',
                       value: item?.ParentID
                     }
-                  : null,
+                  : null
               })
               return
             } else {
