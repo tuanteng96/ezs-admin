@@ -27,6 +27,7 @@ import {
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { ConversionTools } from '../../components'
 import UploadsAPI from 'src/_ezs/api/uploads.api'
+import ExcelHepers from 'src/_ezs/utils/ExcelHepers'
 
 function WareHouseExport(props) {
   const navigate = useNavigate()
@@ -300,7 +301,7 @@ function WareHouseExport(props) {
                 field.value ? (
                   <DropdownMenu
                     trigger={
-                      <div className="absolute top-0 right-0 w-10 h-full flex items-center justify-center cursor-pointer">
+                      <div className="absolute top-0 right-0 flex items-center justify-center w-10 h-full cursor-pointer">
                         <ExclamationCircleIcon className="w-5 text-warning" />
                       </div>
                     }
@@ -601,6 +602,166 @@ function WareHouseExport(props) {
     })
   }
 
+  const onExport = () => {
+    if (!data) return
+    window?.top?.loading &&
+      window?.top?.loading('Đang thực hiện ...', () => {
+        ExcelHepers.dataToExcel(
+          'don-nhap-kho-' + data.Code,
+          (sheet, workbook) => {
+            workbook.suspendPaint()
+            workbook.suspendEvent()
+            let Head = [
+              'TÊN SẢN PHẨM',
+              'MÃ',
+              'ĐƠN VỊ',
+              'SỐ LƯỢNG',
+              'NGUYÊN GIÁ',
+              'CHIẾT KHẤU',
+              'ĐƠN GIÁ',
+              'THÀNH TIỀN',
+              'GIẢM GIÁ CẢ ĐƠN',
+              'CÒN LẠI',
+              'GHI CHÚ'
+            ]
+
+            let Response = [Head]
+
+            for (let item of data.stockItems) {
+              let Discount =
+                item.ImportDiscount > 100
+                  ? item.ImportPrice * item.Qty - item.ImportDiscount
+                  : (item.ImportPrice * item.Qty * item.ImportDiscount) / 100
+              let newArray = [
+                item.ProdTitle,
+                item.ProdCode,
+                item.Unit,
+                item.Qty,
+                item.ImportPriceOrigin,
+                item.ImportDiscount > 100
+                  ? item.ImportDiscount
+                  : item.ImportDiscount + '%',
+                item.ImportPrice,
+                item.ImportPrice * item.Qty,
+                Discount,
+                item.ImportPrice * item.Qty - Discount,
+                item.Other
+              ]
+              Response.push(newArray)
+            }
+            let Total = 0
+            let Discounts = 0
+            let Remaining = 0
+            for (let i of Response) {
+              if (Number(i[7] > 0)) Total += Number(i[7])
+              if (Number(i[8] > 0)) Discounts += Number(i[8])
+              if (Number(i[9] > 0)) Remaining += Number(i[9])
+            }
+            Response.push([
+              '',
+              '',
+              '',
+              '',
+              '',
+              data.Discount,
+              '',
+              Total,
+              Discounts,
+              Remaining,
+              data.Other
+            ])
+            let TotalRow = Response.length
+            let TotalColumn = Head.length
+
+            sheet.setArray(2, 0, Response)
+
+            //title
+            workbook
+              .getActiveSheet()
+              .getCell(0, 0)
+              .value('Đơn nhập kho ' + data.Code)
+            workbook.getActiveSheet().getCell(0, 0).font('18pt Arial')
+
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, 1, TotalColumn)
+              .font('12pt Arial')
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, 1, TotalColumn)
+              .backColor('#E7E9EB')
+            //border
+            var border = new window.GC.Spread.Sheets.LineBorder()
+            border.color = '#000'
+            border.style = window.GC.Spread.Sheets.LineStyle.thin
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderLeft(border)
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderRight(border)
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderBottom(border)
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderTop(border)
+            //filter
+            var cellrange = new window.GC.Spread.Sheets.Range(
+              3,
+              0,
+              1,
+              TotalColumn
+            )
+            var hideRowFilter =
+              new window.GC.Spread.Sheets.Filter.HideRowFilter(cellrange)
+            workbook.getActiveSheet().rowFilter(hideRowFilter)
+
+            //format number
+            workbook
+              .getActiveSheet()
+              .getCell(2, 0)
+              .hAlign(window.GC.Spread.Sheets.HorizontalAlign.center)
+
+            //auto fit width and height
+            workbook.getActiveSheet().autoFitRow(TotalRow + 2)
+            workbook.getActiveSheet().autoFitRow(0)
+
+            workbook
+              .getActiveSheet()
+              .setColumnWidth(
+                0,
+                400.0,
+                window.GC.Spread.Sheets.SheetArea.viewport
+              )
+
+            for (let i = 1; i < TotalColumn; i++) {
+              workbook.getActiveSheet().autoFitColumn(i)
+            }
+
+            for (let i = 0; i <= TotalRow; i++) {
+              workbook.getActiveSheet().setFormatter(i + 3, 4, '#,#')
+              workbook.getActiveSheet().setFormatter(i + 3, 5, '#,#')
+              workbook.getActiveSheet().setFormatter(i + 3, 6, '#,#')
+              workbook.getActiveSheet().setFormatter(i + 3, 7, '#,#')
+              workbook.getActiveSheet().setFormatter(i + 3, 8, '#,#')
+              workbook.getActiveSheet().setFormatter(i + 3, 9, '#,#')
+            }
+
+            window.top?.toastr?.remove()
+
+            //Finish
+            workbook.resumePaint()
+            workbook.resumeEvent()
+          }
+        )
+      })
+  }
+
   return (
     <LayoutGroup key={pathname}>
       <div className="fixed w-full h-full z-[1002] top-0 left-0">
@@ -624,9 +785,9 @@ function WareHouseExport(props) {
           animate={{ x: '0' }}
         >
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-separator dark:border-dark-separator">
+            <div className="flex items-center justify-between px-4 py-4 border-b lg:px-6 border-separator dark:border-dark-separator">
               <div className="w-10/12">
-                <div className="text-xl lg:text-2xl font-bold dark:text-graydark-800 truncate">
+                <div className="text-xl font-bold truncate lg:text-2xl dark:text-graydark-800">
                   {!id ? 'Đơn xuất kho mới' : 'Chỉnh sửa đơn xuất kho'}
                 </div>
                 {!id && (
@@ -657,7 +818,7 @@ function WareHouseExport(props) {
                 )}
               </div>
               <div
-                className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
+                className="flex items-center justify-center w-10 h-10 transition cursor-pointer lg:w-12 lg:h-12 dark:text-graydark-800 hover:text-primary"
                 onClick={() =>
                   navigate({
                     pathname: state?.prevFrom,
@@ -684,7 +845,7 @@ function WareHouseExport(props) {
                 onEndReachedThreshold={1}
               />
               <div className="w-full md:w-[320px] lg:w-[380px] border-l border-separator flex flex-col">
-                <div className="p-4 lg:p-6 overflow-auto grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
+                <div className="p-4 overflow-auto lg:p-6 grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
                   <div>
                     <div className="mb-3.5">
                       <div className="font-medium">Mã đơn xuất</div>
@@ -884,7 +1045,16 @@ function WareHouseExport(props) {
                     </div>
                   </div>
                 </div>
-                <div className="px-4 lg:px-6 py-4 border-t border-separator">
+                <div className="flex gap-2.5 px-4 py-4 border-t lg:px-6 border-separator">
+                  {id && xuat_nhap_diem?.hasRight && (
+                    <Button
+                      type="button"
+                      className="relative flex items-center justify-center w-full h-12 px-4 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                      onClick={onExport}
+                    >
+                      Xuất Excel
+                    </Button>
+                  )}
                   <Button
                     disabled={
                       watchForm.items.some(

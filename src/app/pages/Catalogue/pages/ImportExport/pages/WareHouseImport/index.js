@@ -608,260 +608,163 @@ function WareHouseImport(props) {
   }
 
   const onExport = () => {
-    console.log(data)
     if (!data) return
-    ExcelHepers.dataToExcel('don-nhap-kho-' + data.Code, (sheet, workbook) => {
-      workbook.suspendPaint()
-      workbook.suspendEvent()
-      let Head = [
-        'TÊN SẢN PHẨM',
-        'MÃ',
-        'ĐƠN VỊ',
-        'SỐ LƯỢNG',
-        'NGUYÊN GIÁ',
-        'CHIẾT KHẤU',
-        'ĐƠN GIÁ',
-        'THÀNH TIỀN',
-        'GIẢM GIÁ CẢ ĐƠN',
-        'CÒN LẠI',
-        'GHI CHÚ'
-      ]
+    window?.top?.loading &&
+      window?.top?.loading('Đang thực hiện ...', () => {
+        ExcelHepers.dataToExcel(
+          'don-nhap-kho-' + data.Code,
+          (sheet, workbook) => {
+            workbook.suspendPaint()
+            workbook.suspendEvent()
+            let Head = [
+              'TÊN SẢN PHẨM',
+              'MÃ',
+              'ĐƠN VỊ',
+              'SỐ LƯỢNG',
+              'NGUYÊN GIÁ',
+              'CHIẾT KHẤU',
+              'ĐƠN GIÁ',
+              'THÀNH TIỀN',
+              'GIẢM GIÁ CẢ ĐƠN',
+              'CÒN LẠI',
+              'GHI CHÚ'
+            ]
 
-      let Response = [Head]
+            let Response = [Head]
 
-      for (let item of data.stockItems) {
-        let Discount =
-          item.ImportDiscount > 100
-            ? item.ImportPrice * item.Qty - item.ImportDiscount
-            : (item.ImportPrice * item.Qty * item.ImportDiscount) / 100
-        let newArray = [
-          item.ProdTitle,
-          item.ProdCode,
-          item.Unit,
-          item.Qty,
-          item.ImportPriceOrigin,
-          item.ImportDiscount > 100
-            ? item.ImportDiscount
-            : item.ImportDiscount + '%',
-          item.ImportPrice,
-          item.ImportPrice * item.Qty,
-          Discount,
-          item.ImportPrice * item.Qty - Discount,
-          item.Other
-        ]
-        Response.push(newArray)
-      }
-      let Total = 0
-      let Discounts = 0
-      let Remaining = 0
-      for (let i of Response) {
-        if (Number(i[7] > 0)) Total += Number(i[7])
-        if (Number(i[8] > 0)) Discounts += Number(i[8])
-        if (Number(i[9] > 0)) Remaining += Number(i[9])
-      }
-      Response.push([
-        '',
-        '',
-        '',
-        '',
-        '',
-        data.Discount,
-        '',
-        Total,
-        Discounts,
-        Remaining,
-        data.Other
-      ])
-      let TotalRow = Response.length
-      let TotalColumn = Head.length
+            for (let item of data.stockItems) {
+              let Discount =
+                item.ImportDiscount > 100
+                  ? item.ImportPrice * item.Qty - item.ImportDiscount
+                  : (item.ImportPrice * item.Qty * item.ImportDiscount) / 100
+              let newArray = [
+                item.ProdTitle,
+                item.ProdCode,
+                item.Unit,
+                item.Qty,
+                item.ImportPriceOrigin,
+                item.ImportDiscount > 100
+                  ? item.ImportDiscount
+                  : item.ImportDiscount + '%',
+                item.ImportPrice,
+                item.ImportPrice * item.Qty,
+                Discount,
+                item.ImportPrice * item.Qty - Discount,
+                item.Other
+              ]
+              Response.push(newArray)
+            }
+            let Total = 0
+            let Discounts = 0
+            let Remaining = 0
+            for (let i of Response) {
+              if (Number(i[7] > 0)) Total += Number(i[7])
+              if (Number(i[8] > 0)) Discounts += Number(i[8])
+              if (Number(i[9] > 0)) Remaining += Number(i[9])
+            }
+            Response.push([
+              '',
+              '',
+              '',
+              '',
+              '',
+              data.Discount,
+              '',
+              Total,
+              Discounts,
+              Remaining,
+              data.Other
+            ])
+            let TotalRow = Response.length
+            let TotalColumn = Head.length
 
-      sheet.setArray(2, 0, Response)
+            sheet.setArray(2, 0, Response)
 
-      //title
-      workbook
-        .getActiveSheet()
-        .getCell(0, 0)
-        .value('Đơn nhập kho ' + data.Code)
-      workbook.getActiveSheet().getCell(0, 0).font('18pt Arial')
+            //title
+            workbook
+              .getActiveSheet()
+              .getCell(0, 0)
+              .value('Đơn nhập kho ' + data.Code)
+            workbook.getActiveSheet().getCell(0, 0).font('18pt Arial')
 
-      workbook
-        .getActiveSheet()
-        .getRange(2, 0, 1, TotalColumn)
-        .font('12pt Arial')
-      workbook
-        .getActiveSheet()
-        .getRange(2, 0, 1, TotalColumn)
-        .backColor('#E7E9EB')
-      //border
-      var border = new window.GC.Spread.Sheets.LineBorder()
-      border.color = '#000'
-      border.style = window.GC.Spread.Sheets.LineStyle.thin
-      workbook
-        .getActiveSheet()
-        .getRange(2, 0, TotalRow, TotalColumn)
-        .borderLeft(border)
-      workbook
-        .getActiveSheet()
-        .getRange(2, 0, TotalRow, TotalColumn)
-        .borderRight(border)
-      workbook
-        .getActiveSheet()
-        .getRange(2, 0, TotalRow, TotalColumn)
-        .borderBottom(border)
-      workbook
-        .getActiveSheet()
-        .getRange(2, 0, TotalRow, TotalColumn)
-        .borderTop(border)
-      //filter
-      var cellrange = new window.GC.Spread.Sheets.Range(3, 0, 1, TotalColumn)
-      var hideRowFilter = new window.GC.Spread.Sheets.Filter.HideRowFilter(
-        cellrange
-      )
-      workbook.getActiveSheet().rowFilter(hideRowFilter)
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, 1, TotalColumn)
+              .font('12pt Arial')
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, 1, TotalColumn)
+              .backColor('#E7E9EB')
+            //border
+            var border = new window.GC.Spread.Sheets.LineBorder()
+            border.color = '#000'
+            border.style = window.GC.Spread.Sheets.LineStyle.thin
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderLeft(border)
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderRight(border)
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderBottom(border)
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderTop(border)
+            //filter
+            var cellrange = new window.GC.Spread.Sheets.Range(
+              3,
+              0,
+              1,
+              TotalColumn
+            )
+            var hideRowFilter =
+              new window.GC.Spread.Sheets.Filter.HideRowFilter(cellrange)
+            workbook.getActiveSheet().rowFilter(hideRowFilter)
 
-      //format number
-      workbook
-        .getActiveSheet()
-        .getCell(2, 0)
-        .hAlign(window.GC.Spread.Sheets.HorizontalAlign.center)
+            //format number
+            workbook
+              .getActiveSheet()
+              .getCell(2, 0)
+              .hAlign(window.GC.Spread.Sheets.HorizontalAlign.center)
 
-      //auto fit width and height
-      workbook.getActiveSheet().autoFitRow(TotalRow + 2)
-      workbook.getActiveSheet().autoFitRow(0)
+            //auto fit width and height
+            workbook.getActiveSheet().autoFitRow(TotalRow + 2)
+            workbook.getActiveSheet().autoFitRow(0)
 
-      workbook
-        .getActiveSheet()
-        .setColumnWidth(0, 400.0, window.GC.Spread.Sheets.SheetArea.viewport)
+            workbook
+              .getActiveSheet()
+              .setColumnWidth(
+                0,
+                400.0,
+                window.GC.Spread.Sheets.SheetArea.viewport
+              )
 
-      for (let i = 1; i < TotalColumn; i++) {
-        workbook.getActiveSheet().autoFitColumn(i)
-      }
+            for (let i = 1; i < TotalColumn; i++) {
+              workbook.getActiveSheet().autoFitColumn(i)
+            }
 
-      for (let i = 0; i <= TotalRow; i++) {
-        workbook.getActiveSheet().setFormatter(i + 3, 4, '#,#')
-        workbook.getActiveSheet().setFormatter(i + 3, 5, '#,#')
-        workbook.getActiveSheet().setFormatter(i + 3, 6, '#,#')
-        workbook.getActiveSheet().setFormatter(i + 3, 7, '#,#')
-        workbook.getActiveSheet().setFormatter(i + 3, 8, '#,#')
-        workbook.getActiveSheet().setFormatter(i + 3, 9, '#,#')
-      }
+            for (let i = 0; i <= TotalRow; i++) {
+              workbook.getActiveSheet().setFormatter(i + 3, 4, '#,#')
+              workbook.getActiveSheet().setFormatter(i + 3, 5, '#,#')
+              workbook.getActiveSheet().setFormatter(i + 3, 6, '#,#')
+              workbook.getActiveSheet().setFormatter(i + 3, 7, '#,#')
+              workbook.getActiveSheet().setFormatter(i + 3, 8, '#,#')
+              workbook.getActiveSheet().setFormatter(i + 3, 9, '#,#')
+            }
 
-      window.top?.toastr?.remove()
+            window.top?.toastr?.remove()
 
-      //Finish
-      workbook.resumePaint()
-      workbook.resumeEvent()
-    })
-
-    // window?.top?.loading &&
-    //   window?.top?.loading('Đang thực hiện ...', () => {
-    //     ExcelHepers.dataToExcel(
-    //       'don-nhap-kho-' + data.Code,
-    //       (sheet, workbook) => {
-    //         workbook.suspendPaint()
-    //         workbook.suspendEvent()
-    //         let Head = [
-    //           'TÊN SẢN PHẨM',
-    //           'MÃ',
-    //           'ĐƠN VỊ',
-    //           'SỐ LƯỢNG',
-    //           'NGUYÊN GIÁ',
-    //           'CHIẾT KHẤU',
-    //           'ĐƠN GIÁ',
-    //           'GHI CHÚ'
-    //         ]
-
-    //         let Response = [Head]
-
-    //         for (let [index, items] of data.entries()) {
-    //           for (let item of items.stockItems) {
-    //             let newArray = [
-    //               item.ProdTitle,
-    //               item.ProdCode,
-    //               item.Unit,
-    //               item.Qty,
-    //               item.ImportPriceOrigin,
-    //               item.ImportDiscount > 100
-    //                 ? item.ImportDiscount
-    //                 : item.ImportDiscount + '%',
-    //               item.ImportPrice,
-    //               item.Other
-    //             ]
-    //             Response.push(newArray)
-    //           }
-    //           let TotalRow = Response.length
-    //           let TotalColumn = Head.length
-
-    //           sheet.setArray(2, 0, Response)
-
-    //           //title
-    //           workbook
-    //             .getActiveSheet()
-    //             .getCell(0, 0)
-    //             .value('Đơn nhập kho ' + data.Code)
-    //           workbook.getActiveSheet().getCell(0, 0).font('18pt Arial')
-
-    //           workbook
-    //             .getActiveSheet()
-    //             .getRange(2, 0, 1, TotalColumn)
-    //             .font('12pt Arial')
-    //           workbook
-    //             .getActiveSheet()
-    //             .getRange(2, 0, 1, TotalColumn)
-    //             .backColor('#E7E9EB')
-    //           //border
-    //           var border = new window.GC.Spread.Sheets.LineBorder()
-    //           border.color = '#000'
-    //           border.style = window.GC.Spread.Sheets.LineStyle.thin
-    //           workbook
-    //             .getActiveSheet()
-    //             .getRange(2, 0, TotalRow, TotalColumn)
-    //             .borderLeft(border)
-    //           workbook
-    //             .getActiveSheet()
-    //             .getRange(2, 0, TotalRow, TotalColumn)
-    //             .borderRight(border)
-    //           workbook
-    //             .getActiveSheet()
-    //             .getRange(2, 0, TotalRow, TotalColumn)
-    //             .borderBottom(border)
-    //           workbook
-    //             .getActiveSheet()
-    //             .getRange(2, 0, TotalRow, TotalColumn)
-    //             .borderTop(border)
-    //           //filter
-    //           var cellrange = new window.GC.Spread.Sheets.Range(
-    //             3,
-    //             0,
-    //             1,
-    //             TotalColumn
-    //           )
-    //           var hideRowFilter =
-    //             new window.GC.Spread.Sheets.Filter.HideRowFilter(cellrange)
-    //           workbook.getActiveSheet().rowFilter(hideRowFilter)
-
-    //           //format number
-    //           workbook
-    //             .getActiveSheet()
-    //             .getCell(2, 0)
-    //             .hAlign(window.GC.Spread.Sheets.HorizontalAlign.center)
-
-    //           //auto fit width and height
-    //           workbook.getActiveSheet().autoFitRow(TotalRow + 2)
-    //           workbook.getActiveSheet().autoFitRow(0)
-    //           for (let i = 1; i < TotalColumn; i++) {
-    //             workbook.getActiveSheet().autoFitColumn(i)
-    //           }
-
-    //           window.top?.toastr?.remove()
-
-    //           //Finish
-    //           workbook.resumePaint()
-    //           workbook.resumeEvent()
-    //         }
-    //       }
-    //     )
-    //   })
+            //Finish
+            workbook.resumePaint()
+            workbook.resumeEvent()
+          }
+        )
+      })
   }
 
   return (
@@ -1149,7 +1052,7 @@ function WareHouseImport(props) {
                   </div>
                 </div>
                 <div className="flex gap-2.5 px-4 py-4 border-t lg:px-6 border-separator">
-                  {id && (
+                  {id && xuat_nhap_diem?.hasRight && (
                     <Button
                       type="button"
                       className="relative flex items-center justify-center w-full h-12 px-4 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
