@@ -627,11 +627,14 @@ function WareHouseExport(props) {
 
             let Response = [Head]
 
+            let Discounts = 0
             for (let item of data.stockItems) {
               let Discount =
                 item.ImportDiscount > 100
                   ? item.ImportPrice * item.Qty - item.ImportDiscount
                   : (item.ImportPrice * item.Qty * item.ImportDiscount) / 100
+              Discounts += Discount
+
               let newArray = [
                 item.ProdTitle,
                 item.ProdCode,
@@ -643,19 +646,16 @@ function WareHouseExport(props) {
                   : item.ImportDiscount + '%',
                 item.ImportPrice,
                 item.ImportPrice * item.Qty,
-                Discount,
-                item.ImportPrice * item.Qty - Discount,
-                item.Other
+                '',
+                '',
+                item.Desc
               ]
               Response.push(newArray)
             }
             let Total = 0
-            let Discounts = 0
-            let Remaining = 0
+
             for (let i of Response) {
               if (Number(i[7] > 0)) Total += Number(i[7])
-              if (Number(i[8] > 0)) Discounts += Number(i[8])
-              if (Number(i[9] > 0)) Remaining += Number(i[9])
             }
             Response.push([
               '',
@@ -663,11 +663,11 @@ function WareHouseExport(props) {
               '',
               '',
               '',
-              data.Discount,
+              '',
               '',
               Total,
               Discounts,
-              Remaining,
+              Total - Discounts,
               data.Other
             ])
             let TotalRow = Response.length
