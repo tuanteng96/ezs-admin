@@ -55,7 +55,7 @@ function Categories(props) {
             <span>{item?.Title}</span>
           </div>
           <div className="text-muted2 font-light">
-            {item?.Children?.length || 0} danh mục
+            ID : {item?.ID} - {item?.Children?.length || 0} danh mục
             {item.IsPublic !== 1 && (
               <span className="text-danger pl-1 font-medium text-sm">
                 - Ẩn trên Web/App

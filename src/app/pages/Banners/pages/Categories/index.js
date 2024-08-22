@@ -140,9 +140,7 @@ function Categories(props) {
                           }}
                         >
                           <div className="font-semibold">
-                            <span>
-                              {item?.Title}
-                            </span>
+                            <span>{item?.Title}</span>
                           </div>
                           <div className="font-light text-muted2">
                             ID : {item?.ID} - {item?.Count} bài viết
