@@ -38,7 +38,10 @@ const ProdsAPI = {
   originalServices: ({ pi = 1, ps = 20 }) =>
     http.get(
       `/api/v3/mbook?cmd=getroot&memberid=&ps=${ps}&pi=${pi}&key=&stockid=`
-    )
+    ),
+  updateImageProd: data =>
+    http.post('/api/v3/file25@updates', JSON.stringify(data)),
+  searchNamesProd: data => http.post('/api/v3/file25@Get', JSON.stringify(data)),
 }
 
 export default ProdsAPI

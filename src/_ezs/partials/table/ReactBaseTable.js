@@ -61,9 +61,9 @@ function ReactBaseTable({
         <AutoResizer>
           {({ width, height }) => (
             <Table
+              fixed
               {...props}
               ref={tableRef}
-              fixed
               rowKey={rowKey}
               width={width}
               height={height}

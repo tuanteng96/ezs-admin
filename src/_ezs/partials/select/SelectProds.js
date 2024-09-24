@@ -2,7 +2,7 @@ import React from 'react'
 import { AsyncPaginate } from 'react-select-async-paginate'
 import ProdsAPI from 'src/_ezs/api/prods.api'
 
-function SelectProds({ cates = '794,795', ...props }) {
+function SelectProds({ cates = '794,795', DynamicID = false, ...props }) {
   async function loadOptions(search, loadedOptions, { page }) {
     let { data } = await ProdsAPI.getList({
       cates: cates,
@@ -12,7 +12,11 @@ function SelectProds({ cates = '794,795', ...props }) {
     })
     return {
       options: data?.data?.lst
-        ? data?.data?.lst.map(x => ({ ...x, label: x.title, value: x.id }))
+        ? data?.data?.lst.map(x => ({
+            ...x,
+            label: DynamicID ? `[${x.source?.DynamicID}] ${x.title}` : x.title,
+            value: x.id
+          }))
         : [],
       hasMore: data?.data?.pcount ? page < data?.data?.pcount : false,
       additional: {

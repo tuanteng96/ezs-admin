@@ -534,7 +534,7 @@ function WareHouseExport(props) {
         },
         items: values.items.map(x => ({
           ...x,
-          ProdTitle: x.ProdTitle.text,
+          ProdTitle: x.ProdTitle?.text || x.ProdTitle?.label,
           Desc: x?.Other || ''
         }))
       },
@@ -627,14 +627,7 @@ function WareHouseExport(props) {
 
             let Response = [Head]
 
-            let Discounts = 0
             for (let item of data.stockItems) {
-              let Discount =
-                item.ImportDiscount > 100
-                  ? item.ImportPrice * item.Qty - item.ImportDiscount
-                  : (item.ImportPrice * item.Qty * item.ImportDiscount) / 100
-              Discounts += Discount
-
               let newArray = [
                 item.ProdTitle,
                 item.ProdCode,
@@ -666,8 +659,8 @@ function WareHouseExport(props) {
               '',
               '',
               Total,
-              Discounts,
-              Total - Discounts,
+              data?.Discount,
+              Total - data?.Discount,
               data.Other
             ])
             let TotalRow = Response.length
