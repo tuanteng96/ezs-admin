@@ -665,7 +665,13 @@ function ImportExport(props) {
                 {
                   ...queryConfig,
                   Pi: pageIndex,
-                  Ps: pageSize
+                  Ps: pageSize,
+                  From: queryConfig.From
+                    ? moment(queryConfig.From).format('YYYY-MM-DD')
+                    : '',
+                  To: queryConfig.To
+                    ? moment(queryConfig.To).format('YYYY-MM-DD')
+                    : ''
                 },
                 identity
               )
