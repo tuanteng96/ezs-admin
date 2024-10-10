@@ -55,7 +55,7 @@ function WareHouseExportStock(props) {
           ImportPrice: '',
           ImportPriceOrigin: '',
           ProdTitle: '',
-          Qty: '',
+          Qty: 1,
           ProdCode: '',
           Unit: ''
         }
@@ -109,7 +109,8 @@ function WareHouseExportStock(props) {
                     : '',
                   ProdId: x.ProdID,
                   Other: x?.Desc || '',
-                  convert: null
+                  convert: null,
+                  Qty: x.Qty || 1
                 }))
               : [
                   {
@@ -117,7 +118,7 @@ function WareHouseExportStock(props) {
                     ImportPrice: '',
                     ImportPriceOrigin: '',
                     ProdTitle: '',
-                    Qty: '',
+                    Qty: 1,
                     ProdCode: '',
                     ProdId: '',
                     Unit: '',
@@ -191,7 +192,9 @@ function WareHouseExportStock(props) {
                       `items[${rowIndex}].Unit`,
                       val ? val?.source?.StockUnit : ''
                     )
-                    setValue(`items[${rowIndex}].Qty`, 1)
+                    setValue(`items[${rowIndex}].Qty`, 1, {
+                      shouldValidate: true
+                    })
                     setValue(
                       `items[${rowIndex}].ImportPriceOrigin`,
                       val ? val?.source?.PriceProduct : ''
@@ -273,10 +276,14 @@ function WareHouseExportStock(props) {
           <Controller
             name={`items[${rowIndex}].Qty`}
             control={control}
+            rules={{
+              required: true
+            }}
             render={({ field: { ref, ...field }, fieldState }) => (
               <div className="relative">
                 <InputNumber
-                  className="px-3 py-2.5"
+                  //className="px-3 py-2.5"
+                  errorMessageForce={fieldState?.invalid}
                   placeholder="Nhập SL"
                   value={field.value}
                   onValueChange={val => {
@@ -297,7 +304,7 @@ function WareHouseExportStock(props) {
                     field.value ? (
                       <DropdownMenu
                         trigger={
-                          <div className="absolute top-0 right-0 w-10 h-full flex items-center justify-center cursor-pointer">
+                          <div className="absolute top-0 right-0 flex items-center justify-center w-10 h-full cursor-pointer">
                             <ExclamationCircleIcon className="w-5 text-warning" />
                           </div>
                         }
@@ -623,9 +630,9 @@ function WareHouseExportStock(props) {
           animate={{ x: '0' }}
         >
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-separator dark:border-dark-separator">
+            <div className="flex items-center justify-between px-4 py-4 border-b lg:px-6 border-separator dark:border-dark-separator">
               <div className="w-10/12">
-                <div className="text-xl lg:text-2xl font-bold dark:text-graydark-800 truncate">
+                <div className="text-xl font-bold truncate lg:text-2xl dark:text-graydark-800">
                   {!id
                     ? 'Xuất kho chuyển đổi cơ sở'
                     : 'Chỉnh sửa xuất kho chuyển đổi cơ sở'}
@@ -685,7 +692,7 @@ function WareHouseExportStock(props) {
                 onEndReachedThreshold={1}
               />
               <div className="w-full md:w-[320px] lg:w-[380px] border-l border-separator flex flex-col">
-                <div className="p-4 lg:p-6 overflow-auto grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
+                <div className="p-4 overflow-auto lg:p-6 grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
                   <div>
                     <div className="mb-3.5">
                       <div className="font-medium">Mã đơn</div>
@@ -884,7 +891,7 @@ function WareHouseExportStock(props) {
                     </div>
                   </div>
                 </div>
-                <div className="px-4 lg:px-6 py-4 border-t border-separator">
+                <div className="px-4 py-4 border-t lg:px-6 border-separator">
                   <Button
                     disabled={
                       updateMutation.isLoading ||

@@ -242,21 +242,23 @@ function IeProcessedImport(props) {
             name={`items[${rowIndex}].Qty`}
             control={control}
             render={({ field: { ref, ...field }, fieldState }) => (
-              <InputNumber
-                className="px-3 py-2.5"
-                placeholder="Nhập SL"
-                value={field.value}
-                onValueChange={val => {
-                  field.onChange(val.floatValue || '')
-                  onUpdate()
-                }}
-                allowNegative={false}
-                isAllowed={inputObj => {
-                  const { floatValue } = inputObj
-                  if (floatValue < 1) return
-                  return true
-                }}
-              />
+              <>
+                <InputNumber
+                  className={clsx('px-3 py-2.5')}
+                  placeholder="Nhập SL"
+                  value={field.value}
+                  onValueChange={val => {
+                    field.onChange(val.floatValue || '')
+                    onUpdate()
+                  }}
+                  allowNegative={false}
+                  isAllowed={inputObj => {
+                    const { floatValue } = inputObj
+                    if (floatValue < 1) return
+                    return true
+                  }}
+                />
+              </>
             )}
           />
         ),
@@ -515,12 +517,12 @@ function IeProcessedImport(props) {
           animate={{ x: '0' }}
         >
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-separator dark:border-dark-separator">
-              <div className="text-xl lg:text-2xl font-bold dark:text-graydark-800 truncate w-10/12">
+            <div className="flex items-center justify-between px-4 py-4 border-b lg:px-6 border-separator dark:border-dark-separator">
+              <div className="w-10/12 text-xl font-bold truncate lg:text-2xl dark:text-graydark-800">
                 Đơn nhập kho mới
               </div>
               <div
-                className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
+                className="flex items-center justify-center w-10 h-10 transition cursor-pointer lg:w-12 lg:h-12 dark:text-graydark-800 hover:text-primary"
                 onClick={() =>
                   navigate({
                     pathname: state?.prevFrom,
@@ -547,7 +549,7 @@ function IeProcessedImport(props) {
                 onEndReachedThreshold={1}
               />
               <div className="w-full md:w-[320px] lg:w-[380px] border-l border-separator flex flex-col">
-                <div className="p-4 lg:p-6 overflow-auto grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
+                <div className="p-4 overflow-auto lg:p-6 grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
                   <div>
                     <div className="mb-3.5">
                       <div className="font-medium">Mã đơn</div>
@@ -752,7 +754,7 @@ function IeProcessedImport(props) {
                     </div>
                   </div>
                 </div>
-                <div className="px-4 lg:px-6 py-4 border-t border-separator">
+                <div className="px-4 py-4 border-t lg:px-6 border-separator">
                   <Button
                     disabled={updateMutation.isLoading}
                     loading={updateMutation.isLoading}

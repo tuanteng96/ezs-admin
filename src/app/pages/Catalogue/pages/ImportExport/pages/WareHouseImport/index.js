@@ -59,7 +59,7 @@ function WareHouseImport(props) {
           ImportPrice: '',
           ImportPriceOrigin: '',
           ProdTitle: '',
-          Qty: '',
+          Qty: 1,
           ProdCode: '',
           Unit: ''
         }
@@ -116,7 +116,8 @@ function WareHouseImport(props) {
                     : '',
                   ProdId: x.ProdID,
                   Other: x?.Desc || '',
-                  convert: null
+                  convert: null,
+                  Qty: x?.Qty || 1
                 }))
               : [
                   {
@@ -124,7 +125,7 @@ function WareHouseImport(props) {
                     ImportPrice: '',
                     ImportPriceOrigin: '',
                     ProdTitle: '',
-                    Qty: '',
+                    Qty: 1,
                     ProdCode: '',
                     ProdId: '',
                     Unit: '',
@@ -198,7 +199,9 @@ function WareHouseImport(props) {
                       `items[${rowIndex}].Unit`,
                       val ? val?.source?.StockUnit : ''
                     )
-                    setValue(`items[${rowIndex}].Qty`, 1)
+                    setValue(`items[${rowIndex}].Qty`, 1, {
+                      shouldValidate: true
+                    })
                     setValue(
                       `items[${rowIndex}].ImportPriceOrigin`,
                       val ? val?.source?.PriceProduct : ''
@@ -281,22 +284,30 @@ function WareHouseImport(props) {
             <Controller
               name={`items[${rowIndex}].Qty`}
               control={control}
+              rules={{
+                required: true
+              }}
               render={({ field: { ref, ...field }, fieldState }) => (
-                <InputNumber
-                  className="px-3 py-2.5"
-                  placeholder="Nhập SL"
-                  value={field.value}
-                  onValueChange={val => {
-                    field.onChange(val.floatValue || '')
-                    onUpdate()
-                  }}
-                  allowNegative={false}
-                  isAllowed={inputObj => {
-                    const { floatValue } = inputObj
-                    if (floatValue < 1) return
-                    return true
-                  }}
-                />
+                <>
+                  <InputNumber
+                    //errorMessage={fieldState?.invalid}
+                    errorMessageForce={fieldState?.invalid}
+                    //className={clsx('px-3 py-2.5')}
+                    placeholder="Nhập SL"
+                    value={field.value}
+                    onValueChange={val => {
+                      field.onChange(val.floatValue || '')
+                      onUpdate()
+                    }}
+                    allowNegative={false}
+                    isAllowed={inputObj => {
+                      const { floatValue } = inputObj
+                      if (floatValue < 1) return
+                      return true
+                    }}
+                    onBlur={field.onBlur}
+                  />
+                </>
               )}
             />
             <Controller

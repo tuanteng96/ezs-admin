@@ -58,7 +58,7 @@ function WareHouseExport(props) {
           ImportPrice: '',
           ImportPriceOrigin: '',
           ProdTitle: '',
-          Qty: '',
+          Qty: 1,
           ProdCode: '',
           Unit: ''
         }
@@ -111,7 +111,8 @@ function WareHouseExport(props) {
                     : '',
                   ProdId: x.ProdID,
                   Other: x?.Desc || '',
-                  convert: null
+                  convert: null,
+                  Qty: x.Qty || 1
                 }))
               : [
                   {
@@ -119,7 +120,7 @@ function WareHouseExport(props) {
                     ImportPrice: '',
                     ImportPriceOrigin: '',
                     ProdTitle: '',
-                    Qty: '',
+                    Qty: 1,
                     ProdCode: '',
                     ProdId: '',
                     Unit: '',
@@ -193,7 +194,9 @@ function WareHouseExport(props) {
                       `items[${rowIndex}].Unit`,
                       val ? val?.source?.StockUnit : ''
                     )
-                    setValue(`items[${rowIndex}].Qty`, 1)
+                    setValue(`items[${rowIndex}].Qty`, 1, {
+                      shouldValidate: true
+                    })
                     setValue(
                       `items[${rowIndex}].ImportPriceOrigin`,
                       val ? val?.source?.PriceProduct : ''
@@ -276,9 +279,13 @@ function WareHouseExport(props) {
             <Controller
               name={`items[${rowIndex}].Qty`}
               control={control}
+              rules={{
+                required: true
+              }}
               render={({ field: { ref, ...field }, fieldState }) => (
                 <InputNumber
-                  className="px-3 py-2.5"
+                  errorMessageForce={fieldState?.invalid}
+                  //className="px-3 py-2.5"
                   placeholder="Nhập SL"
                   value={field.value}
                   onValueChange={val => {
