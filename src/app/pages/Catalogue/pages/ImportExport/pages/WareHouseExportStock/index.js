@@ -23,6 +23,7 @@ import { SelectProdCode, SelectStocksWareHouse } from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { ConversionTools } from '../../components'
 import UploadsAPI from 'src/_ezs/api/uploads.api'
+import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 
 function WareHouseExportStock(props) {
   const navigate = useNavigate()
@@ -39,6 +40,7 @@ function WareHouseExportStock(props) {
   const { control, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
       ie: {
+        CreateDate: new Date(),
         Code: '', // Mã
         SupplierID: '', //Nhà cung cấp
         ToPay: '', // Giá trị sau chiết khấu
@@ -95,7 +97,9 @@ function WareHouseExportStock(props) {
             Target: data?.Target || '',
             UserID: data?.UserID || '',
             TargetCreated: data?.TargetCreated || '',
-            CreateDate: data?.CreateDate || ''
+            CreateDate: data?.CreateDate
+              ? moment(data?.CreateDate, 'YYYY-MM-DD HH:mm').toDate()
+              : new Date()
           },
           items:
             data.stockItems && data.stockItems.length > 0
@@ -531,6 +535,7 @@ function WareHouseExportStock(props) {
         ...values,
         ie: {
           ...values.ie,
+          CreateDate: moment(values.ie.CreateDate).format('YYYY-MM-DD HH:mm'),
           stockItems: values.items.map(x => ({
             ...x,
             ProdTitle: x.ProdTitle.text,
@@ -694,6 +699,36 @@ function WareHouseExportStock(props) {
               <div className="w-full md:w-[320px] lg:w-[380px] border-l border-separator flex flex-col">
                 <div className="p-4 overflow-auto lg:p-6 grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
                   <div>
+                    {adminTools_byStock?.hasRight && (
+                      <div className="mb-3.5">
+                        <div className="font-medium">Ngày tạo</div>
+                        <div className="mt-1">
+                          <Controller
+                            rules={{ required: true }}
+                            name="ie.CreateDate"
+                            control={control}
+                            render={({
+                              field: { ref, ...field },
+                              fieldState
+                            }) => (
+                              <InputDatePicker
+                                placeholderText="Chọn thời gian"
+                                autoComplete="off"
+                                onChange={field.onChange}
+                                selected={
+                                  field.value ? new Date(field.value) : null
+                                }
+                                {...field}
+                                dateFormat="HH:mm dd/MM/yyyy"
+                                showTimeSelect
+                                errorMessageForce={fieldState?.invalid}
+                                //timeFormat="HH:mm"
+                              />
+                            )}
+                          />
+                        </div>
+                      </div>
+                    )}
                     <div className="mb-3.5">
                       <div className="font-medium">Mã đơn</div>
                       <div className="mt-1">

@@ -17,6 +17,7 @@ import {
   SelectSupplier
 } from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
+import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 
 function IeProcessedImport(props) {
   const navigate = useNavigate()
@@ -30,6 +31,7 @@ function IeProcessedImport(props) {
   const { control, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
       ie: {
+        CreateDate: "",
         Code: '', // Mã
         SupplierID: '', //Nhà cung cấp
         ToPay: '', // Giá trị sau chiết khấu
@@ -551,6 +553,30 @@ function IeProcessedImport(props) {
               <div className="w-full md:w-[320px] lg:w-[380px] border-l border-separator flex flex-col">
                 <div className="p-4 overflow-auto lg:p-6 grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
                   <div>
+                    <div className="mb-3.5">
+                      <div className="font-medium">Ngày tạo</div>
+                      <div className="mt-1">
+                        <Controller
+                          name="ie.CreateDate"
+                          control={control}
+                          render={({
+                            field: { ref, ...field },
+                            fieldState
+                          }) => (
+                            <InputDatePicker
+                              placeholderText="Chọn thời gian"
+                              autoComplete="off"
+                              onChange={field.onChange}
+                              selected={
+                                field.value ? new Date(field.value) : null
+                              }
+                              {...field}
+                              dateFormat="dd/MM/yyyy"
+                            />
+                          )}
+                        />
+                      </div>
+                    </div>
                     <div className="mb-3.5">
                       <div className="font-medium">Mã đơn</div>
                       <div className="mt-1">
