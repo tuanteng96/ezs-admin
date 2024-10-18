@@ -15,7 +15,7 @@ const WarehouseAPI = {
     http.get(`/api/v3/whouse2?${formatObject.toQueryString(body)}`),
   deleteSupplier: body => http.post(`/api/v3/SupplierTable?cmd=delete`, body),
   getListProdCode: body =>
-    http.get(`/api/gl/select2?${formatObject.toQueryString(body)}&order=renew`),
+    http.get(`/api/gl/select2?${formatObject.toQueryString(body)}&order=renewdate`),
   whouseConvert: body => http.post(`/api/v3/whouseConvert?cmd=doconvert`, body),
   getToPayId: body => http.post(`/api/v3/Whouse3@GetId`, JSON.stringify(body)),
   whousePay: body => http.post(`/api/v3/Whouse3@payed`, JSON.stringify(body)),
