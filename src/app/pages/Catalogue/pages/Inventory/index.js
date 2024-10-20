@@ -47,7 +47,7 @@ function Inventory(props) {
     Key: queryParams.Key || '',
     NotDelv: queryParams.NotDelv || false
   }
-
+  
   const { data, isLoading, isPreviousData, refetch } = useQuery({
     queryKey: ['ListInventory', queryConfig],
     queryFn: async () => {
@@ -214,7 +214,7 @@ function Inventory(props) {
         </div>
         <div className="flex sm:pb-1">
           <button
-            className="flex items-center justify-center w-10 h-10 text-gray-900 border rounded sm:w-12 sm:h-12 bg-light border-light dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary mr-2"
+            className="flex items-center justify-center w-10 h-10 mr-2 text-gray-900 border rounded sm:w-12 sm:h-12 bg-light border-light dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
             onClick={refetch}
           >
             <ArrowPathIcon className="w-5 sm:w-6" />
@@ -263,14 +263,11 @@ function Inventory(props) {
           navigate({
             pathname: pathname,
             search: createSearchParams(
-              pickBy(
-                {
-                  ...queryConfig,
-                  Pi: pageIndex,
-                  Ps: pageSize
-                },
-                identity
-              )
+              {
+                ...queryConfig,
+                Pi: pageIndex,
+                Ps: pageSize
+              }
             ).toString()
           })
         }}
