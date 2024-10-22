@@ -46,7 +46,7 @@ function Inventory(props) {
     StockID: 'StockID' in queryParams ? queryParams.StockID : CrStocks?.ID,
     Key: queryParams.Key || '',
     NotDelv: queryParams.NotDelv || false,
-    IsPublic: queryParams.IsPublic || false
+    IsPublic: queryParams.IsPublic || true
   }
   
   const { data, isLoading, isPreviousData, refetch } = useQuery({

@@ -66,7 +66,7 @@ function InventoryFilters(props) {
           StockID: CrStocks?.ID,
           Key: '',
           NotDelv: false,
-          IsPublic: false
+          IsPublic: true
         }
   })
 
