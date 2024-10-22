@@ -65,7 +65,8 @@ function InventoryFilters(props) {
           manus: '',
           StockID: CrStocks?.ID,
           Key: '',
-          NotDelv: false
+          NotDelv: false,
+          IsPublic: false
         }
   })
 
@@ -99,7 +100,7 @@ function InventoryFilters(props) {
           animate={{ opacity: 1, top: 'auto' }}
           exit={{ opacity: 0, top: '60%' }}
         >
-          <div className="bg-white dark:bg-dark-aside h-full rounded shadow-lg flex flex-col">
+          <div className="flex flex-col h-full bg-white rounded shadow-lg dark:bg-dark-aside">
             <div className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
               <div className="flex items-center text-2xl font-semibold">
                 <NavLink
@@ -253,6 +254,43 @@ function InventoryFilters(props) {
                           noOptionsMessage={() => 'Chưa có nhãn hàng.'}
                           isValidNewOption={() => false}
                         />
+                      )}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="font-medium text-[15px]">
+                      Ẩn mặt hàng ngừng kinh doanh
+                    </div>
+                    <Controller
+                      name="IsPublic"
+                      control={control}
+                      render={({ field }) => (
+                        <Switch
+                          checked={Number(field.value) === 1}
+                          onChange={val => field.onChange(val ? 1 : 0)}
+                          as={Fragment}
+                        >
+                          {({ checked }) => (
+                            <button
+                              className={clsx(
+                                'relative inline-flex h-6 w-11 items-center rounded-full transition',
+                                checked ? 'bg-primary' : 'bg-gray-300'
+                              )}
+                            >
+                              <span className="sr-only">
+                                Enable notifications
+                              </span>
+                              <span
+                                className={clsx(
+                                  'inline-block h-4 w-4 transform rounded-full bg-white transition',
+                                  checked ? 'translate-x-6' : 'translate-x-1'
+                                )}
+                              />
+                            </button>
+                          )}
+                        </Switch>
                       )}
                     />
                   </div>

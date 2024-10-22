@@ -45,7 +45,8 @@ function Inventory(props) {
     manus: queryParams.manus || '',
     StockID: 'StockID' in queryParams ? queryParams.StockID : CrStocks?.ID,
     Key: queryParams.Key || '',
-    NotDelv: queryParams.NotDelv || false
+    NotDelv: queryParams.NotDelv || false,
+    IsPublic: queryParams.IsPublic || false
   }
   
   const { data, isLoading, isPreviousData, refetch } = useQuery({
@@ -60,7 +61,8 @@ function Inventory(props) {
         '(filter)RootTypeID': queryConfig.RootTypeID,
         '(filter)StockID': queryConfig.StockID,
         '(filter)key': queryConfig.Key,
-        '(filter)NotDelv': queryConfig.NotDelv
+        '(filter)NotDelv': queryConfig.NotDelv,
+        '(filter)IsPublic': queryConfig.IsPublic
       }
       let { data } = await WarehouseAPI.getListInventory(newQueryConfig)
       return {
