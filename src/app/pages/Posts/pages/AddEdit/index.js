@@ -70,12 +70,12 @@ function AddEdit(props) {
   const addMode = useMatch('/posts/list/add')
   const navigate = useNavigate()
 
-  useEscape(() =>
-    navigate({
-      pathname: path,
-      search: search
-    })
-  )
+  // useEscape(() =>
+  //   navigate({
+  //     pathname: path,
+  //     search: search
+  //   })
+  // )
 
   const methods = useForm({
     defaultValues: state?.formState

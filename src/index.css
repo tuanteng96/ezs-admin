@@ -158,7 +158,23 @@ body .react-viewer-list>li>img {
 
 .ck.ck-dropdown .ck-dropdown__panel.ck-dropdown__panel_ne,
 .ck.ck-dropdown .ck-dropdown__panel.ck-dropdown__panel_se {
-    right: 0 I !important;
+    right: 0 !important;
+}
+
+.ck-wrap-full > .ck {
+    @apply !h-full
+}
+
+.ck-wrap-full .ck-editor__main {
+    height: calc(100% - 40px);
+}
+
+.ck-wrap-full .ck-editor__editable {
+    @apply h-full
+}
+
+.ck-wrap-full .ck-rounded-corners .ck.ck-toolbar {
+    @apply rounded-none
 }
 
 
