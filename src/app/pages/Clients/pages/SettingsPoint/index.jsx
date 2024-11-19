@@ -9,6 +9,7 @@ import ConfigAPI from 'src/_ezs/api/config'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { InputNumber } from 'src/_ezs/partials/forms'
 import { toast } from 'react-toastify'
+import { ChevronLeftIcon } from '@heroicons/react/24/outline'
 
 function SettingsPoint(props) {
   const { CrStocks } = useAuth()
@@ -151,10 +152,18 @@ function SettingsPoint(props) {
       autoComplete="off"
       className="flex flex-col h-full p-4 mx-auto lg:px-8 lg:pt-8 lg:pb-5 max-w-7xl"
     >
-      <div className="flex items-end justify-between mb-5">
-        <div>
+      <div className="flex items-center mb-5">
+        <div
+          onClick={() => {
+            window.top.location.href = '/admin/?mdl25=memberconfig'
+          }}
+          className="flex items-center cursor-pointer"
+        >
+          <div className="w-10">
+            <ChevronLeftIcon className="w-8" />
+          </div>
           <div className="text-xl font-bold sm:text-3xl dark:text-white">
-            Cài đặt tích luỹ
+            Cài đặt tích điểm
           </div>
         </div>
       </div>
@@ -191,7 +200,5 @@ function SettingsPoint(props) {
     </form>
   )
 }
-
-SettingsPoint.propTypes = {}
 
 export default SettingsPoint
