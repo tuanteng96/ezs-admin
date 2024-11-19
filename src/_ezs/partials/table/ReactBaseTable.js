@@ -54,7 +54,7 @@ function ReactBaseTable({
       {column.title}
     </Text>
   )
-
+  
   return (
     <>
       <div className={clsx(wrapClassName)}>

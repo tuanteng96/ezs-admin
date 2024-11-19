@@ -10,6 +10,7 @@ const ViewPay = lazy(() => import('./pages/ViewPay'))
 const ViewOrders = lazy(() => import('./pages/ViewOrders'))
 const ViewOrderDetail = lazy(() => import('./pages/ViewOrderDetail'))
 const ViewDiaryHistory = lazy(() => import('./pages/ViewDiaryHistory'))
+const SettingsPoint = lazy(() => import('./pages/SettingsPoint'))
 
 function ClientsPage(props) {
   return (
@@ -89,6 +90,14 @@ function ClientsPage(props) {
             }
           />
         </Route>
+        <Route
+          path="settings-point"
+          element={
+            <SuspensedView>
+              <SettingsPoint />
+            </SuspensedView>
+          }
+        />
         <Route path="*" element={<Navigate to="/calendar" />} />
       </Routes>
     </>
