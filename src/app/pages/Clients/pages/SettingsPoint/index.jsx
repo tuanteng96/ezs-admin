@@ -1,5 +1,4 @@
 import React, { useEffect, useMemo } from 'react'
-import PropTypes from 'prop-types'
 import { Button } from 'src/_ezs/partials/button'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { useMutation, useQuery } from '@tanstack/react-query'
@@ -66,7 +65,7 @@ function SettingsPoint(props) {
         setValue('ConfigsPoint', newConfigsPoint)
       }
     }
-  }, [ConfigsPoint.data, data])
+  }, [ConfigsPoint.data, data]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const saveMutation = useMutation({
     mutationFn: body => ConfigAPI.saveName(body)

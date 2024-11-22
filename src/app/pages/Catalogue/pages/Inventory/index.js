@@ -5,7 +5,6 @@ import {
   Bars3Icon
 } from '@heroicons/react/24/outline'
 import { useQuery } from '@tanstack/react-query'
-import { identity, pickBy } from 'lodash-es'
 import React, { useMemo } from 'react'
 import {
   NavLink,
@@ -19,7 +18,7 @@ import { ImageLazy } from 'src/_ezs/partials/images'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
 import { formatString } from 'src/_ezs/utils/formatString'
-import { PickerInventory } from './components'
+import { PickerInventory, PickerWarehouseScale } from './components'
 import { useAuth } from 'src/_ezs/core/Auth'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
@@ -39,7 +38,7 @@ function Inventory(props) {
   const queryConfig = {
     cmd: 'prodinstock',
     Pi: queryParams.Pi || 1,
-    Ps: queryParams.Ps || 15,
+    Ps: queryParams.Ps || 10,
     Only: queryParams.Only || true,
     RootTypeID: 'RootTypeID' in queryParams ? queryParams.RootTypeID : '794',
     manus: queryParams.manus || '',
@@ -48,7 +47,7 @@ function Inventory(props) {
     NotDelv: queryParams.NotDelv || false,
     IsPublic: queryParams.IsPublic || true
   }
-  
+
   const { data, isLoading, isPreviousData, refetch } = useQuery({
     queryKey: ['ListInventory', queryConfig],
     queryFn: async () => {
@@ -215,6 +214,19 @@ function Inventory(props) {
           </div>
         </div>
         <div className="flex sm:pb-1">
+          {queryConfig?.StockID && (
+            <PickerWarehouseScale queryConfig={queryConfig}>
+              {({ open }) => (
+                <button
+                  onClick={open}
+                  className="flex items-center justify-center h-10 px-4 mr-2 text-white border rounded sm:h-12 bg-success border-success hover hover:bg-successhv"
+                >
+                  Cân Kho
+                </button>
+              )}
+            </PickerWarehouseScale>
+          )}
+
           <button
             className="flex items-center justify-center w-10 h-10 mr-2 text-gray-900 border rounded sm:w-12 sm:h-12 bg-light border-light dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
             onClick={refetch}
@@ -264,13 +276,11 @@ function Inventory(props) {
         onChange={({ pageIndex, pageSize }) => {
           navigate({
             pathname: pathname,
-            search: createSearchParams(
-              {
-                ...queryConfig,
-                Pi: pageIndex,
-                Ps: pageSize
-              }
-            ).toString()
+            search: createSearchParams({
+              ...queryConfig,
+              Pi: pageIndex,
+              Ps: pageSize
+            }).toString()
           })
         }}
         // rowEventHandlers={{
