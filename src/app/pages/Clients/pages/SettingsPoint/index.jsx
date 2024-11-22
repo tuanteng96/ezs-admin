@@ -44,9 +44,36 @@ function SettingsPoint(props) {
   })
 
   useEffect(() => {
-    if (!ConfigsPoint.isLoading) {
+    if (!ConfigsPoint.isLoading && data) {
       if (ConfigsPoint.data) {
-        setValue('ConfigsPoint', JSON.parse(ConfigsPoint.data))
+        let rs = JSON.parse(ConfigsPoint.data)
+        let newRs = []
+        let isUpdate =
+          rs
+            .filter(x => x.ID !== '-1' && x.ID !== '-2')
+            .sort((a, b) => a.ID - b.ID)
+            .toString() === data.sort((a, b) => a.ID - b.ID).toString()
+
+        for (let gr of rs) {
+          if (gr.ID === '-1' || gr.ID === '-2') {
+            newRs.push(gr)
+          } else {
+            if (data.some(x => x.ID === gr.ID)) {
+              newRs.push(gr)
+            }
+          }
+        }
+        for (let gr of data) {
+          if (newRs.findIndex(x => x.ID === gr.ID) === -1) {
+            newRs.push({ ...gr, Value: 0, Point: 0 })
+          }
+        }
+
+        if (!isUpdate) {
+          UpdateConfig(newRs)
+        }
+
+        setValue('ConfigsPoint', newRs)
       } else {
         let newConfigsPoint = [
           {
@@ -83,6 +110,13 @@ function SettingsPoint(props) {
         }
       }
     )
+  }
+
+  const UpdateConfig = dataPost => {
+    saveMutation.mutate({
+      name: 'tichdiemconfig',
+      body: JSON.stringify(dataPost)
+    })
   }
 
   const columns = useMemo(
