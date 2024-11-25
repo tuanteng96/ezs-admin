@@ -63,23 +63,30 @@ function PickerWarehouseScale({ children, queryConfig }) {
     },
     getNextPageParam: (lastPage, pages) =>
       lastPage.Pi === lastPage.PCount ? undefined : lastPage.Pi + 1,
-    enabled: visible
+    enabled: visible,
+    cacheTime: 0,
+    staleTime: 0
   })
 
   const Lists = formatArray.useInfiniteQuery(data?.pages, 'list')
 
   useEffect(() => {
-    if (Lists) {
-      reset({
-        Items: Lists.map(x => ({
-          ...x,
-          ActualInventory: '',
-          BalanceInventory: ''
-        }))
-      })
+    if (visible) {
+      if (Lists) {
+        reset({
+          Items: Lists.map(x => ({
+            ...x,
+            ActualInventory: '',
+            BalanceInventory: ''
+          }))
+        })
+      }
+    } else {
+      reset({ Items: [] })
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.pages])
+  }, [data?.pages, visible])
 
   const columns = useMemo(
     () => [
