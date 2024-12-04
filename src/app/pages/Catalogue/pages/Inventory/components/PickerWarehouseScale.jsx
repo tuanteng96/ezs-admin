@@ -10,7 +10,6 @@ import { AnimatePresence, m } from 'framer-motion'
 import moment from 'moment'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { useLocation } from 'react-router-dom'
 import { toast } from 'react-toastify'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
@@ -26,8 +25,6 @@ function PickerWarehouseScale({ children, queryConfig }) {
   const { GlobalConfig } = useLayout()
 
   const queryClient = useQueryClient()
-
-  const { pathname } = useLocation()
 
   const { control, handleSubmit, reset, watch } = useForm({
     defaultValues: {
@@ -69,15 +66,24 @@ function PickerWarehouseScale({ children, queryConfig }) {
   })
 
   const Lists = formatArray.useInfiniteQuery(data?.pages, 'list')
-
+  
   useEffect(() => {
     if (visible) {
       if (Lists) {
+        let newLists = [...Lists]
+        if(Items) {
+          for (let item of Items) {
+            let index = newLists.findIndex(x => x.ID === item.ID)
+            if(index > -1) {
+              newLists[index].ActualInventory = item.ActualInventory
+            }
+          }
+        }
         reset({
-          Items: Lists.map(x => ({
-            ...x,
+          Items: newLists.map(x => ({
             ActualInventory: '',
-            BalanceInventory: ''
+            BalanceInventory: '',
+            ...x,
           }))
         })
       }
