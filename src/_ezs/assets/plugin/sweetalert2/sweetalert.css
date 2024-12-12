@@ -18,7 +18,13 @@ html.dark {
     --swl2-btn-cancel-shadow: 0 0 0 3px rgba(225, 225, 255, .2);
 }
 
-body.swal2-height-auto {
+body.swal2-shown:not(.swal2-no-backdrop):not(.swal2-toast-shown) {
+  overflow: hidden;
+  height: 100% !important;
+}
+
+body.swal2-height-auto,
+body.swal2-shown.swal2-height-auto {
     height: 100% !important;
 }
 

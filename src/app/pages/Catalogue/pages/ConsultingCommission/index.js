@@ -126,6 +126,117 @@ const RendererBonusSale = ({ rowData }) => {
   )
 }
 
+const RendererBonusSale2 = ({ rowData }) => {
+  const [value, setValue] = useState(null)
+  const queryClient = useQueryClient()
+
+  const typingTimeoutRef = useRef(null)
+
+  useEffect(() => {
+    setValue(rowData.BonusSale2)
+  }, [rowData])
+
+  const updateMutation = useMutation({
+    mutationFn: body => ProdsAPI.prod24UpdateKPI(body)
+  })
+
+  const onSubmit = val => {
+    let values = {
+      update: [
+        {
+          ID: rowData.ID,
+          BonusSale2: val
+        }
+      ]
+    }
+    if (rowData.filters) {
+      values = {
+        BonusSale2: val,
+        updatebyFilter: rowData.filters
+      }
+      Swal.fire({
+        customClass: {
+          confirmButton: 'bg-success'
+        },
+        title: 'Xác nhận cập nhập ?',
+        html: `Tất cả các sản phẩm được tìm kiếm theo bộ lọc sẽ được cập nhật về loại hoa hồng tư vấn khách mới : ${
+          val || 0
+        } và không thể khôi phục.`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Thực hiện',
+        cancelButtonText: 'Huỷ',
+        reverseButtons: true,
+        showLoaderOnConfirm: true,
+        preConfirm: async () => {
+          const data = await updateMutation.mutateAsync(values)
+          await queryClient.invalidateQueries({ queryKey: ['ListProdRose'] })
+          return data
+        },
+        allowOutsideClick: () => !Swal.isLoading()
+      }).then(result => {
+        if (result.isConfirmed) {
+          setValue('')
+          window?.top?.toastr?.success('Đã cập nhập tất cả.', '', {
+            timeOut: 1500
+          })
+        } else {
+          setValue('')
+        }
+      })
+    } else {
+      updateMutation.mutate(values, {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ['ListProdRose'] })
+        }
+      })
+    }
+  }
+
+  const getActive = () => {
+    if (!rowData?.filters) {
+      let BonusSaleJSON = JSON.parse(rowData.BonusSaleJSON)
+      if (rowData.BonusSale2 > 0 && BonusSaleJSON.some(x => x.Salary > 0)) {
+        return
+      } else {
+        if (rowData.BonusSale2 > 0) return true
+      }
+    }
+    return
+  }
+
+  return (
+    <InputNumber
+      className={clsx(
+        'px-3 py-2.5',
+        getActive() &&
+          '!border-danger hover:!border-primary focus:!border-primary'
+      )}
+      placeholder="Nhập giá trị"
+      thousandSeparator={true}
+      value={value}
+      onValueChange={val => {
+        setValue(val.floatValue)
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current)
+        }
+        typingTimeoutRef.current = setTimeout(
+          () => {
+            onSubmit(val.floatValue)
+          },
+          rowData?.filters ? 600 : 300
+        )
+      }}
+      allowNegative={false}
+      isAllowed={inputObj => {
+        const { floatValue } = inputObj
+        if (floatValue < 0) return
+        return true
+      }}
+    />
+  )
+}
+
 const RendererLevels = ({ rowData, name, levels }) => {
   const [value, setValue] = useState()
   const queryClient = useQueryClient()
@@ -308,6 +419,15 @@ function ConsultingCommission() {
           width: 300,
           sortable: false
           //align: 'center',
+        },
+        {
+          key: 'BonusSale2',
+          title: 'Hoa hồng tư vấn khách mới',
+          dataKey: 'BonusSale2',
+          width: 250,
+          sortable: false,
+          cellRenderer: props => <RendererBonusSale2 {...props} />,
+          hidden: window?.top?.GlobalConfig?.Admin?.hoa_hong_tu_van_ktv_an
         },
         {
           key: 'BonusSale',
