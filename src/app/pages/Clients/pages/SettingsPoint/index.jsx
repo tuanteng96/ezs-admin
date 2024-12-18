@@ -52,14 +52,27 @@ function SettingsPoint(props) {
           rs
             .filter(x => x.ID !== '-1' && x.ID !== '-2')
             .sort((a, b) => a.ID - b.ID)
-            .toString() === data.sort((a, b) => a.ID - b.ID).toString()
+            .map(x => x.ID + x.Title.toUpperCase())
+            .toString() ===
+          data
+            .sort((a, b) => a.ID - b.ID)
+            .map(x => x.ID + x.Title.toUpperCase())
+            .toString()
 
         for (let gr of rs) {
           if (gr.ID === '-1' || gr.ID === '-2') {
             newRs.push(gr)
           } else {
-            if (data.some(x => x.ID === gr.ID)) {
-              newRs.push(gr)
+            let index = data.findIndex(x => x.ID === gr.ID)
+            if (index > -1) {
+              let title =
+                data[index].Title.toUpperCase() === gr.Title.toUpperCase()
+                  ? gr.Title
+                  : data[index].Title
+              newRs.push({
+                ...gr,
+                Title: title
+              })
             }
           }
         }
