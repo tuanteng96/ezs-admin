@@ -114,7 +114,8 @@ function WareHouseExportStock(props) {
                   ProdId: x.ProdID,
                   Other: x?.Desc || '',
                   convert: null,
-                  Qty: x.Qty || 1
+                  Qty: x.Qty || 1,
+                  ImportTotalPrice: (x.Qty || 1) * x.ImportPrice
                 }))
               : [
                   {
@@ -127,7 +128,8 @@ function WareHouseExportStock(props) {
                     ProdId: '',
                     Unit: '',
                     Source: '',
-                    convert: null
+                    convert: null,
+                    ImportTotalPrice: 0
                   }
                 ]
         })
@@ -216,6 +218,10 @@ function WareHouseExportStock(props) {
                           : 0
                         : 0
                     )
+                    setValue(
+                      `items[${rowIndex}].ImportTotalPrice`,
+                      1 * val?.source?.PriceBase
+                    )
                     setValue(`items[${rowIndex}].Valid`, true)
                     onUpdate()
                   }}
@@ -291,6 +297,11 @@ function WareHouseExportStock(props) {
                   placeholder="Nhập SL"
                   value={field.value}
                   onValueChange={val => {
+                    const { ImportPrice } = watchForm.items[rowIndex]
+                    setValue(
+                      `items[${rowIndex}].ImportTotalPrice`,
+                      ImportPrice * (val.floatValue || 0)
+                    )
                     field.onChange(val.floatValue || '')
                     onUpdate()
                   }}
@@ -418,10 +429,14 @@ function WareHouseExportStock(props) {
                 value={field.value}
                 placeholder="Nhập đơn giá"
                 onValueChange={val => {
-                  const { ImportPriceOrigin } = watchForm.items[rowIndex]
+                  const { ImportPriceOrigin, Qty } = watchForm.items[rowIndex]
                   setValue(
                     `items[${rowIndex}].ImportDiscount`,
                     ImportPriceOrigin - (val.floatValue || 0)
+                  )
+                  setValue(
+                    `items[${rowIndex}].ImportTotalPrice`,
+                    Qty * (val.floatValue || 0)
                   )
                   field.onChange(val.floatValue || '')
                   onUpdate()
@@ -429,6 +444,32 @@ function WareHouseExportStock(props) {
               />
             )}
           />
+        ),
+        width: 200,
+        sortable: false,
+        hidden: !xuat_nhap_diem?.hasRight
+      },
+      {
+        key: 'ImportTotalPrice',
+        title: 'Thành tiền',
+        dataKey: 'ImportTotalPrice',
+        cellRenderer: ({ rowData, rowIndex }) => (
+          <div>
+            <Controller
+              name={`items[${rowIndex}].ImportTotalPrice`}
+              control={control}
+              render={({ field: { ref, ...field }, fieldState }) => (
+                <InputNumber
+                  allowLeadingZeros={true}
+                  thousandSeparator={true}
+                  value={field.value}
+                  placeholder="Nhập thành tiền"
+                  onValueChange={val => {}}
+                  disabled={true}
+                />
+              )}
+            />
+          </div>
         ),
         width: 200,
         sortable: false,
