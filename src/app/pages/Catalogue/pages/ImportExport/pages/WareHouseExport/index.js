@@ -983,6 +983,53 @@ function WareHouseExport(props) {
                         />
                       </div>
                     </div>
+                    {watchForm.ie.Target && (
+                      <div className="mb-3.5">
+                        <div className="font-medium">Kho chuyển đến</div>
+                        <div className="mt-1">
+                          <Controller
+                            name="ie.Target"
+                            control={control}
+                            render={({
+                              field: { ref, ...field },
+                              fieldState
+                            }) => (
+                              <>
+                                <SelectStocksWareHouse
+                                  isDisabled={watchForm.ie.TargetCreated === 1}
+                                  value={field.value}
+                                  onChange={val =>
+                                    field.onChange(val?.value || '')
+                                  }
+                                  className="select-control"
+                                  menuPosition="fixed"
+                                  styles={{
+                                    menuPortal: base => ({
+                                      ...base,
+                                      zIndex: 9999
+                                    })
+                                  }}
+                                  menuPortalTarget={document.body}
+                                  StockRoles={
+                                    xuat_nhap_diem.hasRight
+                                      ? xuat_nhap_diem.IsStocks
+                                        ? [
+                                            { value: 778, label: 'Kho tổng' }
+                                          ].concat(xuat_nhap_diem.StockRoles)
+                                        : xuat_nhap_diem.StockRoles
+                                      : xuat_nhap_ten_slg.IsStocks
+                                      ? [
+                                          { value: 778, label: 'Kho tổng' }
+                                        ].concat(xuat_nhap_ten_slg.StockRoles)
+                                      : xuat_nhap_ten_slg.StockRoles
+                                  }
+                                />
+                              </>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    )}
                     <div>
                       <div className="font-medium">Nhà cung cấp, đại lý</div>
                       <div className="mt-1">

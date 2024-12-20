@@ -196,7 +196,7 @@ function PickerInventory({ children, item, StockID }) {
                 </DropdownMenu>
               </>
             )}
-            {!rowData.Source && !rowData.Source && (
+            {!rowData.Source && (
               <>
                 Đơn nhập xuất
                 <Link
