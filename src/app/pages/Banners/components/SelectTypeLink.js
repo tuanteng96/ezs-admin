@@ -39,10 +39,10 @@ const SelectTypeLink = ({ value, ...props }) => {
       label: 'Tới danh sách Voucher',
       value: 'VOUCHER'
     },
-    {
-      label: 'Tới dịch vụ gốc',
-      value: 'CATE_SERVICE_ID'
-    },
+    // {
+    //   label: 'Tới dịch vụ gốc',
+    //   value: 'CATE_SERVICE_ID'
+    // },
     {
       label: 'Tới đặt lịch dịch vụ',
       value: 'BOOK_SERVICE'

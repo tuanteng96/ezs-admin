@@ -72,10 +72,10 @@ const SelectTypeLink = ({ value, ...props }) => {
       label: 'Tới danh sách Voucher',
       value: 'VOUCHER'
     },
-    {
-      label: 'Tới dịch vụ gốc',
-      value: 'CATE_SERVICE_ID'
-    },
+    // {
+    //   label: 'Tới dịch vụ gốc',
+    //   value: 'CATE_SERVICE_ID'
+    // },
     {
       label: 'Tới đặt lịch dịch vụ',
       value: 'BOOK_SERVICE'
@@ -345,9 +345,9 @@ function AddEdit(props) {
               </NavLink>
             </div>
             {isTemplate && (
-              <div className="relative p-5 grow overflow-auto">
+              <div className="relative p-5 overflow-auto grow">
                 <div
-                  className="flex justify-center items-center mb-5 h-11 bg-success rounded text-white cursor-pointer"
+                  className="flex items-center justify-center mb-5 text-white rounded cursor-pointer h-11 bg-success"
                   onClick={() => setIsTemplate(false)}
                 >
                   <PlusIcon className="w-5 mr-2" />
@@ -360,7 +360,7 @@ function AddEdit(props) {
                         <div className="uppercase text-[13px] font-bold mb-2">
                           {group.Title}
                         </div>
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-5">
+                        <div className="grid grid-cols-2 gap-5 md:grid-cols-3">
                           {group.Children &&
                             group.Children.map((item, index) => (
                               <div
@@ -386,7 +386,7 @@ function AddEdit(props) {
                                   <div className="mb-1 font-medium line-clamp-2">
                                     {item.Title}
                                   </div>
-                                  <div className="text-sm text-muted2 font-light line-clamp-2">
+                                  <div className="text-sm font-light text-muted2 line-clamp-2">
                                     {item.Desc}
                                   </div>
                                 </div>
@@ -400,7 +400,7 @@ function AddEdit(props) {
             )}
             {!isTemplate && (
               <>
-                <div className="relative p-5 grow overflow-auto">
+                <div className="relative p-5 overflow-auto grow">
                   <LoadingComponentFull
                     bgClassName="bg-white dark:bg-dark-aside"
                     loading={!isAddMode && isLoading}
@@ -447,7 +447,7 @@ function AddEdit(props) {
                                 <PopverPickerEmoji
                                   value={field.value}
                                   trigger={
-                                    <div className="absolute w-12 h-12 flex justify-center items-center right-0 bottom-0 cursor-pointer">
+                                    <div className="absolute bottom-0 right-0 flex items-center justify-center w-12 h-12 cursor-pointer">
                                       <FaceSmileIcon className="w-6" />
                                     </div>
                                   }
@@ -542,7 +542,7 @@ function AddEdit(props) {
                         <div>
                           <div className="mb-3.5">
                             <div className="font-medium">Link</div>
-                            <div className="mt-1 relative">
+                            <div className="relative mt-1">
                               <Controller
                                 name="Link"
                                 control={control}
@@ -562,7 +562,7 @@ function AddEdit(props) {
                                 )}
                               />
                               <div
-                                className="absolute right-0 top-0 px-4 h-full flex items-center justify-center cursor-pointer text-sm font-medium text-success"
+                                className="absolute top-0 right-0 flex items-center justify-center h-full px-4 text-sm font-medium cursor-pointer text-success"
                                 onClick={() => setIsEditLink(true)}
                               >
                                 Chỉnh sửa
