@@ -11,7 +11,7 @@ import {
 
 import UploadAdapter from './UploadAdapter'
 import clsx from 'clsx'
-
+  console.log(Editor)
 function CkEditor5({
   value,
   onChange,
