@@ -24,6 +24,7 @@ import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { ConversionTools } from '../../components'
 import UploadsAPI from 'src/_ezs/api/uploads.api'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
+import Tooltip from 'rc-tooltip'
 
 function WareHouseExportStock(props) {
   const navigate = useNavigate()
@@ -151,82 +152,178 @@ function WareHouseExportStock(props) {
               name={`items[${rowIndex}].ProdTitle`}
               control={control}
               rules={{ required: true }}
-              render={({ field: { ref, ...field }, fieldState }) => (
-                <SelectProdCode
-                  className={clsx(
-                    'select-control',
-                    fieldState?.invalid && 'select-control-error'
-                  )}
-                  Params={{
-                    cmd: 'prodcode',
-                    includeSource: 1,
-                    cate_name: 'san_pham,nvl',
-                    _type: 'query'
-                  }}
-                  menuPosition="fixed"
-                  styles={{
-                    menuPortal: base => ({
-                      ...base,
-                      zIndex: 9999
-                    })
-                  }}
-                  menuPortalTarget={document.body}
-                  isClearable
-                  value={field.value}
-                  onChange={(val, triggeredAction) => {
-                    field.onChange(val)
+              render={({ field: { ref, ...field }, fieldState }) =>
+                field.value?.label ? (
+                  <Tooltip
+                    //visible={true}
+                    overlayClassName="text-white dark:text-dark-light"
+                    placement="top"
+                    trigger={['hover']}
+                    overlay={
+                      <div className="px-3 py-2.5 bg-white dark:bg-dark-light rounded-sm shadow-lg text-gray-700 dark:text-graydark-800 max-w-[300px] text-center">
+                        {field.value?.label}
+                      </div>
+                    }
+                    align={{
+                      offset: [9, 0]
+                    }}
+                  >
+                    <div>
+                      <SelectProdCode
+                        className={clsx(
+                          'select-control',
+                          fieldState?.invalid && 'select-control-error'
+                        )}
+                        Params={{
+                          cmd: 'prodcode',
+                          includeSource: 1,
+                          cate_name: 'san_pham,nvl',
+                          _type: 'query'
+                        }}
+                        menuPosition="fixed"
+                        styles={{
+                          menuPortal: base => ({
+                            ...base,
+                            zIndex: 9999
+                          })
+                        }}
+                        menuPortalTarget={document.body}
+                        isClearable
+                        value={field.value}
+                        onChange={(val, triggeredAction) => {
+                          field.onChange(val)
 
-                    WarehouseAPI.getConvert({
-                      prodid: val?.source?.ID
-                    }).then(({ data }) => {
-                      if (data?.lst && data.lst.length > 0) {
-                        setValue(`items[${rowIndex}].convert`, data.lst)
-                      } else {
-                        setValue(`items[${rowIndex}].convert`, null)
-                      }
-                    })
+                          WarehouseAPI.getConvert({
+                            prodid: val?.source?.ID
+                          }).then(({ data }) => {
+                            if (data?.lst && data.lst.length > 0) {
+                              setValue(`items[${rowIndex}].convert`, data.lst)
+                            } else {
+                              setValue(`items[${rowIndex}].convert`, null)
+                            }
+                          })
 
-                    setValue(
-                      `items[${rowIndex}].ProdCode`,
-                      val ? val?.source?.DynamicID : ''
-                    )
-                    setValue(
-                      `items[${rowIndex}].ProdId`,
-                      val ? val?.source?.ID : ''
-                    )
-                    setValue(
-                      `items[${rowIndex}].Unit`,
-                      val ? val?.source?.StockUnit : ''
-                    )
-                    setValue(`items[${rowIndex}].Qty`, 1, {
-                      shouldValidate: true
-                    })
-                    setValue(
-                      `items[${rowIndex}].ImportPriceOrigin`,
-                      val ? val?.source?.PriceProduct : ''
-                    )
-                    setValue(
-                      `items[${rowIndex}].ImportPrice`,
-                      val ? val?.source?.PriceBase : ''
-                    )
-                    setValue(
-                      `items[${rowIndex}].ImportDiscount`,
-                      val
-                        ? val?.source?.PriceBase > 0 &&
-                          val?.source?.PriceProduct >= val?.source?.PriceBase
-                          ? val?.source?.PriceProduct - val?.source?.PriceBase
+                          setValue(
+                            `items[${rowIndex}].ProdCode`,
+                            val ? val?.source?.DynamicID : ''
+                          )
+                          setValue(
+                            `items[${rowIndex}].ProdId`,
+                            val ? val?.source?.ID : ''
+                          )
+                          setValue(
+                            `items[${rowIndex}].Unit`,
+                            val ? val?.source?.StockUnit : ''
+                          )
+                          setValue(`items[${rowIndex}].Qty`, 1, {
+                            shouldValidate: true
+                          })
+                          setValue(
+                            `items[${rowIndex}].ImportPriceOrigin`,
+                            val ? val?.source?.PriceProduct : ''
+                          )
+                          setValue(
+                            `items[${rowIndex}].ImportPrice`,
+                            val ? val?.source?.PriceBase : ''
+                          )
+                          setValue(
+                            `items[${rowIndex}].ImportDiscount`,
+                            val
+                              ? val?.source?.PriceBase > 0 &&
+                                val?.source?.PriceProduct >=
+                                  val?.source?.PriceBase
+                                ? val?.source?.PriceProduct -
+                                  val?.source?.PriceBase
+                                : 0
+                              : 0
+                          )
+                          setValue(
+                            `items[${rowIndex}].ImportTotalPrice`,
+                            1 * val?.source?.PriceBase
+                          )
+                          setValue(`items[${rowIndex}].Valid`, true)
+                          onUpdate()
+                        }}
+                      />
+                    </div>
+                  </Tooltip>
+                ) : (
+                  <SelectProdCode
+                    className={clsx(
+                      'select-control',
+                      fieldState?.invalid && 'select-control-error'
+                    )}
+                    Params={{
+                      cmd: 'prodcode',
+                      includeSource: 1,
+                      cate_name: 'san_pham,nvl',
+                      _type: 'query'
+                    }}
+                    menuPosition="fixed"
+                    styles={{
+                      menuPortal: base => ({
+                        ...base,
+                        zIndex: 9999
+                      })
+                    }}
+                    menuPortalTarget={document.body}
+                    isClearable
+                    value={field.value}
+                    onChange={(val, triggeredAction) => {
+                      field.onChange(val)
+
+                      WarehouseAPI.getConvert({
+                        prodid: val?.source?.ID
+                      }).then(({ data }) => {
+                        if (data?.lst && data.lst.length > 0) {
+                          setValue(`items[${rowIndex}].convert`, data.lst)
+                        } else {
+                          setValue(`items[${rowIndex}].convert`, null)
+                        }
+                      })
+
+                      setValue(
+                        `items[${rowIndex}].ProdCode`,
+                        val ? val?.source?.DynamicID : ''
+                      )
+                      setValue(
+                        `items[${rowIndex}].ProdId`,
+                        val ? val?.source?.ID : ''
+                      )
+                      setValue(
+                        `items[${rowIndex}].Unit`,
+                        val ? val?.source?.StockUnit : ''
+                      )
+                      setValue(`items[${rowIndex}].Qty`, 1, {
+                        shouldValidate: true
+                      })
+                      setValue(
+                        `items[${rowIndex}].ImportPriceOrigin`,
+                        val ? val?.source?.PriceProduct : ''
+                      )
+                      setValue(
+                        `items[${rowIndex}].ImportPrice`,
+                        val ? val?.source?.PriceBase : ''
+                      )
+                      setValue(
+                        `items[${rowIndex}].ImportDiscount`,
+                        val
+                          ? val?.source?.PriceBase > 0 &&
+                            val?.source?.PriceProduct >= val?.source?.PriceBase
+                            ? val?.source?.PriceProduct - val?.source?.PriceBase
+                            : 0
                           : 0
-                        : 0
-                    )
-                    setValue(
-                      `items[${rowIndex}].ImportTotalPrice`,
-                      1 * val?.source?.PriceBase
-                    )
-                    setValue(`items[${rowIndex}].Valid`, true)
-                    onUpdate()
-                  }}
-                />
-              )}
+                      )
+                      setValue(
+                        `items[${rowIndex}].ImportTotalPrice`,
+                        1 * val?.source?.PriceBase
+                      )
+                      setValue(`items[${rowIndex}].Valid`, true)
+                      onUpdate()
+                    }}
+                  />
+                )
+              }
             />
             <Controller
               name={`items[${rowIndex}].Valid`}
