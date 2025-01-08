@@ -34,7 +34,7 @@ const RendererBonusSale = ({ rowData }) => {
       update: [
         {
           ID: rowData.ID,
-          Bonus: val
+          Bonus: val || ''
         }
       ]
     }
@@ -97,15 +97,18 @@ const RendererBonusSale = ({ rowData }) => {
           () => {
             onSubmit(val.floatValue)
           },
-          rowData?.filters ? 600 : 300
+          rowData?.filters ? 600 : 600
         )
       }}
       allowNegative={false}
       isAllowed={inputObj => {
-        const { floatValue } = inputObj
-        if (floatValue < 0) return
+        const { floatValue, value } = inputObj
+        if (value !== '' && floatValue < 0) return
         return true
       }}
+      // onBlur={val => {
+      //   onSubmit(value)
+      // }}
     />
   )
 }
@@ -120,7 +123,7 @@ const RendererLevels = ({ rowData, name }) => {
     if (rowData.BonusJSON) {
       let BonusSales = JSON.parse(rowData.BonusJSON)
       let index = BonusSales.findIndex(x => x.Level === name)
-      if (index > -1) setValue(BonusSales[index].Salary || 0)
+      if (index > -1) setValue(BonusSales[index].Salary || '')
     }
   }, [rowData, name])
 
@@ -132,7 +135,7 @@ const RendererLevels = ({ rowData, name }) => {
     if (rowData.filters) {
       let values = {
         updatebyFilter: rowData.filters,
-        BonusJSON: JSON.stringify([{ Level: name, Salary: val || null }])
+        BonusJSON: JSON.stringify([{ Level: name, Salary: val || '' }])
       }
       Swal.fire({
         customClass: {
@@ -168,7 +171,7 @@ const RendererLevels = ({ rowData, name }) => {
       let BonusSales = JSON.parse(rowData.BonusJSON)
       let index = BonusSales.findIndex(x => x.Level === name)
 
-      BonusSales[index].Salary = val
+      BonusSales[index].Salary = val || ''
 
       let values = {
         update: [
@@ -201,13 +204,13 @@ const RendererLevels = ({ rowData, name }) => {
           () => {
             onSubmit(val.floatValue)
           },
-          rowData?.filters ? 600 : 300
+          rowData?.filters ? 600 : 600
         )
       }}
       allowNegative={false}
       isAllowed={inputObj => {
-        const { floatValue } = inputObj
-        if (floatValue < 0) return
+        const { floatValue, value } = inputObj
+        if (value !== '' && floatValue < 0) return
         return true
       }}
     />
