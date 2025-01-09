@@ -34,6 +34,18 @@ import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
 import moment from 'moment'
 import { formatString } from 'src/_ezs/utils/formatString'
+import Select from 'react-select'
+
+const ListTags = [
+  {
+    label: 'Mới',
+    value: '0'
+  },
+  {
+    label: 'Nổi bật',
+    value: '1'
+  }
+]
 
 const perfectScrollbarOptions = {
   wheelSpeed: 2,
@@ -57,7 +69,8 @@ const initialValues = {
   Channels: null,
   CreateDate: new Date(),
   Order: 0,
-  IsPublic: 1
+  IsPublic: 1,
+  Status: ''
 }
 
 function AddEdit(props) {
@@ -85,7 +98,8 @@ function AddEdit(props) {
           Desc: state?.formState?.Desc,
           Content: formatString.fixedContentDomain(state?.formState?.Content),
           Order: state?.formState?.Order,
-          IsPublic: state?.formState?.IsPublic
+          IsPublic: state?.formState?.IsPublic,
+          Status: state?.formState?.Status
         }
       : {
           ...initialValues
@@ -143,7 +157,8 @@ function AddEdit(props) {
           Channels:
             data?.ChannelList && data?.ChannelList
               ? data?.ChannelList.map(x => ({ label: x.Title, value: x.ID }))
-              : null
+              : null,
+          Status: data?.Status || ''
         })
       }
     },
@@ -363,6 +378,34 @@ function AddEdit(props) {
                           value={field.value}
                           onChange={val => field.onChange(val)}
                           placeholder="Nhập nội dung"
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="mb-3.5">
+                  <div className="font-medium">Tags</div>
+                  <div className="mt-1">
+                    <Controller
+                      name="Status"
+                      control={control}
+                      render={({ field: { ref, ...field }, fieldState }) => (
+                        <Select
+                          isClearable
+                          classNamePrefix="select"
+                          options={ListTags}
+                          className="select-control mb-8px"
+                          placeholder="Chọn loại"
+                          value={ListTags.filter(x => x.value === field.value)}
+                          onChange={val => field.onChange(val?.value || '')}
+                          menuPortalTarget={document.body}
+                          menuPosition="fixed"
+                          styles={{
+                            menuPortal: base => ({
+                              ...base,
+                              zIndex: 9999
+                            })
+                          }}
                         />
                       )}
                     />
