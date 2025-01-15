@@ -95,12 +95,12 @@ function Supplier(props) {
   const columns = useMemo(
     () => [
       {
-        key: 'ID',
+        key: 'Code',
         title: 'Mã',
-        dataKey: 'ID',
+        dataKey: 'Code',
         width: 180,
         sortable: false,
-        cellRenderer: ({ rowData }) => rowData.ID
+        cellRenderer: ({ rowData }) => rowData.Code
       },
       {
         key: 'Title',
@@ -178,10 +178,10 @@ function Supplier(props) {
   )
 
   return (
-    <div className="flex flex-col h-full lg:px-8 lg:pt-8 lg:pb-5 p-4 mx-auto max-w-7xl">
+    <div className="flex flex-col h-full p-4 mx-auto lg:px-8 lg:pt-8 lg:pb-5 max-w-7xl">
       <div className="flex items-end justify-between mb-5">
         <div className="pr-3">
-          <div className="text-xl sm:text-3xl font-bold dark:text-white">
+          <div className="text-xl font-bold sm:text-3xl dark:text-white">
             Nhà cung cấp, đại lý
           </div>
           <div className="mt-1.5 hidden sm:block">
@@ -191,7 +191,7 @@ function Supplier(props) {
         <div className="flex sm:pb-1">
           <Menu as="div" className="relative mr-1 sm:mr-2.5">
             <div>
-              <Menu.Button className="flex items-center justify-center text-gray-900 bg-light border rounded border-light w-10 h-10 sm:w-12 sm:h-12 dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary">
+              <Menu.Button className="flex items-center justify-center w-10 h-10 text-gray-900 border rounded bg-light border-light sm:w-12 sm:h-12 dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary">
                 <AdjustmentsVerticalIcon className="w-6 sm:w-7" />
               </Menu.Button>
             </div>
@@ -262,7 +262,7 @@ function Supplier(props) {
               <Button
                 onClick={open}
                 type="button"
-                className="flex items-center justify-center relative w-10 h-10 sm:w-12 sm:h-12 md:w-auto md:px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                className="relative flex items-center justify-center w-10 h-10 text-white transition rounded shadow-lg sm:w-12 sm:h-12 md:w-auto md:px-4 bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
               >
                 <span className="hidden md:block">Thêm mới</span>
                 <PlusIcon className="w-6 sm:w-7 md:hidden" />
