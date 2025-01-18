@@ -15,6 +15,7 @@ const AppointmentsPage = lazy(() => import('../pages/Appointments'))
 const CataloguePage = lazy(() => import('../pages/Catalogue'))
 const NotificationsPage = lazy(() => import('../pages/Notifications'))
 const SettingsPage = lazy(() => import('../pages/Settings'))
+const ElectronicInvoicePage = lazy(() => import('../pages/ElectronicInvoice'))
 const SearchPage = lazy(() => import('../pages/Search'))
 const UnauthorizedPage = lazy(() => import('../pages/Unauthorized'))
 
@@ -74,6 +75,10 @@ function PrivateRoutes(props) {
         <Route path="banners/*" element={<BannersPage />} />
         <Route path="posts/*" element={<PostsPage />} />
         <Route path="catalogue/*" element={<CataloguePage />} />
+        <Route
+          path="electronic-invoice/*"
+          element={<ElectronicInvoicePage />}
+        />
         <Route element={<RoleAccess roles={notification.hasRight} />}>
           <Route
             path="notifications/*"
