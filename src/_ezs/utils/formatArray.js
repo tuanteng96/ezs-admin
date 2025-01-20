@@ -43,5 +43,9 @@ export const formatArray = {
     }
     array.splice(newIndex, 0, array.splice(oldIndex, 1)[0])
     return array
+  },
+  sumTotalKey: (arr, key) => {
+    if (!arr || arr.length === 0) return 0
+    return arr.reduce((a, b) => a + (b[key] || 0), 0)
   }
 }

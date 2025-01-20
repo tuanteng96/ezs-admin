@@ -27,7 +27,7 @@ function ToolsImages(props) {
     }
   })
 
-  const { control, handleSubmit, watch, reset, setValue } = methods
+  const { control, handleSubmit, setValue } = methods
 
   const { fields, update, remove } = useFieldArray({
     control,

@@ -31,7 +31,7 @@ function IeProcessedImport(props) {
   const { control, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
       ie: {
-        CreateDate: "",
+        CreateDate: '',
         Code: '', // Mã
         SupplierID: '', //Nhà cung cấp
         ToPay: '', // Giá trị sau chiết khấu

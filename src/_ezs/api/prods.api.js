@@ -41,7 +41,7 @@ const ProdsAPI = {
     ),
   updateImageProd: data =>
     http.post('/api/v3/file25@updates', JSON.stringify(data)),
-  searchNamesProd: data => http.post('/api/v3/file25@Get', JSON.stringify(data)),
+  searchNamesProd: data => http.post('/api/v3/file25@Get', JSON.stringify(data))
 }
 
 export default ProdsAPI

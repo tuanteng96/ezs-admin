@@ -12,7 +12,6 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
-import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import { Button } from 'src/_ezs/partials/button'
 import { InputNumber } from 'src/_ezs/partials/forms'
 import { ImageLazy } from 'src/_ezs/partials/images'
@@ -22,7 +21,6 @@ import { formatArray } from 'src/_ezs/utils/formatArray'
 
 function PickerWarehouseScale({ children, queryConfig }) {
   const [visible, setVisible] = useState(false)
-  const { GlobalConfig } = useLayout()
 
   const queryClient = useQueryClient()
 
@@ -66,15 +64,15 @@ function PickerWarehouseScale({ children, queryConfig }) {
   })
 
   const Lists = formatArray.useInfiniteQuery(data?.pages, 'list')
-  
+
   useEffect(() => {
     if (visible) {
       if (Lists) {
         let newLists = [...Lists]
-        if(Items) {
+        if (Items) {
           for (let item of Items) {
             let index = newLists.findIndex(x => x.ID === item.ID)
-            if(index > -1) {
+            if (index > -1) {
               newLists[index].ActualInventory = item.ActualInventory
             }
           }
@@ -83,7 +81,7 @@ function PickerWarehouseScale({ children, queryConfig }) {
           Items: newLists.map(x => ({
             ActualInventory: '',
             BalanceInventory: '',
-            ...x,
+            ...x
           }))
         })
       }

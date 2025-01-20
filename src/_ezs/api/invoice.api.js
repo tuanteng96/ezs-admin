@@ -3,9 +3,11 @@ import httpInvoice from '../utils/httpInvoice'
 
 const InvoiceAPI = {
   urlAction: body =>
-    http.post(`/api/v3/UrlAction@invoke`, JSON.stringify(body)),
-  login: data => httpInvoice.post(`/auth/token`, data),
-  getList: body => http.post(`/api/v3/order23@GetInvoice`, JSON.stringify(body))
+    httpInvoice.post(`/api/v3/UrlAction@invoke`, JSON.stringify(body)),
+  getList: body =>
+    http.post(`/api/v3/order23@GetInvoice`, JSON.stringify(body)),
+  updateInvoiceIDs: body =>
+    http.post(`/api/v3/order23@SetInvoice`, JSON.stringify(body))
 }
 
 export default InvoiceAPI

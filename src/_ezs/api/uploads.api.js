@@ -7,8 +7,8 @@ const UploadsAPI = {
         progressCallBack &&
         progressCallBack(Math.round((ev.loaded * 100) / ev.total))
     }),
-  sendMultiFiles: (data) => {
-    return http.post("/api/v3/file25@uploads", data)
+  sendMultiFiles: data => {
+    return http.post('/api/v3/file25@uploads', data)
   }
 }
 

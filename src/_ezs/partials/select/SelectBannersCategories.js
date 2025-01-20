@@ -14,7 +14,13 @@ function SelectBannersCategories({
     })
     return {
       options: data?.list
-        ? data.list.map(x => ({ ...x, label: x.Title, value: x.ID })).sort((a, b) => (a["label"] || "").toString().localeCompare((b["label"] || "").toString()))
+        ? data.list
+            .map(x => ({ ...x, label: x.Title, value: x.ID }))
+            .sort((a, b) =>
+              (a['label'] || '')
+                .toString()
+                .localeCompare((b['label'] || '').toString())
+            )
         : [],
       hasMore: page < data.pCount,
       additional: {

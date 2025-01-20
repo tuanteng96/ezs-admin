@@ -1,13 +1,13 @@
-import { useQuery } from '@tanstack/react-query'
-import axios from 'axios'
-import { uniqueId } from 'lodash-es'
+import { useMutation, useQuery } from '@tanstack/react-query'
+import { chunk, uniqueId } from 'lodash-es'
 import moment from 'moment'
 import React, { useMemo, useState } from 'react'
-import { NavLink } from 'react-router-dom'
 import InvoiceAPI from 'src/_ezs/api/invoice.api'
 import { Button } from 'src/_ezs/partials/button'
 import { Checkbox } from 'src/_ezs/partials/forms'
+import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
+import { formatArray } from 'src/_ezs/utils/formatArray'
 import { formatString } from 'src/_ezs/utils/formatString'
 
 const formatRowRenderer = arr => {
@@ -57,8 +57,8 @@ function ElectronicInvoice(props) {
     queryFn: async () => {
       let { data } = await InvoiceAPI.getList({
         ...filters,
-        From: moment(new Date()).subtract(1, 'days').format('YYYY-MM-DD'), //'2025-01-17'
-        To: moment(new Date()).subtract(1, 'days').format('YYYY-MM-DD') //'2025-01-17'
+        From: moment(filters.From).format('YYYY-MM-DD'), //'2025-01-17'
+        To: moment(filters.To).format('YYYY-MM-DD') //'2025-01-17'
       })
       return data
         ? {
@@ -69,6 +69,216 @@ function ElectronicInvoice(props) {
     },
     keepPreviousData: true
   })
+
+  const invoiceMutation = useMutation({
+    mutationFn: body => InvoiceAPI.urlAction(body)
+  })
+
+  const updateInvoiceMutation = useMutation({
+    mutationFn: async body => {
+      let selecteds = []
+
+      if (selected && selected.length > 0) {
+        selecteds = selected || []
+      } else {
+        let rs = await InvoiceAPI.getList({
+          ...filters,
+          From: moment(filters.From).format('YYYY-MM-DD'),
+          To: moment(filters.To).format('YYYY-MM-DD'),
+          Ps: data.Total
+        })
+        selecteds = rs?.data?.lst || []
+      }
+
+      let newLst = selecteds.filter(
+        x =>
+          x.Items &&
+          x.Items.length > 0 &&
+          (x.CK || x.QT || x.TM) &&
+          !x.Items.some(o => !o.VAT)
+      )
+      newLst = chunk(newLst, 30)
+      let newRs = []
+      await Promise.all(
+        newLst.map(async list => {
+          return new Promise(async (resolve, reject) => {
+            let dataPost = {
+              SignType: 5,
+              PublishInvoiceData: null,
+              InvoiceData: []
+            }
+            for (let item of list) {
+              let TotalOrder = formatArray.sumTotalKey(item.Items, 'Thanh_toan')
+              let newItems = item.Items.map((x, i) => {
+                let PriceVAT = (x.Thanh_toan * x.VAT) / 100
+                let PriceTotalVAT = x.Thanh_toan - PriceVAT
+                return {
+                  ItemType: 1,
+                  LineNumber: i + 1,
+                  ItemCode: x.ProdCode,
+                  ItemName: x.ProdTitle,
+                  UnitName: x.StockUnit || '',
+                  Quantity: x.Qty,
+                  UnitPrice: PriceTotalVAT / x.Qty,
+                  DiscountRate: 0,
+                  DiscountAmountOC: 0,
+                  Amount: PriceTotalVAT,
+                  AmountOC: PriceTotalVAT,
+                  AmountWithoutVATOC: x.Thanh_toan,
+                  AmountWithoutVAT: x.Thanh_toan,
+                  VATRateName: x.VAT + '%',
+                  VATAmountOC: PriceVAT,
+                  VATAmount: PriceVAT
+                }
+              })
+              let TotalOrderVAT = formatArray.sumTotalKey(newItems, 'Amount')
+              let obj = {
+                RefID:
+                  item.ID +
+                  '-' +
+                  moment(
+                    moment(filters.From).format('YYYY-MM-DD'),
+                    'YYYY-MM-DD'
+                  ).unix(),
+                InvSeries: '1C25MFB',
+                InvDate: moment().format('YYYY-MM-DD'),
+                CurrencyCode: 'VND',
+                ExchangeRate: 1.0,
+                PaymentMethodName: [
+                  {
+                    Title: 'TM',
+                    Value: item.TM
+                  },
+                  {
+                    Title: 'CK',
+                    Value: item.CK
+                  },
+                  {
+                    Title: 'QT',
+                    Value: item.QT
+                  }
+                ]
+                  .filter(x => x.Value)
+                  .map(x => x.Title)
+                  .join('/'),
+                BuyerLegalName: '',
+                BuyerTaxCode: '',
+                BuyerAddress: '',
+                BuyerCode: '',
+                BuyerPhoneNumber: item.SenderPhone,
+                BuyerEmail: '',
+                BuyerFullName: item.SenderName,
+                BuyerBankAccount: '',
+                BuyerBankName: '',
+                TotalAmountWithoutVATOC: TotalOrderVAT,
+                TotalAmountWithoutVAT: TotalOrderVAT,
+                TotalVATAmountOC: formatArray.sumTotalKey(
+                  newItems,
+                  'VATAmount'
+                ),
+                TotalVATAmount: formatArray.sumTotalKey(newItems, 'VATAmount'),
+                TotalDiscountAmountOC: 0,
+                TotalDiscountAmount: 0,
+                TotalAmountOC: TotalOrder, // tổng tiền thanh toán
+                TotalAmount: TotalOrder, // Tổng tiền thanh toán
+                TotalAmountInWords: window.to_vietnamese(TotalOrder),
+                OriginalInvoiceDetail: newItems,
+                TaxRateInfo: [
+                  {
+                    VATRateName: '10%',
+                    AmountWithoutVATOC: formatArray.sumTotalKey(
+                      newItems.filter(x => x.VATRateName === '10%'),
+                      'Amount'
+                    ),
+                    VATAmountOC: formatArray.sumTotalKey(
+                      item.Items.filter(x => x.VAT === 10),
+                      'Thanh_toan'
+                    )
+                  },
+                  {
+                    VATRateName: '8%',
+                    AmountWithoutVATOC: formatArray.sumTotalKey(
+                      newItems.filter(x => x.VATRateName === '8%'),
+                      'Amount'
+                    ),
+                    VATAmountOC: formatArray.sumTotalKey(
+                      item.Items.filter(x => x.VAT === 8),
+                      'Thanh_toan'
+                    )
+                  }
+                ]
+              }
+              dataPost.InvoiceData.push(obj)
+            }
+            invoiceMutation.mutate(
+              {
+                url: process.env.REACT_APP_API_URL_INVOICE + '/invoice',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                param: {},
+                method: 'POST',
+                include: 'ENV',
+                body: dataPost,
+                resultType: 'json'
+              },
+              {
+                onSuccess: rs => {
+                  resolve(rs)
+                }
+              }
+            )
+          }).then(rs => {
+            let result = rs?.data?.result?.publishInvoiceResult
+            if (result) {
+              result = JSON.parse(result)
+              newRs = [...newRs, ...result]
+            }
+          })
+        })
+      )
+      let updatePost = {
+        arr: newRs
+          .filter(x => !x.ErrorCode)
+          .map(x => ({
+            ID: Number(x.RefID.split('-')[0]),
+            InvoiceID: x.TransactionID
+          }))
+      }
+      let totalUpdate = updatePost.arr.length
+      if (updatePost.arr && updatePost.arr.length > 0) {
+        await InvoiceAPI.updateInvoiceIDs(updatePost)
+      }
+
+      await refetch()
+      return {
+        data: newRs,
+        TotalUpdate: totalUpdate
+      }
+    }
+  })
+
+  const onPreviewInvoice = InvoiceID => {
+    console.log([InvoiceID])
+    invoiceMutation.mutate(
+      {
+        url: process.env.REACT_APP_API_URL_INVOICE + '/invoice/publishview',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        param: {},
+        method: 'POST',
+        include: 'ENV',
+        body: [InvoiceID],
+        resultType: 'json'
+      },
+      {
+        onSuccess: rs => {
+          console.log(rs)
+        }
+      }
+    )
+  }
 
   const rowRenderer = ({ rowData, rowIndex, cells, columns, isScrolling }) => {
     if (isScrolling)
@@ -159,29 +369,38 @@ function ElectronicInvoice(props) {
             rowData.Items.length > 0 &&
             rowData.Items.every(x => x.VAT) ? (
               <>
-                <div className="flex justify-center w-full">
-                  <Checkbox
-                    onChange={e => {
-                      let index = selected.findIndex(x => x.ID === rowData.ID)
-                      if (index > -1) {
-                        setSelected(prevState =>
-                          prevState.filter(x => x.ID !== rowData.ID)
-                        )
-                      } else {
-                        setSelected(prevState => [...prevState, rowData])
-                      }
-                    }}
-                    className="!w-auto"
-                    checked={selected.some(x => x.ID === rowData.ID)}
-                  />
-                </div>
+                {rowData.InvoiceID ? (
+                  <div
+                    className="text-primary cursor-pointer font-medium w-full text-center"
+                    onClick={() => onPreviewInvoice(rowData.InvoiceID)}
+                  >
+                    {rowData.InvoiceID}
+                  </div>
+                ) : (
+                  <div className="flex justify-center w-full">
+                    <Checkbox
+                      onChange={e => {
+                        let index = selected.findIndex(x => x.ID === rowData.ID)
+                        if (index > -1) {
+                          setSelected(prevState =>
+                            prevState.filter(x => x.ID !== rowData.ID)
+                          )
+                        } else {
+                          setSelected(prevState => [...prevState, rowData])
+                        }
+                      }}
+                      className="!w-auto"
+                      checked={selected.some(x => x.ID === rowData.ID)}
+                    />
+                  </div>
+                )}
               </>
             ) : (
               <></>
             )}
           </>
         ),
-
+        headerClassName: 'justify-center',
         width: 180,
         sortable: false,
         rowSpan: ({ rowData }) => (rowData.Items ? rowData.Items.length : 1)
@@ -221,6 +440,17 @@ function ElectronicInvoice(props) {
     [selected]
   )
 
+  const onElectronicInvoices = async () => {
+    updateInvoiceMutation.mutate(
+      {},
+      {
+        onSuccess: rs => {
+          console.log(rs)
+        }
+      }
+    )
+  }
+
   return (
     <div className="relative h-full bg-white dark:bg-dark-app">
       <div className="flex flex-col h-full px-8 pt-8 pb-5 mx-auto max-w-7xl">
@@ -231,7 +461,7 @@ function ElectronicInvoice(props) {
             </div>
             <div className="mt-1.5">Quản lý hoá đơn điện tử</div>
           </div>
-          <div className="flex pb-1">
+          <div className="flex pb-1 gap-4">
             {/* <NavLink
               to={{
                 pathname: 'filter',
@@ -250,123 +480,27 @@ function ElectronicInvoice(props) {
             >
               Quản lý vị trí
             </NavLink> */}
+            <InputDatePicker
+              placeholderText="Chọn thời gian"
+              autoComplete="off"
+              onChange={e => {
+                setFilters(prevState => ({
+                  ...prevState,
+                  From: e,
+                  To: e
+                }))
+              }}
+              selected={filters.From ? new Date(filters.From) : null}
+              dateFormat="dd/MM/yyyy"
+            />
             <Button
               type="button"
               className="relative flex items-center h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
-              onClick={() => {
-                axios
-                  .post(
-                    'https://testapi.meinvoice.vn/api/integration/invoice',
-                    {
-                      SignType: 5,
-                      InvoiceData: [
-                        {
-                          RefID: '1f269f4c-08af-4665-b7b6-eb62581f583c',
-                          InvSeries: '1C25MFB',
-                          InvDate: '2024-09-25',
-                          CurrencyCode: 'VND',
-                          ExchangeRate: 1.0,
-                          PaymentMethodName: 'TM/CK',
-                          BuyerLegalName: 'Công ty cổ phần MISA',
-                          BuyerTaxCode: '0101243150',
-                          BuyerAddress:
-                            'Tầng 9 tòa nhà Technosoft, Duy Tân, Dịch Vọng Hậu, Cầu Giấy, Hà Nội',
-                          BuyerCode: 'MS001',
-                          BuyerPhoneNumber: '0241 522 526',
-                          BuyerEmail: 'contact@misa.com.vn',
-                          BuyerFullName: 'Nguyễn Xuân Hoàng',
-                          BuyerBankAccount: '010124315087210',
-                          BuyerBankName: 'Ngân hàng Việt Nam Thịnh Vượng',
-                          TotalAmountWithoutVATOC: 5000000.0,
-                          TotalVATAmountOC: 500000.0,
-                          TotalDiscountAmountOC: 0,
-                          TotalAmountOC: 5500000.0,
-                          TotalAmountInWords: 'Năm triệu năm trăm nghìn đồng.',
-                          OriginalInvoiceDetail: [
-                            {
-                              ItemType: 1,
-                              LineNumber: 1,
-                              ItemCode: 'AOSM01',
-                              ItemName: 'Áo sơ mi Nam 40',
-                              UnitName: 'Chiếc',
-                              Quantity: 10.0,
-                              UnitPrice: 500000.0,
-                              DiscountRate: 0,
-                              DiscountAmountOC: 0,
-                              AmountOC: 5000000.0,
-                              AmountWithoutVATOC: 5000000.0,
-                              VATRateName: '10%',
-                              VATAmountOC: 500000.0,
-                              VATAmount: 500000.0
-                            }
-                          ],
-                          TaxRateInfo: [
-                            {
-                              VATRateName: '10%',
-                              AmountWithoutVATOC: 5000000.0,
-                              VATAmountOC: 500000.0
-                            }
-                          ]
-                        }
-                      ],
-                      PublishInvoiceData: null
-                    },
-                    {
-                      headers: {
-                        'Content-Type': 'application/json',
-                        Authorization:
-                          'Bearer ' +
-                          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJBcHBJZCI6IjBhNjA5ZWIxLWMxMmQtNGUyZS1hYTVkLWJhNGU4ODRjOGVlMSIsIkNvbXBhbnlJZCI6IjExMzQ5MyIsIlJvbGVUeXBlIjoiMSIsIlVzZXJJZCI6ImI1YzcxZWM0LTM0NDgtNDdjOC1hYjAzLTA3ZGQyMGVlZmU4YyIsIlVzZXJOYW1lIjoidGVzdG1pc2FAeWFob28uY29tIiwiTWlzYUlkIjoiYTkxZjA3ODEtMzE3Ny00NmFmLWI5YmItZjFiOWVmNzY3MjI4IiwiUGhvbmVOdW1iZXIiOiIwOTcxNTAwNzMxIiwiRW1haWwiOiJ0ZXN0bWlzYUB5YWhvby5jb20iLCJUYXhDb2RlIjoiMDEwMTI0MzE1MC0yODYiLCJTZWN1cmVUb2tlbiI6IlBUQ2o4ZFhzejlIVFk1UE1oU29VSjMyTnZadFlHbXNiMDN6cUtPTjB3eE9pSmJTMEdwY2ttbUtzSkgyNWRqMHAiLCJuYmYiOjE3MzcxODU2ODUsImV4cCI6MTczOTc3NzY4NSwiaWF0IjoxNzM3MTg1Njg1LCJpc3MiOiJodHRwczovL21laW52b2ljZS52biIsImF1ZCI6Imh0dHBzOi8vbWVpbnZvaWNlLnZuIn0.rK52mnxRNZuahiV9NXBAga8xjEkTt_WgVszkVfzQ83c'
-                      }
-                    }
-                  )
-                  .then(rs => {
-                    console.log(rs)
-                  })
-                  .catch(err => {
-                    console.log(err)
-                  })
-
-                // InvoiceAPI.urlAction({
-                //   url: 'https://testapi.meinvoice.vn/api/integration/auth/token',
-                //   headers: {
-                //     'Content-Type': 'application/json'
-                //   },
-                //   param: {},
-                //   method: 'POST',
-                //   include: 'ENV',
-                //   body: {
-                //     appid: '0a609eb1-c12d-4e2e-aa5d-ba4e884c8ee1',
-                //     taxcode: '0101243150-286',
-                //     username: 'testmisa@yahoo.com',
-                //     password: '123456Aa'
-                //   },
-                //   resultType: 'json'
-                // })
-                //   .then(rs => {
-                //     console.log(rs)
-                //   })
-                //   .catch(err => {
-                //     console.log(err)
-                //   })
-
-                // axios
-                //   .post(
-                //     `https://testapi.meinvoice.vn/api/integration/auth/token`,
-                //     {
-                //       appid: '0a609eb1-c12d-4e2e-aa5d-ba4e884c8ee1',
-                //       taxcode: '0101243150-286',
-                //       username: 'testmisa@yahoo.com',
-                //       password: '123456Aa1'
-                //     }
-                //   )
-                //   .then(rs => {
-                //     console.log(rs)
-                //   })
-                //   .catch(err => {
-                //     console.log(err)
-                //   })
+              onClick={async () => {
+                onElectronicInvoices()
               }}
+              loading={updateInvoiceMutation.isLoading}
+              disabled={updateInvoiceMutation.isLoading}
             >
               {selected && selected.length > 0 ? (
                 <span>Xuất {selected.length} hoá đơn</span>
