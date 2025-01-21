@@ -4,10 +4,13 @@ import moment from 'moment'
 import React, { useMemo, useState } from 'react'
 import { toast } from 'react-toastify'
 import InvoiceAPI from 'src/_ezs/api/invoice.api'
+import { useAuth } from 'src/_ezs/core/Auth'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import { Button } from 'src/_ezs/partials/button'
 import { Checkbox } from 'src/_ezs/partials/forms'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
+import { SelectStocks } from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { formatArray } from 'src/_ezs/utils/formatArray'
 import { formatString } from 'src/_ezs/utils/formatString'
@@ -44,18 +47,21 @@ const formatRowRenderer = arr => {
 }
 
 function ElectronicInvoice(props) {
+  const { CrStocks } = useAuth()
+  const { GlobalConfig } = useLayout()
+
   const [filters, setFilters] = useState({
-    StockID: [],
+    StockID: [CrStocks],
     From: new Date(), //'2025-01-17'
     To: new Date(), //'2025-01-17'
     Type: '', //XUAT,CHUA_XUAT
     Invoice: '',
     Pi: 1,
-    Ps: 20
+    Ps: 15
   })
 
-  const { GlobalConfig } = useLayout()
-  
+  const { tong_hop } = useRoles(['tong_hop'])
+
   const [selected, setSelected] = useState([])
 
   const { data, isLoading, isPreviousData, refetch } = useQuery({
@@ -64,7 +70,8 @@ function ElectronicInvoice(props) {
       let { data } = await InvoiceAPI.getList({
         ...filters,
         From: moment(filters.From).format('YYYY-MM-DD'), //'2025-01-17'
-        To: moment(filters.To).format('YYYY-MM-DD') //'2025-01-17'
+        To: moment(filters.To).format('YYYY-MM-DD'), //'2025-01-17'
+        StockID: filters.StockID ? filters.StockID.map(x => x.value) : []
       })
       return data
         ? {
@@ -503,24 +510,26 @@ function ElectronicInvoice(props) {
             <div className="mt-1.5">Quản lý hoá đơn điện tử</div>
           </div>
           <div className="flex gap-4 pb-1">
-            {/* <NavLink
-              to={{
-                pathname: 'filter',
-                search: search
+            <SelectStocks
+              StockRoles={tong_hop?.StockRoles}
+              value={filters.StockID}
+              isMulti
+              onChange={val => {
+                setFilters(prevState => ({
+                  ...prevState,
+                  StockID: val || []
+                }))
               }}
-              className="flex items-center justify-center text-gray-900 bg-light border rounded border-light h-12 w-12 dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary mr-2.5"
-            >
-              <AdjustmentsVerticalIcon className="w-7" />
-            </NavLink>
-            <NavLink
-              to={{
-                pathname: 'categories',
-                search: search
+              className="select-control w-[300px]"
+              menuPosition="fixed"
+              styles={{
+                menuPortal: base => ({
+                  ...base,
+                  zIndex: 9999
+                })
               }}
-              className="flex items-center px-3.5 border border-gray-300 dark:border-gray-700 hover:border-gray-700 dark:hover:border-graydark-700 transition rounded h-12 bg-white mr-2.5 font-semibold"
-            >
-              Quản lý vị trí
-            </NavLink> */}
+              menuPortalTarget={document.body}
+            />
             <InputDatePicker
               placeholderText="Chọn thời gian"
               autoComplete="off"
@@ -570,7 +579,7 @@ function ElectronicInvoice(props) {
           loading={isLoading || isPreviousData}
           pageCount={data?.PCount}
           pageOffset={Number(filters.Pi)}
-          pageSizes={Number(filters.Pi)}
+          pageSizes={Number(filters.Ps)}
           onChange={({ pageIndex, pageSize }) => {
             setFilters(prevState => ({
               ...prevState,
