@@ -25,7 +25,7 @@ const LayoutProvider = ({ children }) => {
           !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
             ? process.env.REACT_APP_API_URL
             : window.location.origin
-        }/brand/global/Global.json`
+        }/brand/global/Global.json?` + new Date().getTime()
       )
       let { data: template } = await axios.get(
         `${
@@ -40,6 +40,7 @@ const LayoutProvider = ({ children }) => {
       }
     },
     onSettled: data => {
+      window.ApiInvoice = data?.Admin?.hddt?.url
       setGlobalConfig(data)
     }
   })

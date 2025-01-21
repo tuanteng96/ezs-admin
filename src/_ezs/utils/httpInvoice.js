@@ -7,7 +7,10 @@ class HttpInvoice {
     this.accessToken = window?.top?.token || getLocalStorage('access_token')
     this.accessTokenInvoice = getLocalStorage('v1tk_invoice') || ''
     this.instance = axios.create({
-      baseURL: process.env.REACT_APP_API_URL,
+      baseURL:
+        !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
+          ? process.env.REACT_APP_API_URL
+          : '',
       timeout: 50000,
       headers: {
         'content-type': 'application/json'
@@ -44,9 +47,11 @@ class HttpInvoice {
             : {}
 
           let rs = await axios.post(
-            process.env.REACT_APP_API_URL + '/api/v3/UrlAction@invoke',
+            (!process.env.NODE_ENV || process.env.NODE_ENV === 'development'
+              ? process.env.REACT_APP_API_URL
+              : '') + '/api/v3/UrlAction@invoke',
             {
-              url: process.env.REACT_APP_API_URL_INVOICE + '/auth/token',
+              url: window.ApiInvoice + '/auth/token',
               headers: {
                 'Content-Type': 'application/json'
               },
