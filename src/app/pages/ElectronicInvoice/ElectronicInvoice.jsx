@@ -71,7 +71,12 @@ function ElectronicInvoice(props) {
         ...filters,
         From: moment(filters.From).format('YYYY-MM-DD'), //'2025-01-17'
         To: moment(filters.To).format('YYYY-MM-DD'), //'2025-01-17'
-        StockID: filters.StockID ? filters.StockID.map(x => x.value) : []
+        StockID:
+          filters.StockID && filters.StockID.length > 0
+            ? filters.StockID.map(x => x.value)
+            : tong_hop?.IsStocks
+            ? []
+            : tong_hop?.StockRoles?.map(x => x.value)
       })
       return data
         ? {
@@ -86,6 +91,12 @@ function ElectronicInvoice(props) {
   const invoiceMutation = useMutation({
     mutationFn: body => InvoiceAPI.urlAction(body)
   })
+
+  const getProdTitle = Title => {
+    if (GlobalConfig?.Admin?.hddt?.replaceProdTitle)
+      return Title.replace(/\(.*?\)/g, '')
+    return Title
+  }
 
   const updateInvoiceMutation = useMutation({
     mutationFn: async body => {
@@ -121,16 +132,16 @@ function ElectronicInvoice(props) {
               InvoiceData: []
             }
             for (let item of list) {
-              let TotalOrder = formatArray.sumTotalKey(item.Items, 'Thanh_toan')
+              let TotalOrder = formatArray.sumTotalKey(item.Items, 'CPayed')
               let newItems = item.Items.map((x, i) => {
-                let PriceVAT = Math.round(x.Thanh_toan / ((100 + x.VAT) / 100))
-                let PriceTotalVAT = x.Thanh_toan - PriceVAT
+                let PriceVAT = Math.round(x.CPayed / ((100 + x.VAT) / 100))
+                let PriceTotalVAT = x.CPayed - PriceVAT
                 return {
                   ItemType: 1,
                   LineNumber: i + 1,
                   SortOrder: i + 1,
                   ItemCode: x.ProdCode,
-                  ItemName: x.ProdTitle,
+                  ItemName: getProdTitle(x.ProdTitle),
                   UnitName: x.StockUnit || '',
                   Quantity: x.Qty,
                   UnitPrice: PriceVAT / x.Qty,

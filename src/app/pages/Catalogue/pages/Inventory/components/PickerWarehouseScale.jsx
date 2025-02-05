@@ -12,6 +12,7 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
+import { useAuth } from 'src/_ezs/core/Auth'
 import { Button } from 'src/_ezs/partials/button'
 import { InputNumber } from 'src/_ezs/partials/forms'
 import { ImageLazy } from 'src/_ezs/partials/images'
@@ -23,6 +24,8 @@ function PickerWarehouseScale({ children, queryConfig }) {
   const [visible, setVisible] = useState(false)
 
   const queryClient = useQueryClient()
+
+  const { Stocks } = useAuth()
 
   const { control, handleSubmit, reset, watch } = useForm({
     defaultValues: {
@@ -36,6 +39,9 @@ function PickerWarehouseScale({ children, queryConfig }) {
   })
 
   const { Items } = watch()
+
+  let indexStock = Stocks.findIndex(x => x.ID === Number(queryConfig.StockID))
+  let StockName = indexStock ? Stocks[indexStock].Title : 'Kho tổng'
 
   const { data, isLoading, fetchNextPage, refetch } = useInfiniteQuery({
     queryKey: ['WarehouseScale'],
@@ -267,7 +273,10 @@ function PickerWarehouseScale({ children, queryConfig }) {
             ProdId: x.ProdID,
             Unit: '',
             Source: '',
-            convert: null
+            convert: null,
+            Desc: `Cân kho tự động: ${StockName} - Ngày ${moment().format(
+              'DD/MM/YYYY'
+            )} - Số lượng sau cân kho: ${x.ActualInventory}`
           }))
         }
       }
@@ -308,7 +317,10 @@ function PickerWarehouseScale({ children, queryConfig }) {
             ProdId: x.ProdID,
             Unit: x.Unit,
             Source: '',
-            convert: null
+            convert: null,
+            Desc: `Cân kho tự động: ${StockName} - Ngày ${moment().format(
+              'DD/MM/YYYY'
+            )} - Số lượng sau cân kho: ${x.ActualInventory}`
           }))
         }
       }
@@ -345,7 +357,6 @@ function PickerWarehouseScale({ children, queryConfig }) {
         }
       }
     }
-
     updateMutation.mutate(
       {
         ItemsN,

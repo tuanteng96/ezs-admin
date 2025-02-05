@@ -9,7 +9,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import clsx from 'clsx'
 import { LayoutGroup, m } from 'framer-motion'
 import moment from 'moment'
-import React, { useMemo, useRef } from 'react'
+import React, { useEffect, useMemo, useRef } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'react-toastify'
@@ -72,6 +72,11 @@ function WareHouseExportStock(props) {
     control,
     name: 'items'
   })
+
+  useEffect(() => {
+    onUpdate()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fields])
 
   const { isLoading, data } = useQuery({
     queryKey: ['ImportExportId', id],

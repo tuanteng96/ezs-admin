@@ -198,23 +198,31 @@ function PickerInventory({ children, item, StockID }) {
             )}
             {!rowData.Source && (
               <>
-                Đơn nhập xuất
-                <Link
-                  to={{
-                    pathname:
-                      rowData.Type === 'N'
-                        ? '/catalogue/import-export/import/' + rowData.ImportID
-                        : '/catalogue/import-export/' +
-                          (rowData.Target > 0 ? 'export-stock/' : 'export/') +
-                          rowData.ImportID
-                  }}
-                  state={{
-                    prevFrom: pathname
-                  }}
-                  className="text-primary pl-1.5 cursor-pointer"
-                >
-                  #{rowData.ImportID}
-                </Link>
+                <div>
+                  Đơn nhập xuất
+                  <Link
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    to={{
+                      pathname:
+                        rowData.Type === 'N'
+                          ? '/catalogue/import-export/import/' +
+                            rowData.ImportID
+                          : '/catalogue/import-export/' +
+                            (rowData.Target > 0 ? 'export-stock/' : 'export/') +
+                            rowData.ImportID
+                    }}
+                    state={{
+                      prevFrom: pathname
+                    }}
+                    className="text-primary pl-1.5 cursor-pointer"
+                  >
+                    #{rowData.ImportID}
+                  </Link>
+                </div>
+                {rowData?.Desc && rowData?.Desc.includes('Cân kho tự động') && (
+                  <div className="text-sm text-danger">{rowData?.Desc}</div>
+                )}
               </>
             )}
           </div>
