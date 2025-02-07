@@ -127,7 +127,7 @@ function ElectronicInvoice(props) {
         newLst.map(async list => {
           return new Promise(async (resolve, reject) => {
             let dataPost = {
-              SignType: 5,
+              SignType: GlobalConfig?.Admin?.hddt?.SignType || 5,
               PublishInvoiceData: null,
               InvoiceData: []
             }
