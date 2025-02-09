@@ -187,10 +187,13 @@ function ElectronicInvoice(props) {
                 RefID:
                   item.ID +
                   '-' +
-                  moment(
-                    moment(filters.From).format('YYYY-MM-DD'),
-                    'YYYY-MM-DD'
-                  ).unix(),
+                  moment(filters.From)
+                    .set({
+                      hour: moment().format('HH'),
+                      minute: moment().format('mm'),
+                      second: moment().format('ss')
+                    })
+                    .unix(),
                 InvSeries: GlobalConfig?.Admin?.hddt?.InvSeries,
                 InvDate: moment().format('YYYY-MM-DD'),
                 CurrencyCode: 'VND',
