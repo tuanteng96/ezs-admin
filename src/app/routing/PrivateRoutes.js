@@ -20,10 +20,10 @@ const SearchPage = lazy(() => import('../pages/Search'))
 const UnauthorizedPage = lazy(() => import('../pages/Unauthorized'))
 
 function PrivateRoutes(props) {
-  const { pos_mng, notification, tong_hop } = useRoles([
+  const { pos_mng, notification, thu_chi } = useRoles([
     'pos_mng',
     'notification',
-    'tong_hop'
+    'thu_chi'
   ])
 
   return (
@@ -79,7 +79,7 @@ function PrivateRoutes(props) {
         <Route path="banners/*" element={<BannersPage />} />
         <Route path="posts/*" element={<PostsPage />} />
         <Route path="catalogue/*" element={<CataloguePage />} />
-        <Route element={<RoleAccess roles={tong_hop.hasRight} />}>
+        <Route element={<RoleAccess roles={thu_chi.hasRight} />}>
           <Route
             path="electronic-invoice/*"
             element={<ElectronicInvoicePage />}

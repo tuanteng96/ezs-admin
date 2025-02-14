@@ -60,7 +60,7 @@ function ElectronicInvoice(props) {
     Ps: 15
   })
 
-  const { tong_hop } = useRoles(['tong_hop'])
+  const { thu_chi } = useRoles(['thu_chi'])
 
   const [selected, setSelected] = useState([])
 
@@ -74,9 +74,9 @@ function ElectronicInvoice(props) {
         StockID:
           filters.StockID && filters.StockID.length > 0
             ? filters.StockID.map(x => x.value)
-            : tong_hop?.IsStocks
+            : thu_chi?.IsStocks
             ? []
-            : tong_hop?.StockRoles?.map(x => x.value)
+            : thu_chi?.StockRoles?.map(x => x.value)
       })
       return data
         ? {
@@ -525,7 +525,7 @@ function ElectronicInvoice(props) {
           </div>
           <div className="flex gap-4 pb-1">
             <SelectStocks
-              StockRoles={tong_hop?.StockRoles}
+              StockRoles={thu_chi?.StockRoles}
               value={filters.StockID}
               isMulti
               onChange={val => {
