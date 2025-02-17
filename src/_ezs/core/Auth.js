@@ -7,6 +7,7 @@ import {
   storeLocalStorage
 } from '../utils/localStorage'
 import { LayoutSplashScreen } from './EzsSplashScreen'
+import { lt } from 'lodash-es'
 
 const AuthContext = createContext()
 
@@ -23,7 +24,7 @@ const AuthProvider = ({ children }) => {
   const [StockRights, setStockRights] = useState(null)
   const [Stocks, setStocks] = useState(null)
 
-  const saveAuth = ({ auth, token }) => {
+  const saveAuth = ({ auth, token, isWindowTop }) => {
     if (auth) {
       let newStocks = auth.Stocks
         ? auth.Stocks.filter(x => x.ParentID !== 0).map(x => ({
@@ -51,6 +52,13 @@ const AuthProvider = ({ children }) => {
       } else {
         newCrStock = {
           ...auth.Stocks[0]
+        }
+      }
+
+      if (auth?.CrStockID && isWindowTop) {
+        let indexCrStock = newStocks.findIndex(x => x.ID === auth?.CrStockID)
+        if (indexCrStock > -1) {
+          newCrStock = newStocks[indexCrStock]
         }
       }
 
@@ -123,7 +131,8 @@ const AuthInit = ({ children }) => {
     if (window?.top?.token) {
       saveAuth({
         auth: window?.top?.Info,
-        token: window?.top?.token
+        token: window?.top?.token,
+        isWindowTop: true
       })
     } else if (!accessToken) {
       setShowSplashScreen(false)
