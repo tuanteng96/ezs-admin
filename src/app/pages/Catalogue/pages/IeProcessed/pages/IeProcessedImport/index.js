@@ -525,12 +525,12 @@ function IeProcessedImport(props) {
               </div>
               <div
                 className="flex items-center justify-center w-10 h-10 transition cursor-pointer lg:w-12 lg:h-12 dark:text-graydark-800 hover:text-primary"
-                onClick={() =>
+                onClick={() => {
                   navigate({
                     pathname: state?.prevFrom,
                     search: search
                   })
-                }
+                }}
               >
                 <XMarkIcon className="w-7 lg:w-9" />
               </div>

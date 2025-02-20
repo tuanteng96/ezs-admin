@@ -816,7 +816,7 @@ function WareHouseExportStock(props) {
                 className="flex items-center justify-center w-12 h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
                 onClick={() =>
                   navigate({
-                    pathname: state?.prevFrom,
+                    pathname: state?.prevFrom || '/catalogue/import-export',
                     search: search
                   })
                 }

@@ -35,9 +35,9 @@ const FormAddMaterial = ({ onSubmit: onSubmitAdd }) => {
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
-      className="lg:px-6 lg:pt-6 px-4 pt-4"
+      className="px-4 pt-4 lg:px-6 lg:pt-6"
     >
-      <div className="md:flex items-center">
+      <div className="items-center md:flex">
         <div className="flex-1">
           <Controller
             name="fromTitle"
@@ -72,7 +72,7 @@ const FormAddMaterial = ({ onSubmit: onSubmitAdd }) => {
             )}
           />
         </div>
-        <div className="md:px-4 py-2 md:py-0 flex justify-center md:block">
+        <div className="flex justify-center py-2 md:px-4 md:py-0 md:block">
           <ArrowRightIcon className="w-6 rotate-90 md:rotate-0" />
         </div>
         <div className="flex-1">
@@ -111,10 +111,10 @@ const FormAddMaterial = ({ onSubmit: onSubmitAdd }) => {
             )}
           />
         </div>
-        <div className="md:ml-4 mt-3 md:mt-0">
+        <div className="mt-3 md:ml-4 md:mt-0">
           <Button
             type="submit"
-            className="w-full md:w-auto flex items-center justify-center relative h-12 px-4 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+            className="relative flex items-center justify-center w-full h-12 px-4 text-white transition rounded shadow-lg md:w-auto bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
             disabled={!isDirty || !isValid}
           >
             Thêm chuyển đổi
@@ -328,15 +328,15 @@ function MaterialConversion(props) {
           animate={{ x: '0' }}
         >
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-separator dark:border-dark-separator">
-              <div className="text-xl lg:text-2xl font-bold dark:text-graydark-800 truncate w-10/12">
+            <div className="flex items-center justify-between px-4 py-4 border-b lg:px-6 border-separator dark:border-dark-separator">
+              <div className="w-10/12 text-xl font-bold truncate lg:text-2xl dark:text-graydark-800">
                 Xuất kho làm nguyên liệu
               </div>
               <div
-                className="flex items-center justify-center w-10 h-10 lg:w-12 lg:h-12 transition cursor-pointer dark:text-graydark-800 hover:text-primary"
+                className="flex items-center justify-center w-10 h-10 transition cursor-pointer lg:w-12 lg:h-12 dark:text-graydark-800 hover:text-primary"
                 onClick={() =>
                   navigate({
-                    pathname: state?.prevFrom,
+                    pathname: state?.prevFrom || '/catalogue/import-export',
                     search: search
                   })
                 }
@@ -389,7 +389,7 @@ function MaterialConversion(props) {
                 estimatedRowHeight={50}
                 onEndReachedThreshold={1}
               />
-              <div className="border-t border-separator dark:border-dark-separator lg:px-6 px-4 py-4 flex">
+              <div className="flex px-4 py-4 border-t border-separator dark:border-dark-separator lg:px-6">
                 <div className="mr-3.5 flex-1 md:flex-auto">
                   <Controller
                     name="stockid"
@@ -428,7 +428,7 @@ function MaterialConversion(props) {
                   disabled={ConvertMutation.isLoading || !isDirty || !isValid}
                   loading={ConvertMutation.isLoading}
                   type="submit"
-                  className="flex items-center relative h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                  className="relative flex items-center h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
                 >
                   <span className="hidden md:block">Thực hiện chuyển đổi</span>
                   <span className="md:hidden">Thực hiện</span>

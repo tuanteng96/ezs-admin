@@ -969,7 +969,7 @@ function WareHouseExport(props) {
                 className="flex items-center justify-center w-10 h-10 transition cursor-pointer lg:w-12 lg:h-12 dark:text-graydark-800 hover:text-primary"
                 onClick={() =>
                   navigate({
-                    pathname: state?.prevFrom,
+                    pathname: state?.prevFrom || '/catalogue/import-export',
                     search: search
                   })
                 }
