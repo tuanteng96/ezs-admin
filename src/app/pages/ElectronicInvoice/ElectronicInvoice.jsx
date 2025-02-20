@@ -199,23 +199,24 @@ function ElectronicInvoice(props) {
                 CurrencyCode: 'VND',
                 ExchangeRate: 1.0,
                 IsTaxReduction43: TaxRateInfo.some(x => x.VATRateName === '8%'),
-                PaymentMethodName: [
-                  {
-                    Title: 'TM',
-                    Value: item.TM
-                  },
-                  {
-                    Title: 'CK',
-                    Value: item.CK
-                  },
-                  {
-                    Title: 'QT',
-                    Value: item.QT
-                  }
-                ]
-                  .filter(x => x.Value)
-                  .map(x => x.Title)
-                  .join('/'),
+                // PaymentMethodName: [
+                //   {
+                //     Title: 'TM',
+                //     Value: item.TM
+                //   },
+                //   {
+                //     Title: 'CK',
+                //     Value: item.CK
+                //   },
+                //   {
+                //     Title: 'QT',
+                //     Value: item.QT
+                //   }
+                // ]
+                //   .filter(x => x.Value)
+                //   .map(x => x.Title)
+                //   .join('/'),
+                PaymentMethodName: "TM/CK",
                 BuyerLegalName: '',
                 BuyerTaxCode: '',
                 BuyerAddress: '',
