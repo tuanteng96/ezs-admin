@@ -1,3 +1,6 @@
+import moment from 'moment'
+import { formatString } from './formatString'
+
 export const formatArray = {
   useInfiniteQuery: (page, key = 'data') => {
     let newPages = []
@@ -47,5 +50,40 @@ export const formatArray = {
   sumTotalKey: (arr, key) => {
     if (!arr || arr.length === 0) return 0
     return arr.reduce((a, b) => a + (b[key] || 0), 0)
+  },
+  getInitialTime: () => {
+    let data = []
+    for (let index = 0; index < 7; index++) {
+      let obj = {}
+      obj.Title = moment().clone().weekday(index).format('dddd').toLowerCase()
+      obj.Sub = moment().clone().weekday(index).format('dd')
+      obj.index = index
+      obj.TimeFrom = '08:00'
+      obj.TimeTo = '18:00'
+      obj.TimeBefore = 30
+      obj.Value = 1
+      obj.active = true
+      data.push(obj)
+    }
+    return data
+  },
+  updateInitialTime: ({ Value }) => {
+    let data = [...formatArray.getInitialTime()].map(x => ({
+      ...x,
+      active: false
+    }))
+    let Privates = formatString.getValueCurly(Value)
+    if (Privates && Array.isArray(Privates)) {
+      for (let item of Privates) {
+        let index = data.findIndex(x => x.Sub && x.Sub === item.split(';')[0])
+        if (index > -1) {
+          data[index].active = true
+          data[index].TimeFrom = item.split(';')[1]
+          data[index].TimeTo = item.split(';')[2]
+          data[index].TimeBefore = item.split(';')[3]
+        }
+      }
+    }
+    return data
   }
 }

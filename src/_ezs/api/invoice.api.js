@@ -7,7 +7,9 @@ const InvoiceAPI = {
   getList: body =>
     http.post(`/api/v3/order23@GetInvoice`, JSON.stringify(body)),
   updateInvoiceIDs: body =>
-    http.post(`/api/v3/order23@SetInvoice`, JSON.stringify(body))
+    http.post(`/api/v3/order23@SetInvoice`, JSON.stringify(body)),
+  createRefId: body =>
+    http.post(`/api/v3/order23@CreateInvoice`, JSON.stringify(body))
 }
 
 export default InvoiceAPI

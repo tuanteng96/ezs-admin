@@ -38,7 +38,7 @@ module.exports = withMT({
         800: '#CDCDDE'
       },
       site: {
-        app: '#f5f8fa',
+        app: "#f9f9f9", //'#f5f8fa',
         aside: '#1e1e2d',
         'aside-hover': '#2a2a3c',
         color: '#181C32',
@@ -127,7 +127,8 @@ module.exports = withMT({
     },
     fontFamily: {
       sans: ['Be Vietnam Pro', 'sans-serif'],
-      inter: ['Be Vietnam Pro', 'sans-serif']
+      inter: ['Be Vietnam Pro', 'sans-serif'],
+      number: ['Inter', 'sans-serif']
     },
     extend: {
       keyframes: {

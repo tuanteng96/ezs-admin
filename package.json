@@ -57,7 +57,6 @@
         "react-toastify": "^9.1.1",
         "react-topbar-progress-indicator": "^4.1.1",
         "react-viewer": "^3.2.2",
-        "read-vietnamese-number": "^2.1.5",
         "sweetalert2": "^11.7.3",
         "web-vitals": "^2.1.4",
         "yup": "^1.0.2"

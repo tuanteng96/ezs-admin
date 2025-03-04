@@ -39,7 +39,8 @@ const formatRowRenderer = arr => {
     } else {
       newArray.push({
         ...lst,
-        Origin: false
+        Origin: false,
+        Ids: uniqueId()
       })
     }
   }
@@ -65,7 +66,7 @@ function ElectronicInvoice(props) {
   const [selected, setSelected] = useState([])
 
   const { data, isLoading, isPreviousData, refetch } = useQuery({
-    queryKey: ['ListBanners', filters],
+    queryKey: ['ListInvoices', filters],
     queryFn: async () => {
       let { data } = await InvoiceAPI.getList({
         ...filters,
@@ -92,10 +93,25 @@ function ElectronicInvoice(props) {
     mutationFn: body => InvoiceAPI.urlAction(body)
   })
 
+  const invoiceRefIDMutation = useMutation({
+    mutationFn: body => InvoiceAPI.createRefId(body)
+  })
+
   const getProdTitle = Title => {
     if (GlobalConfig?.Admin?.hddt?.replaceProdTitle)
       return Title.replace(/\(.*?\)/g, '')
     return Title
+  }
+
+  const getRefID = ({ RefIds, ID, CDate }) => {
+    if (!RefIds || RefIds.length === 0) return null
+    let index = RefIds.findIndex(
+      x =>
+        x.OrderID === ID &&
+        moment(x.Date, 'YYYY-MM-DD').format('DD-MM-YYYY') === CDate
+    )
+    if (index === -1) return null
+    return RefIds[index].NewInvoiceID || RefIds[index].InvoiceIDs[0].InvoiceID
   }
 
   const updateInvoiceMutation = useMutation({
@@ -123,19 +139,38 @@ function ElectronicInvoice(props) {
       )
       newLst = chunk(newLst, 30)
       let newRs = []
+
       await Promise.all(
         newLst.map(async list => {
           return new Promise(async (resolve, reject) => {
+            let RefIdsPost = list.map(x => {
+              let obj = {
+                OrderID: x.ID,
+                Date: moment(x.CDate).format('YYYY-MM-DD')
+              }
+              return obj
+            })
+
+            let RefIds = await invoiceRefIDMutation.mutateAsync({
+              lst: RefIdsPost
+            })
+
             let dataPost = {
               SignType: GlobalConfig?.Admin?.hddt?.SignType || 5,
               PublishInvoiceData: null,
               InvoiceData: []
             }
+
             for (let item of list) {
-              let TotalOrder = formatArray.sumTotalKey(item.Items, 'CPayed')
+              let TotalOrder = formatArray.sumTotalKey(
+                item.Items,
+                'Thanh_toanVAT'
+              )
               let newItems = item.Items.map((x, i) => {
-                let PriceVAT = Math.round(x.CPayed / ((100 + x.VAT) / 100))
-                let PriceTotalVAT = x.CPayed - PriceVAT
+                let PriceVAT = Math.round(
+                  x.Thanh_toanVAT / ((100 + x.VAT) / 100)
+                )
+                let PriceTotalVAT = x.Thanh_toanVAT - PriceVAT
                 return {
                   ItemType: 1,
                   LineNumber: i + 1,
@@ -182,18 +217,12 @@ function ElectronicInvoice(props) {
                   )
                 }
               ].filter(x => x.AmountWithoutVATOC && x.VATAmountOC)
-
               let obj = {
-                RefID:
-                  item.ID +
-                  '-' +
-                  moment(filters.From)
-                    .set({
-                      hour: moment().format('HH'),
-                      minute: moment().format('mm'),
-                      second: moment().format('ss')
-                    })
-                    .unix(),
+                RefID: getRefID({
+                  ID: item.ID,
+                  RefIds: RefIds?.data || [],
+                  CDate: moment(item.CDate).format('DD-MM-YYYY')
+                }),
                 InvSeries: GlobalConfig?.Admin?.hddt?.InvSeries,
                 InvDate: moment().format('YYYY-MM-DD'),
                 CurrencyCode: 'VND',
@@ -216,7 +245,7 @@ function ElectronicInvoice(props) {
                 //   .filter(x => x.Value)
                 //   .map(x => x.Title)
                 //   .join('/'),
-                PaymentMethodName: "TM/CK",
+                PaymentMethodName: 'TM/CK',
                 BuyerLegalName: '',
                 BuyerTaxCode: '',
                 BuyerAddress: '',
@@ -243,8 +272,9 @@ function ElectronicInvoice(props) {
                 OriginalInvoiceDetail: newItems,
                 TaxRateInfo: TaxRateInfo
               }
-              dataPost.InvoiceData.push(obj)
+              obj.RefID && dataPost.InvoiceData.push(obj)
             }
+
             invoiceMutation.mutate(
               {
                 url: GlobalConfig?.Admin?.hddt?.url + '/invoice',
@@ -272,15 +302,20 @@ function ElectronicInvoice(props) {
           })
         })
       )
+
       let updatePost = {
         arr: newRs
-          .filter(x => !x.ErrorCode)
+          .filter(
+            x =>
+              (x?.ErrorCode && x.ErrorCode === 'DuplicateInvoiceRefID') ||
+              !x.ErrorCode
+          )
           .map(x => ({
             ID: Number(x.RefID.split('-')[0]),
-            InvoiceID: x.TransactionID
+            InvoiceID: x.RefID,
+            NewInvoiceID: x.TransactionID
           }))
       }
-
       let totalUpdate = updatePost.arr.length
       if (updatePost.arr && updatePost.arr.length > 0) {
         await InvoiceAPI.updateInvoiceIDs(updatePost)
@@ -432,7 +467,7 @@ function ElectronicInvoice(props) {
             rowData.Items.length > 0 &&
             rowData.Items.every(x => x.VAT) ? (
               <>
-                {rowData.InvoiceID ? (
+                {rowData?.InvoiceIDStatus === 'done' && rowData.InvoiceID ? (
                   <div
                     className="w-full font-medium text-center cursor-pointer text-primary"
                     onClick={() => onPreviewInvoice(rowData.InvoiceID)}
@@ -508,6 +543,7 @@ function ElectronicInvoice(props) {
       {},
       {
         onSuccess: rs => {
+          setSelected([])
           toast.success(`Xuất thành công ${rs?.TotalUpdate} hoá đơn điện tử.`)
         }
       }
@@ -558,6 +594,7 @@ function ElectronicInvoice(props) {
               selected={filters.From ? new Date(filters.From) : null}
               dateFormat="dd/MM/yyyy"
             />
+
             <Button
               type="button"
               className="relative flex items-center h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"

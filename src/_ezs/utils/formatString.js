@@ -61,5 +61,15 @@ export const formatString = {
           : '') +
         '/'
     )
+  },
+  getValueSquare: str => {
+    //Ngoặc vuông []
+    if (!str) return []
+    return Array.from(str.matchAll(/\[([^\][]*)]/g), x => x[1])
+  },
+  getValueCurly: str => {
+    //Ngoặc nhọn {}
+    if (!str) return []
+    return Array.from(str.matchAll(/{+([^}]+)}+/g), x => x[1])
   }
 }

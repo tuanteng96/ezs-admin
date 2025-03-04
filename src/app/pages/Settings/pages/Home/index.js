@@ -21,7 +21,10 @@ function Home(props) {
                 Thiết lập tài khoản
               </div>
               <div>
-                <Link className="relative block py-5 transition border-b border-separator last:border-0 px-7 hover:bg-light">
+                <Link
+                  to="business-establishment"
+                  className="relative block py-5 transition border-b border-separator last:border-0 px-7 hover:bg-light"
+                >
                   <div className="text-[17px] font-bold mb-1">
                     Chi tiết doanh nghiệp
                   </div>

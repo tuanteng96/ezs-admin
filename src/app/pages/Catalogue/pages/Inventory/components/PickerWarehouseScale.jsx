@@ -41,7 +41,8 @@ function PickerWarehouseScale({ children, queryConfig }) {
   const { Items } = watch()
 
   let indexStock = Stocks.findIndex(x => x.ID === Number(queryConfig.StockID))
-  let StockName = indexStock ? Stocks[indexStock].Title : 'Kho tổng'
+
+  let StockName = indexStock > -1 ? Stocks[indexStock]?.Title : 'Kho tổng'
 
   const { data, isLoading, fetchNextPage, refetch } = useInfiniteQuery({
     queryKey: ['WarehouseScale'],

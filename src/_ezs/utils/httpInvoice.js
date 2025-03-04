@@ -39,7 +39,8 @@ class HttpInvoice {
       async ({ data, config, ...response }) => {
         if (
           data?.result?.errorCode === 'ValidationTokenCode' ||
-          data?.result?.errorCode === 'UnAuthorize'
+          data?.result?.errorCode === 'UnAuthorize' ||
+          data?.result?.errorCode === 'TokenExpiredCode'
         ) {
           const originalRequest = config
           let newData = originalRequest.data
