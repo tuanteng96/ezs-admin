@@ -16,7 +16,9 @@ const SelectStocks = ({
         value={
           isMulti
             ? value
-            : Stocks.filter(x => Number(x.value) === Number(value))
+            : [...allOption, ...Stocks].filter(
+                x => Number(x.value) === (value === '' ? '' : Number(value))
+              )
         }
         classNamePrefix="select"
         options={

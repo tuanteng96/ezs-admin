@@ -10,6 +10,7 @@ const DashboardPage = lazy(() => import('../pages/Dashboard'))
 const CalendarPage = lazy(() => import('../pages/Calendar'))
 const BannersPage = lazy(() => import('../pages/Banners'))
 const PostsPage = lazy(() => import('../pages/Posts'))
+const UsersPage = lazy(() => import('../pages/Users'))
 const ClientsPage = lazy(() => import('../pages/Clients'))
 const AppointmentsPage = lazy(() => import('../pages/Appointments'))
 const CataloguePage = lazy(() => import('../pages/Catalogue'))
@@ -66,6 +67,15 @@ function PrivateRoutes(props) {
             </SuspensedView>
           }
         />
+        <Route
+          path="users/*"
+          element={
+            <SuspensedView>
+              <UsersPage />
+            </SuspensedView>
+          }
+        />
+
         <Route element={<RoleAccess roles={pos_mng.hasRight} />}>
           <Route
             path="appointments/*"

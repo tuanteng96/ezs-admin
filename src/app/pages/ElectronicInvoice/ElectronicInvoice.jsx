@@ -499,6 +499,10 @@ function ElectronicInvoice(props) {
           </>
         ),
         headerClassName: 'justify-center',
+        className: ({ rowData }) =>
+          rowData?.InvoiceID &&
+          rowData?.InvoiceIDStatus === 'pending' &&
+          '!bg-warninglight',
         width: 180,
         sortable: false,
         rowSpan: ({ rowData }) => (rowData.Items ? rowData.Items.length : 1)

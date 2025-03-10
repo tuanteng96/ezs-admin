@@ -28,6 +28,7 @@
         "axios": "^1.3.4",
         "ckeditor5-custom-build": "file:ckeditor5",
         "clsx": "^1.2.1",
+        "copy-html-to-clipboard": "^4.0.1",
         "dayjs": "^1.11.7",
         "emoji-picker-react": "^4.5.16",
         "framer-motion": "^10.10.0",

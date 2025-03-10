@@ -1,0 +1,528 @@
+import {
+  AdjustmentsVerticalIcon,
+  EllipsisVerticalIcon,
+  PlusIcon
+} from '@heroicons/react/24/outline'
+import { useInfiniteQuery, useMutation } from '@tanstack/react-query'
+import React, { useMemo, useState } from 'react'
+import UsersAPI from 'src/_ezs/api/users.api'
+import { Button } from 'src/_ezs/partials/button'
+import { ReactBaseTable } from 'src/_ezs/partials/table'
+import { PickerFilter, PickerUserAddEdit, PickerUserInfo } from './components'
+import Swal from 'sweetalert2'
+import { toast } from 'react-toastify'
+import { useAuth } from 'src/_ezs/core/Auth'
+import { formatArray } from 'src/_ezs/utils/formatArray'
+import clsx from 'clsx'
+import Tooltip from 'rc-tooltip'
+import { useWindowSize } from 'src/_ezs/hooks/useWindowSize'
+import { NotFound } from 'src/_ezs/layout/components/notfound'
+import useInfiniteScroll from 'react-infinite-scroll-hook'
+
+function Home(props) {
+  const { CrStocks, Stocks } = useAuth()
+  const { width } = useWindowSize()
+
+  let [filters, setFilters] = useState({
+    Key: '',
+    GroupIDs: [
+      // 4584
+    ],
+    Status: [0],
+    Levels: [],
+    StockIDs: CrStocks?.ID,
+    Pi: 1,
+    Ps: 20
+  })
+
+  const { data, isLoading, refetch, fetchNextPage, hasNextPage } =
+    useInfiniteQuery({
+      queryKey: ['ListUserRoles', filters],
+      queryFn: async ({ pageParam = 1 }) => {
+        let rs = await UsersAPI.listUsersRoles({
+          ...filters,
+          Status:
+            filters?.Status && filters?.Status.length > 0
+              ? filters?.Status
+              : [0, -1],
+          Pi: pageParam,
+          StockIDs: [filters.StockIDs]
+        })
+        return rs?.data
+      },
+      getNextPageParam: (lastPage, pages) =>
+        lastPage.Pi === lastPage.Pcount ? undefined : lastPage.Pi + 1
+    })
+
+  const Lists = formatArray.useInfiniteQuery(data?.pages, 'Items')
+
+  const updateMutation = useMutation({
+    mutationFn: async body => {
+      let result = await UsersAPI.addEditUser2(body)
+      await refetch()
+      return result
+    }
+  })
+
+  const onDisable = item => {
+    document.body.click()
+    Swal.fire({
+      customClass: {
+        confirmButton: '!bg-primary'
+      },
+      title: !item?.Disabled ? 'Vô hiệu hoá tài khoản' : 'Mở lại tài khoản',
+      html: `Xác nhận ${
+        !item?.Disabled ? 'vô hiệu hoá tài' : 'mở lại tài khoản'
+      } khoản nhân viên này? Hành động này không thể được hoàn tác.`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Thực hiện',
+      cancelButtonText: 'Đóng',
+      reverseButtons: true,
+      showLoaderOnConfirm: true,
+      preConfirm: async () => {
+        let rs = await updateMutation.mutateAsync({
+          updates: [
+            {
+              UserID: item.ID,
+              Disabled: !item.Disabled
+            }
+          ]
+        })
+        return rs
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then(result => {
+      if (result.isConfirmed) {
+        toast.success('Thực hiện thành công.')
+      }
+    })
+  }
+
+  const getFirstName = str => {
+    if (str) {
+      let spl = str.split(' ')
+      return spl[spl.length - 1].substring(0, 1)
+    }
+    return str
+  }
+
+  const columns = useMemo(
+    () => [
+      {
+        key: 'FullName',
+        title: 'Họ và tên',
+        dataKey: 'FullName',
+        cellRenderer: ({ rowData }) => (
+          <div className="flex items-center">
+            <div className="w-16 h-16 rounded-full border-[#a5dff8] border-[2px]">
+              <div className="flex items-center justify-center w-full h-full text-lg font-bold border-[2px] border-white rounded-full bg-primarylight text-primary font-number uppercase">
+                {getFirstName(rowData?.FullName)}
+              </div>
+            </div>
+            <div className="flex-1 pl-4">
+              <div className="font-medium capitalize">{rowData?.FullName}</div>
+              <div className="mt-1 text-muted2 text-[14px] font-number">
+                <span>#{rowData?.ID}</span>
+                <span>- {rowData?.UserName}</span>
+              </div>
+            </div>
+          </div>
+        ),
+        width: 370,
+        sortable: false
+      },
+      {
+        key: 'Groups',
+        title: 'Nhóm',
+        dataKey: 'Groups',
+        cellRenderer: ({ rowData }) => (
+          <div className="flex flex-wrap gap-1.5">
+            {rowData?.GroupList && rowData?.GroupList.length > 0 ? (
+              rowData?.GroupList.map(x => ({
+                ...x,
+                label: `${x.TitleStock || x.GroupTitle} - ${
+                  x.StockTitle || 'Hệ thống'
+                }`
+              })).map((item, i) => (
+                <div
+                  className="rounded bg-primarylight text-primary font-number px-2.5 py-[2px] text-[13px] font-medium"
+                  key={i}
+                >
+                  {item?.label}
+                </div>
+              ))
+            ) : (
+              <></>
+            )}
+          </div>
+        ),
+        width: 300,
+        sortable: false
+      },
+      {
+        key: 'Level',
+        title: 'Cấp bậc',
+        dataKey: 'Level',
+        cellRenderer: ({ rowData }) => (
+          <div className="font-medium">{rowData?.Level}</div>
+        ),
+        width: 200,
+        sortable: false
+      },
+      {
+        key: 'Disabled',
+        title: 'Trạng thái',
+        dataKey: 'Disabled',
+        cellRenderer: ({ rowData }) => (
+          <div
+            className={clsx(
+              !rowData?.Disabled ? 'text-success' : 'text-danger'
+            )}
+          >
+            {!rowData?.Disabled ? 'Hoạt động' : 'Đã nghĩ'}
+          </div>
+        ),
+        width: 200,
+        sortable: false
+      },
+      {
+        key: '#',
+        title: 'Lựa chọn',
+        dataKey: '#',
+        cellRenderer: ({ rowData }) => (
+          <div className="flex justify-center w-full">
+            <Tooltip
+              //visible={true}
+              showArrow={false}
+              overlayClassName=""
+              placement="top"
+              trigger={['click']}
+              overlay={
+                <div className="border-[#e5e5e5] border bg-white shadow-lg rounded-lg py-2.5">
+                  <PickerUserInfo values={rowData}>
+                    {({ open }) => (
+                      <div
+                        onClick={() => {
+                          document.body.click()
+                          open()
+                        }}
+                        className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
+                      >
+                        Thông tin đăng nhập
+                      </div>
+                    )}
+                  </PickerUserInfo>
+
+                  <PickerUserAddEdit initialValues={rowData}>
+                    {({ open }) => (
+                      <div
+                        className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
+                        onClick={() => {
+                          open()
+                          document.body.click()
+                        }}
+                      >
+                        Chỉnh sửa thông tin
+                      </div>
+                    )}
+                  </PickerUserAddEdit>
+                  <div
+                    className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition text-danger cursor-pointer"
+                    onClick={() => onDisable(rowData)}
+                  >
+                    {!rowData?.Disabled
+                      ? 'Vô hiệu hoá tài khoản'
+                      : 'Mở lại tài khoản'}
+                  </div>
+                </div>
+              }
+              align={{
+                offset: [9, 0]
+              }}
+            >
+              <div className="flex items-center justify-center transition rounded-3xl cursor-pointer border-[#d3d3d3] border px-3.5 py-1.5 text-[14px] font-medium hover:bg-[#f5f5f5]">
+                Chỉnh sửa
+                <svg
+                  className="w-5 ml-1"
+                  fill="currentColor"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 32 32"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M15.293 12.293a1 1 0 0 1 1.414 0l6.25 6.25a1 1 0 0 1-1.414 1.414L16 14.414l-5.543 5.543a1 1 0 0 1-1.414-1.414z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+            </Tooltip>
+          </div>
+        ),
+        headerClassName: 'justify-center',
+        width: 160,
+        sortable: false,
+        frozen: 'right'
+      }
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  )
+
+  const [sentryRef, { rootRef }] = useInfiniteScroll({
+    loading: isLoading,
+    hasNextPage: hasNextPage,
+    onLoadMore: () => fetchNextPage()
+    //disabled: !!error,
+  })
+
+  let StocksTitle = filters.StockIDs || ''
+
+  if (StocksTitle !== '') {
+    StocksTitle =
+      Number(StocksTitle) === 0
+        ? 'Cơ sở hệ thống'
+        : 'Cơ sở ' + Stocks.filter(x => x.ID === Number(StocksTitle))[0].Title
+  }
+
+  return (
+    <div className="relative h-full bg-white dark:bg-dark-app">
+      <div className="flex flex-col h-full px-4 pt-4 pb-4 mx-auto md:pb-5 md:px-8 md:pt-8 max-w-7xl">
+        <div className="flex items-end justify-between mb-5">
+          <div>
+            <div className="text-3xl font-bold dark:text-white">
+              <span className="hidden md:block">Quản lý nhân viên</span>
+              <span className="md:hidden">Nhân viên</span>
+            </div>
+            <div className="mt-1.5">{StocksTitle}</div>
+          </div>
+          <div className="flex pb-1">
+            <PickerFilter
+              initialValues={filters}
+              onChange={val =>
+                setFilters(prevState => ({
+                  ...prevState,
+                  ...val
+                }))
+              }
+            >
+              {({ open }) => (
+                <button
+                  type="button"
+                  onClick={open}
+                  className="flex items-center justify-center text-gray-900 bg-light border rounded border-light pl-2.5 pr-2.5 md:pr-4 h-12 dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary mr-2.5"
+                >
+                  <AdjustmentsVerticalIcon className="w-6" />
+                  <span className="hidden pl-2 font-medium md:block">
+                    Bộ lọc
+                  </span>
+                </button>
+              )}
+            </PickerFilter>
+
+            <PickerUserAddEdit>
+              {({ open }) => (
+                <Button
+                  type="button"
+                  onClick={open}
+                  className="relative flex items-center h-12 px-2.5 md:px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                >
+                  <PlusIcon className="w-6 md:hidden" />
+                  <span className="hidden md:block">Thêm mới</span>
+                </Button>
+              )}
+            </PickerUserAddEdit>
+          </div>
+        </div>
+
+        {width > 767 ? (
+          <ReactBaseTable
+            wrapClassName="grow"
+            rowKey="ID"
+            columns={columns}
+            data={Lists || []}
+            estimatedRowHeight={96}
+            emptyRenderer={() =>
+              !isLoading && (
+                <div className="flex items-center justify-center h-full">
+                  Không có dữ liệu
+                </div>
+              )
+            }
+            loading={isLoading}
+            onEndReachedThreshold={1}
+            onEndReached={fetchNextPage}
+          />
+        ) : (
+          <>
+            {isLoading && (
+              <div className="overflow-auto grow scroll">
+                {Array(3)
+                  .fill()
+                  .map((_, index) => (
+                    <div
+                      className="mb-4 overflow-hidden border border-gray-300 rounded last:mb-0"
+                      key={index}
+                    >
+                      <div className="relative px-4 py-3 border-b border-gray-300 bg-gray-50">
+                        <div className="w-8/12 h-3.5 bg-gray-200 rounded-full animate-pulse mb-1.5"></div>
+                        <div className="w-5/12 h-2.5 bg-gray-200 rounded-full animate-pulse"></div>
+                      </div>
+                      <div className="p-4">
+                        <div className="w-full h-2.5 bg-gray-200 rounded-full animate-pulse mb-1.5"></div>
+                        <div className="w-5/12 h-2.5 bg-gray-200 rounded-full animate-pulse mb-3.5"></div>
+                        <div className="w-8/12 h-2.5 bg-gray-200 rounded-full animate-pulse mb-1.5"></div>
+                        <div className="w-11/12 h-2.5 bg-gray-200 rounded-full animate-pulse"></div>
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            )}
+
+            {!isLoading && (
+              <div className="overflow-auto grow scroll" ref={rootRef}>
+                {Lists && Lists.length > 0 && (
+                  <>
+                    {Lists.map((item, index) => (
+                      <div
+                        className="mb-4 overflow-hidden border border-gray-300 rounded last:mb-0"
+                        key={index}
+                        ref={sentryRef}
+                      >
+                        <div>
+                          <div className="relative flex justify-between px-4 py-3 border-b border-gray-300 bg-gray-50">
+                            <div>
+                              <div className="font-medium">
+                                {item?.FullName}
+                              </div>
+                              <div className="mt-px text-muted2 text-[14px] font-number">
+                                <span>#{item?.ID}</span>
+                                <span>- {item?.UserName}</span>
+                              </div>
+                            </div>
+                            <Tooltip
+                              //visible={true}
+                              showArrow={false}
+                              overlayClassName=""
+                              placement="top"
+                              trigger={['click']}
+                              overlay={
+                                <div className="border-[#e5e5e5] border bg-white shadow-lg rounded-lg py-2.5">
+                                  <PickerUserInfo values={item}>
+                                    {({ open }) => (
+                                      <div
+                                        onClick={() => {
+                                          document.body.click()
+                                          open()
+                                        }}
+                                        className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
+                                      >
+                                        Thông tin đăng nhập
+                                      </div>
+                                    )}
+                                  </PickerUserInfo>
+                                  <PickerUserAddEdit initialValues={item}>
+                                    {({ open }) => (
+                                      <div
+                                        className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
+                                        onClick={() => {
+                                          open()
+                                          document.body.click()
+                                        }}
+                                      >
+                                        Chỉnh sửa thông tin
+                                      </div>
+                                    )}
+                                  </PickerUserAddEdit>
+                                  <div
+                                    className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition text-danger cursor-pointer"
+                                    onClick={() => onDisable(item)}
+                                  >
+                                    {!item?.Disabled
+                                      ? 'Vô hiệu hoá tài khoản'
+                                      : 'Mở lại tài khoản'}
+                                  </div>
+                                </div>
+                              }
+                              align={{
+                                offset: [9, 0]
+                              }}
+                            >
+                              <div className="absolute top-0 right-0 flex items-center justify-center w-12 h-full">
+                                <EllipsisVerticalIcon className="w-6" />
+                              </div>
+                            </Tooltip>
+                          </div>
+                          <div className="p-4">
+                            <div className="mb-3 last:mb-0">
+                              <div className="mb-1 text-sm text-muted2">
+                                Nhóm
+                              </div>
+                              <div className="flex flex-wrap gap-1.5 font-medium">
+                                {item?.GroupList &&
+                                item?.GroupList.length > 0 ? (
+                                  item?.GroupList.map(x => ({
+                                    ...x,
+                                    label: `${x.TitleStock || x.GroupTitle} - ${
+                                      x.StockTitle || 'Hệ thống'
+                                    }`
+                                  })).map((item, i) => (
+                                    <div
+                                      className="rounded bg-primarylight text-primary font-number px-2.5 py-[2px] text-[13px] font-medium"
+                                      key={i}
+                                    >
+                                      {item?.label}
+                                    </div>
+                                  ))
+                                ) : (
+                                  <>Chưa xác định</>
+                                )}
+                              </div>
+                            </div>
+                            <div className="mb-3 last:mb-0">
+                              <div className="mb-1 text-sm text-muted2">
+                                Cấp bậc
+                              </div>
+                              <div className="font-medium">
+                                {item.Level || 'Không'}
+                              </div>
+                            </div>
+                            <div className="mb-3 last:mb-0">
+                              <div className="mb-1 text-sm text-muted2">
+                                Trạng thái
+                              </div>
+                              <div
+                                className={clsx(
+                                  'font-medium',
+                                  !item?.Disabled
+                                    ? 'text-success'
+                                    : 'text-danger'
+                                )}
+                              >
+                                {!item?.Disabled ? 'Hoạt động' : 'Đã nghĩ'}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </>
+                )}
+                {(!Lists || Lists.length === 0) && (
+                  <div className="flex items-center justify-center h-full">
+                    <NotFound
+                      Title="Không có dữ liệu"
+                      Desc="Dữ liệu nhân viên hiện tại trống."
+                    />
+                  </div>
+                )}
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  )
+}
+
+export default Home

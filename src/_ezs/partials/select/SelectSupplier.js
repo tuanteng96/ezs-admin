@@ -20,7 +20,7 @@ function SelectSupplier({ value, ...props }) {
       <Select
         value={
           isArray(value)
-            ? data && data.filter(x => value.includes(x.value))
+            ? data && data.filter(x => value?.includes(x.value))
             : data && data.filter(x => x.value === Number(value))
         }
         isLoading={isLoading}

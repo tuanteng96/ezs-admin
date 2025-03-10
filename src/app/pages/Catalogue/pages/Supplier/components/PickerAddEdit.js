@@ -31,7 +31,7 @@ const ListType = [
 ]
 
 function PickerAddEdit({ children, data }) {
-  const [visible, setVisible] = useState()
+  const [visible, setVisible] = useState(false)
 
   const onHide = () => {
     setVisible(false)
@@ -127,7 +127,7 @@ function PickerAddEdit({ children, data }) {
               animate={{ opacity: 1, top: 'auto' }}
               exit={{ opacity: 0, top: '60%' }}
             >
-              <div className="bg-white dark:bg-dark-aside flex flex-col rounded shadow-lg max-h-full">
+              <div className="flex flex-col max-h-full bg-white rounded shadow-lg dark:bg-dark-aside">
                 <div className="relative flex justify-between px-5 py-4 border-b border-separator dark:border-dark-separator">
                   <div className="text-2xl font-bold">
                     {data?.ID ? 'Chỉnh sửa' : 'Tạo mới'}

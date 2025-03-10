@@ -44,9 +44,9 @@ const AsideMenuList = [
     title: 'Sales'
   },
   {
-    to: '/clients1',
+    to: '/users',
     icon: () => <FaceSmileIcon className="w-8 h-8 text-white" />,
-    title: 'Clients'
+    title: 'Users'
   },
   {
     to: '/catalogue',

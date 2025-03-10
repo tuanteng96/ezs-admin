@@ -22,7 +22,15 @@ const UsersAPI = {
       `/api/gl/select2?cmd=group_and_user&&term=${key}&_type=query&q=${key}`
     ),
   listMembersNotification: ({ key = '' }) =>
-    http.get(`/api/gl/select2?cmd=group_and_member&q=${key}`)
+    http.get(`/api/gl/select2?cmd=group_and_member&q=${key}`),
+  listUsersRoles: body => http.post('/api/v3/User24@Get', JSON.stringify(body)),
+  suggestUsername: body => http.post('/admin/smart.aspx?user_sugg=1', body),
+  addEditUser: body => http.post('/admin/smart.aspx?user_add=1', body),
+  addEditUser2: body =>
+    http.post('/api/v3/User24@Updates', JSON.stringify(body)),
+  getRolesUserId: body =>
+    http.post('/api/v3/user24@info', JSON.stringify(body)),
+  deleteUsersRoles: body => http.post('/admin/smart.aspx?user_group=1', body)
 }
 
 export default UsersAPI

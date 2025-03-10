@@ -412,7 +412,7 @@ function WareHouseExport(props) {
                   allowNegative={false}
                   isAllowed={inputObj => {
                     const { floatValue } = inputObj
-                    if (floatValue < 1) return
+                    if (floatValue < 0) return
                     return true
                   }}
                 />

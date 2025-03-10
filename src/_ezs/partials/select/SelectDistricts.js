@@ -8,7 +8,7 @@ const SelectDistricts = ({ ProvinceID, value, ...props }) => {
   const ListDistricts = useQuery({
     queryKey: ['ListDistricts', ProvinceID],
     queryFn: async () => {
-      const data = await MoresAPI.getDistricts(ProvinceID)
+      const data = await MoresAPI.getDistricts({ ProvinceID })
       return data?.data?.map(x => ({ ...x, value: x.ID, label: x.Title })) || []
     },
     onSuccess: () => {},

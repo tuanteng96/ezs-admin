@@ -114,7 +114,7 @@ const RendererBonusSale = ({ rowData }) => {
 }
 
 const RendererLevels = ({ rowData, name }) => {
-  const [value, setValue] = useState()
+  const [value, setValue] = useState('')
   const queryClient = useQueryClient()
 
   const typingTimeoutRef = useRef(null)
@@ -318,8 +318,8 @@ function TourSalary() {
   }
 
   return (
-    <div className="flex flex-col h-full lg:px-8 lg:pt-8 lg:pb-5 p-4 mx-auto max-w-7xl">
-      <div className="flex items-end flex-wrap justify-between mb-5">
+    <div className="flex flex-col h-full p-4 mx-auto lg:px-8 lg:pt-8 lg:pb-5 max-w-7xl">
+      <div className="flex flex-wrap items-end justify-between mb-5">
         {!LayoutIframe && (
           <div>
             <div className="text-3xl font-bold dark:text-white">

@@ -157,7 +157,7 @@ html.dark {
 }
 
 .select-control .select__multi-value .select__multi-value__label {
-    padding: 2px;
+    padding: 2px 5px;
 }
 
 .select__menu-portal .select__group-heading,

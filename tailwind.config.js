@@ -108,6 +108,7 @@ module.exports = withMT({
       success: '#1bc5bd',
       light: '#EBEDF3',
       warning: '#FFA800',
+      warninglight: "#FFF4DE",
       orange: '#f26353',
       info: '#8950FC',
       transparent: 'transparent',

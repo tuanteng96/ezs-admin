@@ -823,7 +823,7 @@ function AppointmentsAddEdit(props) {
                                   type="submit"
                                   className="relative flex items-center justify-center h-12 px-4 font-semibold text-white transition rounded bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
                                 >
-                                  Cập nhập
+                                  Cập nhật
                                 </Button>
                                 <Popover className="relative">
                                   <Popover.Button

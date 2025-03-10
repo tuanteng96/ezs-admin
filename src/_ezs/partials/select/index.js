@@ -27,6 +27,10 @@ import { SelectUserNotification } from './SelectUserNotification'
 import { SelectUsers } from './SelectUsers'
 import { SelectProvinces } from './SelectProvinces'
 import { SelectDistrictsOtp } from './SelectDistrictsOtp'
+import { SelectAutoCompleteMaps } from './SelectAutoCompleteMaps'
+import { SelectGroupRoles } from './SelectGroupRoles'
+import { SelectUserLevels } from './SelectUserLevels'
+import { SelectUserShifts } from './SelectUserShifts'
 
 export {
   SelectDistrictsOtp,
@@ -57,5 +61,9 @@ export {
   SelectCategoriesAsync,
   SelectMemberNotification,
   SelectBannersCategories,
-  SelectPostsCategories
+  SelectPostsCategories,
+  SelectAutoCompleteMaps,
+  SelectGroupRoles,
+  SelectUserLevels,
+  SelectUserShifts
 }

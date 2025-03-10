@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { m } from 'framer-motion'
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import { QuestionMarkCircleIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { Checkbox, InputNumber } from 'src/_ezs/partials/forms'
 import { Button } from 'src/_ezs/partials/button'
@@ -8,6 +8,8 @@ import { FloatingPortal } from '@floating-ui/react'
 import moment from 'moment'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import { formatArray } from 'src/_ezs/utils/formatArray'
+import Tooltip from 'rc-tooltip'
+import { toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 
 function PickerSettingTime({
   children,
@@ -16,7 +18,7 @@ function PickerSettingTime({
   setValue,
   initConfiguration
 }) {
-  const [visible, setVisible] = useState()
+  const [visible, setVisible] = useState(false)
 
   const onHide = () => {
     setVisible(false)
@@ -99,7 +101,7 @@ function PickerSettingTime({
               onClick={onHide}
             ></m.div>
             <m.div
-              className="absolute flex flex-col justify-center h-full py-8 px-4 sm:px-0 w-[500px] max-w-full"
+              className="absolute flex flex-col justify-center h-full py-8 px-4 sm:px-0 w-[580px] max-w-full"
               initial={{ opacity: 0, top: '60%' }}
               animate={{ opacity: 1, top: 'auto' }}
               exit={{ opacity: 0, top: '60%' }}
@@ -116,31 +118,37 @@ function PickerSettingTime({
                 </div>
                 <div className="p-5 overflow-auto grow">
                   <div>
+                    <div className="hidden grid-cols-4 gap-3 mb-2 md:grid last:mb-0 font-number text-muted2">
+                      <div></div>
+                      <div>Giờ mở cửa</div>
+                      <div>Giờ đóng cửa</div>
+                      <div>Thêm giờ ( phút )</div>
+                    </div>
                     {fields.map((item, index) => (
                       <div className="mb-5 last:mb-0" key={item.id}>
-                        <div>
-                          <Controller
-                            name={`Configuration[${index}].active`}
-                            control={control}
-                            render={({
-                              field: { ref, ...field },
-                              fieldState
-                            }) => (
-                              <div className="mb-1.5">
-                                <Checkbox
-                                  className="!inline-flex"
-                                  labelClassName="pl-2 capitalize font-medium"
-                                  labelText={item.Title}
-                                  htmlFor={`active-${item.Sub}`}
-                                  {...field}
-                                  checked={field.value}
-                                />
-                              </div>
-                            )}
-                          />
-                        </div>
-                        <div className="grid grid-cols-3 gap-3">
-                          <div>
+                        <div className="grid grid-cols-6 gap-3 md:grid-cols-4">
+                          <div className="flex items-center col-span-6 md:col-span-1">
+                            <Controller
+                              name={`Configuration[${index}].active`}
+                              control={control}
+                              render={({
+                                field: { ref, ...field },
+                                fieldState
+                              }) => (
+                                <div>
+                                  <Checkbox
+                                    className="!inline-flex"
+                                    labelClassName="pl-2 capitalize font-medium"
+                                    labelText={item.Title}
+                                    htmlFor={`active-${item.Sub}`}
+                                    {...field}
+                                    checked={field.value}
+                                  />
+                                </div>
+                              )}
+                            />
+                          </div>
+                          <div className="col-span-2 md:col-span-1">
                             <Controller
                               name={`Configuration[${index}].TimeFrom`}
                               control={control}
@@ -189,7 +197,7 @@ function PickerSettingTime({
                               )}
                             />
                           </div>
-                          <div>
+                          <div className="col-span-2 md:col-span-1">
                             <Controller
                               name={`Configuration[${index}].TimeTo`}
                               control={control}
@@ -238,8 +246,8 @@ function PickerSettingTime({
                               )}
                             />
                           </div>
-                          <div>
-                            <div>
+                          <div className="col-span-2 md:col-span-1">
+                            <div className="flex gap-3">
                               <Controller
                                 name={`Configuration[${index}].TimeBefore`}
                                 control={control}
@@ -262,6 +270,30 @@ function PickerSettingTime({
                                   </>
                                 )}
                               />
+                              <Tooltip
+                                //visible={true}
+                                overlayClassName="text-white dark:text-dark-light"
+                                placement="top"
+                                trigger={['hover']}
+                                overlay={
+                                  <div className="px-3 py-2.5 bg-white dark:bg-dark-light rounded-sm shadow-lg text-gray-700 dark:text-graydark-800">
+                                    <img
+                                      className="max-w-[300px]"
+                                      src={toAbsoluteUrl(
+                                        '/assets/images/note/tip-business.png'
+                                      )}
+                                      alt=""
+                                    />
+                                  </div>
+                                }
+                                align={{
+                                  offset: [9, 0]
+                                }}
+                              >
+                                <div className="flex items-center justify-center w-12 h-12 transition rounded-md cursor-pointer">
+                                  <QuestionMarkCircleIcon className="w-6 text-warning" />
+                                </div>
+                              </Tooltip>
                             </div>
                           </div>
                         </div>

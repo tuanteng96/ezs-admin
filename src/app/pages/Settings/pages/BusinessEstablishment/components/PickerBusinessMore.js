@@ -1,17 +1,21 @@
 import React, { useState, useEffect } from 'react'
 import { ArrowSmallLeftIcon } from '@heroicons/react/24/outline'
 import { Controller, useForm } from 'react-hook-form'
-import { Checkbox, Input, InputNumber } from 'src/_ezs/partials/forms'
+import { Input, InputNumber } from 'src/_ezs/partials/forms'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { Button } from 'src/_ezs/partials/button'
 import { FloatingPortal } from '@floating-ui/react'
-import { SelectDistrictsOtp, SelectProvinces } from 'src/_ezs/partials/select'
+import {
+  SelectAutoCompleteMaps,
+  SelectDistrictsOtp,
+  SelectProvinces
+} from 'src/_ezs/partials/select'
 import BannersAPI from 'src/_ezs/api/banners.api'
-
-//descseo: {"place":[{"Parentid":"6","Title":"Đắk Lắk"},{"ID":"835","Title":"Thị xã Buôn Hồ"}]}
+import MoresAPI from 'src/_ezs/api/mores.api'
+import IframeLoad from './IframeLoad'
 
 const schemaAddEdit = yup
   .object({
@@ -20,7 +24,7 @@ const schemaAddEdit = yup
   .required()
 
 function PickerBusinessMore({ children, initialValues }) {
-  const [visible, setVisible] = useState()
+  const [visible, setVisible] = useState(false)
 
   const onHide = () => {
     setVisible(false)
@@ -90,6 +94,53 @@ function PickerBusinessMore({ children, initialValues }) {
     }
   })
 
+  const updateAddressMutation = useMutation({
+    mutationFn: async body => {
+      let Province = null
+      let District = null
+      let ProvinceName = body.boundaries
+        .filter(x => x.type === 0)
+        .map(x => x.name)
+        .join(',')
+      let DistrictName = body.boundaries
+        .filter(x => x.type === 1)
+        .map(x => x.name)
+        .join(',')
+
+      let Provinces = await MoresAPI.getProvinces({
+        Key: ProvinceName,
+        Pi: 1,
+        Ps: 100
+      })
+      if (
+        Provinces.data.result.Items &&
+        Provinces.data.result.Items.length > 0
+      ) {
+        Province = {
+          ...Provinces.data.result.Items[0],
+          value: Provinces.data.result.Items[0].Id,
+          label: Provinces.data.result.Items[0].Title
+        }
+        let Districts = await MoresAPI.getDistricts({
+          ProvinceID: Province?.value,
+          Key: DistrictName
+        })
+        if (Districts.data && Districts.data.length > 0) {
+          District = {
+            ...Districts.data[0],
+            value: Districts.data[0].ID,
+            label: Districts.data[0].Title
+          }
+        }
+      }
+
+      return {
+        District,
+        Province
+      }
+    }
+  })
+
   const onSubmit = values => {
     let Follow = ''
 
@@ -115,6 +166,7 @@ function PickerBusinessMore({ children, initialValues }) {
       arr: [
         {
           ...values,
+          Link: `https://maps.google.com/maps?q=${values.Desc}&hl=en-US&z=14&ie=UTF8&iwloc=B&output=embed`,
           PosID: 59,
           Follow
         }
@@ -134,7 +186,7 @@ function PickerBusinessMore({ children, initialValues }) {
     })
   }
 
-  let { ProvinceID } = watch()
+  let { ProvinceID, Desc } = watch()
 
   return (
     <>
@@ -151,19 +203,19 @@ function PickerBusinessMore({ children, initialValues }) {
               if (e.key === 'Enter') e.preventDefault()
             }}
           >
-            <div className="flex justify-between px-8 py-6 border-b border-separator">
+            <div className="flex justify-between p-4 border-b md:px-8 md:py-6 border-separator">
               <div className="flex items-center">
                 <div
                   className="flex items-center justify-center h-full pr-4 cursor-pointer"
                   onClick={onHide}
                 >
-                  <ArrowSmallLeftIcon className="w-8" />
+                  <ArrowSmallLeftIcon className="w-7 md:w-8" />
                 </div>
-                <div className="flex items-center text-3xl font-semibold">
+                <div className="flex items-center text-2xl font-semibold md:text-3xl">
                   {initialValues?.ID ? 'Chỉnh sửa cơ sở' : 'Thêm mới cơ sở'}
                 </div>
               </div>
-              <div className="flex gap-3">
+              <div className="hidden gap-3 md:flex">
                 <Button
                   onClick={onHide}
                   type="button"
@@ -181,7 +233,7 @@ function PickerBusinessMore({ children, initialValues }) {
                 </Button>
               </div>
             </div>
-            <div className="py-10 overflow-auto grow">
+            <div className="px-4 py-4 overflow-auto md:py-10 grow">
               <div className="max-w-[600px] w-full mx-auto">
                 <div className="mb-6 font-light text-muted2">
                   Danh sách các cơ sở /chi nhánh hiển thị THÊM của toàn hệ thống
@@ -245,18 +297,26 @@ function PickerBusinessMore({ children, initialValues }) {
                             field: { ref, ...field },
                             fieldState
                           }) => (
-                            <Input
+                            <SelectAutoCompleteMaps
                               placeholder="Nhập địa chỉ"
                               value={field.value}
-                              errorMessageForce={fieldState?.invalid}
-                              errorMessage={fieldState?.error?.message}
-                              {...field}
+                              onChange={field.onChange}
+                              onUpdate={val => {
+                                updateAddressMutation.mutate(val, {
+                                  onSuccess: rs => {
+                                    if (rs.Province) {
+                                      setValue('ProvinceID', rs.Province)
+                                      setValue('DistrictID', rs.District)
+                                    }
+                                  }
+                                })
+                              }}
                             />
                           )}
                         />
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-4 mb-4 last:mb-0">
+                    <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2 last:mb-0">
                       <Controller
                         name="ProvinceID"
                         control={control}
@@ -274,6 +334,8 @@ function PickerBusinessMore({ children, initialValues }) {
                                 setValue('DistrictID', '')
                               }}
                               noOptionsMessage={() => 'Không có dữ liệu'}
+                              isLoading={updateAddressMutation.isLoading}
+                              isDisabled={updateAddressMutation.isLoading}
                             />
                           </div>
                         )}
@@ -289,20 +351,42 @@ function PickerBusinessMore({ children, initialValues }) {
                             </div>
                             <SelectDistrictsOtp
                               className="select-control"
-                              isDisabled={!ProvinceID?.value}
                               isClearable
                               ProvinceID={ProvinceID?.value}
                               value={field.value}
                               onChange={val => field.onChange(val)}
                               noOptionsMessage={() => 'Không có dữ liệu'}
+                              isLoading={
+                                !ProvinceID?.value ||
+                                updateAddressMutation.isLoading
+                              }
+                              isDisabled={updateAddressMutation.isLoading}
                             />
                           </div>
                         )}
                       />
                     </div>
+                    {Desc && <IframeLoad Address={Desc} />}
                   </div>
                 </div>
               </div>
+            </div>
+            <div className="flex justify-end gap-3 p-4 border-t border-t-separator md:hidden">
+              <Button
+                onClick={onHide}
+                type="button"
+                className="relative flex items-center h-12 px-6 font-bold transition border border-gray-300 rounded shadow-lg dark:border-gray-700 hover:border-gray-800 focus:outline-none focus:shadow-none"
+              >
+                Hủy
+              </Button>
+              <Button
+                loading={addEditMutation.isLoading}
+                disabled={addEditMutation.isLoading}
+                type="submit"
+                className="relative flex items-center h-12 px-6 font-semibold text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+              >
+                {initialValues?.ID ? 'Lưu thay đổi' : 'Thêm mới'}
+              </Button>
             </div>
           </form>
         </FloatingPortal>
