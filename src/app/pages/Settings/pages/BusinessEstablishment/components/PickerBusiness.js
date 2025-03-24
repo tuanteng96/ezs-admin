@@ -436,7 +436,7 @@ function PickerBusiness({ children, initialValues }) {
                 </div>
                 <div className="pt-5 border-t mt-7 border-t-separator">
                   <div className="mb-4">
-                    <div className="mb-1 text-lg font-semibold">
+                    <div className="mb-1 text-lg font-semibold md:text-2xl">
                       Cài đặt Mật khẩu máy tính bảng
                     </div>
                     <div className="font-light text-muted2">
@@ -509,7 +509,7 @@ function PickerBusiness({ children, initialValues }) {
                         <div className="pt-5 border-t mt-7 border-t-separator">
                           <div className="mb-6">
                             <div>
-                              <div className="mb-1 text-lg font-semibold">
+                              <div className="mb-1 text-lg font-semibold md:text-2xl">
                                 Giờ mở cửa
                               </div>
                               <div className="mt-1 font-light text-muted2">

@@ -6,8 +6,9 @@ import { Button } from 'src/_ezs/partials/button'
 import { FloatingPortal } from '@floating-ui/react'
 import { SelectGroupRoles, SelectStocks } from 'src/_ezs/partials/select'
 import clsx from 'clsx'
-import { Input } from 'src/_ezs/partials/forms'
+// import { Input } from 'src/_ezs/partials/forms'
 import Select from 'react-select'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 
 const OptionsStatus = [
   {
@@ -16,12 +17,14 @@ const OptionsStatus = [
   },
   {
     value: -1,
-    label: 'Đã nghĩ'
+    label: 'Đã nghỉ'
   }
 ]
 
 function PickerFilter({ children, initialValues, onChange }) {
   const [visible, setVisible] = useState(false)
+
+  const { usrmng } = useRoles(['usrmng'])
 
   const onHide = () => {
     setVisible(false)
@@ -102,7 +105,7 @@ function PickerFilter({ children, initialValues, onChange }) {
                   </div>
                 </div>
                 <div className="p-5 overflow-auto grow">
-                  <div className="mb-4 last:mb-0">
+                  {/* <div className="mb-4 last:mb-0">
                     <div className="font-semibold">Tên nhân viên</div>
                     <div className="mt-1">
                       <Controller
@@ -112,14 +115,12 @@ function PickerFilter({ children, initialValues, onChange }) {
                           <Input
                             placeholder="Nhập tên nhân viên"
                             value={field.value}
-                            errorMessageForce={fieldState?.invalid}
-                            //errorMessage={fieldState?.error?.message}
                             {...field}
                           />
                         )}
                       />
                     </div>
-                  </div>
+                  </div> */}
                   <div className="mb-4 last:mb-0">
                     <div className="font-semibold">Cơ sở</div>
                     <div className="mt-1">
@@ -128,13 +129,17 @@ function PickerFilter({ children, initialValues, onChange }) {
                         control={control}
                         render={({ field: { ref, ...field }, fieldState }) => (
                           <SelectStocks
-                            allOption={[
-                              {
-                                label: 'Hệ thống',
-                                value: '0'
-                              }
-                            ]}
-                            //StockRoles={pos_mng.StockRoles}
+                            allOption={
+                              usrmng?.IsStocks
+                                ? [
+                                    {
+                                      label: 'Hệ thống',
+                                      value: '0'
+                                    }
+                                  ]
+                                : []
+                            }
+                            StockRoles={usrmng.StockRoles}
                             value={field.value}
                             onChange={val => {
                               field.onChange(
@@ -163,12 +168,11 @@ function PickerFilter({ children, initialValues, onChange }) {
                         control={control}
                         render={({ field: { ref, ...field }, fieldState }) => (
                           <SelectGroupRoles
+                            StockRoles={usrmng.StockRolesAll}
                             isMulti
                             value={field.value}
-                            onChange={({ Selected, UnSelected }) => {
-                              field.onChange(
-                                Selected ? Selected.map(x => x.value) : null
-                              )
+                            onChange={val => {
+                              field.onChange(val ? val.map(x => x.value) : null)
                             }}
                             className={clsx(
                               'select-control',
@@ -181,14 +185,10 @@ function PickerFilter({ children, initialValues, onChange }) {
                                 zIndex: 9999
                               })
                             }}
-                            menuPortalTarget={document.body}
-                            params={{
-                              UserID: 0,
-                              StockID:
-                                StockIDs && StockIDs.length > 0
-                                  ? StockIDs[0]
-                                  : 0
+                            Params={{
+                              StockID: StockIDs
                             }}
+                            menuPortalTarget={document.body}
                             errorMessageForce={fieldState?.invalid}
                             errorMessage={fieldState?.error?.message}
                           />

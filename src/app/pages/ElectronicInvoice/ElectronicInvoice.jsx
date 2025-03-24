@@ -111,7 +111,11 @@ function ElectronicInvoice(props) {
         moment(x.Date, 'YYYY-MM-DD').format('DD-MM-YYYY') === CDate
     )
     if (index === -1) return null
-    return RefIds[index].NewInvoiceID || RefIds[index].InvoiceIDs[0].InvoiceID
+    return (
+      RefIds[index].NewInvoiceID ||
+      (RefIds[index].InvoiceIDs[0].Status !== 'done' &&
+        RefIds[index].InvoiceIDs[0].InvoiceID)
+    )
   }
 
   const updateInvoiceMutation = useMutation({
@@ -123,6 +127,12 @@ function ElectronicInvoice(props) {
       } else {
         let rs = await InvoiceAPI.getList({
           ...filters,
+          StockID:
+            filters.StockID && filters.StockID.length > 0
+              ? filters.StockID.map(x => x.value)
+              : thu_chi?.IsStocks
+              ? []
+              : thu_chi?.StockRoles?.map(x => x.value),
           From: moment(filters.From).format('YYYY-MM-DD'),
           To: moment(filters.To).format('YYYY-MM-DD'),
           Ps: data.Total
@@ -217,6 +227,7 @@ function ElectronicInvoice(props) {
                   )
                 }
               ].filter(x => x.AmountWithoutVATOC && x.VATAmountOC)
+
               let obj = {
                 RefID: getRefID({
                   ID: item.ID,
@@ -252,7 +263,8 @@ function ElectronicInvoice(props) {
                 BuyerCode: '',
                 BuyerPhoneNumber: item.SenderPhone,
                 BuyerEmail: '',
-                BuyerFullName: item.SenderName,
+                BuyerFullName:
+                  GlobalConfig?.Admin?.hddt?.SenderName || item.SenderName,
                 BuyerBankAccount: '',
                 BuyerBankName: '',
                 TotalSaleAmountOC: formatArray.sumTotalKey(newItems, 'Amount'),
@@ -385,7 +397,7 @@ function ElectronicInvoice(props) {
           <div className="spinner spinner-primary w-40px"></div> Đang tải ...
         </div>
       )
-    const indexList = [0, 1, 2, 3, 4, 5, 6]
+    const indexList = [0, 1, 2, 3, 4, 5, 6, 7]
     for (let index of indexList) {
       const rowSpan = columns[index].rowSpan({ rowData, rowIndex })
       if (rowSpan > 1) {
@@ -504,6 +516,23 @@ function ElectronicInvoice(props) {
           rowData?.InvoiceIDStatus === 'pending' &&
           '!bg-warninglight',
         width: 180,
+        sortable: false,
+        rowSpan: ({ rowData }) => (rowData.Items ? rowData.Items.length : 1)
+      },
+      {
+        key: 'UserInfo',
+        title: 'Nhân viên xuất HĐ',
+        dataKey: 'UserInfo',
+        cellRenderer: ({ rowData }) => (
+          <>
+            {rowData?.UserInfo && rowData?.UserInfo.length > 0 ? (
+              rowData?.UserInfo.map(x => `${x?.FullName || ''}`).join(', ')
+            ) : (
+              <></>
+            )}
+          </>
+        ),
+        width: 220,
         sortable: false,
         rowSpan: ({ rowData }) => (rowData.Items ? rowData.Items.length : 1)
       },

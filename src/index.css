@@ -112,6 +112,10 @@ input[type="time"]::-webkit-calendar-picker-indicator {
     display: block;
 }
 
+.checkbox.checkbox-border input:checked +.icon.checkbox-primary {
+    @apply border-primary
+}
+
 
 /* react-viewer */
 
@@ -128,6 +132,10 @@ body .react-viewer-list>li>img {
 
 
 /* ckeditor */
+
+.ck-read-only {
+    background: #f4f4f4 !important;
+}
 
 .ck-editor__editable {
     min-height: 130px !important;

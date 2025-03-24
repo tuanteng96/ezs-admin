@@ -17,6 +17,7 @@ function CkEditor5({
   onChange,
   placeholder,
   className,
+  disabled,
   toolbar = [
     // 'undo',
     // 'redo',
@@ -136,6 +137,7 @@ function CkEditor5({
             const data = editor.getData()
             onChange(data)
           }}
+          disabled={disabled}
         />
         {/* <CKEditor
         editor={ClassicEditor}

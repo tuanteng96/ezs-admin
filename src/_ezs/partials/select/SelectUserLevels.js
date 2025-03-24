@@ -21,10 +21,12 @@ function SelectUserLevels({
       const { data } = await ConfigAPI.getName('user.levels')
       let result = []
       if (data.data && data.data.length > 0) {
-        result = data.data[0].Value.split(',').map(x => ({
-          label: x,
-          value: x
-        }))
+        result = data.data[0].Value.split(',')
+          .map(x => ({
+            label: x,
+            value: x
+          }))
+          .filter(x => x?.value && x.label)
       }
       return result
     }

@@ -349,6 +349,7 @@ function PickerBusinessMore({ children, initialValues }) {
                             <div className="mb-1.5 text-base text-gray-900 font-inter font-medium dark:text-graydark-800">
                               Quận huyện
                             </div>
+                            {}
                             <SelectDistrictsOtp
                               className="select-control"
                               isClearable
@@ -356,11 +357,11 @@ function PickerBusinessMore({ children, initialValues }) {
                               value={field.value}
                               onChange={val => field.onChange(val)}
                               noOptionsMessage={() => 'Không có dữ liệu'}
-                              isLoading={
+                              isLoading={updateAddressMutation.isLoading}
+                              isDisabled={
                                 !ProvinceID?.value ||
                                 updateAddressMutation.isLoading
                               }
-                              isDisabled={updateAddressMutation.isLoading}
                             />
                           </div>
                         )}

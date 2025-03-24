@@ -4,7 +4,7 @@ import Select from 'react-select'
 import MoresAPI from 'src/_ezs/api/mores.api'
 import { useQuery } from '@tanstack/react-query'
 
-const SelectDistrictsOtp = ({ ProvinceID, ...props }) => {
+const SelectDistrictsOtp = ({ ProvinceID, isLoading, ...props }) => {
   const ListDistricts = useQuery({
     queryKey: ['ListDistricts', ProvinceID],
     queryFn: async () => {
@@ -18,7 +18,7 @@ const SelectDistrictsOtp = ({ ProvinceID, ...props }) => {
   return (
     <div>
       <Select
-        isLoading={ProvinceID && ListDistricts.isLoading}
+        isLoading={isLoading || (ProvinceID && ListDistricts.isLoading)}
         classNamePrefix="select"
         options={ListDistricts?.data || []}
         placeholder="Chọn Quận huyện"

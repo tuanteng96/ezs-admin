@@ -2,8 +2,9 @@ import React from 'react'
 import Select from 'react-select'
 import { useQuery } from '@tanstack/react-query'
 import ConfigAPI from 'src/_ezs/api/config'
+import clsx from 'clsx'
 
-function SelectMeasure({ value, ...props }) {
+function SelectMeasure({ value, errorMessageForce, errorMessage, ...props }) {
   const { data, isLoading } = useQuery({
     queryKey: ['ListMeasure'],
     queryFn: async () => {
@@ -25,10 +26,17 @@ function SelectMeasure({ value, ...props }) {
         value={data && data.filter(x => x.value === value)}
         isLoading={isLoading}
         classNamePrefix="select"
+        className={clsx(
+          'select-control',
+          errorMessageForce && 'select-control-error'
+        )}
         options={data || []}
         placeholder="Chọn đơn vị"
         {...props}
       />
+      {errorMessage && errorMessageForce && (
+        <div className="mt-1.5 text-sm text-danger">{errorMessage}</div>
+      )}
     </div>
   )
 }

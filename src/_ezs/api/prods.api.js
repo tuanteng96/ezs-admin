@@ -1,9 +1,34 @@
 import http from 'src/_ezs/utils/http'
 
 const ProdsAPI = {
+  get: ({
+    prods = '',
+    pi = 1,
+    ps = 50,
+    typeid = '',
+    is_service = 0,
+    is_fee = 0,
+    key = '',
+    display = '',
+    rightApp = '',
+    v = 2,
+    is_sale = 0,
+    ServiceOrFee = 3,
+    byStock = '',
+    manu = '',
+    byPublic = '',
+    skip_display = ''
+  }) =>
+    http.get(
+      `/admin/smart.aspx?prods=${prods}&pi=${pi}&ps=${ps}&typeid=${typeid}&is_service=${is_service}&is_fee=${is_fee}&key=${key}&display=${display}&rightApp=${rightApp}&v=${v}&is_sale=${is_sale}&ServiceOrFee=${ServiceOrFee}&byStock=${byStock}&manu=${manu}&byPublic=${byPublic}&skip_display=${skip_display}`
+    ),
   getList: ({ cates = '', key = '', pi = 1, ps = 20 }) =>
     http.get(
       `/app/index.aspx?cmd=search_prods&token=&key=${key}&cates=${cates}&pi=${pi}&ps=${ps}`
+    ),
+  getListTypeName: ({ key = '' }) =>
+    http.get(
+      `/api/gl/select2?cmd=prod&ignore_rootsv=1&ignore_all=1&_type=query&q=${key}`
     ),
   getListService: ({ StockID, Key, Pi, Ps, MemberID }) =>
     http.get(
@@ -18,6 +43,10 @@ const ProdsAPI = {
   getProdId: ID =>
     http.get(
       `/api/gl/select2?cmd=prod&cateids=${ID}&includeSource=1&_type=query`
+    ),
+  getProdName: name =>
+    http.get(
+      `/api/gl/select2?cmd=prod&includeSource=1&includeAll=0&cate_name=${name}&_type=query`
     ),
   getListProdsProduct: body =>
     http.post(`/api/v4/Prod25@sanpham`, JSON.stringify(body)),
@@ -41,7 +70,18 @@ const ProdsAPI = {
     ),
   updateImageProd: data =>
     http.post('/api/v3/file25@updates', JSON.stringify(data)),
-  searchNamesProd: data => http.post('/api/v3/file25@Get', JSON.stringify(data))
+  searchNamesProd: data =>
+    http.post('/api/v3/file25@Get', JSON.stringify(data)),
+  getThreeCate: () => http.get(`/admin/smart.aspx?ThreeCate=1`),
+  getLevelProdId: (pid = 0) => http.get(`/api/v3/userlevel?cmd=get&pid=${pid}`),
+  getInitialProdId: data => http.post('/admin/smart.aspx?set_product=1', data),
+  getEditProdId: ({ key = '', foredit = '' }) =>
+    http.post(
+      `/admin/smart.aspx?prods=1&key=${encodeURIComponent(
+        key
+      )}&pi=1&ps=1&foredit=${foredit}`
+    ),
+  addEdit: data => http.post('/admin/smart.aspx?set_product=1&btn=save', data)
 }
 
 export default ProdsAPI

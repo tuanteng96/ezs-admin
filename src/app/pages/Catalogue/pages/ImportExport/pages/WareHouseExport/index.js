@@ -671,7 +671,11 @@ function WareHouseExport(props) {
   }
 
   const updateMutation = useMutation({
-    mutationFn: body => WarehouseAPI.updateImportExport(body)
+    mutationFn: async body => {
+      let rs = await WarehouseAPI.updateImportExport(body)
+      await queryClient.invalidateQueries({ queryKey: ['ListImportExport'] })
+      return rs
+    }
   })
 
   const onSubmit = values => {
@@ -695,17 +699,11 @@ function WareHouseExport(props) {
       },
       {
         onSettled: data => {
-          queryClient
-            .invalidateQueries({ queryKey: ['ListImportExport'] })
-            .then(() => {
-              toast.success(
-                id ? 'Cập nhập thành công.' : 'Thêm mới thành công.'
-              )
-              navigate({
-                pathname: state?.prevFrom,
-                search: search
-              })
-            })
+          toast.success(id ? 'Cập nhập thành công.' : 'Thêm mới thành công.')
+          navigate({
+            pathname: state?.prevFrom,
+            search: search
+          })
         }
       }
     )

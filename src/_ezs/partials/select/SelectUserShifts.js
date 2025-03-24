@@ -1,14 +1,9 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import Select from 'react-select'
 import { useQuery } from '@tanstack/react-query'
 import ConfigAPI from 'src/_ezs/api/config'
 
-function SelectUserShifts({
-  errorMessage,
-  errorMessageForce,
-  onSuccess,
-  ...props
-}) {
+function SelectUserShifts({ errorMessage, errorMessageForce, ...props }) {
   const { data, isLoading } = useQuery({
     queryKey: ['ListShifts'],
     queryFn: async () => {
@@ -23,10 +18,6 @@ function SelectUserShifts({
       return result
     }
   })
-
-  useEffect(() => {
-    onSuccess && onSuccess(data || [])
-  }, [data])
 
   return (
     <div>

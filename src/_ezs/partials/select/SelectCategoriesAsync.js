@@ -19,7 +19,7 @@ const getNameType = type => {
   }
 }
 
-function SelectCategoriesAsync({ Type, allOptions = false, value, ...props }) {
+function SelectCategoriesAsync({ Type, allOptions = false, ...props }) {
   async function loadOptions(search, loadedOptions, { page }) {
     const { data } = await ProdsAPI.getListCategory()
     let TypeSplit = Type.split(',')

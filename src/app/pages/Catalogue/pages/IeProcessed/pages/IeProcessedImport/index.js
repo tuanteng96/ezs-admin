@@ -458,7 +458,14 @@ function IeProcessedImport(props) {
   }
 
   const updateMutation = useMutation({
-    mutationFn: body => WarehouseAPI.updateImportExport(body)
+    mutationFn: async body => {
+      let rs = await WarehouseAPI.updateImportExport(body)
+      await Promise.all([
+        queryClient.invalidateQueries(['ListIEProcessed']),
+        queryClient.invalidateQueries(['ReceiveStock'])
+      ])
+      return rs
+    }
   })
 
   const onSubmit = values => {
@@ -482,15 +489,10 @@ function IeProcessedImport(props) {
       },
       {
         onSettled: data => {
-          Promise.all([
-            queryClient.invalidateQueries(['ListIEProcessed']),
-            queryClient.invalidateQueries(['ReceiveStock'])
-          ]).then(data => {
-            toast.success('Thêm mới thành công.')
-            navigate({
-              pathname: state?.prevFrom,
-              search: search
-            })
+          toast.success('Thêm mới thành công.')
+          navigate({
+            pathname: state?.prevFrom,
+            search: search
           })
         }
       }

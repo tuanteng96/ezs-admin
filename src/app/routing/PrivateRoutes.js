@@ -14,6 +14,7 @@ const UsersPage = lazy(() => import('../pages/Users'))
 const ClientsPage = lazy(() => import('../pages/Clients'))
 const AppointmentsPage = lazy(() => import('../pages/Appointments'))
 const CataloguePage = lazy(() => import('../pages/Catalogue'))
+const ProdsPage = lazy(() => import('../pages/Prods'))
 const NotificationsPage = lazy(() => import('../pages/Notifications'))
 const SettingsPage = lazy(() => import('../pages/Settings'))
 const ElectronicInvoicePage = lazy(() => import('../pages/ElectronicInvoice'))
@@ -21,10 +22,12 @@ const SearchPage = lazy(() => import('../pages/Search'))
 const UnauthorizedPage = lazy(() => import('../pages/Unauthorized'))
 
 function PrivateRoutes(props) {
-  const { pos_mng, notification, thu_chi } = useRoles([
+  const { pos_mng, notification, thu_chi, ReadApp_type, ReadCate } = useRoles([
     'pos_mng',
     'notification',
-    'thu_chi'
+    'thu_chi',
+    'ReadApp_type',
+    'ReadCate'
   ])
 
   return (
@@ -89,6 +92,15 @@ function PrivateRoutes(props) {
         <Route path="banners/*" element={<BannersPage />} />
         <Route path="posts/*" element={<PostsPage />} />
         <Route path="catalogue/*" element={<CataloguePage />} />
+
+        <Route
+          element={
+            <RoleAccess roles={ReadCate?.hasRight || ReadApp_type?.hasRight} />
+          }
+        >
+          <Route path="prods/*" element={<ProdsPage />} />
+        </Route>
+
         <Route element={<RoleAccess roles={thu_chi.hasRight} />}>
           <Route
             path="electronic-invoice/*"

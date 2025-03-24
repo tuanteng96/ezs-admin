@@ -24,6 +24,7 @@ import useDebounceKey from 'src/_ezs/hooks/useDebounceKey'
 import { useAuth } from 'src/_ezs/core/Auth'
 import Tooltip from 'rc-tooltip'
 import { PickerUserInfo } from '.'
+import { useRoles } from 'src/_ezs/hooks/useRoles'
 
 const schemaAddEdit = yup
   .object({
@@ -41,6 +42,12 @@ function PickerUserAddEdit({ children, initialValues }) {
   const [isEditPwd, setIsEditPwd] = useState(false)
 
   const { CrStocks } = useAuth()
+
+  const { usrmng, cong_ca, csluong_bangluong } = useRoles([
+    'usrmng',
+    'cong_ca',
+    'csluong_bangluong'
+  ])
 
   const queryClient = useQueryClient()
 
@@ -78,7 +85,7 @@ function PickerUserAddEdit({ children, initialValues }) {
     resolver: yupResolver(schemaAddEdit)
   })
 
-  const { control, handleSubmit, reset, setValue } = methods
+  const { control, handleSubmit, reset, setValue, watch } = methods
 
   useEffect(() => {
     if (initialValues) {
@@ -264,7 +271,7 @@ function PickerUserAddEdit({ children, initialValues }) {
       })
     }
     if (values?.LOAI_TINH_LUONG) {
-      if (values?.LOAI_TINH_LUONG?.value === 'NGAY_NGHI') {
+      if (values?.LOAI_TINH_LUONG === 'NGAY_NGHI') {
         newchluongData.push({
           id: values?.id || 0,
           StockID: 0,
@@ -278,6 +285,7 @@ function PickerUserAddEdit({ children, initialValues }) {
         })
       }
     }
+
     bodyFormData.append('chluongData', JSON.stringify(newchluongData))
     bodyFormData.append('chluongGr', JSON.stringify([]))
 
@@ -324,6 +332,8 @@ function PickerUserAddEdit({ children, initialValues }) {
       }
     })
   }, 500)
+
+  let { stockid } = watch()
 
   return (
     <PickerUserInfo>
@@ -383,7 +393,7 @@ function PickerUserAddEdit({ children, initialValues }) {
                   <div className="px-4 py-4 overflow-auto md:py-10 grow">
                     <div className="max-w-[600px] w-full mx-auto">
                       <div className="mb-4">
-                        <div className="mb-1 text-lg font-semibold">
+                        <div className="mb-1 text-lg font-semibold md:text-2xl">
                           Thông tin tài khoản
                         </div>
                       </div>
@@ -556,13 +566,17 @@ function PickerUserAddEdit({ children, initialValues }) {
                                   fieldState
                                 }) => (
                                   <SelectStocks
-                                    allOption={[
-                                      {
-                                        label: 'Hệ thống',
-                                        value: '0'
-                                      }
-                                    ]}
-                                    //StockRoles={pos_mng.StockRoles}
+                                    allOption={
+                                      usrmng?.IsStocks
+                                        ? [
+                                            {
+                                              label: 'Hệ thống',
+                                              value: '0'
+                                            }
+                                          ]
+                                        : []
+                                    }
+                                    StockRoles={usrmng.StockRoles}
                                     value={field.value}
                                     onChange={val => {
                                       field.onChange(
@@ -618,6 +632,10 @@ function PickerUserAddEdit({ children, initialValues }) {
                                     menuPortalTarget={document.body}
                                     errorMessageForce={fieldState?.invalid}
                                     errorMessage={fieldState?.error?.message}
+                                    StockRoles={usrmng.StockRolesAll}
+                                    Params={{
+                                      StockID: stockid
+                                    }}
                                   />
                                 )}
                               />
@@ -626,175 +644,320 @@ function PickerUserAddEdit({ children, initialValues }) {
                         </div>
                       </div>
 
-                      <div className="pt-5 border-t mt-7 border-t-separator">
-                        <div className="mb-4">
-                          <div className="mb-1 text-lg font-semibold">
-                            Cài đặt chính sách lương
+                      {csluong_bangluong?.hasRight && (
+                        <div className="pt-5 border-t mt-7 border-t-separator">
+                          <div className="mb-4">
+                            <div className="mb-1 text-lg font-semibold md:text-2xl">
+                              Cài đặt chính sách lương
+                            </div>
+                            <div className="font-light text-muted2">
+                              Cài đặt lương cơ bản, số ngày công quy định trên
+                              tháng & ăn trưa.
+                            </div>
                           </div>
-                          <div className="font-light text-muted2">
-                            Cài đặt lương cơ bản, số ngày công quy định trên
-                            tháng & ăn trưa.
-                          </div>
-                        </div>
-                        <div>
-                          <SelectUserLevels
-                            className="select-control"
-                            menuPosition="fixed"
-                            styles={{
-                              menuPortal: base => ({
-                                ...base,
-                                zIndex: 9999
-                              })
-                            }}
-                            menuPortalTarget={document.body}
-                            onSuccess={rs => {
-                              if (!initialValues?.ID && rs.length > 0) {
-                                setValue('chluongLevels', rs[0].value)
-                              }
-                            }}
-                            label="Cấp bậc"
-                            name="chluongLevels"
-                            wrapClassName="mb-4"
-                          />
-                          <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2">
-                            <div>
-                              <div className="font-semibold">Lương cơ bản</div>
-                              <div className="mt-1">
-                                <Controller
-                                  name={`LUONG`}
-                                  control={control}
-                                  render={({
-                                    field: { ref, ...field },
-                                    fieldState
-                                  }) => (
-                                    <InputNumber
-                                      thousandSeparator={true}
-                                      value={field.value}
-                                      placeholder="Nhập số tiền"
-                                      onValueChange={val =>
-                                        field.onChange(val.floatValue || '')
-                                      }
-                                    />
-                                  )}
-                                />
+                          <div>
+                            <SelectUserLevels
+                              className="select-control"
+                              menuPosition="fixed"
+                              styles={{
+                                menuPortal: base => ({
+                                  ...base,
+                                  zIndex: 9999
+                                })
+                              }}
+                              menuPortalTarget={document.body}
+                              onSuccess={rs => {
+                                if (!initialValues?.ID && rs.length > 0) {
+                                  setValue('chluongLevels', rs[0].value)
+                                }
+                              }}
+                              label="Cấp bậc"
+                              name="chluongLevels"
+                              wrapClassName="mb-4"
+                            />
+                            <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2">
+                              <div>
+                                <div className="font-semibold">
+                                  Lương cơ bản
+                                </div>
+                                <div className="mt-1">
+                                  <Controller
+                                    name={`LUONG`}
+                                    control={control}
+                                    render={({
+                                      field: { ref, ...field },
+                                      fieldState
+                                    }) => (
+                                      <InputNumber
+                                        thousandSeparator={true}
+                                        value={field.value}
+                                        placeholder="Nhập số tiền"
+                                        onValueChange={val =>
+                                          field.onChange(val.floatValue || '')
+                                        }
+                                      />
+                                    )}
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <div className="flex justify-between font-semibold">
+                                  <Controller
+                                    name={`LOAI_TINH_LUONG`}
+                                    control={control}
+                                    render={({
+                                      field: { ref, ...field },
+                                      fieldState
+                                    }) => (
+                                      <>
+                                        <span>
+                                          {field.value === 'NGAY_CONG'
+                                            ? 'Ngày công cố định'
+                                            : 'Ngày nghỉ cố định'}
+                                          <span className="pl-1">/ tháng</span>
+                                        </span>
+                                        <div
+                                          className="cursor-pointer"
+                                          onClick={() => {
+                                            field.onChange(
+                                              field.value === 'NGAY_CONG'
+                                                ? 'NGAY_NGHI'
+                                                : 'NGAY_CONG'
+                                            )
+                                            setValue('SO_NGAY', '')
+                                          }}
+                                        >
+                                          <ArrowPathIcon className="w-5" />
+                                        </div>
+                                      </>
+                                    )}
+                                  />
+                                </div>
+                                <div className="mt-1">
+                                  <Controller
+                                    name={`SO_NGAY`}
+                                    control={control}
+                                    render={({
+                                      field: { ref, ...field },
+                                      fieldState
+                                    }) => (
+                                      <InputNumber
+                                        thousandSeparator={true}
+                                        value={field.value}
+                                        placeholder="Nhập số ngày"
+                                        onValueChange={val =>
+                                          field.onChange(val.floatValue || '')
+                                        }
+                                      />
+                                    )}
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <div className="flex items-end font-semibold">
+                                  <span>Phụ cấp tháng</span>
+                                  <Tooltip
+                                    overlayClassName="text-white dark:text-dark-light"
+                                    placement="top"
+                                    trigger={['hover']}
+                                    overlay={
+                                      <div className="px-3 py-2.5 bg-white dark:bg-dark-light rounded-sm shadow-lg text-gray-700 dark:text-graydark-800 max-w-[300px] text-center">
+                                        Không phụ thuộc vào ngày chấm công
+                                      </div>
+                                    }
+                                    align={{
+                                      offset: [9, 0]
+                                    }}
+                                  >
+                                    <QuestionMarkCircleIcon className="w-[22px] ml-1.5 text-warning cursor-pointer" />
+                                  </Tooltip>
+                                </div>
+                                <div className="mt-1">
+                                  <Controller
+                                    name={`PHU_CAP`}
+                                    control={control}
+                                    render={({
+                                      field: { ref, ...field },
+                                      fieldState
+                                    }) => (
+                                      <InputNumber
+                                        thousandSeparator={true}
+                                        value={field.value}
+                                        placeholder="Nhập số tiền"
+                                        onValueChange={val =>
+                                          field.onChange(val.floatValue || '')
+                                        }
+                                      />
+                                    )}
+                                  />
+                                </div>
+                              </div>
+                              <div>
+                                <div className="flex items-end font-semibold">
+                                  <span>Phụ cấp ngày (Ăn trưa)</span>
+                                  <Tooltip
+                                    overlayClassName="text-white dark:text-dark-light"
+                                    placement="top"
+                                    trigger={['hover']}
+                                    overlay={
+                                      <div className="px-3 py-2.5 bg-white dark:bg-dark-light rounded-sm shadow-lg text-gray-700 dark:text-graydark-800 max-w-[300px] text-center">
+                                        Tính theo số ngày chấm công
+                                      </div>
+                                    }
+                                    align={{
+                                      offset: [9, 0]
+                                    }}
+                                  >
+                                    <QuestionMarkCircleIcon className="w-[22px] ml-1.5 text-warning cursor-pointer" />
+                                  </Tooltip>
+                                </div>
+                                <div className="mt-1">
+                                  <Controller
+                                    name={`TRO_CAP_NGAY`}
+                                    control={control}
+                                    render={({
+                                      field: { ref, ...field },
+                                      fieldState
+                                    }) => (
+                                      <InputNumber
+                                        thousandSeparator={true}
+                                        value={field.value}
+                                        placeholder="Nhập số tiền"
+                                        onValueChange={val =>
+                                          field.onChange(val.floatValue || '')
+                                        }
+                                      />
+                                    )}
+                                  />
+                                </div>
                               </div>
                             </div>
+
                             <div>
-                              <div className="flex justify-between font-semibold">
+                              <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                                <div>
+                                  <div className="flex items-end mb-1 font-semibold">
+                                    <span>Giữ lương hàng tháng</span>
+                                    <Tooltip
+                                      overlayClassName="text-white dark:text-dark-light"
+                                      placement="top"
+                                      trigger={['hover']}
+                                      overlay={
+                                        <div className="px-3 py-2.5 bg-white dark:bg-dark-light rounded-sm shadow-lg text-gray-700 dark:text-graydark-800 max-w-[300px] text-center">
+                                          Trường hợp nhân viên bị cam kết làm 12
+                                          tháng thì bạn có thể cài đặt giữ lương
+                                          theo số tiền cố định hàng tháng hoặc
+                                          theo % lương thu nhập trong 1 khoảng
+                                          thời gian 6 tháng, 1 năm. Lương sẽ
+                                          được giữ lại và thanh toán cho nhân
+                                          viên khi đủ thời gian
+                                        </div>
+                                      }
+                                      align={{
+                                        offset: [9, 0]
+                                      }}
+                                    >
+                                      <QuestionMarkCircleIcon className="w-[22px] ml-1.5 text-warning cursor-pointer" />
+                                    </Tooltip>
+                                  </div>
+                                  <Controller
+                                    name={`GIU_LUONG`}
+                                    control={control}
+                                    render={({
+                                      field: { ref, ...field },
+                                      fieldState
+                                    }) => (
+                                      <div className="relative">
+                                        <InputNumber
+                                          thousandSeparator={true}
+                                          value={field.value}
+                                          placeholder="Nhập số tiền giữ lương"
+                                          onValueChange={val =>
+                                            field.onChange(val.floatValue || '')
+                                          }
+                                        />
+                                        {field.value !== '' && (
+                                          <div className="absolute top-0 right-0 flex items-center justify-center w-10 h-12 pointer-events-none font-number">
+                                            {field.value > 100 ? 'đ' : '%'}
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+                                  />
+                                </div>
+                                <div>
+                                  <div className="mb-1 font-semibold">
+                                    Số tháng giữ lương
+                                  </div>
+                                  <Controller
+                                    name={`SO_THANG_GIU_LUONG`}
+                                    control={control}
+                                    render={({
+                                      field: { ref, ...field },
+                                      fieldState
+                                    }) => (
+                                      <InputNumber
+                                        thousandSeparator={true}
+                                        value={field.value}
+                                        placeholder="Nhập số tháng"
+                                        onValueChange={val =>
+                                          field.onChange(val.floatValue || '')
+                                        }
+                                      />
+                                    )}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {cong_ca?.hasRight && (
+                        <div className="pt-5 border-t mt-7 border-t-separator">
+                          <div className="mb-4">
+                            <div className="mb-1 text-lg font-semibold md:text-2xl">
+                              Cài đặt chấm công
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <div>
+                              <div className="font-semibold">Ca làm việc</div>
+                              <div className="mt-1">
                                 <Controller
-                                  name={`LOAI_TINH_LUONG`}
+                                  name={`chamcong.ShiftID`}
                                   control={control}
                                   render={({
                                     field: { ref, ...field },
                                     fieldState
                                   }) => (
                                     <>
-                                      <span>
-                                        {field.value === 'NGAY_CONG'
-                                          ? 'Ngày công cố định'
-                                          : 'Ngày nghỉ cố định'}
-                                        <span className="pl-1">/ tháng</span>
-                                      </span>
-                                      <div
-                                        className="cursor-pointer"
-                                        onClick={() => {
-                                          field.onChange(
-                                            field.value === 'NGAY_CONG'
-                                              ? 'NGAY_NGHI'
-                                              : 'NGAY_CONG'
-                                          )
-                                          setValue('SO_NGAY', '')
+                                      <SelectUserShifts
+                                        value={field.value}
+                                        onChange={val => field.onChange(val)}
+                                        className="select-control"
+                                        menuPosition="fixed"
+                                        styles={{
+                                          menuPortal: base => ({
+                                            ...base,
+                                            zIndex: 9999
+                                          })
                                         }}
-                                      >
-                                        <ArrowPathIcon className="w-5" />
-                                      </div>
+                                        menuPortalTarget={document.body}
+                                        placeholder="Tự chọn ca khi chấm công"
+                                      />
                                     </>
                                   )}
                                 />
                               </div>
-                              <div className="mt-1">
-                                <Controller
-                                  name={`SO_NGAY`}
-                                  control={control}
-                                  render={({
-                                    field: { ref, ...field },
-                                    fieldState
-                                  }) => (
-                                    <InputNumber
-                                      thousandSeparator={true}
-                                      value={field.value}
-                                      placeholder="Nhập số ngày"
-                                      onValueChange={val =>
-                                        field.onChange(val.floatValue || '')
-                                      }
-                                    />
-                                  )}
-                                />
-                              </div>
                             </div>
                             <div>
-                              <div className="flex items-end font-semibold">
-                                <span>Phụ cấp tháng</span>
-                                <Tooltip
-                                  overlayClassName="text-white dark:text-dark-light"
-                                  placement="top"
-                                  trigger={['hover']}
-                                  overlay={
-                                    <div className="px-3 py-2.5 bg-white dark:bg-dark-light rounded-sm shadow-lg text-gray-700 dark:text-graydark-800 max-w-[300px] text-center">
-                                      Không phụ thuộc vào ngày chấm công, tính
-                                      theo số ngày chấm công
-                                    </div>
-                                  }
-                                  align={{
-                                    offset: [9, 0]
-                                  }}
-                                >
-                                  <QuestionMarkCircleIcon className="w-[22px] ml-1.5 text-warning cursor-pointer" />
-                                </Tooltip>
+                              <div className="font-semibold">
+                                Lương theo giờ (Tính tăng ca, phạt)
                               </div>
                               <div className="mt-1">
                                 <Controller
-                                  name={`PHU_CAP`}
-                                  control={control}
-                                  render={({
-                                    field: { ref, ...field },
-                                    fieldState
-                                  }) => (
-                                    <InputNumber
-                                      thousandSeparator={true}
-                                      value={field.value}
-                                      placeholder="Nhập số tiền"
-                                      onValueChange={val =>
-                                        field.onChange(val.floatValue || '')
-                                      }
-                                    />
-                                  )}
-                                />
-                              </div>
-                            </div>
-                            <div>
-                              <div className="flex items-end font-semibold">
-                                <span>Phụ cấp ngày (Ăn trưa)</span>
-                                <Tooltip
-                                  overlayClassName="text-white dark:text-dark-light"
-                                  placement="top"
-                                  trigger={['hover']}
-                                  overlay={
-                                    <div className="px-3 py-2.5 bg-white dark:bg-dark-light rounded-sm shadow-lg text-gray-700 dark:text-graydark-800 max-w-[300px] text-center">
-                                      Không phụ thuộc vào ngày chấm công, tính
-                                      theo số ngày chấm công
-                                    </div>
-                                  }
-                                  align={{
-                                    offset: [9, 0]
-                                  }}
-                                >
-                                  <QuestionMarkCircleIcon className="w-[22px] ml-1.5 text-warning cursor-pointer" />
-                                </Tooltip>
-                              </div>
-                              <div className="mt-1">
-                                <Controller
-                                  name={`TRO_CAP_NGAY`}
+                                  name="chamcong.SalaryHours"
                                   control={control}
                                   render={({
                                     field: { ref, ...field },
@@ -813,164 +976,8 @@ function PickerUserAddEdit({ children, initialValues }) {
                               </div>
                             </div>
                           </div>
-
-                          <div>
-                            <div className="flex items-end mb-2 text-muted2">
-                              <span>Cài đặt giữ lương</span>
-                              <Tooltip
-                                overlayClassName="text-white dark:text-dark-light"
-                                placement="top"
-                                trigger={['hover']}
-                                overlay={
-                                  <div className="px-3 py-2.5 bg-white dark:bg-dark-light rounded-sm shadow-lg text-gray-700 dark:text-graydark-800 max-w-[300px] text-center">
-                                    Trường hợp nhân viên bị cam kết làm 12 tháng
-                                    thì bạn có thể cài đặt giữ lương theo số
-                                    tiền cố định hang tháng hoặc theo % lương
-                                    thu nhập trong 1 khoảng thời gian 6 tháng, 1
-                                    năm. Lương sẽ được giữ lại và thanh toán cho
-                                    nhân viên khi đủ thời
-                                  </div>
-                                }
-                                align={{
-                                  offset: [9, 0]
-                                }}
-                              >
-                                <QuestionMarkCircleIcon className="w-[22px] ml-1.5 text-warning cursor-pointer" />
-                              </Tooltip>
-                            </div>
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                              <div>
-                                <div className="mb-1 font-semibold">
-                                  Giữ lương hàng tháng (% hoặc giá trị)
-                                </div>
-                                <Controller
-                                  name={`GIU_LUONG`}
-                                  control={control}
-                                  render={({
-                                    field: { ref, ...field },
-                                    fieldState
-                                  }) => (
-                                    <div className="relative">
-                                      <InputNumber
-                                        thousandSeparator={true}
-                                        value={field.value}
-                                        placeholder="Nhập giá trị"
-                                        onValueChange={val =>
-                                          field.onChange(val.floatValue || '')
-                                        }
-                                      />
-                                      {field.value !== '' && (
-                                        <div className="absolute top-0 right-0 flex items-center justify-center w-10 h-12 pointer-events-none font-number">
-                                          {field.value > 100 ? 'đ' : '%'}
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
-                                />
-                              </div>
-                              <div>
-                                <div className="mb-1 font-semibold">
-                                  Thời gian giữ lương (tháng)
-                                </div>
-                                <Controller
-                                  name={`SO_THANG_GIU_LUONG`}
-                                  control={control}
-                                  render={({
-                                    field: { ref, ...field },
-                                    fieldState
-                                  }) => (
-                                    <InputNumber
-                                      thousandSeparator={true}
-                                      value={field.value}
-                                      placeholder="Tháng"
-                                      onValueChange={val =>
-                                        field.onChange(val.floatValue || '')
-                                      }
-                                    />
-                                  )}
-                                />
-                              </div>
-                            </div>
-                          </div>
                         </div>
-                      </div>
-                      <div className="pt-5 border-t mt-7 border-t-separator">
-                        <div className="mb-4">
-                          <div className="mb-1 text-lg font-semibold">
-                            Cài đặt chấm công
-                          </div>
-                        </div>
-                        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-                          <div>
-                            <div className="font-semibold">Loại công ca</div>
-                            <div className="mt-1">
-                              <Controller
-                                name={`chamcong.ShiftID`}
-                                control={control}
-                                render={({
-                                  field: { ref, ...field },
-                                  fieldState
-                                }) => (
-                                  <>
-                                    <SelectUserShifts
-                                      value={field.value}
-                                      onChange={val => field.onChange(val)}
-                                      className="select-control"
-                                      menuPosition="fixed"
-                                      styles={{
-                                        menuPortal: base => ({
-                                          ...base,
-                                          zIndex: 9999
-                                        })
-                                      }}
-                                      menuPortalTarget={document.body}
-                                      onSuccess={rs => {
-                                        if (
-                                          !initialValues?.ID &&
-                                          Array.isArray(rs) &&
-                                          rs.length > 0
-                                        ) {
-                                          let index = rs?.findIndex(
-                                            x => x.flexible
-                                          )
-                                          setValue(
-                                            'chamcong.ShiftID',
-                                            index > -1 ? rs[index] : rs[0]
-                                          )
-                                        }
-                                      }}
-                                    />
-                                  </>
-                                )}
-                              />
-                            </div>
-                          </div>
-                          <div>
-                            <div className="font-semibold">
-                              Lương theo giờ (Tính tăng ca, phạt)
-                            </div>
-                            <div className="mt-1">
-                              <Controller
-                                name="chamcong.SalaryHours"
-                                control={control}
-                                render={({
-                                  field: { ref, ...field },
-                                  fieldState
-                                }) => (
-                                  <InputNumber
-                                    thousandSeparator={true}
-                                    value={field.value}
-                                    placeholder="Nhập số tiền"
-                                    onValueChange={val =>
-                                      field.onChange(val.floatValue || '')
-                                    }
-                                  />
-                                )}
-                              />
-                            </div>
-                          </div>
-                        </div>
-                      </div>
+                      )}
                     </div>
                   </div>
                   <div className="flex justify-end gap-3 p-4 border-t border-t-separator md:hidden">

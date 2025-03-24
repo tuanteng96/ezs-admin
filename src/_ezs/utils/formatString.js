@@ -51,6 +51,25 @@ export const formatString = {
     }
     return obj
   },
+  formatTypesOf: type => {
+    if (!type) return ''
+    if (type === 'NH') {
+      return 'nhãn hàng'
+    }
+    if (type === 'NVL') {
+      return 'nguyên vật liệu'
+    }
+    if (type === 'SP') {
+      return 'sản phẩm'
+    }
+    if (type === 'PP') {
+      return 'phụ phí'
+    }
+    if (type === 'TT') {
+      return 'thẻ tiền'
+    }
+    return type
+  },
   fixedContentDomain: content => {
     if (!content) return ''
     return content.replace(

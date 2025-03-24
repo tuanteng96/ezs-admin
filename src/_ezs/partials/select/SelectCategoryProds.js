@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import clsx from 'clsx'
 import React from 'react'
 import CreatableSelect from 'react-select/creatable'
 import ProdsAPI from 'src/_ezs/api/prods.api'
@@ -20,11 +21,18 @@ const getNameType = type => {
   }
 }
 
-function SelectCategoryProds({ Type, allOptions = false, ...props }) {
+function SelectCategoryProds({
+  Type,
+  allOptions = false,
+  errorMessageForce,
+  errorMessage,
+  ...props
+}) {
   const { data, isLoading } = useQuery({
     queryKey: ['ListCategory-products', Type],
     queryFn: async () => {
       const { data } = await ProdsAPI.getListCategory()
+
       let TypeSplit = Type.split(',')
       let result = []
       if (data) {
@@ -75,7 +83,6 @@ function SelectCategoryProds({ Type, allOptions = false, ...props }) {
       }
       return result || []
     },
-    cacheTime: 0,
     enabled: Boolean(Type)
   })
 
@@ -84,9 +91,16 @@ function SelectCategoryProds({ Type, allOptions = false, ...props }) {
       <CreatableSelect
         isLoading={isLoading}
         classNamePrefix="select"
+        className={clsx(
+          'select-control',
+          errorMessageForce && 'select-control-error'
+        )}
         options={data}
         {...props}
       />
+      {errorMessage && errorMessageForce && (
+        <div className="mt-1.5 text-sm text-danger">{errorMessage}</div>
+      )}
     </div>
   )
 }

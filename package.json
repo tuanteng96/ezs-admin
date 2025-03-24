@@ -54,6 +54,7 @@
         "react-scripts": "5.0.1",
         "react-select": "^5.7.2",
         "react-select-async-paginate": "^0.7.3",
+        "react-sticky-box": "^2.0.5",
         "react-texty": "^0.6.0",
         "react-toastify": "^9.1.1",
         "react-topbar-progress-indicator": "^4.1.1",

@@ -325,7 +325,9 @@ function BusinessEstablishment(props) {
                                     {item?.Desc && (
                                       <div className="flex items-start mb-1.5">
                                         <MapPinIcon className="w-5 align-text-bottom mr-1.5" />
-                                        {item?.Desc}
+                                        <div className="flex-1">
+                                          {item?.Desc}
+                                        </div>
                                       </div>
                                     )}
                                     {item?.FileName && (
@@ -417,7 +419,9 @@ function BusinessEstablishment(props) {
                                     {item?.Desc && (
                                       <div className="flex items-start mb-1.5">
                                         <MapPinIcon className="w-5 align-text-bottom mr-1.5" />
-                                        {item?.Desc}
+                                        <div className="flex-1">
+                                          {item?.Desc}
+                                        </div>
                                       </div>
                                     )}
                                     {item?.LinkSEO && (

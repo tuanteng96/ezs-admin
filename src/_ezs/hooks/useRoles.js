@@ -2,6 +2,8 @@ import { useId } from 'react'
 import { useAuth } from '../core/Auth'
 import { formatArray } from '../utils/formatArray'
 
+let KeyChanges = ['ReadApp']
+
 const hasRolesAuth = data => {
   let newHasRoles = []
   if (data && data?.groups) {
@@ -12,7 +14,15 @@ const hasRolesAuth = data => {
         ? x.rights.map(r => ({
             ...r,
             name: r.name, // + useId()
-            children: r?.subs || null
+            children: r?.subs
+              ? r?.subs.map(v => ({
+                  ...v,
+                  name:
+                    KeyChanges.includes(v.name) && v?.name_and_group
+                      ? v?.name_and_group
+                      : v.name
+                }))
+              : null
           }))
         : []
     }))
@@ -44,8 +54,8 @@ export const useRoles = nameRoles => {
   const isMultiple = Array.isArray(nameRoles)
   const { auth, CrStocks } = useAuth()
   let result = {}
-
   const { hasRoles } = hasRolesAuth(auth?.rightTree)
+
   if (!isMultiple) {
     const hasRolesItem = formatArray.findNodeByName(hasRoles, nameRoles)
     if (hasRolesItem) {

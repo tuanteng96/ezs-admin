@@ -83,7 +83,7 @@ const NotificationDrawer = props => {
   const { pos_mng } = useRoles(['pos_mng'])
 
   const { data, isLoading } = useQuery({
-    queryKey: ['Notifications', { ...filters, StockID: CrStocks.ID }],
+    queryKey: ['Notifications', { ...filters, StockID: CrStocks?.ID }],
     queryFn: () =>
       TasksAPI.getTasksAll({
         ...filters,
@@ -91,7 +91,7 @@ const NotificationDrawer = props => {
           ? moment(filters.From).format('DD/MM/YYYY HH:mm')
           : '',
         To: filters.To ? moment(filters.To).format('DD/MM/YYYY HH:mm') : '',
-        StockID: CrStocks.ID
+        StockID: CrStocks?.ID
       }),
     onSuccess: () => {
       isShowingFilter && setIsShowingFilter(false)

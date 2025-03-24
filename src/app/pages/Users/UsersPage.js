@@ -12,36 +12,19 @@ const Home = lazy(() => import('./pages/Home'))
 // )
 
 function UsersPage(props) {
-  const { kpi_doanhso, kho } = useRoles(['kpi_doanhso', 'kho'])
+  const { usrmng } = useRoles(['usrmng'])
   return (
     <Routes>
-      <Route
-        index
-        element={
-          <SuspensedView>
-            <Home />
-          </SuspensedView>
-        }
-      />
-      {/* <Route element={<RoleAccess roles={kpi_doanhso.hasRight} />}>
+      <Route element={<RoleAccess roles={usrmng.hasRight} />}>
         <Route
-          path="sales-kpi"
+          index
           element={
             <SuspensedView>
-              <SalesKPI />
+              <Home />
             </SuspensedView>
           }
-        >
-          <Route
-            path="classify"
-            element={
-              <SuspensedView>
-                <SalesKPIClassify />
-              </SuspensedView>
-            }
-          />
-        </Route>
-      </Route> */}
+        />
+      </Route>
     </Routes>
   )
 }

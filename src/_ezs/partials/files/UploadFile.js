@@ -18,6 +18,7 @@ const UploadFile = ({
   width = 'w-[160px]',
   height = 'h-[160px]',
   buttonText = 'Thêm ảnh',
+  disabled,
   ...props
 }) => {
   const [completed, setCompleted] = useState(0)
@@ -55,7 +56,8 @@ const UploadFile = ({
           'rounded relative bg-primarylight',
           className,
           width,
-          height
+          height,
+          disabled && 'opacity-50 pointer-events-none'
         )}
       >
         {/* No file */}
@@ -129,7 +131,7 @@ const UploadFile = ({
             </a>
             <div
               className="absolute z-10 flex items-center justify-center text-gray-700 transition bg-white rounded-full shadow-lg cursor-pointer dark:text-darkgray-800 dark:bg-graydark-200 h-7 w-7 -top-4 -right-4 hover:text-primary"
-              onClick={() => onChange('')}
+              onClick={() => !disabled && onChange('')}
             >
               <XMarkIcon className="w-4" />
             </div>

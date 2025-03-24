@@ -31,6 +31,8 @@ import { SelectAutoCompleteMaps } from './SelectAutoCompleteMaps'
 import { SelectGroupRoles } from './SelectGroupRoles'
 import { SelectUserLevels } from './SelectUserLevels'
 import { SelectUserShifts } from './SelectUserShifts'
+import { SelectProductMaterials } from './SelectProductMaterials'
+import { SelectProdsTypeName } from './SelectProdsTypeName'
 
 export {
   SelectDistrictsOtp,
@@ -65,5 +67,7 @@ export {
   SelectAutoCompleteMaps,
   SelectGroupRoles,
   SelectUserLevels,
-  SelectUserShifts
+  SelectUserShifts,
+  SelectProdsTypeName,
+  SelectProductMaterials
 }

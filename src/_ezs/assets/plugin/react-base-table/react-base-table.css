@@ -12,6 +12,19 @@ html.dark {
     --tabel-bs-bg-row-hover: #1b1b29;
 }
 
+.basetable-no-border .BaseTable__table-main {
+    outline: none;
+}
+
+.basetable-no-border .BaseTable__table-frozen-right {
+    box-shadow: none;
+}
+
+.basetable-no-border .BaseTable__header-cell, 
+.basetable-no-border .BaseTable__row-cell {
+    border-right: none;
+}
+
 .BaseTable {
     /* box-shadow: 0 2px 4px 0 var(--tabel-bs-border-color); */
     background-color: var(--tabel-bs-bg);

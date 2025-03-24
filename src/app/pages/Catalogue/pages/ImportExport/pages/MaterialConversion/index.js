@@ -285,7 +285,11 @@ function MaterialConversion(props) {
   )
 
   const ConvertMutation = useMutation({
-    mutationFn: body => WarehouseAPI.whouseConvert(body)
+    mutationFn: async body => {
+      let rs = await WarehouseAPI.whouseConvert(body)
+      await queryClient.invalidateQueries({ queryKey: ['ListImportExport'] })
+      return rs
+    }
   })
 
   const onSubmit = values => {
@@ -295,12 +299,8 @@ function MaterialConversion(props) {
 
     ConvertMutation.mutate(bodyFormData, {
       onSettled: data => {
-        queryClient
-          .invalidateQueries({ queryKey: ['ListImportExport'] })
-          .then(() => {
-            reset()
-            toast.success('Chuyển đổi thành công.')
-          })
+        reset()
+        toast.success('Chuyển đổi thành công.')
       }
     })
   }

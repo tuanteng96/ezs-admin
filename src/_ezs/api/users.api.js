@@ -30,7 +30,8 @@ const UsersAPI = {
     http.post('/api/v3/User24@Updates', JSON.stringify(body)),
   getRolesUserId: body =>
     http.post('/api/v3/user24@info', JSON.stringify(body)),
-  deleteUsersRoles: body => http.post('/admin/smart.aspx?user_group=1', body)
+  deleteUsersRoles: body => http.post('/admin/smart.aspx?user_group=1', body),
+  updateRatingUser: body => http.post('/api/v3/userrate@save', body)
 }
 
 export default UsersAPI
