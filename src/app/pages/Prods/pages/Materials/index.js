@@ -74,19 +74,19 @@ function MaterialsPage(props) {
 
   const columns = useMemo(
     () => [
-      {
-        key: 'ID',
-        title: 'ID',
-        dataKey: 'ID',
-        width: 100,
-        sortable: false
-      },
+      // {
+      //   key: 'ID',
+      //   title: 'ID',
+      //   dataKey: 'ID',
+      //   width: 100,
+      //   sortable: false
+      // },
       {
         key: 'TypeText',
         title: 'Hình ảnh',
         dataKey: 'TypeText',
         cellRenderer: ({ rowData }) => (
-          <div className="flex justify-center w-full">
+          <div className="flex w-full">
             <div className="border border-separator">
               {rowData?.Thumbnail ? (
                 <ImageLazy
@@ -117,17 +117,23 @@ function MaterialsPage(props) {
         //align: 'center',
       },
       {
+        key: 'Title',
+        title: 'Tên nguyên vật liệu',
+        dataKey: 'Title',
+        cellRenderer: ({ rowData }) => (
+          <div>
+            <div className="mb-1">{rowData.Title}</div>
+            <div className="text-sm text-muted2 font-number">#{rowData.ID}</div>
+          </div>
+        ),
+        width: 280,
+        sortable: false
+      },
+      {
         key: 'DynamicID',
         title: 'Mã NVL',
         dataKey: 'DynamicID',
         width: 130,
-        sortable: false
-      },
-      {
-        key: 'Title',
-        title: 'Tên nguyên vật liệu',
-        dataKey: 'Title',
-        width: 300,
         sortable: false
       },
       {

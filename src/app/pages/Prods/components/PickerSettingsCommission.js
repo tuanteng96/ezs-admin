@@ -417,7 +417,8 @@ function PickerSettingsCommission({ children, Type, invalidateQueries }) {
         types: ''
       }))
     }
-  }, [visible, Type])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible])
 
   const { data, fetchNextPage, isLoading } = useInfiniteQuery({
     queryKey: ['ListProdRose', filters],

@@ -30,7 +30,7 @@ function PickerFilter({ children, initialValues, onChange }) {
       byStock: '',
       manu: '',
       typeid: '',
-      byPublic: ''
+      display: ''
     }
   })
 
@@ -40,7 +40,7 @@ function PickerFilter({ children, initialValues, onChange }) {
         byStock: initialValues?.byStock || '',
         manu: initialValues?.manu || '',
         typeid: initialValues?.typeid || '',
-        byPublic: initialValues?.byPublic || ''
+        display: initialValues?.display || ''
       })
     } else {
       reset()
@@ -59,7 +59,7 @@ function PickerFilter({ children, initialValues, onChange }) {
     handleSubmit(onSubmit)(e)
   }
 
-  let { byPublic } = watch()
+  let { display } = watch()
 
   return (
     <>
@@ -120,7 +120,7 @@ function PickerFilter({ children, initialValues, onChange }) {
                     <div className="font-semibold">Trạng thái</div>
                     <div className="mt-1">
                       <Controller
-                        name="byPublic"
+                        name="display"
                         control={control}
                         render={({ field: { ref, ...field }, fieldState }) => (
                           <Select
@@ -160,7 +160,7 @@ function PickerFilter({ children, initialValues, onChange }) {
                         control={control}
                         render={({ field: { ref, ...field }, fieldState }) => (
                           <SelectStocks
-                            isDisabled={!byPublic || byPublic === '2'}
+                            isDisabled={!display || display === '2'}
                             isClearable
                             allOption={[
                               {

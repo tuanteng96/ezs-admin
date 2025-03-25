@@ -26,10 +26,10 @@ import {
 } from '../../components'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
 import clsx from 'clsx'
-import { useSearchParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 function FreesPage(props) {
-  const [searchParams] = useSearchParams()
+  let { CateID } = useParams()
 
   const { ReadCate, ReadApp_type } = useRoles(['ReadCate', 'ReadApp_type'])
   let { MenuActive } = useProds()
@@ -37,7 +37,7 @@ function FreesPage(props) {
     prods: '1',
     pi: 1,
     ps: 20,
-    typeid: searchParams.get('id'),
+    typeid: '',
     manu: '',
     byStock: '',
     is_service: 0,
@@ -58,12 +58,10 @@ function FreesPage(props) {
       queryFn: async ({ pageParam = 1 }) => {
         let rs = await ProdsAPI.get({
           ...filters,
-          typeid:
-            typeof filters?.typeid === 'object'
-              ? filters?.typeid?.value
-              : searchParams.get('id'),
+          typeid: filters?.typeid ? filters?.typeid?.value : CateID,
           manu: filters?.manu?.value || '',
           byStock: filters?.byStock || '',
+          skip_display: !filters.display ? '1' : '0',
           pi: pageParam
         })
 
@@ -77,19 +75,19 @@ function FreesPage(props) {
 
   const columns = useMemo(
     () => [
-      {
-        key: 'ID',
-        title: 'ID',
-        dataKey: 'ID',
-        width: 100,
-        sortable: false
-      },
+      // {
+      //   key: 'ID',
+      //   title: 'ID',
+      //   dataKey: 'ID',
+      //   width: 100,
+      //   sortable: false
+      // },
       {
         key: 'TypeText',
         title: 'Hình ảnh',
         dataKey: 'TypeText',
         cellRenderer: ({ rowData }) => (
-          <div className="flex justify-center w-full">
+          <div className="flex w-full">
             <div className="border border-separator">
               {rowData?.Thumbnail ? (
                 <ImageLazy
@@ -119,18 +117,25 @@ function FreesPage(props) {
         sortable: false
         //align: 'center',
       },
+
+      {
+        key: 'Title_1',
+        title: 'Tên phụ phí',
+        dataKey: 'Title_1',
+        width: 280,
+        sortable: false,
+        cellRenderer: ({ rowData }) => (
+          <div>
+            <div className="mb-1">{rowData.Title_1}</div>
+            <div className="text-sm text-muted2 font-number">#{rowData.ID}</div>
+          </div>
+        )
+      },
       {
         key: 'DynamicID_1',
         title: 'Mã phụ phí',
         dataKey: 'DynamicID_1',
         width: 130,
-        sortable: false
-      },
-      {
-        key: 'Title_1',
-        title: 'Tên phụ phí',
-        dataKey: 'Title_1',
-        width: 300,
         sortable: false
       },
       {
