@@ -42,6 +42,7 @@ import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import Tooltip from 'rc-tooltip'
 import Select from 'react-select'
+import CreatableSelect from 'react-select/creatable'
 
 const OptionsExpiration = [
   {
@@ -58,11 +59,11 @@ const OptionsExpiration = [
   },
   {
     value: '90',
-    label: '3 ngày'
+    label: '3 tháng'
   },
   {
     value: '180',
-    label: '6 ngày'
+    label: '6 tháng'
   },
   {
     value: '365',
@@ -73,6 +74,17 @@ const OptionsExpiration = [
     label: '3 năm'
   }
 ]
+
+const getValueExpiration = val => {
+  let index = OptionsExpiration.findIndex(
+    x => x.value.toString() === val.toString()
+  )
+  if (index > -1) return OptionsExpiration[index]
+  return {
+    label: `${val} ngày`,
+    value: val.toString()
+  }
+}
 
 const OptionsStatus = [
   {
@@ -149,14 +161,10 @@ function PickerAddEdit({ children, initialValues }) {
       IsNVL: false,
       BonusSale2: '',
       DynamicID: '',
-      StockUnit: '',
+      StockUnit: 'Gói',
       PriceBase: '',
       Manu: '',
-      Meta: {
-        comProdIDs: '',
-        otherUnit: [],
-        ByDomain: {}
-      }, //{"comProdIDs":"","otherUnit":[{"ProdID":"19683","ProdUnit":"Lọ","Qty":0,"Unit":"ML"},{"ProdID":"19676","ProdUnit":"Chai","Qty":0,"Unit":"ML"}],"stockUnit":"ML","ByDomain":{}}
+      Meta: '',
       PriceProduct: '',
       BonusSaleJSON: '', //[{"Level":"HOC_VIEN","Salary":"10"},{"Level":"THU_VIEC","Salary":"10"},{"Level":"CHINH_THUC","Salary":null},{"Level":"CHUYEN_VIEN","Salary":null},{"Level":"CHUYEN_GIA","Salary":null}]
       BonusSale: '',
@@ -167,6 +175,7 @@ function PickerAddEdit({ children, initialValues }) {
       Desc: '',
       Detail: '',
       PhotoList: [],
+      Status: '',
       MoneyInfo: {
         limitInputShow: true,
         ByDomain: {},
@@ -214,6 +223,7 @@ function PickerAddEdit({ children, initialValues }) {
     } else {
       reset()
     }
+    setSelectedIndex(0)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible])
 
@@ -345,20 +355,23 @@ function PickerAddEdit({ children, initialValues }) {
             MoneyInfo?.prodValue || MoneyInfo?.serviceValue
           ),
           limit: {
-            cates: MoneyInfo?.limit?.cates
-              ? MoneyInfo?.limit?.cates
-                  .split(',')
-                  .map(x => ({ label: x, value: x }))
+            cates: MoneyInfo?.limit?.cateList
+              ? MoneyInfo?.limit?.cateList.map(x => ({
+                  label: x.Title,
+                  value: x.ID
+                }))
               : [],
-            manus: MoneyInfo?.limit?.manus
-              ? MoneyInfo?.limit?.manus
-                  .split(',')
-                  .map(x => ({ label: x, value: x }))
+            manus: MoneyInfo?.limit?.manuList
+              ? MoneyInfo?.limit?.manuList.map(x => ({
+                  label: x.Title,
+                  value: x.ID
+                }))
               : [],
-            prods: MoneyInfo?.limit?.prods
-              ? MoneyInfo?.limit?.prods
-                  .split(',')
-                  .map(x => ({ label: x, value: x }))
+            prods: MoneyInfo?.limit?.prodList
+              ? MoneyInfo?.limit?.prodList.map(x => ({
+                  label: x.Title,
+                  value: x.ID
+                }))
               : []
           }
         })
@@ -393,7 +406,7 @@ function PickerAddEdit({ children, initialValues }) {
     mutationFn: async body => {
       let rs = await ProdsAPI.addEdit(body)
       await queryClient.invalidateQueries({
-        queryKey: ['ListProdsMaterials']
+        queryKey: ['ListProdsMoneyCard']
       })
       return rs
     }
@@ -410,11 +423,7 @@ function PickerAddEdit({ children, initialValues }) {
             .map(x => x.value)
             .toString()
         : '',
-      Meta: {
-        ByDomain: {},
-        comProdIDs: '',
-        otherUnit: []
-      },
+      Meta: '',
       Manu: values?.Manu?.value || '',
       KpiType: values?.KpiType?.value || '',
       PhotoList: values?.PhotoList ? values?.PhotoList.map(x => x.image) : [],
@@ -700,124 +709,168 @@ function PickerAddEdit({ children, initialValues }) {
                                     </div>
                                   </div>
                                 </div>
-                                <div className="grid grid-cols-1 gap-4 mb-4 sm:grid-cols-2 last:mb-0">
-                                  <div>
-                                    <div className="font-medium">
-                                      Nhóm thẻ tiền
-                                    </div>
-                                    <div className="mt-1">
-                                      <Controller
-                                        name="Type"
-                                        control={control}
-                                        render={({
-                                          field: { ref, ...field },
-                                          fieldState
-                                        }) => (
-                                          <PickerAddCategories
-                                            TypeOf="TT"
-                                            onAddSuccess={val => {
-                                              field.onChange({
-                                                label: val?.Title || '',
-                                                value: val?.ID
-                                              })
-                                            }}
-                                          >
-                                            {({ open }) => (
-                                              <SelectCategoryProds
-                                                isClearable
-                                                value={field.value}
-                                                onChange={val => {
-                                                  field.onChange(val)
-                                                }}
-                                                Type="TT"
-                                                errorMessageForce={
-                                                  fieldState?.invalid
-                                                }
-                                                menuPosition="fixed"
-                                                styles={{
-                                                  menuPortal: base => ({
-                                                    ...base,
-                                                    zIndex: 9999
-                                                  })
-                                                }}
-                                                menuPortalTarget={document.body}
-                                                placeholder="Chọn nhóm thẻ tiền"
-                                                noOptionsMessage={() =>
-                                                  'Chưa có nhóm thẻ tiền.'
-                                                }
-                                                createOptionPosition="first"
-                                                isValidNewOption={(
-                                                  inputValue,
-                                                  selectValue,
-                                                  options
-                                                ) => {
-                                                  let returnValue = false
-                                                  options.forEach(option => {
-                                                    if (
-                                                      inputValue &&
-                                                      inputValue.toLowerCase() !==
-                                                        option.label.toLowerCase()
-                                                    ) {
-                                                      returnValue = true
-                                                    }
-                                                  })
-                                                  return returnValue
-                                                }}
-                                                formatCreateLabel={val => (
-                                                  <span className="text-primary">
-                                                    Tạo mới nhóm
-                                                    {val ? (
-                                                      <span className="pl-1">
-                                                        "{val}"
-                                                      </span>
-                                                    ) : (
-                                                      <></>
-                                                    )}
-                                                  </span>
-                                                )}
-                                                onCreateOption={inputValue => {
-                                                  if (!ReadCate?.hasRight) {
-                                                    toast.error(
-                                                      'Bạn không có quyền truy cập chức năng này.'
-                                                    )
-                                                  } else {
-                                                    open({
-                                                      Title: inputValue
-                                                    })
-                                                  }
-                                                }}
-                                              />
-                                            )}
-                                          </PickerAddCategories>
-                                        )}
-                                      />
-                                    </div>
+                                <div className="mb-4 last:mb-0">
+                                  <div className="font-medium">
+                                    Nhóm thẻ tiền
                                   </div>
-                                  <div>
-                                    <div className="font-medium">Hạn dùng</div>
+                                  <div className="mt-1">
+                                    <Controller
+                                      name="Type"
+                                      control={control}
+                                      render={({
+                                        field: { ref, ...field },
+                                        fieldState
+                                      }) => (
+                                        <PickerAddCategories
+                                          TypeOf="TT"
+                                          onAddSuccess={val => {
+                                            field.onChange({
+                                              label: val?.Title || '',
+                                              value: val?.ID
+                                            })
+                                          }}
+                                        >
+                                          {({ open }) => (
+                                            <SelectCategoryProds
+                                              isClearable
+                                              value={field.value}
+                                              onChange={val => {
+                                                field.onChange(val)
+                                              }}
+                                              Type="TT"
+                                              errorMessageForce={
+                                                fieldState?.invalid
+                                              }
+                                              menuPosition="fixed"
+                                              styles={{
+                                                menuPortal: base => ({
+                                                  ...base,
+                                                  zIndex: 9999
+                                                })
+                                              }}
+                                              menuPortalTarget={document.body}
+                                              placeholder="Chọn nhóm thẻ tiền"
+                                              noOptionsMessage={() =>
+                                                'Chưa có nhóm thẻ tiền.'
+                                              }
+                                              createOptionPosition="first"
+                                              isValidNewOption={(
+                                                inputValue,
+                                                selectValue,
+                                                options
+                                              ) => {
+                                                let returnValue = false
+                                                options.forEach(option => {
+                                                  if (
+                                                    inputValue &&
+                                                    inputValue.toLowerCase() !==
+                                                      option.label.toLowerCase()
+                                                  ) {
+                                                    returnValue = true
+                                                  }
+                                                })
+                                                return returnValue
+                                              }}
+                                              formatCreateLabel={val => (
+                                                <span className="text-primary">
+                                                  Tạo mới nhóm
+                                                  {val ? (
+                                                    <span className="pl-1">
+                                                      "{val}"
+                                                    </span>
+                                                  ) : (
+                                                    <></>
+                                                  )}
+                                                </span>
+                                              )}
+                                              onCreateOption={inputValue => {
+                                                if (!ReadCate?.hasRight) {
+                                                  toast.error(
+                                                    'Bạn không có quyền truy cập chức năng này.'
+                                                  )
+                                                } else {
+                                                  open({
+                                                    Title: inputValue
+                                                  })
+                                                }
+                                              }}
+                                            />
+                                          )}
+                                        </PickerAddCategories>
+                                      )}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="pt-5 border-t mt-7 border-t-separator">
+                                <div className="mb-4">
+                                  <div className="mb-1 text-lg font-semibold sm:text-2xl">
+                                    Thông tin bán hàng
+                                  </div>
+                                  <div className="font-light text-muted2">
+                                    Cài đặt thông tin giá cost, giá bán của mặt
+                                    hàng.
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="mb-4 last:mb-0">
+                                    <div className="font-medium">Điểm bán</div>
                                     <div className="mt-1">
                                       <Controller
-                                        name="MoneyInfo.inDays"
+                                        name={`OnStocks`}
                                         control={control}
                                         render={({
                                           field: { ref, ...field },
                                           fieldState
                                         }) => (
-                                          <Select
+                                          <SelectStocks
                                             isClearable
-                                            value={OptionsExpiration.filter(
-                                              x => field?.value === x?.value
-                                            )}
-                                            className="select-control"
+                                            isMulti
+                                            value={field.value}
                                             onChange={val => {
-                                              field.onChange(val?.value || '')
+                                              if (val) {
+                                                if (
+                                                  val.some(
+                                                    x => x.value === '*'
+                                                  ) &&
+                                                  field?.value?.findIndex(
+                                                    x => x.value === '*'
+                                                  ) === -1
+                                                ) {
+                                                  field.onChange(
+                                                    val.filter(
+                                                      x => x.value === '*'
+                                                    )
+                                                  )
+                                                } else if (
+                                                  val.some(
+                                                    x => x.value === '-1'
+                                                  ) &&
+                                                  field?.value?.findIndex(
+                                                    x => x.value === '-1'
+                                                  ) === -1
+                                                ) {
+                                                  field.onChange(
+                                                    val.filter(
+                                                      x => x.value === '-1'
+                                                    )
+                                                  )
+                                                } else {
+                                                  field.onChange(
+                                                    val
+                                                      ? val.filter(
+                                                          x =>
+                                                            x.value !== '*' &&
+                                                            x.value !== '-1'
+                                                        )
+                                                      : []
+                                                  )
+                                                }
+                                              } else {
+                                                field.onChange(val)
+                                              }
                                             }}
-                                            classNamePrefix="select"
-                                            options={OptionsExpiration}
-                                            placeholder="Chọn hạn dùng"
-                                            noOptionsMessage={() =>
-                                              'Không có dữ liệu'
-                                            }
+                                            className="select-control"
                                             menuPosition="fixed"
                                             styles={{
                                               menuPortal: base => ({
@@ -826,12 +879,87 @@ function PickerAddEdit({ children, initialValues }) {
                                               })
                                             }}
                                             menuPortalTarget={document.body}
+                                            allOption={[
+                                              {
+                                                label: 'Tất cả cơ sở',
+                                                value: '*'
+                                              },
+                                              {
+                                                label: '(Ẩn)',
+                                                value: '-1'
+                                              }
+                                            ]}
                                           />
                                         )}
                                       />
                                     </div>
                                   </div>
-                                  <div>
+                                  <div className="mb-4 last:mb-0">
+                                    <div className="font-semibold">Giá bán</div>
+                                    <div className="mt-1">
+                                      <Controller
+                                        name={`PriceProduct`}
+                                        control={control}
+                                        render={({
+                                          field: { ref, ...field },
+                                          fieldState
+                                        }) => (
+                                          <InputNumber
+                                            thousandSeparator={true}
+                                            value={field.value}
+                                            placeholder="Nhập số tiền"
+                                            onValueChange={val =>
+                                              field.onChange(
+                                                typeof val?.floatValue !==
+                                                  'undefined'
+                                                  ? val.floatValue
+                                                  : ''
+                                              )
+                                            }
+                                          />
+                                        )}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="pt-5 border-t mt-7 border-t-separator">
+                                <div className="mb-6">
+                                  <div className="mb-1 text-lg font-semibold sm:text-2xl">
+                                    Giới hạn sử dụng
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="mb-5 last:mb-0">
+                                    <div className="font-semibold">
+                                      Số tiền được chi tiêu
+                                    </div>
+                                    <div className="mt-1">
+                                      <Controller
+                                        name={`MoneyInfo.total`}
+                                        control={control}
+                                        render={({
+                                          field: { ref, ...field },
+                                          fieldState
+                                        }) => (
+                                          <InputNumber
+                                            thousandSeparator={true}
+                                            value={field.value}
+                                            placeholder="Nhập số tiền"
+                                            onValueChange={val =>
+                                              field.onChange(
+                                                typeof val?.floatValue !==
+                                                  'undefined'
+                                                  ? val.floatValue
+                                                  : ''
+                                              )
+                                            }
+                                          />
+                                        )}
+                                      />
+                                    </div>
+                                  </div>
+                                  <div className="mb-5 last:mb-0">
                                     <div className="font-medium">
                                       Điều kiện sử dụng
                                     </div>
@@ -871,44 +999,80 @@ function PickerAddEdit({ children, initialValues }) {
                                       />
                                     </div>
                                   </div>
-                                  <div>
-                                    <div className="font-semibold">
-                                      Giá trị chi tiêu
-                                    </div>
+                                  <div className="mb-7 last:mb-0">
+                                    <div className="font-medium">Hạn dùng</div>
                                     <div className="mt-1">
                                       <Controller
-                                        name={`MoneyInfo.total`}
+                                        name="MoneyInfo.inDays"
                                         control={control}
                                         render={({
                                           field: { ref, ...field },
                                           fieldState
                                         }) => (
-                                          <InputNumber
-                                            thousandSeparator={true}
-                                            value={field.value}
-                                            placeholder="Nhập số tiền"
-                                            onValueChange={val =>
-                                              field.onChange(
-                                                typeof val?.floatValue !==
-                                                  'undefined'
-                                                  ? val.floatValue
-                                                  : ''
-                                              )
+                                          <CreatableSelect
+                                            isClearable
+                                            value={getValueExpiration(
+                                              field.value
+                                            )}
+                                            className="select-control"
+                                            onChange={val => {
+                                              field.onChange(val?.value || '')
+                                            }}
+                                            classNamePrefix="select"
+                                            options={OptionsExpiration}
+                                            placeholder="Chọn hạn dùng"
+                                            noOptionsMessage={() =>
+                                              'Không có dữ liệu'
                                             }
+                                            menuPosition="fixed"
+                                            styles={{
+                                              menuPortal: base => ({
+                                                ...base,
+                                                zIndex: 9999
+                                              })
+                                            }}
+                                            menuPortalTarget={document.body}
+                                            createOptionPosition="first"
+                                            isValidNewOption={(
+                                              inputValue,
+                                              selectValue,
+                                              options
+                                            ) => {
+                                              let returnValue = false
+                                              options.forEach(option => {
+                                                if (
+                                                  inputValue &&
+                                                  inputValue.toLowerCase() !==
+                                                    option.label.toLowerCase()
+                                                ) {
+                                                  returnValue = true
+                                                }
+                                              })
+                                              return returnValue
+                                            }}
+                                            formatCreateLabel={val => (
+                                              <span className="text-primary">
+                                                {val ? (
+                                                  <span className="pr-1">
+                                                    {val.toString()}
+                                                  </span>
+                                                ) : (
+                                                  <></>
+                                                )}
+                                                ngày
+                                              </span>
+                                            )}
+                                            onCreateOption={inputValue => {
+                                              setValue(
+                                                'MoneyInfo.inDays',
+                                                inputValue
+                                              )
+                                            }}
                                           />
                                         )}
                                       />
                                     </div>
                                   </div>
-                                </div>
-                              </div>
-                              <div className="pt-5 border-t mt-7 border-t-separator">
-                                <div className="mb-6">
-                                  <div className="mb-1 text-lg font-semibold sm:text-2xl">
-                                    Giới hạn sử dụng
-                                  </div>
-                                </div>
-                                <div>
                                   <div className="mb-5 last:mb-0">
                                     <div>
                                       <Controller
@@ -1210,128 +1374,8 @@ function PickerAddEdit({ children, initialValues }) {
                               <div className="pt-5 border-t mt-7 border-t-separator">
                                 <div className="mb-4">
                                   <div className="mb-1 text-lg font-semibold sm:text-2xl">
-                                    Thông tin bán hàng
-                                  </div>
-                                  <div className="font-light text-muted2">
-                                    Cài đặt thông tin giá cost, giá bán của mặt
-                                    hàng.
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="mb-4 last:mb-0">
-                                    <div className="font-medium">Điểm bán</div>
-                                    <div className="mt-1">
-                                      <Controller
-                                        name={`OnStocks`}
-                                        control={control}
-                                        render={({
-                                          field: { ref, ...field },
-                                          fieldState
-                                        }) => (
-                                          <SelectStocks
-                                            isClearable
-                                            isMulti
-                                            value={field.value}
-                                            onChange={val => {
-                                              if (val) {
-                                                if (
-                                                  val.some(
-                                                    x => x.value === '*'
-                                                  ) &&
-                                                  field?.value?.findIndex(
-                                                    x => x.value === '*'
-                                                  ) === -1
-                                                ) {
-                                                  field.onChange(
-                                                    val.filter(
-                                                      x => x.value === '*'
-                                                    )
-                                                  )
-                                                } else if (
-                                                  val.some(
-                                                    x => x.value === '-1'
-                                                  ) &&
-                                                  field?.value?.findIndex(
-                                                    x => x.value === '-1'
-                                                  ) === -1
-                                                ) {
-                                                  field.onChange(
-                                                    val.filter(
-                                                      x => x.value === '-1'
-                                                    )
-                                                  )
-                                                } else {
-                                                  field.onChange(
-                                                    val
-                                                      ? val.filter(
-                                                          x =>
-                                                            x.value !== '*' &&
-                                                            x.value !== '-1'
-                                                        )
-                                                      : []
-                                                  )
-                                                }
-                                              } else {
-                                                field.onChange(val)
-                                              }
-                                            }}
-                                            className="select-control"
-                                            menuPosition="fixed"
-                                            styles={{
-                                              menuPortal: base => ({
-                                                ...base,
-                                                zIndex: 9999
-                                              })
-                                            }}
-                                            menuPortalTarget={document.body}
-                                            allOption={[
-                                              {
-                                                label: 'Tất cả cơ sở',
-                                                value: '*'
-                                              },
-                                              {
-                                                label: '(Ẩn)',
-                                                value: '-1'
-                                              }
-                                            ]}
-                                          />
-                                        )}
-                                      />
-                                    </div>
-                                  </div>
-                                  <div className="mb-4 last:mb-0">
-                                    <div className="font-semibold">Giá bán</div>
-                                    <div className="mt-1">
-                                      <Controller
-                                        name={`PriceProduct`}
-                                        control={control}
-                                        render={({
-                                          field: { ref, ...field },
-                                          fieldState
-                                        }) => (
-                                          <InputNumber
-                                            thousandSeparator={true}
-                                            value={field.value}
-                                            placeholder="Nhập số tiền"
-                                            onValueChange={val =>
-                                              field.onChange(
-                                                typeof val?.floatValue !==
-                                                  'undefined'
-                                                  ? val.floatValue
-                                                  : ''
-                                              )
-                                            }
-                                          />
-                                        )}
-                                      />
-                                    </div>
-                                  </div>
-                                </div>
-                              </div>
-                              <div className="pt-5 border-t mt-7 border-t-separator">
-                                <div className="mb-4">
-                                  <div className="mb-1 text-lg font-semibold sm:text-2xl">
-                                    Hoa hồng tư vấn
+                                    {GlobalConfig?.Admin?.hoa_hong_tu_van ||
+                                      'Hoa hồng tư vấn'}
                                   </div>
                                   <div className="font-light text-muted2">
                                     Cài đặt giá trị hoa hồng của mặt hàng mà
@@ -1494,7 +1538,9 @@ function PickerAddEdit({ children, initialValues }) {
                                     <div>
                                       <div className="flex items-end font-semibold">
                                         <span>
-                                          Hoa hồng tư vấn khách hàng mới
+                                          {GlobalConfig?.Admin
+                                            ?.hoa_hong_tu_van_khm ||
+                                            'Hoa hồng tư vấn khách hàng mới'}
                                         </span>
                                         <Tooltip
                                           overlayClassName="text-white dark:text-dark-light"

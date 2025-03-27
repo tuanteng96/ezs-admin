@@ -127,7 +127,9 @@ function FreesPage(props) {
         cellRenderer: ({ rowData }) => (
           <div>
             <div className="mb-1">{rowData.Title_1}</div>
-            <div className="text-sm text-muted2 font-number">#{rowData.ID}</div>
+            <div className="text-sm text-muted2 font-number">
+              #{rowData.ID_1}
+            </div>
           </div>
         )
       },
@@ -147,13 +149,13 @@ function FreesPage(props) {
         sortable: false
       },
       {
-        key: 'PriceProduct',
+        key: 'PriceProduct_1',
         title: 'Giá bán',
-        dataKey: 'PriceProduct',
+        dataKey: 'PriceProduct_1',
         width: 180,
         cellRenderer: ({ rowData }) => (
           <div className="font-medium font-number">
-            {formatString.formatVND(rowData?.PriceProduct)}
+            {formatString.formatVND(rowData?.PriceProduct_1)}
           </div>
         ),
         sortable: false

@@ -90,7 +90,7 @@ function PickerAddEdit({ children, initialValues }) {
       IsNVL: true,
       BonusSale2: '',
       DynamicID: '',
-      StockUnit: '',
+      StockUnit: 'Gói',
       PriceBase: '',
       Manu: '',
       Meta: {
@@ -107,7 +107,8 @@ function PickerAddEdit({ children, initialValues }) {
       id: 0,
       Desc: '',
       Detail: '',
-      PhotoList: []
+      PhotoList: [],
+      Status: ''
     },
     resolver: yupResolver(schemaAddEdit)
   })
@@ -151,6 +152,7 @@ function PickerAddEdit({ children, initialValues }) {
     } else {
       reset()
     }
+    setSelectedIndex(0)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible])
 
@@ -980,7 +982,8 @@ function PickerAddEdit({ children, initialValues }) {
                                 <div className="pt-5 border-t mt-7 border-t-separator">
                                   <div className="mb-4">
                                     <div className="mb-1 text-lg font-semibold sm:text-2xl">
-                                      Hoa hồng tư vấn
+                                      {GlobalConfig?.Admin?.hoa_hong_tu_van ||
+                                        'Hoa hồng tư vấn'}
                                     </div>
                                     <div className="font-light text-muted2">
                                       Cài đặt giá trị hoa hồng của mặt hàng mà
@@ -1146,7 +1149,9 @@ function PickerAddEdit({ children, initialValues }) {
                                       <div>
                                         <div className="flex items-end font-semibold">
                                           <span>
-                                            Hoa hồng tư vấn khách hàng mới
+                                            {GlobalConfig?.Admin
+                                              ?.hoa_hong_tu_van_khm ||
+                                              'Hoa hồng tư vấn khách hàng mới'}
                                           </span>
                                           <Tooltip
                                             overlayClassName="text-white dark:text-dark-light"

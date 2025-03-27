@@ -322,7 +322,7 @@ function PickerSettingsTourSalary({ children, Type, invalidateQueries }) {
             <>
               <div className="flex w-full">
                 <Text className="flex-1" tooltipMaxWidth={280}>
-                  {rowData.Title}
+                  {getTitle(rowData)}
                 </Text>
                 {!rowData.filters &&
                   rowData.children &&
@@ -371,6 +371,11 @@ function PickerSettingsTourSalary({ children, Type, invalidateQueries }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [Lists]
   )
+
+  const getTitle = item => {
+    if (item.IsAddFee) return item.Title.replace('(Gốc)', '')
+    return item.Title
+  }
 
   const onHide = () => {
     setVisible(false)

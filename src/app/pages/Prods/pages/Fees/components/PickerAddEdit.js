@@ -81,7 +81,7 @@ function PickerAddEdit({ children, initialValues }) {
   const methods = useForm({
     defaultValues: {
       Title_1: '',
-      IsPublic: true,
+      IsPublic: false,
       IsReady: 1,
       Type: '',
       Types: '',
@@ -95,30 +95,30 @@ function PickerAddEdit({ children, initialValues }) {
       IsService: 1,
       IsAddFee: 1,
       Bonus: '',
-      IsDisplayPrice: true,
+      IsDisplayPrice: false,
       InDays: 365,
       IsMoney: false,
       IsNVL: false,
       BonusSale2: '',
+      BonusSale2_1: '',
       DynamicID_1: '',
-      StockUnit: '',
+      StockUnit: 'Lần',
       PriceBase: '',
       Manu: '',
-      Meta: {
-        comProdIDs: '',
-        otherUnit: [],
-        ByDomain: {}
-      }, //{"comProdIDs":"","otherUnit":[{"ProdID":"19683","ProdUnit":"Lọ","Qty":0,"Unit":"ML"},{"ProdID":"19676","ProdUnit":"Chai","Qty":0,"Unit":"ML"}],"stockUnit":"ML","ByDomain":{}}
+      Meta: '', //{"comProdIDs":"","otherUnit":[{"ProdID":"19683","ProdUnit":"Lọ","Qty":0,"Unit":"ML"},{"ProdID":"19676","ProdUnit":"Chai","Qty":0,"Unit":"ML"}],"stockUnit":"ML","ByDomain":{}}
       PriceProduct: '',
+      PriceProduct_1: '',
       BonusSaleJSON_1: '', //[{"Level":"HOC_VIEN","Salary":"10"},{"Level":"THU_VIEC","Salary":"10"},{"Level":"CHINH_THUC","Salary":null},{"Level":"CHUYEN_VIEN","Salary":null},{"Level":"CHUYEN_GIA","Salary":null}]
       BonusSale: '',
+      BonusSale_1: '',
       KpiType: '',
       VAT: '',
       id: 0,
       Desc: '',
       Detail: '',
       PhotoList: [],
-      _USERLEVEL: ''
+      _USERLEVEL: '',
+      Status: ''
     },
     resolver: yupResolver(schemaAddEdit)
   })
@@ -158,6 +158,7 @@ function PickerAddEdit({ children, initialValues }) {
     } else {
       reset()
     }
+    setSelectedIndex(0)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible])
 
@@ -253,9 +254,7 @@ function PickerAddEdit({ children, initialValues }) {
         )
 
         setValue('IsPublic', data?.IsPublic && Number(data?.IsPublic) > 0)
-
-        setValue('PriceBase', data?.PriceBase || '')
-        setValue('PriceProduct', data?.PriceProduct || '')
+        setValue('PriceProduct_1', data?.PriceProduct_1 || '')
         setValue('VAT', data?.VAT || '')
         setValue(
           'KpiType',
@@ -263,8 +262,8 @@ function PickerAddEdit({ children, initialValues }) {
             ? { value: data?.KpiType, label: `Loại ${data?.KpiType}` }
             : null
         )
-        setValue('BonusSale2', data?.BonusSale2 || '')
-        setValue('BonusSale', data?.BonusSale || '')
+        setValue('BonusSale2_1', data?.BonusSale2_1 || '')
+        setValue('BonusSale_1', data?.BonusSale_1 || '')
         setValue('StockUnit', data?.StockUnit || '')
         setValue(
           'Manu',
@@ -280,7 +279,14 @@ function PickerAddEdit({ children, initialValues }) {
           ? JSON.parse(data.BonusSaleJSON_1)
           : null
         if (BonusSaleJSON_1) {
-          setValue('BonusSaleJSON_1', BonusSaleJSON_1)
+          setValue(
+            'BonusSaleJSON_1',
+            BonusSaleJSON_1 &&
+              BonusSaleJSON_1.length > 0 &&
+              BonusSaleJSON_1.some(x => x.Salary)
+              ? BonusSaleJSON_1
+              : ''
+          )
         }
 
         setValue('Desc', data?.Desc || '')
@@ -332,14 +338,17 @@ function PickerAddEdit({ children, initialValues }) {
             .map(x => x.value)
             .toString()
         : '',
-      Meta: {
-        ByDomain: {},
-        comProdIDs: '',
-        otherUnit: []
-      },
+      Meta: '',
       Manu: values?.Manu?.value || '',
       KpiType: values?.KpiType?.value || '',
-      PhotoList: values?.PhotoList ? values?.PhotoList.map(x => x.image) : []
+      PhotoList: values?.PhotoList ? values?.PhotoList.map(x => x.image) : [],
+      BonusSaleJSON_1:
+        values.BonusSaleJSON_1 && values.BonusSaleJSON_1.length > 0
+          ? values.BonusSaleJSON_1
+          : LevelsMaterials?.data?.Levels?.map(x => ({
+              Level: x,
+              Salary: ''
+            }))
     }
 
     var bodyFormData = new FormData()
@@ -796,7 +805,7 @@ function PickerAddEdit({ children, initialValues }) {
                                     <div className="font-semibold">Giá bán</div>
                                     <div className="mt-1">
                                       <Controller
-                                        name={`PriceProduct`}
+                                        name={`PriceProduct_1`}
                                         control={control}
                                         render={({
                                           field: { ref, ...field },
@@ -883,7 +892,7 @@ function PickerAddEdit({ children, initialValues }) {
                                     ) : (
                                       <div>
                                         <Controller
-                                          name={`BonusSale`}
+                                          name={`BonusSale_1`}
                                           control={control}
                                           render={({
                                             field: { ref, ...field },
@@ -947,7 +956,7 @@ function PickerAddEdit({ children, initialValues }) {
                                                 })
                                               )
                                             )
-                                            setValue('BonusSale', '')
+                                            setValue('BonusSale_1', '')
                                           } else {
                                             setValue('BonusSaleJSON_1', '')
                                           }
@@ -1012,7 +1021,7 @@ function PickerAddEdit({ children, initialValues }) {
                                       </div>
                                       <div className="mt-1">
                                         <Controller
-                                          name={`BonusSale2`}
+                                          name={`BonusSale2_1`}
                                           control={control}
                                           render={({
                                             field: { ref, ...field },
