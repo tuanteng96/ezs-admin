@@ -12,6 +12,7 @@ import { Checkbox } from 'src/_ezs/partials/forms'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import { SelectStocks } from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
+import ExcelHepers from 'src/_ezs/utils/ExcelHepers'
 import { formatArray } from 'src/_ezs/utils/formatArray'
 import { formatString } from 'src/_ezs/utils/formatString'
 
@@ -314,7 +315,6 @@ function ElectronicInvoice(props) {
           })
         })
       )
-
       let updatePost = {
         arr: newRs
           .filter(
@@ -325,7 +325,7 @@ function ElectronicInvoice(props) {
           .map(x => ({
             ID: Number(x.RefID.split('-')[0]),
             InvoiceID: x.RefID,
-            NewInvoiceID: x.TransactionID
+            NewInvoiceID: x.TransactionID + ';' + x.InvNo + ';' + x.InvCode
           }))
       }
       let totalUpdate = updatePost.arr.length
@@ -482,9 +482,11 @@ function ElectronicInvoice(props) {
                 {rowData?.InvoiceIDStatus === 'done' && rowData.InvoiceID ? (
                   <div
                     className="w-full font-medium text-center cursor-pointer text-primary"
-                    onClick={() => onPreviewInvoice(rowData.InvoiceID)}
+                    onClick={() =>
+                      onPreviewInvoice(rowData.InvoiceID.split(';')[0])
+                    }
                   >
-                    {rowData.InvoiceID}
+                    {rowData.InvoiceID.split(';')[0]}
                   </div>
                 ) : (
                   <div className="flex justify-center w-full">
@@ -517,6 +519,38 @@ function ElectronicInvoice(props) {
           '!bg-warninglight',
         width: 180,
         sortable: false,
+        rowSpan: ({ rowData }) => (rowData.Items ? rowData.Items.length : 1)
+      },
+      {
+        key: 'InvNo',
+        title: 'InvNo',
+        dataKey: 'InvNo',
+        width: 180,
+        sortable: false,
+        cellRenderer: ({ rowData }) => {
+          if (rowData?.InvoiceIDStatus === 'done' && rowData.InvoiceID) {
+            if (rowData.InvoiceID.split(';').length > 1) {
+              return rowData.InvoiceID.split(';')[1]
+            }
+          }
+          return <></>
+        },
+        rowSpan: ({ rowData }) => (rowData.Items ? rowData.Items.length : 1)
+      },
+      {
+        key: 'InvCode',
+        title: 'InvCode',
+        dataKey: 'InvCode',
+        width: 260,
+        sortable: false,
+        cellRenderer: ({ rowData }) => {
+          if (rowData?.InvoiceIDStatus === 'done' && rowData.InvoiceID) {
+            if (rowData.InvoiceID.split(';').length > 2) {
+              return rowData.InvoiceID.split(';')[2]
+            }
+          }
+          return <></>
+        },
         rowSpan: ({ rowData }) => (rowData.Items ? rowData.Items.length : 1)
       },
       {
@@ -583,12 +617,141 @@ function ElectronicInvoice(props) {
     )
   }
 
+  const onExportExcel = async () => {
+    let { data } = await InvoiceAPI.getList({
+      ...filters,
+      From: '2025-03-21', //'2025-01-17'
+      To: '2025-03-31', //'2025-01-17'
+      StockID: '',
+      Ps: 1110
+    })
+
+    ExcelHepers.dataToExcel(
+      'Hoa-Dong-Dien-Tu-21_03_2025-den_31_03_2025',
+      (sheet, workbook) => {
+        workbook.suspendPaint()
+        workbook.suspendEvent()
+        let Head = [
+          'ID',
+          'TIỀN MẶT',
+          'CHUYỂN KHOẢN',
+          'QUẸT THẺ',
+          'KHÁCH HÀNG',
+          'SỐ ĐIỆN THOẠI',
+          'MÃ HOÁ ĐƠN',
+          'NHÂN VIÊN XUẤT HOÁ ĐƠN'
+        ]
+
+        let Response = [Head]
+
+        for (let item of data.lst) {
+          let newArray = [
+            item.ID,
+            item.TM,
+            item.CK,
+            item.QT,
+            item.SenderName,
+            item.SenderPhone,
+            item?.InvoiceIDStatus === 'done' && item.InvoiceID
+              ? item.InvoiceID
+              : '',
+            item?.UserInfo &&
+              item?.UserInfo.map(x => `${x?.FullName || ''}`).join(', ')
+          ]
+          Response.push(newArray)
+        }
+
+        let TotalRow = Response.length
+        let TotalColumn = Head.length
+
+        sheet.setArray(2, 0, Response)
+
+        //title
+        workbook
+          .getActiveSheet()
+          .getCell(0, 0)
+          .value('Hoá đơn điện tử (21/03/2025 - 31/03/2025)')
+        workbook.getActiveSheet().getCell(0, 0).font('18pt Arial')
+
+        workbook
+          .getActiveSheet()
+          .getRange(2, 0, 1, TotalColumn)
+          .font('12pt Arial')
+        workbook
+          .getActiveSheet()
+          .getRange(2, 0, 1, TotalColumn)
+          .backColor('#E7E9EB')
+        //border
+        var border = new window.GC.Spread.Sheets.LineBorder()
+        border.color = '#000'
+        border.style = window.GC.Spread.Sheets.LineStyle.thin
+        workbook
+          .getActiveSheet()
+          .getRange(2, 0, TotalRow, TotalColumn)
+          .borderLeft(border)
+        workbook
+          .getActiveSheet()
+          .getRange(2, 0, TotalRow, TotalColumn)
+          .borderRight(border)
+        workbook
+          .getActiveSheet()
+          .getRange(2, 0, TotalRow, TotalColumn)
+          .borderBottom(border)
+        workbook
+          .getActiveSheet()
+          .getRange(2, 0, TotalRow, TotalColumn)
+          .borderTop(border)
+        //filter
+        var cellrange = new window.GC.Spread.Sheets.Range(3, 0, 1, TotalColumn)
+        var hideRowFilter = new window.GC.Spread.Sheets.Filter.HideRowFilter(
+          cellrange
+        )
+        workbook.getActiveSheet().rowFilter(hideRowFilter)
+
+        //format number
+        workbook
+          .getActiveSheet()
+          .getCell(2, 0)
+          .hAlign(window.GC.Spread.Sheets.HorizontalAlign.center)
+
+        //auto fit width and height
+        workbook.getActiveSheet().autoFitRow(TotalRow + 2)
+        workbook.getActiveSheet().autoFitRow(0)
+
+        // workbook
+        //   .getActiveSheet()
+        //   .setColumnWidth(0, 400.0, window.GC.Spread.Sheets.SheetArea.viewport)
+
+        for (let i = 1; i < TotalColumn; i++) {
+          workbook.getActiveSheet().autoFitColumn(i)
+        }
+
+        for (let i = 0; i <= TotalRow; i++) {
+          workbook.getActiveSheet().setFormatter(i + 3, 1, '#,#')
+          workbook.getActiveSheet().setFormatter(i + 3, 2, '#,#')
+          workbook.getActiveSheet().setFormatter(i + 3, 3, '#,#')
+          workbook.getActiveSheet().setFormatter(i + 3, 4, '#,#')
+        }
+
+        window.top?.toastr?.remove()
+
+        //Finish
+        workbook.resumePaint()
+        workbook.resumeEvent()
+      }
+    )
+    console.log(data)
+  }
+
   return (
     <div className="relative h-full bg-white dark:bg-dark-app">
       <div className="flex flex-col h-full px-8 pt-8 pb-5 mx-auto max-w-7xl">
         <div className="flex items-end justify-between mb-5">
           <div>
-            <div className="text-3xl font-bold dark:text-white">
+            <div
+              className="text-3xl font-bold dark:text-white"
+              //onClick={onExportExcel}
+            >
               Hoá đơn điện tử
             </div>
             <div className="mt-1.5">Quản lý hoá đơn điện tử</div>

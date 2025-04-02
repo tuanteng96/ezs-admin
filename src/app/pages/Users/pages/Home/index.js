@@ -26,6 +26,8 @@ import Tooltip from 'rc-tooltip'
 import { useWindowSize } from 'src/_ezs/hooks/useWindowSize'
 import { NotFound } from 'src/_ezs/layout/components/notfound'
 import useInfiniteScroll from 'react-infinite-scroll-hook'
+import { ImageLazy } from 'src/_ezs/partials/images'
+import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
 
 function Home(props) {
   const { CrStocks, Stocks } = useAuth()
@@ -125,9 +127,19 @@ function Home(props) {
         cellRenderer: ({ rowData }) => (
           <div className="flex items-center">
             <div className="w-16 h-16 rounded-full border-[#a5dff8] border-[2px]">
-              <div className="flex items-center justify-center w-full h-full text-lg font-bold border-[2px] border-white rounded-full bg-primarylight text-primary font-number uppercase">
-                {getFirstName(rowData?.FullName)}
-              </div>
+              {rowData?.Avatar ? (
+                <ImageLazy
+                  wrapperClassName="object-cover w-full h-full !block rounded-full"
+                  className="object-cover w-full h-full rounded-full border-[2px] border-white"
+                  effect="blur"
+                  src={toAbsolutePath(rowData?.Avatar)}
+                  alt={rowData.FullName}
+                />
+              ) : (
+                <div className="flex items-center justify-center w-full h-full text-lg font-bold border-[2px] border-white rounded-full bg-primarylight text-primary font-number uppercase">
+                  {getFirstName(rowData?.FullName)}
+                </div>
+              )}
             </div>
             <div className="flex-1 pl-4">
               <div className="font-medium capitalize">{rowData?.FullName}</div>
