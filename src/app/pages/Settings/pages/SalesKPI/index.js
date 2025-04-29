@@ -126,15 +126,67 @@ function SalesKPI(props) {
     },
     onSuccess: data => {
       if (data) {
-        setValue('KPIDayList', JSON.parse(data))
+        let newData = JSON.parse(data)
+        let newResult = []
+
+        for (let sk of Stocks) {
+          let index = newData.findIndex(x => x.ID === sk?.ID)
+          if (index > -1) {
+            newData[index].Title = sk.Title
+          } else {
+            newData.push({
+              ID: sk.ID,
+              Title: sk.Title,
+              Children: [
+                {
+                  FromValue: '',
+                  ToValue: '',
+                  Value: ''
+                }
+              ]
+            })
+          }
+        }
+
+        for (let sk of newData) {
+          if (sk.ID === '-1') {
+            newResult.push(sk)
+          } else {
+            let index = Stocks.findIndex(x => x.ID === sk?.ID)
+            if (index > -1) {
+              newResult.push(sk)
+            }
+          }
+        }
+
+        setValue(
+          'KPIDayList',
+          newResult.map(item => ({
+            ...item,
+            Children:
+              item.Children && item.Children.length > 0
+                ? item.Children
+                : [
+                    {
+                      FromValue: '',
+                      ToValue: '',
+                      Value: ''
+                    }
+                  ]
+          }))
+        )
       } else {
         let newConfig = [
           {
             ID: '-1',
-            Title: 'Tất cả cơ sở',
-            FromValue: '',
-            ToValue: '',
-            Value: ''
+            Title: 'Tất cả cơ sở (Cấu hình chung)',
+            Children: [
+              {
+                FromValue: '',
+                ToValue: '',
+                Value: ''
+              }
+            ]
           }
         ]
 
@@ -142,9 +194,13 @@ function SalesKPI(props) {
           newConfig.push({
             ID: stock?.ID,
             Title: stock.Title,
-            FromValue: '',
-            ToValue: '',
-            Value: ''
+            Children: [
+              {
+                FromValue: '',
+                ToValue: '',
+                Value: ''
+              }
+            ]
           })
         }
 
@@ -194,7 +250,14 @@ function SalesKPI(props) {
     updateKPIMutation.mutate(
       {
         KPIMon: dataUpdate,
-        KPIDay: values.KPIDayList
+        KPIDay: values.KPIDayList.map(item => ({
+          ...item,
+          Children: item.Children
+            ? item.Children.filter(
+                x => x.FromValue !== '' || x.ToValue !== '' || x.Value !== ''
+              )
+            : []
+        }))
       },
       {
         onSuccess: data => {
@@ -209,19 +272,11 @@ function SalesKPI(props) {
 
   return (
     <>
-      <div
-        className={clsx(
-          'w-full  bg-white dark:bg-dark-app',
-          KPIDay ? 'h-full' : 'min-h-full'
-        )}
-      >
+      <div className={clsx('w-full  bg-white dark:bg-dark-app min-h-full')}>
         <FormProvider {...methods}>
           <form
             onSubmit={handleSubmit(onSubmit)}
-            className={clsx(
-              'max-w-screen-xl py-8 m-auto 2xl:max-w-screen-2xl',
-              KPIDay && 'h-full flex flex-col'
-            )}
+            className={clsx('max-w-screen-xl py-8 m-auto 2xl:max-w-screen-2xl')}
           >
             <div className="flex items-end justify-between mb-8">
               <div>
