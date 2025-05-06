@@ -185,9 +185,11 @@ function Home(props) {
             {rowData?.GroupList && rowData?.GroupList.length > 0 ? (
               rowData?.GroupList.map(x => ({
                 ...x,
-                label: `${x.TitleStock || x.GroupTitle} - ${
-                  x.StockTitle || 'Hệ thống'
-                }`
+                label: `${
+                  x.TitleStock === 'Kinh doanh'
+                    ? 'Sale'
+                    : x.TitleStock || x.GroupTitle
+                } - ${x.StockTitle || 'Hệ thống'}`
               })).map((item, i) => (
                 <div
                   className="rounded bg-primarylight text-primary font-number px-2.5 py-[2px] text-[13px] font-medium"
@@ -625,9 +627,11 @@ function Home(props) {
                                 item?.GroupList.length > 0 ? (
                                   item?.GroupList.map(x => ({
                                     ...x,
-                                    label: `${x.TitleStock || x.GroupTitle} - ${
-                                      x.StockTitle || 'Hệ thống'
-                                    }`
+                                    label: `${
+                                      x.TitleStock === 'Kinh doanh'
+                                        ? 'Sale'
+                                        : x.TitleStock || x.GroupTitle
+                                    } - ${x.StockTitle || 'Hệ thống'}`
                                   })).map((item, i) => (
                                     <div
                                       className="rounded bg-primarylight text-primary font-number px-2.5 py-[2px] text-[13px] font-medium"

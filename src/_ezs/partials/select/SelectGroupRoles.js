@@ -23,7 +23,8 @@ const SelectGroupRoles = ({
           const index = newData.findIndex(item => item.groupid === StockID)
           if (index > -1) {
             newData[index].options.push({
-              label: TitleStock || GroupTitle,
+              label:
+                TitleStock === 'Kinh doanh' ? 'Sale' : TitleStock || GroupTitle,
               value: GroupID,
               ...key
             })
@@ -33,7 +34,10 @@ const SelectGroupRoles = ({
             newItem.groupid = StockID
             newItem.options = [
               {
-                label: TitleStock || GroupTitle,
+                label:
+                  TitleStock === 'Kinh doanh'
+                    ? 'Sale'
+                    : TitleStock || GroupTitle,
                 value: GroupID,
                 ...key
               }
@@ -42,6 +46,7 @@ const SelectGroupRoles = ({
           }
         }
       }
+      console.log(newData)
       newData = newData.filter(x =>
         StockRoles ? StockRoles.some(s => s.value === x.groupid) : !StockRoles
       )
@@ -56,9 +61,11 @@ const SelectGroupRoles = ({
           ? data?.Groups.map(x => ({
               ...x,
               value: x.GroupID,
-              label: `${x.TitleStock || x.GroupTitle} - ${
-                x.StockTitle || 'Hệ thống'
-              }`
+              label: `${
+                x.TitleStock === 'Kinh doanh'
+                  ? 'Sale'
+                  : x.TitleStock || x.GroupTitle
+              } - ${x.StockTitle || 'Hệ thống'}`
             })).sort((a, b) => a.StockID - b.StockID)
           : []
       }
