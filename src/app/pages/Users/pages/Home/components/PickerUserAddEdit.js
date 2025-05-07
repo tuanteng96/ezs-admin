@@ -27,6 +27,7 @@ import { PickerUserInfo } from '.'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { UploadFile } from 'src/_ezs/partials/files'
 import StickyBox from 'react-sticky-box'
+import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 
 const schemaAddEdit = yup
   .object({
@@ -44,6 +45,7 @@ function PickerUserAddEdit({ children, initialValues }) {
   const [isEditPwd, setIsEditPwd] = useState(false)
 
   const { CrStocks } = useAuth()
+  const { GlobalConfig } = useLayout()
 
   const { usrmng, cong_ca, csluong_bangluong } = useRoles([
     'usrmng',
@@ -227,7 +229,7 @@ function PickerUserAddEdit({ children, initialValues }) {
       'chluongLevels',
       JSON.stringify(
         values?.chluongLevels
-          ? [{ id: values?.id || 0, Level: values?.chluongLevels }]
+          ? [{ id: values?.id || 0, Level: values?.chluongLevels || '' }]
           : []
       )
     )
@@ -307,9 +309,9 @@ function PickerUserAddEdit({ children, initialValues }) {
         }
       },
       {
-        onSuccess: ({ data }) => {
-          if (data?.error) {
-            toast.error(data?.error)
+        onSuccess: ({ rs, rsRoles }) => {
+          if (rs?.data?.error) {
+            toast.error(rs?.data?.error)
           } else {
             toast.success(
               initialValues?.ID
@@ -524,41 +526,43 @@ function PickerUserAddEdit({ children, initialValues }) {
                                 </div>
                               )}
                             </div>
-                            <div className="relative px-4 py-4 mt-5 border border-gray-300 border-dashed rounded">
-                              <Controller
-                                name="IsOPTLogin"
-                                control={control}
-                                render={({
-                                  field: { ref, ...field },
-                                  fieldState
-                                }) => (
-                                  <Checkbox
-                                    labelText="Kiểm soát đăng nhập qua OTP"
-                                    htmlFor="IsOPTLogin"
-                                    {...field}
-                                    checked={field?.value}
-                                  />
-                                )}
-                              />
-                              <Tooltip
-                                overlayClassName="text-white dark:text-dark-light"
-                                placement="top"
-                                trigger={['hover']}
-                                overlay={
-                                  <div className="px-3 py-2.5 bg-white dark:bg-dark-light rounded-sm shadow-lg text-gray-700 dark:text-graydark-800 max-w-[300px] text-center">
-                                    Mỗi lần đăng nhập nhân viên sẽ có 1 mã OTP
-                                    gửi về Email của quản lý, Nhân viên sẽ phải
-                                    xin OTP này để đăng nhập tránh việc tự do
-                                    đăng nhập tại nhiều nơi.
-                                  </div>
-                                }
-                                align={{
-                                  offset: [9, 0]
-                                }}
-                              >
-                                <QuestionMarkCircleIcon className="absolute w-6 cursor-pointer text-warning right-4 top-2/4 -translate-y-2/4" />
-                              </Tooltip>
-                            </div>
+                            {GlobalConfig?.Admin?.OTP_USER && (
+                              <div className="relative px-4 py-4 mt-5 border border-gray-300 border-dashed rounded">
+                                <Controller
+                                  name="IsOPTLogin"
+                                  control={control}
+                                  render={({
+                                    field: { ref, ...field },
+                                    fieldState
+                                  }) => (
+                                    <Checkbox
+                                      labelText="Kiểm soát đăng nhập qua OTP"
+                                      htmlFor="IsOPTLogin"
+                                      {...field}
+                                      checked={field?.value}
+                                    />
+                                  )}
+                                />
+                                <Tooltip
+                                  overlayClassName="text-white dark:text-dark-light"
+                                  placement="top"
+                                  trigger={['hover']}
+                                  overlay={
+                                    <div className="px-3 py-2.5 bg-white dark:bg-dark-light rounded-sm shadow-lg text-gray-700 dark:text-graydark-800 max-w-[300px] text-center">
+                                      Mỗi lần đăng nhập nhân viên sẽ có 1 mã OTP
+                                      gửi về Email của quản lý, Nhân viên sẽ
+                                      phải xin OTP này để đăng nhập tránh việc
+                                      tự do đăng nhập tại nhiều nơi.
+                                    </div>
+                                  }
+                                  align={{
+                                    offset: [9, 0]
+                                  }}
+                                >
+                                  <QuestionMarkCircleIcon className="absolute w-6 cursor-pointer text-warning right-4 top-2/4 -translate-y-2/4" />
+                                </Tooltip>
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="pt-5 mt-5 border-t border-t-separator">

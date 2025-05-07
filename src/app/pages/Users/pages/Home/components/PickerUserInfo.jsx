@@ -151,7 +151,7 @@ function PickerUserInfo({ children, values }) {
                     </div>
                     <div className="pl-4">
                       <div className="mb-2 last:mb-0">
-                        <div class="italic font-medium mb-1.5">
+                        <div className="italic font-medium mb-1.5">
                           B1. Tải APP
                           <span className="px-1 font-semibold text-primary">
                             IDEZS
@@ -162,7 +162,7 @@ function PickerUserInfo({ children, values }) {
                         </div>
                       </div>
                       <div className="mb-2 last:mb-0">
-                        <div class="italic font-medium mb-1.5">
+                        <div className="italic font-medium mb-1.5">
                           B2. Đăng nhập APP với thông tin tên miền là
                           <span className="px-1 font-semibold text-primary">
                             {window.location.hostname}
