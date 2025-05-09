@@ -186,10 +186,10 @@ function IeProcessed(props) {
   )
 
   return (
-    <div className="flex flex-col h-full lg:px-8 lg:pt-8 lg:pb-5 p-4 mx-auto max-w-7xl">
+    <div className="flex flex-col h-full p-4 mx-auto lg:px-8 lg:pt-8 lg:pb-5 max-w-7xl">
       <div className="flex items-end justify-between mb-5">
         <div>
-          <div className="text-xl sm:text-3xl font-bold dark:text-white">
+          <div className="text-xl font-bold sm:text-3xl dark:text-white">
             Đơn cần xử lý
           </div>
           <div className="mt-1.5 hidden sm:block">
@@ -198,7 +198,7 @@ function IeProcessed(props) {
         </div>
         {/* <div className="flex sm:pb-1">
           <NavLink
-            className="flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 text-gray-900 border rounded bg-light border-light dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
+            className="flex items-center justify-center w-10 h-10 text-gray-900 border rounded sm:w-12 sm:h-12 bg-light border-light dark:bg-dark-light dark:border-dark-separator dark:text-white hover:text-primary dark:hover:text-primary"
             to={{
               pathname: 'filters',
               search: search

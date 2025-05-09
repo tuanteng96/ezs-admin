@@ -33,6 +33,7 @@ import { SelectUserLevels } from './SelectUserLevels'
 import { SelectUserShifts } from './SelectUserShifts'
 import { SelectProductMaterials } from './SelectProductMaterials'
 import { SelectProdsTypeName } from './SelectProdsTypeName'
+import { SelectTypeGenerate2 } from './SelectTypeGenerate2'
 
 export {
   SelectDistrictsOtp,
@@ -69,5 +70,6 @@ export {
   SelectUserLevels,
   SelectUserShifts,
   SelectProdsTypeName,
-  SelectProductMaterials
+  SelectProductMaterials,
+  SelectTypeGenerate2
 }

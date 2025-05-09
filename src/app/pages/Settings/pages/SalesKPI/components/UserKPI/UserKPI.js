@@ -4,6 +4,7 @@ import { InputNumber } from 'src/_ezs/partials/forms'
 import {
   SelectStocks,
   SelectTypeGenerate,
+  SelectTypeGenerate2,
   SelectUserAdmin
 } from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
@@ -246,21 +247,32 @@ function UserKPI({ indexUser }) {
               control={control}
               render={({ field: { ref, ...field }, fieldState }) => (
                 <>
-                  <SelectTypeGenerate
-                    allOption={[{ value: -1, label: 'Tất cả' }]}
+                  <SelectTypeGenerate2
+                    //allOption={[{ value: -1, label: 'Tất cả' }]}
                     isDisabled={rowData.isDisabled}
                     isMulti
                     isClearable
                     value={field.value}
                     onChange={val => {
-                      const valIndex = val && val.findIndex(x => x.value === -1)
-                      field.onChange(
-                        valIndex > -1 && valIndex === val.length - 1
-                          ? [val[valIndex]]
-                          : val
-                          ? val.filter(x => x.value !== -1)
-                          : ''
-                      )
+                      const isAll =
+                        val &&
+                        val.some(x => x.value === -1) &&
+                        val.some(x => x.value === -99)
+
+                      if (isAll) {
+                        field.onChange([val[val.length - 1]])
+                      } else {
+                        let valIndex = val.findIndex(
+                          x => x.value === -1 || x.value === -99
+                        )
+                        field.onChange(
+                          valIndex > -1 && valIndex === val.length - 1
+                            ? [val[valIndex]]
+                            : val
+                            ? val.filter(x => x.value !== -1 && x.value !== -99)
+                            : ''
+                        )
+                      }
                     }}
                     className="select-control"
                     menuPortalTarget={document.body}

@@ -21,6 +21,8 @@ import clsx from 'clsx'
 import { useAuth } from 'src/_ezs/core/Auth'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
+import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
+import moment from 'moment'
 
 const perfectScrollbarOptions = {
   wheelSpeed: 2,
@@ -66,7 +68,8 @@ function InventoryFilters(props) {
           StockID: CrStocks?.ID,
           Key: '',
           NotDelv: false,
-          IsPublic: true
+          IsPublic: true,
+          to: ''
         }
   })
 
@@ -77,7 +80,8 @@ function InventoryFilters(props) {
         ...values,
         Pi: 1,
         RootTypeID: values.RootTypeID ? values.RootTypeID.toString() : '',
-        manus: values.manus ? values.manus.toString() : ''
+        manus: values.manus ? values.manus.toString() : '',
+        to: values.to ? moment(values.to).format('DD/MM/YYYY') : null
       }).toString()
     })
   }
@@ -253,6 +257,29 @@ function InventoryFilters(props) {
                           placeholder="Chọn nhãn hàng"
                           noOptionsMessage={() => 'Chưa có nhãn hàng.'}
                           isValidNewOption={() => false}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+                <div className="mb-3.5 last:mb-0">
+                  <div className="font-medium">Đến ngày</div>
+                  <div className="mt-1">
+                    <Controller
+                      name="to"
+                      control={control}
+                      render={({ field: { ref, ...field }, fieldState }) => (
+                        <InputDatePicker
+                          placeholderText="Chọn ngày"
+                          autoComplete="off"
+                          onChange={field.onChange}
+                          selected={
+                            field.value
+                              ? moment(field.value, 'DD/MM/YYYY').toDate()
+                              : null
+                          }
+                          {...field}
+                          dateFormat="dd/MM/yyyy"
                         />
                       )}
                     />

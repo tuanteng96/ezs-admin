@@ -46,7 +46,7 @@ const SelectGroupRoles = ({
           }
         }
       }
-      
+
       newData = newData.filter(x =>
         StockRoles ? StockRoles.some(s => s.value === x.groupid) : !StockRoles
       )

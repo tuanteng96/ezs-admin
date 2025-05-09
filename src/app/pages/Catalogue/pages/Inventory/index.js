@@ -24,6 +24,7 @@ import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { useCatalogue } from '../../CatalogueLayout'
+import moment from 'moment'
 
 function Inventory(props) {
   const { CrStocks } = useAuth()
@@ -39,6 +40,7 @@ function Inventory(props) {
     cmd: 'prodinstock',
     Pi: queryParams.Pi || 1,
     Ps: queryParams.Ps || 10,
+    to: queryParams.to || moment().format('DD/MM/YYYY'),
     Only: queryParams.Only || true,
     RootTypeID: 'RootTypeID' in queryParams ? queryParams.RootTypeID : '794',
     manus: queryParams.manus || '',
@@ -56,6 +58,7 @@ function Inventory(props) {
         Pi: queryConfig.Pi,
         Ps: queryConfig.Ps,
         manus: queryConfig.manus,
+        to: queryConfig?.to,
         '(filter)Only': queryConfig.Only,
         '(filter)RootTypeID': queryConfig.RootTypeID,
         '(filter)StockID': queryConfig.StockID,

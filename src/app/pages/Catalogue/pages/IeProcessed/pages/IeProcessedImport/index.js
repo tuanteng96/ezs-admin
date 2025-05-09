@@ -18,6 +18,7 @@ import {
 } from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
+import { useAuth } from 'src/_ezs/core/Auth'
 
 function IeProcessedImport(props) {
   const navigate = useNavigate()
@@ -26,7 +27,13 @@ function IeProcessedImport(props) {
 
   const queryClient = useQueryClient()
 
-  const { xuat_nhap_diem } = useRoles(['xuat_nhap_diem'])
+  const { xuat_nhap_diem, xuat_nhap_ten_slg, xuat_nhap } = useRoles([
+    'xuat_nhap_diem',
+    'xuat_nhap_ten_slg',
+    'xuat_nhap'
+  ])
+
+  const { CrStocks } = useAuth()
 
   const { control, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
@@ -459,11 +466,29 @@ function IeProcessedImport(props) {
 
   const updateMutation = useMutation({
     mutationFn: async body => {
-      let rs = await WarehouseAPI.updateImportExport(body)
+      let receives = await WarehouseAPI.getReceiveStock({
+        StockID: CrStocks?.ID,
+        IsAllStock:
+          xuat_nhap.IsStocks ||
+          (xuat_nhap_diem.IsStocks && xuat_nhap_ten_slg.IsStocks)
+      })
+
+      let rs = {
+        error: 'Đơn đã được nhận hoặc không tồn tại.'
+      }
+
+      if (receives?.data?.lst && receives?.data?.lst.length > 0) {
+        let index = receives?.data?.lst.findIndex(x => x.ie.ID === body.ie.ID)
+        if (index > -1) {
+          rs = await WarehouseAPI.updateImportExport(body)
+        }
+      }
+
       await Promise.all([
         queryClient.invalidateQueries(['ListIEProcessed']),
         queryClient.invalidateQueries(['ReceiveStock'])
       ])
+
       return rs
     }
   })
@@ -489,9 +514,13 @@ function IeProcessedImport(props) {
       },
       {
         onSettled: data => {
-          toast.success('Thêm mới thành công.')
+          if (data?.data?.data) {
+            toast.success('Thêm mới thành công.')
+          } else {
+            toast.error(data?.data?.error || data.error)
+          }
           navigate({
-            pathname: state?.prevFrom,
+            pathname: state?.prevFrom || '/catalogue/ie-processed',
             search: search
           })
         }
@@ -506,7 +535,7 @@ function IeProcessedImport(props) {
             className="absolute w-full h-full top-0 left bg-black/[.2] dark:bg-black/[.4]"
             onClick={() =>
               navigate({
-                pathname: state?.prevFrom,
+                pathname: state?.prevFrom || '/catalogue/ie-processed',
                 search: search
               })
             }
@@ -529,7 +558,7 @@ function IeProcessedImport(props) {
                 className="flex items-center justify-center w-10 h-10 transition cursor-pointer lg:w-12 lg:h-12 dark:text-graydark-800 hover:text-primary"
                 onClick={() => {
                   navigate({
-                    pathname: state?.prevFrom,
+                    pathname: state?.prevFrom || '/catalogue/ie-processed',
                     search: search
                   })
                 }}

@@ -1,5 +1,5 @@
 import { FloatingPortal } from '@floating-ui/react'
-import { XMarkIcon } from '@heroicons/react/24/outline'
+import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import {
   useInfiniteQuery,
   useMutation,
@@ -13,15 +13,36 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { toast } from 'react-toastify'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useAuth } from 'src/_ezs/core/Auth'
+import useDebounce from 'src/_ezs/hooks/useDebounce'
 import { Button } from 'src/_ezs/partials/button'
-import { InputNumber } from 'src/_ezs/partials/forms'
+import { Input, InputNumber } from 'src/_ezs/partials/forms'
 import { ImageLazy } from 'src/_ezs/partials/images'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
 import { formatArray } from 'src/_ezs/utils/formatArray'
 
+const ConvertViToEn = (str, toUpperCase = false) => {
+  str = str.toLowerCase()
+  str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, 'a')
+  str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, 'e')
+  str = str.replace(/ì|í|ị|ỉ|ĩ/g, 'i')
+  str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, 'o')
+  str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, 'u')
+  str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, 'y')
+  str = str.replace(/đ/g, 'd')
+  // Some system encode vietnamese combining accent as individual utf-8 characters
+  str = str.replace(/\u0300|\u0301|\u0303|\u0309|\u0323/g, '') // Huyền sắc hỏi ngã nặng
+  str = str.replace(/\u02C6|\u0306|\u031B/g, '') // Â, Ê, Ă, Ơ, Ư
+
+  return toUpperCase ? str.toUpperCase() : str
+}
+
 function PickerWarehouseScale({ children, queryConfig }) {
   const [visible, setVisible] = useState(false)
+  const [key, setKey] = useState('')
+  const [ClientData, setClientData] = useState([])
+
+  const debouncedKey = useDebounce(key, 500)
 
   const queryClient = useQueryClient()
 
@@ -50,12 +71,13 @@ function PickerWarehouseScale({ children, queryConfig }) {
       let newQueryConfig = {
         cmd: queryConfig.cmd,
         Pi: pageParam,
-        Ps: queryConfig.Ps,
+        Ps: 1000,
         manus: queryConfig.manus,
+        to: queryConfig?.to,
         '(filter)Only': queryConfig.Only,
         '(filter)RootTypeID': queryConfig.RootTypeID,
         '(filter)StockID': queryConfig.StockID,
-        '(filter)key': queryConfig.Key,
+        '(filter)key': debouncedKey,
         '(filter)NotDelv': queryConfig.NotDelv,
         '(filter)IsPublic': queryConfig.IsPublic,
         Qty: 0
@@ -67,7 +89,8 @@ function PickerWarehouseScale({ children, queryConfig }) {
       lastPage.Pi === lastPage.PCount ? undefined : lastPage.Pi + 1,
     enabled: visible,
     cacheTime: 0,
-    staleTime: 0
+    staleTime: 0,
+    keepPreviousData: true
   })
 
   const Lists = formatArray.useInfiniteQuery(data?.pages, 'list')
@@ -75,29 +98,53 @@ function PickerWarehouseScale({ children, queryConfig }) {
   useEffect(() => {
     if (visible) {
       if (Lists) {
-        let newLists = [...Lists]
-        if (Items) {
-          for (let item of Items) {
-            let index = newLists.findIndex(x => x.ID === item.ID)
-            if (index > -1) {
-              newLists[index].ActualInventory = item.ActualInventory
-            }
-          }
-        }
+        // let newLists = [...Lists]
+        // if (Items) {
+        //   for (let item of Items) {
+        //     let index = newLists.findIndex(x => x.ID === item.ID)
+        //     if (index > -1) {
+        //       newLists[index].ActualInventory = item.ActualInventory
+        //     }
+        //   }
+        // }
         reset({
-          Items: newLists.map(x => ({
+          Items: Lists.map(x => ({
             ActualInventory: '',
             BalanceInventory: '',
             ...x
           }))
         })
+        setClientData(
+          Lists.map(x => ({
+            ActualInventory: '',
+            BalanceInventory: '',
+            ...x
+          }))
+        )
       }
     } else {
       reset({ Items: [] })
+      setClientData([])
+      setKey('')
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.pages, visible])
+
+  useEffect(() => {
+    if (key) {
+      reset({
+        Items: ClientData.filter(x =>
+          ConvertViToEn(x.Title).includes(ConvertViToEn(key))
+        )
+      })
+    } else {
+      reset({
+        Items: ClientData
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedKey])
 
   const columns = useMemo(
     () => [
@@ -183,7 +230,16 @@ function PickerWarehouseScale({ children, queryConfig }) {
                   thousandSeparator={false}
                   value={field.value}
                   placeholder="Nhập tồn thực tế"
-                  onValueChange={val => field.onChange(val.floatValue)}
+                  onValueChange={val => {
+                    field.onChange(val.floatValue)
+                    let newClientData = [...ClientData]
+                    let index = newClientData.findIndex(
+                      x => x.ProdID === rowData.ProdID
+                    )
+                    if (index > -1) {
+                      newClientData[index].ActualInventory = val.floatValue
+                    }
+                  }}
                   allowNegative={false}
                 />
               )}
@@ -257,12 +313,13 @@ function PickerWarehouseScale({ children, queryConfig }) {
             UserID: dataN?.data?.data?.UserID || '',
             Target: dataN?.data?.data?.Target || '',
             TargetCreated: dataN?.data?.data?.TargetCreated || '',
-            CreateDate: dataN?.data?.data?.CreateDate
-              ? moment(
-                  dataN?.data?.data?.CreateDate,
-                  'YYYY-MM-DD HH:mm'
-                ).format('YYYY-MM-DD HH:mm')
-              : moment().format('YYYY-MM-DD HH:mm')
+            CreateDate: moment(queryConfig.to, 'DD/MM/YYYY')
+              .set({
+                hour: '23',
+                minute: '59',
+                second: '59'
+              })
+              .format('YYYY-MM-DD HH:mm')
           },
           items: ItemsN.map(x => ({
             ImportDiscount: '',
@@ -275,9 +332,12 @@ function PickerWarehouseScale({ children, queryConfig }) {
             Unit: '',
             Source: '',
             convert: null,
-            Desc: `Cân kho tự động: ${StockName} - Ngày ${moment().format(
+            Desc: `Cân kho tự động: ${StockName} - Ngày ${moment(
+              queryConfig.to,
               'DD/MM/YYYY'
-            )} - Số lượng sau cân kho: ${x.ActualInventory}`
+            ).format('DD/MM/YYYY')} - Số lượng sau cân kho: ${
+              x.ActualInventory
+            }`
           }))
         }
       }
@@ -301,12 +361,13 @@ function PickerWarehouseScale({ children, queryConfig }) {
             UserID: dataX?.data?.data?.UserID || '',
             Target: dataX?.data?.data?.Target || '',
             TargetCreated: dataX?.data?.data?.TargetCreated || '',
-            CreateDate: dataX?.data?.data?.CreateDate
-              ? moment(
-                  dataX?.data?.data?.CreateDate,
-                  'YYYY-MM-DD HH:mm'
-                ).format('YYYY-MM-DD HH:mm')
-              : moment().format('YYYY-MM-DD HH:mm')
+            CreateDate: moment(queryConfig.to, 'DD/MM/YYYY')
+              .set({
+                hour: '23',
+                minute: '59',
+                second: '59'
+              })
+              .format('YYYY-MM-DD HH:mm')
           },
           items: ItemsX.map(x => ({
             ImportDiscount: '',
@@ -319,9 +380,12 @@ function PickerWarehouseScale({ children, queryConfig }) {
             Unit: x.Unit,
             Source: '',
             convert: null,
-            Desc: `Cân kho tự động: ${StockName} - Ngày ${moment().format(
+            Desc: `Cân kho tự động: ${StockName} - Ngày ${moment(
+              queryConfig.to,
               'DD/MM/YYYY'
-            )} - Số lượng sau cân kho: ${x.ActualInventory}`
+            ).format('DD/MM/YYYY')} - Số lượng sau cân kho: ${
+              x.ActualInventory
+            }`
           }))
         }
       }
@@ -358,6 +422,7 @@ function PickerWarehouseScale({ children, queryConfig }) {
         }
       }
     }
+
     updateMutation.mutate(
       {
         ItemsN,
@@ -401,7 +466,7 @@ function PickerWarehouseScale({ children, queryConfig }) {
                 >
                   <div className="flex items-center justify-between px-4 py-4 border-b lg:px-6 border-separator dark:border-dark-separator">
                     <div className="w-10/12 text-xl font-bold truncate lg:text-2xl dark:text-graydark-800">
-                      Cân kho
+                      Cân kho đến ngày {queryConfig.to}
                     </div>
                     <div
                       className="flex items-center justify-center w-10 h-10 transition cursor-pointer lg:w-12 lg:h-12 dark:text-graydark-800 hover:text-primary"
@@ -429,12 +494,24 @@ function PickerWarehouseScale({ children, queryConfig }) {
                     //isPreviousData={isPreviousData}
                     loading={isLoading}
                   />
-                  <div className="flex justify-end px-4 pb-4">
+                  <div className="flex justify-between px-4 pb-4">
+                    <div className="max-w-[500px] w-full flex-1 relative">
+                      <Input
+                        className="pl-12 pr-4"
+                        wrapClass="w-full"
+                        placeholder="Nhập từ khóa"
+                        autoComplete="off"
+                        type="text"
+                        value={key}
+                        onChange={e => setKey(e.target.value)}
+                      />
+                      <MagnifyingGlassIcon className="absolute w-6 text-gray-500 pointer-events-none top-2/4 -translate-y-2/4 left-4" />
+                    </div>
                     <Button
                       loading={updateMutation.isLoading}
                       disabled={updateMutation.isLoading}
                       type="submit"
-                      className="relative flex items-center h-12 px-4 ml-2 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                      className="relative flex items-center h-12 px-4 ml-2 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70 min-w-[165px]"
                     >
                       Thực hiện cân kho
                     </Button>
