@@ -313,7 +313,7 @@ function MaterialConversion(props) {
             className="absolute w-full h-full top-0 left bg-black/[.2] dark:bg-black/[.4]"
             onClick={() =>
               navigate({
-                pathname: state?.prevFrom,
+                pathname: state?.prevFrom || '/catalogue/import-export',
                 search: search
               })
             }
