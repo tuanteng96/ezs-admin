@@ -262,16 +262,25 @@ function UserKPI({ indexUser }) {
                       if (isAll) {
                         field.onChange([val[val.length - 1]])
                       } else {
-                        let valIndex = val.findIndex(
-                          x => x.value === -1 || x.value === -99
-                        )
-                        field.onChange(
-                          valIndex > -1 && valIndex === val.length - 1
-                            ? [val[valIndex]]
-                            : val
-                            ? val.filter(x => x.value !== -1 && x.value !== -99)
-                            : ''
-                        )
+                        if (
+                          val.some(x => x.value < -1 && x.value !== -99) &&
+                          val.some(x => x.value > -1)
+                        ) {
+                          field.onChange([val[val.length - 1]])
+                        } else {
+                          let valIndex = val.findIndex(
+                            x => x.value === -1 || x.value === -99
+                          )
+                          field.onChange(
+                            valIndex > -1 && valIndex === val.length - 1
+                              ? [val[valIndex]]
+                              : val
+                              ? val.filter(
+                                  x => x.value !== -1 && x.value !== -99
+                                )
+                              : ''
+                          )
+                        }
                       }
                     }}
                     className="select-control"
