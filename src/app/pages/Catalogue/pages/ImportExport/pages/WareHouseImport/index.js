@@ -750,6 +750,7 @@ function WareHouseImport(props) {
                 : '',
               ProdId: x.ProdID,
               Other: x?.Desc || '',
+              Unit: x.StockUnit || '',
               convert: null
             }))
           )
