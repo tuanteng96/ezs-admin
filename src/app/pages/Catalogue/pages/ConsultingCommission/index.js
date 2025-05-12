@@ -363,7 +363,7 @@ function ConsultingCommission() {
     key: '',
     types: '',
     display: 1,
-    setBonus: 1
+    setBonus: 0
   })
 
   const [levels, setLevels] = useState([])
