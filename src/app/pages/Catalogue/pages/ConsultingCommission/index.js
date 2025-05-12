@@ -359,11 +359,12 @@ function ConsultingCommission() {
   const [filters, setFilters] = useState({
     pi: 1,
     ps: 20,
-    hascombo: 1,
+    //hascombo: 1,
     key: '',
     types: '',
     display: 1,
-    setBonus: 0
+    setBonus: 0,
+    hascombo1: 1
   })
 
   const [levels, setLevels] = useState([])

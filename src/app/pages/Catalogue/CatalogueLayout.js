@@ -56,7 +56,7 @@ function CatalogueLayout({ paths, isReceive }) {
         hideMenu: () => setIsOpenMenu(false)
       }}
     >
-      <div className="flex h-full bg-white dark:bg-dark-app relative">
+      <div className="relative flex h-full bg-white dark:bg-dark-app">
         {isReceive && (
           <PerfectScrollbar
             options={perfectScrollbarOptions}
