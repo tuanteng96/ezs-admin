@@ -364,7 +364,8 @@ function ConsultingCommission() {
     types: '',
     display: 1,
     setBonus: 0,
-    hascombo1: 1
+    hascombo1: 1,
+    getRootFirst: 1
   })
 
   const [levels, setLevels] = useState([])
