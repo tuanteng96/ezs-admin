@@ -81,7 +81,9 @@ function InventoryFilters(props) {
         Pi: 1,
         RootTypeID: values.RootTypeID ? values.RootTypeID.toString() : '',
         manus: values.manus ? values.manus.toString() : '',
-        to: values.to ? moment(values.to).format('DD/MM/YYYY') : null
+        to: values.to
+          ? moment(values.to, 'DD/MM/YYYY').format('DD/MM/YYYY')
+          : null
       }).toString()
     })
   }
