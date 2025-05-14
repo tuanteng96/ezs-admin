@@ -64,7 +64,7 @@ function Inventory(props) {
         '(filter)StockID': queryConfig.StockID,
         '(filter)key': queryConfig.Key,
         '(filter)NotDelv': queryConfig.NotDelv,
-        '(filter)IsPublic': queryConfig.IsPublic
+        '(filter)IsPublic': queryConfig.IsPublic,
       }
       let { data } = await WarehouseAPI.getListInventory(newQueryConfig)
       return {

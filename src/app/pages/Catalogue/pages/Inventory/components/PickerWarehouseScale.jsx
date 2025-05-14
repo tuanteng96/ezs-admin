@@ -39,7 +39,7 @@ const ConvertViToEn = (str, toUpperCase = false) => {
 
 function PickerWarehouseScale({ children, queryConfig }) {
   const [visible, setVisible] = useState(false)
-  const [key, setKey] = useState('')
+  const [key, setKey] = useState(queryConfig?.Key || '')
   const [ClientData, setClientData] = useState([])
 
   const debouncedKey = useDebounce(key, 500)
@@ -66,7 +66,7 @@ function PickerWarehouseScale({ children, queryConfig }) {
   let StockName = indexStock > -1 ? Stocks[indexStock]?.Title : 'Kho tổng'
 
   const { data, isLoading, fetchNextPage, refetch } = useInfiniteQuery({
-    queryKey: ['WarehouseScale'],
+    queryKey: ['WarehouseScale', queryConfig],
     queryFn: async ({ pageParam = 1 }) => {
       let newQueryConfig = {
         cmd: queryConfig.cmd,
@@ -77,7 +77,7 @@ function PickerWarehouseScale({ children, queryConfig }) {
         '(filter)Only': queryConfig.Only,
         '(filter)RootTypeID': queryConfig.RootTypeID,
         '(filter)StockID': queryConfig.StockID,
-        '(filter)key': debouncedKey,
+        '(filter)key': queryConfig.Key,
         '(filter)NotDelv': queryConfig.NotDelv,
         '(filter)IsPublic': queryConfig.IsPublic,
         Qty: 0
@@ -123,9 +123,9 @@ function PickerWarehouseScale({ children, queryConfig }) {
         )
       }
     } else {
+      setKey('')
       reset({ Items: [] })
       setClientData([])
-      setKey('')
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -134,8 +134,10 @@ function PickerWarehouseScale({ children, queryConfig }) {
   useEffect(() => {
     if (key) {
       reset({
-        Items: ClientData.filter(x =>
-          ConvertViToEn(x.Title).includes(ConvertViToEn(key))
+        Items: ClientData.filter(
+          x =>
+            ConvertViToEn(x.Title).includes(ConvertViToEn(key)) ||
+            ConvertViToEn(x.ProdCode).includes(ConvertViToEn(key))
         )
       })
     } else {
@@ -462,6 +464,9 @@ function PickerWarehouseScale({ children, queryConfig }) {
               >
                 <form
                   onSubmit={handleSubmit(onSubmit)}
+                  onKeyDown={e => {
+                    if (e.key === 'Enter') e.preventDefault()
+                  }}
                   className="flex flex-col w-full h-full"
                 >
                   <div className="flex items-center justify-between px-4 py-4 border-b lg:px-6 border-separator dark:border-dark-separator">
