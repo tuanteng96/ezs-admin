@@ -86,7 +86,7 @@ function WareHouseImport(props) {
       })
       return data?.data
     },
-    onSettled: data => {
+    onSuccess: data => {
       if (data) {
         reset({
           ie: {
@@ -707,7 +707,7 @@ function WareHouseImport(props) {
         }))
       },
       {
-        onSettled: data => {
+        onSuccess: data => {
           toast.success(id ? 'Cập nhập thành công.' : 'Thêm mới thành công.')
           navigate({
             pathname: state?.prevFrom || '/catalogue/import-export',

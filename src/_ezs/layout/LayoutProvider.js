@@ -39,8 +39,9 @@ const LayoutProvider = ({ children }) => {
         ...template
       }
     },
-    onSettled: data => {
+    onSuccess: data => {
       window.ApiInvoice = data?.Admin?.hddt?.url
+      window.ApiInvoicePA = 'https://cphoadonuat.hoadon30s.vn'
       setGlobalConfig(data)
     }
   })

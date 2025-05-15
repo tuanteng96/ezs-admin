@@ -241,7 +241,7 @@ function PickerBusiness({ children, initialValues }) {
     bodyFormData.append('keyseo', KeySeo)
 
     addEditMutation.mutate(bodyFormData, {
-      onSettled: ({ data }) => {
+      onSuccess: ({ data }) => {
         onHide()
         toast.success(
           initialValues.ID ? 'Cập nhập thành công.' : 'Thêm mới thành công.'

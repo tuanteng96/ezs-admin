@@ -7,11 +7,11 @@ export const formatString = {
     }
     return arrText[0].charAt(0)
   },
-  formatVND: price => {
+  formatVND: (price, sign = '.') => {
     if (!price || price === 0) {
       return '0'
     } else {
-      return price.toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1.')
+      return price.toFixed(0).replace(/(\d)(?=(\d\d\d)+(?!\d))/g, '$1' + sign)
     }
   },
   formatVNDPositive: price => {

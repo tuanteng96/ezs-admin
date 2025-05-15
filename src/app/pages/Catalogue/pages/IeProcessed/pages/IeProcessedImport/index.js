@@ -78,7 +78,7 @@ function IeProcessedImport(props) {
       })
       return data?.data
     },
-    onSettled: data => {
+    onSuccess: data => {
       if (data) {
         reset({
           ie: {
@@ -513,7 +513,7 @@ function IeProcessedImport(props) {
         receive: true
       },
       {
-        onSettled: data => {
+        onSuccess: data => {
           if (data?.data?.data) {
             toast.success('Thêm mới thành công.')
           } else {

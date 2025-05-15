@@ -87,7 +87,7 @@ function PickerAddEdit({ children, data }) {
     }
 
     addEditMutation.mutate(bodyFormData, {
-      onSettled: ({ data }) => {
+      onSuccess: ({ data }) => {
         queryClient
           .invalidateQueries({ queryKey: ['ListSupplier'] })
           .then(() => {

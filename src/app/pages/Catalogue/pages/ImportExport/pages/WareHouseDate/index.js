@@ -58,7 +58,7 @@ function WareHouseDate(props) {
         date: values.date && moment(values.date).format('YYYY-MM-DD')
       },
       {
-        onSettled: ({ data }) => {
+        onSuccess: ({ data }) => {
           if (data?.error) {
             toast.error(data?.error)
           } else {

@@ -71,7 +71,7 @@ function WareHouseToPay(props) {
       })
       return data
     },
-    onSettled: data => {
+    onSuccess: data => {
       if (data) {
         reset({
           ie: {
@@ -120,7 +120,7 @@ function WareHouseToPay(props) {
         }
       },
       {
-        onSettled: data => {
+        onSuccess: data => {
           queryClient
             .invalidateQueries({ queryKey: ['ListImportExport'] })
             .then(() => {

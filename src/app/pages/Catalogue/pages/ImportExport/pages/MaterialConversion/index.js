@@ -299,7 +299,7 @@ function MaterialConversion(props) {
     bodyFormData.append('data', JSON.stringify(values.data))
 
     ConvertMutation.mutate(bodyFormData, {
-      onSettled: data => {
+      onSuccess: data => {
         reset()
         toast.success('Chuyển đổi thành công.')
       }

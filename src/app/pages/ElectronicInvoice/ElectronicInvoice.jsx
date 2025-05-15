@@ -94,6 +94,10 @@ function ElectronicInvoice(props) {
     mutationFn: body => InvoiceAPI.urlAction(body)
   })
 
+  const invoiceMutationPA = useMutation({
+    mutationFn: body => InvoiceAPI.urlActionPA(body)
+  })
+
   const invoiceRefIDMutation = useMutation({
     mutationFn: body => InvoiceAPI.createRefId(body)
   })
@@ -148,149 +152,116 @@ function ElectronicInvoice(props) {
           (x.CK || x.QT || x.TM) &&
           !x.Items.some(o => !o.VAT)
       )
-      newLst = chunk(newLst, 30)
+
       let newRs = []
+      let totalUpdate = 0
 
-      await Promise.all(
-        newLst.map(async list => {
-          return new Promise(async (resolve, reject) => {
-            let RefIdsPost = list.map(x => {
-              let obj = {
-                OrderID: x.ID,
-                Date: moment(x.CDate).format('YYYY-MM-DD')
-              }
-              return obj
-            })
+      if (1 === 1) {
+        await Promise.all(
+          newLst.map(bill => {
+            return new Promise(async (resolve, reject) => {
+              let RefIds = await invoiceRefIDMutation.mutateAsync({
+                lst: [
+                  {
+                    OrderID: bill.ID,
+                    Date: moment(bill.CDate).format('YYYY-MM-DD')
+                  }
+                ],
+                invoiceNumberID: true
+              })
 
-            let RefIds = await invoiceRefIDMutation.mutateAsync({
-              lst: RefIdsPost
-            })
-
-            let dataPost = {
-              SignType: GlobalConfig?.Admin?.hddt?.SignType || 5,
-              PublishInvoiceData: null,
-              InvoiceData: []
-            }
-
-            for (let item of list) {
-              let TotalOrder = formatArray.sumTotalKey(
-                item.Items,
-                'Thanh_toanVAT'
-              )
-              let newItems = item.Items.map((x, i) => {
+              let newItems = bill.Items.map((x, i) => {
                 let PriceVAT = Math.round(
                   x.Thanh_toanVAT / ((100 + x.VAT) / 100)
                 )
+
                 let PriceTotalVAT = x.Thanh_toanVAT - PriceVAT
+
+                let detailVatRate = [5, 10].includes(x.VAT) ? x.VAT : -3
+
                 return {
-                  ItemType: 1,
-                  LineNumber: i + 1,
-                  SortOrder: i + 1,
-                  ItemCode: x.ProdCode,
-                  ItemName: getProdTitle(x.ProdTitle),
-                  UnitName: x.StockUnit || '',
-                  Quantity: x.Qty,
-                  UnitPrice: PriceVAT / x.Qty,
-                  DiscountRate: 0,
-                  DiscountAmountOC: 0,
-                  Amount: PriceVAT,
-                  AmountOC: PriceVAT,
-                  AmountWithoutVATOC: PriceVAT,
-                  AmountWithoutVAT: PriceVAT,
-                  VATRateName: x.VAT + '%',
-                  VATAmountOC: PriceTotalVAT,
-                  VATAmount: PriceTotalVAT
+                  feature: 1,
+                  code: x.ProdCode,
+                  name: getProdTitle(x.ProdTitle),
+                  unit: x.StockUnit || '',
+                  quantity: x.Qty,
+                  price: PriceVAT / x.Qty,
+                  detailTotal: PriceVAT,
+                  detailVatRate: detailVatRate,
+                  detailVatRateOther: detailVatRate === -3 ? x.VAT : '',
+                  detailVatAmount: PriceTotalVAT,
+                  detailDiscount: '',
+                  detailDiscountAmount: '',
+                  detailAmount: x.Thanh_toanVAT
                 }
               })
-              let TotalOrderVAT = formatArray.sumTotalKey(newItems, 'Amount')
 
-              let TaxRateInfo = [
-                {
-                  VATRateName: '10%',
-                  AmountWithoutVATOC: formatArray.sumTotalKey(
-                    newItems.filter(x => x.VATRateName === '10%'),
-                    'Amount'
-                  ),
-                  VATAmountOC: formatArray.sumTotalKey(
-                    newItems.filter(x => x.VATRateName === '10%'),
-                    'VATAmount'
-                  )
-                },
-                {
-                  VATRateName: '8%',
-                  AmountWithoutVATOC: formatArray.sumTotalKey(
-                    newItems.filter(x => x.VATRateName === '8%'),
-                    'Amount'
-                  ),
-                  VATAmountOC: formatArray.sumTotalKey(
-                    newItems.filter(x => x.VATRateName === '8%'),
-                    'VATAmount'
-                  )
-                }
-              ].filter(x => x.AmountWithoutVATOC && x.VATAmountOC)
-
-              let obj = {
-                RefID: getRefID({
-                  ID: item.ID,
+              let dataPost = {
+                init_invoice: 'HDGTGTMTT',
+                action: 'create',
+                id_attr: '',
+                reference_id: '',
+                id_partner: getRefID({
+                  ID: bill.ID,
                   RefIds: RefIds?.data || [],
-                  CDate: moment(item.CDate).format('DD-MM-YYYY')
+                  CDate: moment(bill.CDate).format('DD-MM-YYYY')
                 }),
-                InvSeries: GlobalConfig?.Admin?.hddt?.InvSeries,
-                InvDate: moment().format('YYYY-MM-DD'),
-                CurrencyCode: 'VND',
-                ExchangeRate: 1.0,
-                IsTaxReduction43: TaxRateInfo.some(x => x.VATRateName === '8%'),
-                // PaymentMethodName: [
-                //   {
-                //     Title: 'TM',
-                //     Value: item.TM
-                //   },
-                //   {
-                //     Title: 'CK',
-                //     Value: item.CK
-                //   },
-                //   {
-                //     Title: 'QT',
-                //     Value: item.QT
-                //   }
-                // ]
-                //   .filter(x => x.Value)
-                //   .map(x => x.Title)
-                //   .join('/'),
-                PaymentMethodName: 'TM/CK',
-                BuyerLegalName: '',
-                BuyerTaxCode: '',
-                BuyerAddress: '',
-                BuyerCode: '',
-                BuyerPhoneNumber: item.SenderPhone,
-                BuyerEmail: '',
-                BuyerFullName:
-                  GlobalConfig?.Admin?.hddt?.SenderName || item.SenderName,
-                BuyerBankAccount: '',
-                BuyerBankName: '',
-                TotalSaleAmountOC: formatArray.sumTotalKey(newItems, 'Amount'),
-                TotalSaleAmount: formatArray.sumTotalKey(newItems, 'Amount'),
-                TotalAmountWithoutVATOC: TotalOrderVAT,
-                TotalAmountWithoutVAT: TotalOrderVAT,
-                TotalVATAmountOC: formatArray.sumTotalKey(
-                  newItems,
-                  'VATAmount'
+                invoice_type: '',
+                name: 'Hoá đơn giá trị gia tăng máy tính tiền',
+                serial: '1C25MEZ',
+                date_export: moment().format('YYYY-MM-DD'),
+                customer: {
+                  cus_name: 'PA VIETNAM 2023',
+                  cus_buyer: '',
+                  cus_tax_code: '1234567890',
+                  cus_address: 'HCM',
+                  cus_phone: '0358426532',
+                  cus_email: 'hiepphan@pavietnam.vn',
+                  cus_email_cc: 'a@pavietnam.vn, b@pavietnam.vn',
+                  cus_citizen_identity: '359862533',
+                  cus_bank_no: '123456789',
+                  cus_bank_name: 'ACB'
+                },
+                payment_type: '3', // Tiền mặt / chuyển khoản
+                discount: 0,
+                detail: newItems.map(x => ({
+                  ...x,
+                  price: formatString.formatVND(x.price, ','),
+                  detailTotal: formatString.formatVND(x.detailTotal, ','),
+                  detailVatAmount: formatString.formatVND(
+                    x.detailVatAmount,
+                    ','
+                  ),
+                  detailAmount: formatString.formatVND(x.detailAmount, ',')
+                })),
+                total: formatString.formatVND(
+                  formatArray.sumTotalKey(newItems, 'detailTotal'),
+                  ','
                 ),
-                TotalVATAmount: formatArray.sumTotalKey(newItems, 'VATAmount'),
-                TotalDiscountAmountOC: 0,
-                TotalDiscountAmount: 0,
-                TotalAmountOC: TotalOrder, // tổng tiền thanh toán
-                TotalAmount: TotalOrder, // Tổng tiền thanh toán
-                TotalAmountInWords: window.to_vietnamese(TotalOrder),
-                OriginalInvoiceDetail: newItems,
-                TaxRateInfo: TaxRateInfo
+                vat_amount: formatString.formatVND(
+                  formatArray.sumTotalKey(newItems, 'detailVatAmount'),
+                  ','
+                ),
+                amount: formatString.formatVND(
+                  formatArray.sumTotalKey(newItems, 'detailAmount'),
+                  ','
+                ),
+                amount_in_words: window.to_vietnamese(
+                  formatArray.sumTotalKey(bill.Items, 'Thanh_toanVAT')
+                ),
+                returnXml: 1,
+                autoSign: 0,
+                currency: 'VND'
               }
-              obj.RefID && dataPost.InvoiceData.push(obj)
-            }
 
-            invoiceMutation.mutate(
-              {
-                url: GlobalConfig?.Admin?.hddt?.url + '/invoice',
+              let rsValue = {
+                ID: bill.ID,
+                InvoiceID: dataPost?.id_partner,
+                NewInvoiceID: '' //x.TransactionID + ';' + x.InvNo + ';' + x.InvCode
+              }
+
+              let exportInvoice = await invoiceMutationPA.mutateAsync({
+                url: 'https://cphoadonuat.hoadon30s.vn/api/invoice/create-cash-register',
                 headers: {
                   'Content-Type': 'application/json'
                 },
@@ -299,38 +270,244 @@ function ElectronicInvoice(props) {
                 include: 'ENV',
                 body: dataPost,
                 resultType: 'json'
-              },
-              {
-                onSuccess: rs => {
-                  resolve(rs)
+              })
+
+              if (exportInvoice?.data?.result?.status === 422) {
+              } else if (
+                exportInvoice?.data?.result?.status === 400 &&
+                exportInvoice?.data?.result?.message === 'Trùng hóa đơn'
+              ) {
+              } else {
+                if (exportInvoice?.data?.result?.lookup_code) {
+                  let syncInvoice = await invoiceMutationPA.mutateAsync({
+                    url: 'https://cphoadonuat.hoadon30s.vn/api/invoice/sync-data-cash-register',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    param: {},
+                    method: 'POST',
+                    include: 'ENV',
+                    body: {
+                      id_attr: '',
+                      id_partner: exportInvoice?.data?.result?.lookup_code,
+                      type: 'HDGTGT'
+                    },
+                    resultType: 'json'
+                  })
+                  if (syncInvoice?.data?.result?.data?.lookup_code) {
+                    rsValue.NewInvoiceID =
+                      syncInvoice?.data?.result?.data?.lookup_code +
+                      ';' +
+                      syncInvoice?.data?.result?.data?.no +
+                      ';' +
+                      syncInvoice?.data?.result?.data?.id_attr
+                  }
                 }
               }
-            )
-          }).then(rs => {
-            let result = rs?.data?.result?.publishInvoiceResult
-            if (result) {
-              result = JSON.parse(result)
-              newRs = [...newRs, ...result]
-            }
+              resolve(rsValue)
+            }).then(v => {
+              newRs = [...newRs, v]
+            })
           })
-        })
-      )
-      let updatePost = {
-        arr: newRs
-          .filter(
-            x =>
-              (x?.ErrorCode && x.ErrorCode === 'DuplicateInvoiceRefID') ||
-              !x.ErrorCode
-          )
-          .map(x => ({
-            ID: Number(x.RefID.split('-')[0]),
-            InvoiceID: x.RefID,
-            NewInvoiceID: x.TransactionID + ';' + x.InvNo + ';' + x.InvCode
-          }))
-      }
-      let totalUpdate = updatePost.arr.length
-      if (updatePost.arr && updatePost.arr.length > 0) {
-        await InvoiceAPI.updateInvoiceIDs(updatePost)
+        )
+        let updatePost = {
+          arr: newRs.filter(x => x.ID && x.InvoiceID && x.NewInvoiceID)
+        }
+        totalUpdate = updatePost.arr.length
+        if (updatePost.arr && updatePost.arr.length > 0) {
+          await InvoiceAPI.updateInvoiceIDs(updatePost)
+        }
+      } else {
+        newLst = chunk(newLst, 30)
+        await Promise.all(
+          newLst.map(async list => {
+            return new Promise(async (resolve, reject) => {
+              let RefIdsPost = list.map(x => {
+                let obj = {
+                  OrderID: x.ID,
+                  Date: moment(x.CDate).format('YYYY-MM-DD')
+                }
+                return obj
+              })
+
+              let RefIds = await invoiceRefIDMutation.mutateAsync({
+                lst: RefIdsPost
+              })
+
+              let dataPost = {
+                SignType: GlobalConfig?.Admin?.hddt?.SignType || 5,
+                PublishInvoiceData: null,
+                InvoiceData: []
+              }
+
+              for (let item of list) {
+                let TotalOrder = formatArray.sumTotalKey(
+                  item.Items,
+                  'Thanh_toanVAT'
+                )
+                let newItems = item.Items.map((x, i) => {
+                  let PriceVAT = Math.round(
+                    x.Thanh_toanVAT / ((100 + x.VAT) / 100)
+                  )
+                  let PriceTotalVAT = x.Thanh_toanVAT - PriceVAT
+                  return {
+                    ItemType: 1,
+                    LineNumber: i + 1,
+                    SortOrder: i + 1,
+                    ItemCode: x.ProdCode,
+                    ItemName: getProdTitle(x.ProdTitle),
+                    UnitName: x.StockUnit || '',
+                    Quantity: x.Qty,
+                    UnitPrice: PriceVAT / x.Qty,
+                    DiscountRate: 0,
+                    DiscountAmountOC: 0,
+                    Amount: PriceVAT,
+                    AmountOC: PriceVAT,
+                    AmountWithoutVATOC: PriceVAT,
+                    AmountWithoutVAT: PriceVAT,
+                    VATRateName: x.VAT + '%',
+                    VATAmountOC: PriceTotalVAT,
+                    VATAmount: PriceTotalVAT
+                  }
+                })
+                let TotalOrderVAT = formatArray.sumTotalKey(newItems, 'Amount')
+
+                let TaxRateInfo = [
+                  {
+                    VATRateName: '10%',
+                    AmountWithoutVATOC: formatArray.sumTotalKey(
+                      newItems.filter(x => x.VATRateName === '10%'),
+                      'Amount'
+                    ),
+                    VATAmountOC: formatArray.sumTotalKey(
+                      newItems.filter(x => x.VATRateName === '10%'),
+                      'VATAmount'
+                    )
+                  },
+                  {
+                    VATRateName: '8%',
+                    AmountWithoutVATOC: formatArray.sumTotalKey(
+                      newItems.filter(x => x.VATRateName === '8%'),
+                      'Amount'
+                    ),
+                    VATAmountOC: formatArray.sumTotalKey(
+                      newItems.filter(x => x.VATRateName === '8%'),
+                      'VATAmount'
+                    )
+                  }
+                ].filter(x => x.AmountWithoutVATOC && x.VATAmountOC)
+
+                let obj = {
+                  RefID: getRefID({
+                    ID: item.ID,
+                    RefIds: RefIds?.data || [],
+                    CDate: moment(item.CDate).format('DD-MM-YYYY')
+                  }),
+                  InvSeries: GlobalConfig?.Admin?.hddt?.InvSeries,
+                  InvDate: moment().format('YYYY-MM-DD'),
+                  CurrencyCode: 'VND',
+                  ExchangeRate: 1.0,
+                  IsTaxReduction43: TaxRateInfo.some(
+                    x => x.VATRateName === '8%'
+                  ),
+                  // PaymentMethodName: [
+                  //   {
+                  //     Title: 'TM',
+                  //     Value: item.TM
+                  //   },
+                  //   {
+                  //     Title: 'CK',
+                  //     Value: item.CK
+                  //   },
+                  //   {
+                  //     Title: 'QT',
+                  //     Value: item.QT
+                  //   }
+                  // ]
+                  //   .filter(x => x.Value)
+                  //   .map(x => x.Title)
+                  //   .join('/'),
+                  PaymentMethodName: 'TM/CK',
+                  BuyerLegalName: '',
+                  BuyerTaxCode: '',
+                  BuyerAddress: '',
+                  BuyerCode: '',
+                  BuyerPhoneNumber: item.SenderPhone,
+                  BuyerEmail: '',
+                  BuyerFullName:
+                    GlobalConfig?.Admin?.hddt?.SenderName || item.SenderName,
+                  BuyerBankAccount: '',
+                  BuyerBankName: '',
+                  TotalSaleAmountOC: formatArray.sumTotalKey(
+                    newItems,
+                    'Amount'
+                  ),
+                  TotalSaleAmount: formatArray.sumTotalKey(newItems, 'Amount'),
+                  TotalAmountWithoutVATOC: TotalOrderVAT,
+                  TotalAmountWithoutVAT: TotalOrderVAT,
+                  TotalVATAmountOC: formatArray.sumTotalKey(
+                    newItems,
+                    'VATAmount'
+                  ),
+                  TotalVATAmount: formatArray.sumTotalKey(
+                    newItems,
+                    'VATAmount'
+                  ),
+                  TotalDiscountAmountOC: 0,
+                  TotalDiscountAmount: 0,
+                  TotalAmountOC: TotalOrder, // tổng tiền thanh toán
+                  TotalAmount: TotalOrder, // Tổng tiền thanh toán
+                  TotalAmountInWords: window.to_vietnamese(TotalOrder),
+                  OriginalInvoiceDetail: newItems,
+                  TaxRateInfo: TaxRateInfo
+                }
+                obj.RefID && dataPost.InvoiceData.push(obj)
+              }
+
+              invoiceMutation.mutate(
+                {
+                  url: GlobalConfig?.Admin?.hddt?.url + '/invoice',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  param: {},
+                  method: 'POST',
+                  include: 'ENV',
+                  body: dataPost,
+                  resultType: 'json'
+                },
+                {
+                  onSuccess: rs => {
+                    resolve(rs)
+                  }
+                }
+              )
+            }).then(rs => {
+              let result = rs?.data?.result?.publishInvoiceResult
+              if (result) {
+                result = JSON.parse(result)
+                newRs = [...newRs, ...result]
+              }
+            })
+          })
+        )
+        let updatePost = {
+          arr: newRs
+            .filter(
+              x =>
+                (x?.ErrorCode && x.ErrorCode === 'DuplicateInvoiceRefID') ||
+                !x.ErrorCode
+            )
+            .map(x => ({
+              ID: Number(x.RefID.split('-')[0]),
+              InvoiceID: x.RefID,
+              NewInvoiceID: x.TransactionID + ';' + x.InvNo + ';' + x.InvCode
+            }))
+        }
+        totalUpdate = updatePost.arr.length
+        if (updatePost.arr && updatePost.arr.length > 0) {
+          await InvoiceAPI.updateInvoiceIDs(updatePost)
+        }
       }
 
       await refetch()
@@ -541,7 +718,7 @@ function ElectronicInvoice(props) {
         key: 'InvCode',
         title: 'InvCode',
         dataKey: 'InvCode',
-        width: 260,
+        width: 350,
         sortable: false,
         cellRenderer: ({ rowData }) => {
           if (rowData?.InvoiceIDStatus === 'done' && rowData.InvoiceID) {
