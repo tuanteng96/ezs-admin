@@ -277,6 +277,43 @@ function ElectronicInvoice(props) {
                 exportInvoice?.data?.result?.status === 400 &&
                 exportInvoice?.data?.result?.message === 'Trùng hóa đơn'
               ) {
+                let syncInvoice = await invoiceMutationPA.mutateAsync({
+                  url: 'https://cphoadonuat.hoadon30s.vn/api/invoice/sync-data-cash-register',
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  param: {},
+                  method: 'POST',
+                  include: 'ENV',
+                  body: {
+                    id_attr: '',
+                    id_partner: dataPost?.id_partner,
+                    type: 'HDGTGT'
+                  },
+                  resultType: 'json'
+                })
+                if (syncInvoice?.data?.result?.data?.lookup_code) {
+                  let lookupInvoice = await invoiceMutationPA.mutateAsync({
+                    url: 'https://cphoadonuat.hoadon30s.vn/api/invoice/lookup',
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    param: {},
+                    method: 'POST',
+                    include: 'ENV',
+                    body: {
+                      matracuu: syncInvoice?.data?.result?.data?.lookup_code
+                    },
+                    resultType: 'json'
+                  })
+                  rsValue.NewInvoiceID =
+                    syncInvoice?.data?.result?.data?.lookup_code +
+                    ';' +
+                    (lookupInvoice?.data?.result?.data?.sohoadon ||
+                      syncInvoice?.data?.result?.data?.no) +
+                    ';' +
+                    syncInvoice?.data?.result?.data?.code_cqt
+                }
               } else {
                 if (exportInvoice?.data?.result?.lookup_code) {
                   let syncInvoice = await invoiceMutationPA.mutateAsync({
@@ -288,19 +325,34 @@ function ElectronicInvoice(props) {
                     method: 'POST',
                     include: 'ENV',
                     body: {
+                      init_invoice: 'HDGTGTMTT',
                       id_attr: '',
-                      id_partner: exportInvoice?.data?.result?.lookup_code,
-                      type: 'HDGTGT'
+                      id_partner: dataPost?.id_partner,
+                      type: 'HDGTGTMTT'
                     },
                     resultType: 'json'
                   })
                   if (syncInvoice?.data?.result?.data?.lookup_code) {
+                    let lookupInvoice = await invoiceMutationPA.mutateAsync({
+                      url: 'https://cphoadonuat.hoadon30s.vn/api/invoice/lookup',
+                      headers: {
+                        'Content-Type': 'application/json'
+                      },
+                      param: {},
+                      method: 'POST',
+                      include: 'ENV',
+                      body: {
+                        matracuu: syncInvoice?.data?.result?.data?.lookup_code
+                      },
+                      resultType: 'json'
+                    })
                     rsValue.NewInvoiceID =
                       syncInvoice?.data?.result?.data?.lookup_code +
                       ';' +
-                      syncInvoice?.data?.result?.data?.no +
+                      (lookupInvoice?.data?.result?.data?.sohoadon ||
+                        syncInvoice?.data?.result?.data?.no) +
                       ';' +
-                      syncInvoice?.data?.result?.data?.id_attr
+                      syncInvoice?.data?.result?.data?.code_cqt
                   }
                 }
               }
@@ -574,7 +626,7 @@ function ElectronicInvoice(props) {
           <div className="spinner spinner-primary w-40px"></div> Đang tải ...
         </div>
       )
-    const indexList = [0, 1, 2, 3, 4, 5, 6, 7]
+    const indexList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     for (let index of indexList) {
       const rowSpan = columns[index].rowSpan({ rowData, rowIndex })
       if (rowSpan > 1) {

@@ -59,7 +59,7 @@ class HttpInvoicePA {
                 client_id: '271376a2-26b1-4812-b04a-b6da4493c4f2',
                 client_secret: 'f44f02c4fb9ce7c9db8579fd7edd94f694ce05ce',
                 grant_type: 'client_credentials',
-                scope: 'create-invoice'
+                scope: 'create-invoice invoice-lookup'
               },
               resultType: 'json'
             },
