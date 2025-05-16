@@ -1,20 +1,31 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Fragment } from 'react'
 import { m } from 'framer-motion'
 import { XMarkIcon } from '@heroicons/react/24/outline'
-import { Controller, useForm } from 'react-hook-form'
+import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { Button } from 'src/_ezs/partials/button'
 import { FloatingPortal } from '@floating-ui/react'
 import clsx from 'clsx'
 import { Input } from 'src/_ezs/partials/forms'
-import { useRoles } from 'src/_ezs/hooks/useRoles'
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
 import InvoiceAPI from 'src/_ezs/api/invoice.api'
 import ConfigAPI from 'src/_ezs/api/config'
+import { useLayout } from 'src/_ezs/layout/LayoutProvider'
+import { Switch } from '@headlessui/react'
+import { toast } from 'react-toastify'
 
 function PickerSettings({ children, initialValues, onChange }) {
+  const queryClient = useQueryClient()
+
   const [visible, setVisible] = useState(false)
 
-  const { usrmng } = useRoles(['usrmng'])
+  let { InvoiceConfig } = useLayout()
+
+  useEffect(() => {
+    reset({
+      InvoiceTypes: InvoiceConfig.InvoiceTypes
+    })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [InvoiceConfig, visible])
 
   const { control, handleSubmit, reset, watch } = useForm({
     defaultValues: {
@@ -27,11 +38,12 @@ function PickerSettings({ children, initialValues, onChange }) {
           TestUrl: 'https://testapi.meinvoice.vn/api/integration',
           SignType: 5,
           InvSeries: '1C25MCB',
-          Active: true,
-          INVOICE_APPID_HDMISA: '0a609eb1-c12d-4e2e-aa5d-ba4e884c8ee1',
-          INVOICE_TAXCODE_HDMISA: '0101243150-286',
-          INVOICE_USERNAME_HDMISA: 'testmisa@yahoo.com',
-          INVOICE_PASSWORD_HDMISA: '123456Aa'
+          isActive: true,
+          isDemo: false,
+          INVOICE_APPID_HDMISA: '',
+          INVOICE_TAXCODE_HDMISA: '',
+          INVOICE_USERNAME_HDMISA: '',
+          INVOICE_PASSWORD_HDMISA: ''
         },
         {
           ID: 2,
@@ -39,14 +51,20 @@ function PickerSettings({ children, initialValues, onChange }) {
           Title: 'Hóa đơn PA Việt Nam',
           BaseUrl: 'https://cpanel.hoadon30s.vn',
           TestUrl: 'https://cphoadonuat.hoadon30s.vn',
-          Active: false,
+          isActive: false,
+          isDemo: false,
           SignType: 0,
           InvSeries: '1C25MEZ',
-          INVOICE_APPID_HDPAVN: '271376a2-26b1-4812-b04a-b6da4493c4f2',
-          INVOICE_SECRET_HDPAVN: 'f44f02c4fb9ce7c9db8579fd7edd94f694ce05ce'
+          INVOICE_APPID_HDPAVN: '',
+          INVOICE_SECRET_HDPAVN: ''
         }
       ]
     }
+  })
+
+  const { fields } = useFieldArray({
+    control, // control props comes from useForm (optional: if you are using FormProvider)
+    name: 'InvoiceTypes' // unique name for your Field Array
   })
 
   const onHide = () => {
@@ -57,8 +75,52 @@ function PickerSettings({ children, initialValues, onChange }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible])
 
+  const updateMutation = useMutation({
+    mutationFn: async body => {
+      let rs1 = await ConfigAPI.saveName({
+        name: 'hoadonconfig',
+        body: JSON.stringify(body.Configs)
+      })
+      let rs2 = await InvoiceAPI.saveENV(body.ENV)
+      await queryClient.invalidateQueries({ queryKey: ['InvoiceConfigENV'] })
+      return {
+        Config: rs1,
+        ENV: rs2
+      }
+    }
+  })
+
   const onSubmit = values => {
-    console.log(values)
+    let newInvoiceTypes = [...values.InvoiceTypes]
+    let newENV = {
+      ...InvoiceConfig.ENV
+    }
+
+    newInvoiceTypes = newInvoiceTypes.map(x => {
+      let obj = { ...x }
+      for (const property in obj) {
+        if (property.includes('INVOICE_')) {
+          newENV[property] = obj[property]
+          delete obj[property]
+        }
+      }
+      return obj
+    })
+
+    updateMutation.mutate(
+      {
+        ENV: {
+          ENV: newENV
+        },
+        Configs: newInvoiceTypes
+      },
+      {
+        onSuccess: data => {
+          toast.success('Cập nhập thành công.')
+          onHide()
+        }
+      }
+    )
   }
 
   const handleSubmitWithoutPropagation = e => {
@@ -66,6 +128,33 @@ function PickerSettings({ children, initialValues, onChange }) {
     e.stopPropagation()
     handleSubmit(onSubmit)(e)
   }
+
+  const transferKey = text => {
+    if (text.includes('INVOICE_SECRET')) {
+      return 'Client Secret'
+    } else if (text.includes('INVOICE_USERNAME')) {
+      return 'Tài khoản'
+    } else if (text.includes('INVOICE_PASSWORD')) {
+      return 'Mật khẩu'
+    } else if (text === 'INVOICE_APPID_HDMISA') {
+      return 'APP ID'
+    } else if (text === 'INVOICE_TAXCODE_HDMISA') {
+      return 'Taxcode'
+    } else if (text.includes('INVOICE_APPID_HDPAVN')) {
+      return 'Client ID'
+    } else if (text === 'InvSeries') {
+      return 'Ký hiệu'
+    } else if (text === 'isActive') {
+      return 'Hoạt động'
+    } else if (text === 'isDemo') {
+      return 'Môi trường thử nghiệm'
+    } else if (text === 'SignType') {
+      return 'Loại xuất hóa đơn'
+    }
+    return text
+  }
+
+  let { InvoiceTypes } = watch()
 
   return (
     <>
@@ -107,23 +196,135 @@ function PickerSettings({ children, initialValues, onChange }) {
                     <XMarkIcon className="w-8" />
                   </div>
                 </div>
-                <div className="p-5 overflow-auto grow">
-                  {/* <div className="mb-4 last:mb-0">
-                    <div className="font-semibold">Tên nhân viên</div>
-                    <div className="mt-1">
-                      <Controller
-                        name="Key"
-                        control={control}
-                        render={({ field: { ref, ...field }, fieldState }) => (
-                          <Input
-                            placeholder="Nhập tên nhân viên"
-                            value={field.value}
-                            {...field}
-                          />
-                        )}
-                      />
+                <div className="overflow-auto grow p-5">
+                  {fields.map((field, index) => (
+                    <div
+                      className="border border-separator rounded mb-4 last:mb-0 overflow-hidden"
+                      key={field.id}
+                    >
+                      <div className="bg-gray-200 flex justify-between px-5 py-3 items-center">
+                        <div className="font-semibold uppercase">
+                          {field.Title}
+                        </div>
+                        <div>
+                          <Switch
+                            checked={field.isActive}
+                            onChange={val => {
+                              reset({
+                                InvoiceTypes: InvoiceTypes.map(x => ({
+                                  ...x,
+                                  isActive: x.Code === field.Code ? val : false
+                                }))
+                              })
+                            }}
+                            as={Fragment}
+                          >
+                            {({ checked }) => (
+                              <button
+                                className={clsx(
+                                  'relative inline-flex h-6 w-11 items-center rounded-full transition shadow-lg',
+                                  checked ? 'bg-primary' : 'bg-gray-300'
+                                )}
+                              >
+                                <span className="sr-only">
+                                  Enable notifications
+                                </span>
+                                <span
+                                  className={clsx(
+                                    'inline-block h-4 w-4 transform rounded-full bg-white transition',
+                                    checked ? 'translate-x-6' : 'translate-x-1'
+                                  )}
+                                />
+                              </button>
+                            )}
+                          </Switch>
+                        </div>
+                      </div>
+                      {field.isActive && (
+                        <div className="p-5">
+                          {[
+                            ...[...Object.keys(field)].filter(
+                              keyName =>
+                                keyName !== 'isActive' &&
+                                keyName !== 'isDemo' &&
+                                keyName !== 'Title' &&
+                                keyName !== 'id' &&
+                                keyName !== 'ID' &&
+                                keyName !== 'Code' &&
+                                keyName !== 'BaseUrl' &&
+                                keyName !== 'TestUrl' &&
+                                keyName !== 'isActive'
+                            ),
+                            'isDemo'
+                          ].map((keyName, i) => (
+                            <div className="mb-4 last:mb-0" key={i}>
+                              {keyName !== 'isActive' &&
+                                keyName !== 'isDemo' && (
+                                  <div className="mb-1 text-[14px]">
+                                    {transferKey(keyName)}
+                                  </div>
+                                )}
+
+                              <div>
+                                <Controller
+                                  name={`InvoiceTypes[${index}][${keyName}]`}
+                                  control={control}
+                                  render={({
+                                    field: { ref, ...field },
+                                    fieldState
+                                  }) => (
+                                    <>
+                                      {typeof field.value == 'boolean' ? (
+                                        <div className="flex items-center">
+                                          <Switch
+                                            checked={field.value}
+                                            onChange={field.onChange}
+                                            as={Fragment}
+                                          >
+                                            {({ checked }) => (
+                                              <button
+                                                className={clsx(
+                                                  'relative inline-flex h-6 w-11 items-center rounded-full transition shadow-lg',
+                                                  checked
+                                                    ? 'bg-primary'
+                                                    : 'bg-gray-300'
+                                                )}
+                                              >
+                                                <span className="sr-only">
+                                                  Enable notifications
+                                                </span>
+                                                <span
+                                                  className={clsx(
+                                                    'inline-block h-4 w-4 transform rounded-full bg-white transition',
+                                                    checked
+                                                      ? 'translate-x-6'
+                                                      : 'translate-x-1'
+                                                  )}
+                                                />
+                                              </button>
+                                            )}
+                                          </Switch>
+                                          <div className="ml-3 text-[14px]">
+                                            {transferKey(keyName)}
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <Input
+                                          placeholder="Nhập giá trị"
+                                          value={field.value}
+                                          {...field}
+                                        />
+                                      )}
+                                    </>
+                                  )}
+                                />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                  </div> */}
+                  ))}
                 </div>
                 <div className="flex justify-between p-5 border-t border-separator dark:border-dark-separator">
                   <div className="flex justify-end w-full">
@@ -135,6 +336,8 @@ function PickerSettings({ children, initialValues, onChange }) {
                       Hủy
                     </Button>
                     <Button
+                      loading={updateMutation.isLoading}
+                      disabled={updateMutation.isLoading}
                       type="submit"
                       className="relative flex items-center px-4 ml-2 font-semibold text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-11 focus:outline-none focus:shadow-none disabled:opacity-70"
                     >

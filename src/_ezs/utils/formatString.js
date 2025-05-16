@@ -90,5 +90,10 @@ export const formatString = {
     //Ngoặc nhọn {}
     if (!str) return []
     return Array.from(str.matchAll(/{+([^}]+)}+/g), x => x[1])
+  },
+  getValueENV: (Dev, Production) => {
+    if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development')
+      return Dev
+    return Production
   }
 }

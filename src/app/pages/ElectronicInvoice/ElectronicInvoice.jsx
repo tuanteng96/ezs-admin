@@ -52,8 +52,8 @@ const formatRowRenderer = arr => {
 
 function ElectronicInvoice(props) {
   const { CrStocks } = useAuth()
-  const { GlobalConfig } = useLayout()
-
+  const { GlobalConfig, InvoiceConfig } = useLayout()
+  
   const [filters, setFilters] = useState({
     StockID: [CrStocks],
     From: new Date(), //'2025-01-17'
@@ -158,7 +158,7 @@ function ElectronicInvoice(props) {
       let newRs = []
       let totalUpdate = 0
 
-      if (1 === 1) {
+      if (InvoiceConfig?.InvoiceActive?.Code === 'HDPAVN') {
         await Promise.all(
           newLst.map(bill => {
             return new Promise(async (resolve, reject) => {
@@ -210,7 +210,7 @@ function ElectronicInvoice(props) {
                 }),
                 invoice_type: '',
                 name: 'Hoá đơn giá trị gia tăng máy tính tiền',
-                serial: '1C25MEZ',
+                serial: InvoiceConfig?.InvoiceActive?.InvSeries,
                 date_export: moment().format('YYYY-MM-DD'),
                 customer: {
                   cus_name: 'PA VIETNAM 2023',
@@ -252,7 +252,7 @@ function ElectronicInvoice(props) {
                   formatArray.sumTotalKey(bill.Items, 'Thanh_toanVAT')
                 ),
                 returnXml: 1,
-                autoSign: 0,
+                autoSign: InvoiceConfig?.InvoiceActive?.SignType,
                 currency: 'VND'
               }
 
@@ -263,7 +263,11 @@ function ElectronicInvoice(props) {
               }
 
               let exportInvoice = await invoiceMutationPA.mutateAsync({
-                url: 'https://cphoadonuat.hoadon30s.vn/api/invoice/create-cash-register',
+                url:
+                  formatString.getValueENV(
+                    InvoiceConfig?.InvoiceActive?.TestUrl,
+                    InvoiceConfig?.InvoiceActive?.BaseUrl
+                  ) + '/api/invoice/create-cash-register',
                 headers: {
                   'Content-Type': 'application/json'
                 },
@@ -280,7 +284,11 @@ function ElectronicInvoice(props) {
                 exportInvoice?.data?.result?.message === 'Trùng hóa đơn'
               ) {
                 let syncInvoice = await invoiceMutationPA.mutateAsync({
-                  url: 'https://cphoadonuat.hoadon30s.vn/api/invoice/sync-data-cash-register',
+                  url:
+                    formatString.getValueENV(
+                      InvoiceConfig?.InvoiceActive?.TestUrl,
+                      InvoiceConfig?.InvoiceActive?.BaseUrl
+                    ) + '/api/invoice/sync-data-cash-register',
                   headers: {
                     'Content-Type': 'application/json'
                   },
@@ -296,7 +304,11 @@ function ElectronicInvoice(props) {
                 })
                 if (syncInvoice?.data?.result?.data?.lookup_code) {
                   let lookupInvoice = await invoiceMutationPA.mutateAsync({
-                    url: 'https://cphoadonuat.hoadon30s.vn/api/invoice/lookup',
+                    url:
+                      formatString.getValueENV(
+                        InvoiceConfig?.InvoiceActive?.TestUrl,
+                        InvoiceConfig?.InvoiceActive?.BaseUrl
+                      ) + '/api/invoice/lookup',
                     headers: {
                       'Content-Type': 'application/json'
                     },
@@ -319,7 +331,11 @@ function ElectronicInvoice(props) {
               } else {
                 if (exportInvoice?.data?.result?.lookup_code) {
                   let syncInvoice = await invoiceMutationPA.mutateAsync({
-                    url: 'https://cphoadonuat.hoadon30s.vn/api/invoice/sync-data-cash-register',
+                    url:
+                      formatString.getValueENV(
+                        InvoiceConfig?.InvoiceActive?.TestUrl,
+                        InvoiceConfig?.InvoiceActive?.BaseUrl
+                      ) + '/api/invoice/sync-data-cash-register',
                     headers: {
                       'Content-Type': 'application/json'
                     },
@@ -336,7 +352,11 @@ function ElectronicInvoice(props) {
                   })
                   if (syncInvoice?.data?.result?.data?.lookup_code) {
                     let lookupInvoice = await invoiceMutationPA.mutateAsync({
-                      url: 'https://cphoadonuat.hoadon30s.vn/api/invoice/lookup',
+                      url:
+                        formatString.getValueENV(
+                          InvoiceConfig?.InvoiceActive?.TestUrl,
+                          InvoiceConfig?.InvoiceActive?.BaseUrl
+                        ) + '/api/invoice/lookup',
                       headers: {
                         'Content-Type': 'application/json'
                       },
@@ -371,7 +391,7 @@ function ElectronicInvoice(props) {
         if (updatePost.arr && updatePost.arr.length > 0) {
           await InvoiceAPI.updateInvoiceIDs(updatePost)
         }
-      } else {
+      } else if (InvoiceConfig?.InvoiceActive?.Code === 'HDMISA') {
         newLst = chunk(newLst, 30)
         await Promise.all(
           newLst.map(async list => {
@@ -389,7 +409,7 @@ function ElectronicInvoice(props) {
               })
 
               let dataPost = {
-                SignType: GlobalConfig?.Admin?.hddt?.SignType || 5,
+                SignType: InvoiceConfig?.InvoiceActive?.SignType || 5,
                 PublishInvoiceData: null,
                 InvoiceData: []
               }
@@ -457,7 +477,7 @@ function ElectronicInvoice(props) {
                     RefIds: RefIds?.data || [],
                     CDate: moment(item.CDate).format('DD-MM-YYYY')
                   }),
-                  InvSeries: GlobalConfig?.Admin?.hddt?.InvSeries,
+                  InvSeries: InvoiceConfig?.InvoiceActive?.InvSeries,
                   InvDate: moment().format('YYYY-MM-DD'),
                   CurrencyCode: 'VND',
                   ExchangeRate: 1.0,
@@ -520,7 +540,11 @@ function ElectronicInvoice(props) {
 
               invoiceMutation.mutate(
                 {
-                  url: GlobalConfig?.Admin?.hddt?.url + '/invoice',
+                  url:
+                    formatString.getValueENV(
+                      InvoiceConfig?.InvoiceActive?.TestUrl,
+                      InvoiceConfig?.InvoiceActive?.BaseUrl
+                    ) + '/invoice',
                   headers: {
                     'Content-Type': 'application/json'
                   },
@@ -573,6 +597,10 @@ function ElectronicInvoice(props) {
   })
 
   const onPreviewInvoice = InvoiceID => {
+    if (!InvoiceConfig?.InvoiceActive) {
+      toast.error('Vui lòng cài đặt đơn vị xuất hóa đơn điện tử.')
+      return
+    }
     if (window.toastId) return
     window.toastId = toast.loading(`Đang tải hoá đơn ${InvoiceID} ...`, {
       icon: (
@@ -596,10 +624,14 @@ function ElectronicInvoice(props) {
         </div>
       )
     })
-    if (1 === 1) {
+    if (InvoiceConfig?.InvoiceActive?.Code === 'HDPAVN') {
       invoiceMutationPA.mutate(
         {
-          url: 'https://cphoadonuat.hoadon30s.vn/api/invoice/lookup',
+          url:
+            formatString.getValueENV(
+              InvoiceConfig?.InvoiceActive?.TestUrl,
+              InvoiceConfig?.InvoiceActive?.BaseUrl
+            ) + '/api/invoice/lookup',
           headers: {
             'Content-Type': 'application/json'
           },
@@ -618,21 +650,30 @@ function ElectronicInvoice(props) {
             if (rs?.data?.result?.hash) {
               window
                 .open(
-                  rs?.data?.result?.hash.replaceAll(
-                    'https://cpanel.hoadon30s.vn/',
-                    'https://cphoadonuat.hoadon30s.vn/'
-                  ) + '/view',
+                  formatString.getValueENV(
+                    rs?.data?.result?.hash.replaceAll(
+                      'https://cpanel.hoadon30s.vn/',
+                      'https://cphoadonuat.hoadon30s.vn/'
+                    ) + '/view',
+                    rs?.data?.result?.hash + '/view'
+                  ),
                   '_blank'
                 )
                 .focus()
+            } else {
+              toast.error('Không thể view hóa đơn.')
             }
           }
         }
       )
-    } else {
+    } else if (InvoiceConfig?.InvoiceActive?.Code === 'HDMISA') {
       invoiceMutation.mutate(
         {
-          url: GlobalConfig?.Admin?.hddt?.url + '/invoice/publishview',
+          url:
+            formatString.getValueENV(
+              InvoiceConfig?.InvoiceActive?.TestUrl,
+              InvoiceConfig?.InvoiceActive?.BaseUrl
+            ) + '/invoice/publishview',
           headers: {
             'Content-Type': 'application/json'
           },
@@ -648,6 +689,8 @@ function ElectronicInvoice(props) {
             window.toastId = null
             if (rs?.data?.result?.data) {
               window.open(rs?.data?.result?.data, '_blank').focus()
+            } else {
+              toast.error('Không thể view hóa đơn.')
             }
           }
         }
@@ -1055,22 +1098,24 @@ function ElectronicInvoice(props) {
               selected={filters.From ? new Date(filters.From) : null}
               dateFormat="dd/MM/yyyy"
             />
+            {InvoiceConfig?.InvoiceActive && (
+              <Button
+                type="button"
+                className="relative flex items-center h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                onClick={async () => {
+                  onElectronicInvoices()
+                }}
+                loading={updateInvoiceMutation.isLoading}
+                disabled={updateInvoiceMutation.isLoading}
+              >
+                {selected && selected.length > 0 ? (
+                  <span>Xuất {selected.length} hoá đơn</span>
+                ) : (
+                  'Xuất tất cả hoá đơn'
+                )}
+              </Button>
+            )}
 
-            <Button
-              type="button"
-              className="relative flex items-center h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
-              onClick={async () => {
-                onElectronicInvoices()
-              }}
-              loading={updateInvoiceMutation.isLoading}
-              disabled={updateInvoiceMutation.isLoading}
-            >
-              {selected && selected.length > 0 ? (
-                <span>Xuất {selected.length} hoá đơn</span>
-              ) : (
-                'Xuất tất cả hoá đơn'
-              )}
-            </Button>
             <PickerSettings>
               {({ open }) => (
                 <Button
