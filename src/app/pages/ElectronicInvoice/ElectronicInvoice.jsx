@@ -1,3 +1,4 @@
+import { Cog6ToothIcon } from '@heroicons/react/24/outline'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { chunk, uniqueId } from 'lodash-es'
 import moment from 'moment'
@@ -15,6 +16,7 @@ import { ReactBaseTable } from 'src/_ezs/partials/table'
 import ExcelHepers from 'src/_ezs/utils/ExcelHepers'
 import { formatArray } from 'src/_ezs/utils/formatArray'
 import { formatString } from 'src/_ezs/utils/formatString'
+import { PickerSettings } from './components'
 
 window.toastId = null
 
@@ -594,29 +596,63 @@ function ElectronicInvoice(props) {
         </div>
       )
     })
-
-    invoiceMutation.mutate(
-      {
-        url: GlobalConfig?.Admin?.hddt?.url + '/invoice/publishview',
-        headers: {
-          'Content-Type': 'application/json'
+    if (1 === 1) {
+      invoiceMutationPA.mutate(
+        {
+          url: 'https://cphoadonuat.hoadon30s.vn/api/invoice/lookup',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          param: {},
+          method: 'POST',
+          include: 'ENV',
+          body: {
+            matracuu: InvoiceID
+          },
+          resultType: 'json'
         },
-        param: {},
-        method: 'POST',
-        include: 'ENV',
-        body: [InvoiceID],
-        resultType: 'json'
-      },
-      {
-        onSuccess: rs => {
-          toast.dismiss()
-          window.toastId = null
-          if (rs?.data?.result?.data) {
-            window.open(rs?.data?.result?.data, '_blank').focus()
+        {
+          onSuccess: rs => {
+            toast.dismiss()
+            window.toastId = null
+            if (rs?.data?.result?.hash) {
+              window
+                .open(
+                  rs?.data?.result?.hash.replaceAll(
+                    'https://cpanel.hoadon30s.vn/',
+                    'https://cphoadonuat.hoadon30s.vn/'
+                  ) + '/view',
+                  '_blank'
+                )
+                .focus()
+            }
           }
         }
-      }
-    )
+      )
+    } else {
+      invoiceMutation.mutate(
+        {
+          url: GlobalConfig?.Admin?.hddt?.url + '/invoice/publishview',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          param: {},
+          method: 'POST',
+          include: 'ENV',
+          body: [InvoiceID],
+          resultType: 'json'
+        },
+        {
+          onSuccess: rs => {
+            toast.dismiss()
+            window.toastId = null
+            if (rs?.data?.result?.data) {
+              window.open(rs?.data?.result?.data, '_blank').focus()
+            }
+          }
+        }
+      )
+    }
   }
 
   const rowRenderer = ({ rowData, rowIndex, cells, columns, isScrolling }) => {
@@ -985,7 +1021,7 @@ function ElectronicInvoice(props) {
             </div>
             <div className="mt-1.5">Quản lý hoá đơn điện tử</div>
           </div>
-          <div className="flex gap-4 pb-1">
+          <div className="flex gap-2.5 pb-1">
             <SelectStocks
               StockRoles={thu_chi?.StockRoles}
               value={filters.StockID}
@@ -1035,6 +1071,17 @@ function ElectronicInvoice(props) {
                 'Xuất tất cả hoá đơn'
               )}
             </Button>
+            <PickerSettings>
+              {({ open }) => (
+                <Button
+                  type="button"
+                  className="relative flex items-center h-12 px-3 text-[#3F4254] transition rounded shadow-lg bg-[#E4E6EF] hover:bg-[#d7dae7] focus:outline-none focus:shadow-none disabled:opacity-70"
+                  onClick={open}
+                >
+                  <Cog6ToothIcon className="w-6" />
+                </Button>
+              )}
+            </PickerSettings>
           </div>
         </div>
 
