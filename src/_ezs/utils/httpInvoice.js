@@ -60,10 +60,10 @@ class HttpInvoice {
               method: 'POST',
               include: 'ENV',
               body: {
-                appid: '{INVOICE_APPID}',
-                taxcode: '{INVOICE_TAXCODE}',
-                username: '{INVOICE_USERNAME}',
-                password: '{INVOICE_PASSWORD}'
+                appid: '{INVOICE_APPID_HDMISA}',
+                taxcode: '{INVOICE_TAXCODE_HDMISA}',
+                username: '{INVOICE_USERNAME_HDMISA}',
+                password: '{INVOICE_PASSWORD_HDMISA}'
               },
               resultType: 'json'
             },

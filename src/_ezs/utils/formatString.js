@@ -91,9 +91,8 @@ export const formatString = {
     if (!str) return []
     return Array.from(str.matchAll(/{+([^}]+)}+/g), x => x[1])
   },
-  getValueENV: (Dev, Production) => {
-    if (!process.env.NODE_ENV || process.env.NODE_ENV === 'development')
-      return Dev
+  getValueENV: (Dev, Production, isDemo) => {
+    if (isDemo) return Dev
     return Production
   }
 }

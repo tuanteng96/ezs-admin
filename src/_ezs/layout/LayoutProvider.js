@@ -92,17 +92,62 @@ const LayoutProvider = ({ children }) => {
       if (data?.ENV) {
         newInvoiceTypes = newInvoiceTypes.map(config => {
           let obj = { ...config }
+
           for (const property in data?.ENV) {
             if (property.includes(config.Code)) {
               obj[property] = data?.ENV[property]
+            }
+            if (config.Code === 'HDMISA') {
+              if (property === 'INVOICE_APPID') {
+                config['INVOICE_APPID_HDMISA'] = data?.ENV['INVOICE_APPID']
+              }
+              if (property === 'INVOICE_TAXCODE') {
+                config['INVOICE_TAXCODE_HDMISA'] = data?.ENV['INVOICE_TAXCODE']
+              }
+              if (property === 'INVOICE_USERNAME') {
+                config['INVOICE_USERNAME_HDMISA'] =
+                  data?.ENV['INVOICE_USERNAME']
+              }
+              if (property === 'INVOICE_PASSWORD') {
+                config['INVOICE_PASSWORD_HDMISA'] =
+                  data?.ENV['INVOICE_PASSWORD']
+              }
             }
           }
           return obj
         })
       }
+
       let InvoiceActiveIndex = newInvoiceTypes.findIndex(x => x.isActive)
+
+      let newENV = { ...data?.ENV }
+
+      if (newENV.INVOICE_APPID) {
+        delete newENV.INVOICE_APPID
+      }
+      if (newENV.INVOICE_TAXCODE) {
+        delete newENV.INVOICE_TAXCODE
+      }
+      if (newENV.INVOICE_USERNAME) {
+        delete newENV.INVOICE_USERNAME
+      }
+      if (newENV.INVOICE_PASSWORD) {
+        delete newENV.INVOICE_PASSWORD
+      }
+
+      if (
+        data?.ENV?.INVOICE_TAXCODE &&
+        data?.ENV?.INVOICE_USERNAME &&
+        data?.ENV?.INVOICE_PASSWORD &&
+        data?.ENV?.INVOICE_APPID
+      ) {
+        await InvoiceAPI.saveENV({
+          ENV: newENV
+        })
+      }
+
       return {
-        ENV: data?.ENV,
+        ENV: newENV,
         InvoiceTypes: newInvoiceTypes,
         InvoiceActive:
           InvoiceActiveIndex > -1 ? newInvoiceTypes[InvoiceActiveIndex] : null
@@ -111,11 +156,10 @@ const LayoutProvider = ({ children }) => {
     onSuccess: data => {
       setInvoiceConfig(data)
 
-      if (data) {
-        window.ApiInvoice =
-          !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
-            ? data?.InvoiceActive?.TestUrl
-            : data?.InvoiceActive?.BaseUrlUrl
+      if (data?.InvoiceActive) {
+        window.ApiInvoice = data?.InvoiceActive?.isDemo
+          ? data?.InvoiceActive?.TestUrl
+          : data?.InvoiceActive?.BaseUrlUrl
       }
     }
   })

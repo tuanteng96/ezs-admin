@@ -53,7 +53,7 @@ const formatRowRenderer = arr => {
 function ElectronicInvoice(props) {
   const { CrStocks } = useAuth()
   const { GlobalConfig, InvoiceConfig } = useLayout()
-  
+
   const [filters, setFilters] = useState({
     StockID: [CrStocks],
     From: new Date(), //'2025-01-17'
@@ -64,7 +64,11 @@ function ElectronicInvoice(props) {
     Ps: 15
   })
 
-  const { thu_chi } = useRoles(['thu_chi'])
+  const { thu_chi, tong_hop, adminTools_byStock } = useRoles([
+    'thu_chi',
+    'tong_hop',
+    'adminTools_byStock'
+  ])
 
   const [selected, setSelected] = useState([])
 
@@ -124,7 +128,7 @@ function ElectronicInvoice(props) {
         RefIds[index].InvoiceIDs[0].InvoiceID)
     )
   }
-
+  
   const updateInvoiceMutation = useMutation({
     mutationFn: async body => {
       let selecteds = []
@@ -179,7 +183,7 @@ function ElectronicInvoice(props) {
 
                 let PriceTotalVAT = x.Thanh_toanVAT - PriceVAT
 
-                let detailVatRate = [5, 10].includes(x.VAT) ? x.VAT : -3
+                let detailVatRate = [5, 8, 10].includes(x.VAT) ? x.VAT : -3
 
                 return {
                   feature: 1,
@@ -213,16 +217,17 @@ function ElectronicInvoice(props) {
                 serial: InvoiceConfig?.InvoiceActive?.InvSeries,
                 date_export: moment().format('YYYY-MM-DD'),
                 customer: {
-                  cus_name: 'PA VIETNAM 2023',
-                  cus_buyer: '',
-                  cus_tax_code: '1234567890',
-                  cus_address: 'HCM',
-                  cus_phone: '0358426532',
-                  cus_email: 'hiepphan@pavietnam.vn',
-                  cus_email_cc: 'a@pavietnam.vn, b@pavietnam.vn',
-                  cus_citizen_identity: '359862533',
-                  cus_bank_no: '123456789',
-                  cus_bank_name: 'ACB'
+                  cus_name: '',
+                  cus_buyer:
+                    GlobalConfig?.Admin?.hddt?.SenderName || bill.SenderName,
+                  cus_tax_code: '',
+                  cus_address: '',
+                  cus_phone: bill.SenderPhone,
+                  cus_email: '',
+                  cus_email_cc: '',
+                  cus_citizen_identity: '',
+                  cus_bank_no: '',
+                  cus_bank_name: ''
                 },
                 payment_type: '3', // Tiền mặt / chuyển khoản
                 discount: 0,
@@ -266,7 +271,8 @@ function ElectronicInvoice(props) {
                 url:
                   formatString.getValueENV(
                     InvoiceConfig?.InvoiceActive?.TestUrl,
-                    InvoiceConfig?.InvoiceActive?.BaseUrl
+                    InvoiceConfig?.InvoiceActive?.BaseUrl,
+                    InvoiceConfig?.InvoiceActive?.isDemo
                   ) + '/api/invoice/create-cash-register',
                 headers: {
                   'Content-Type': 'application/json'
@@ -287,7 +293,8 @@ function ElectronicInvoice(props) {
                   url:
                     formatString.getValueENV(
                       InvoiceConfig?.InvoiceActive?.TestUrl,
-                      InvoiceConfig?.InvoiceActive?.BaseUrl
+                      InvoiceConfig?.InvoiceActive?.BaseUrl,
+                      InvoiceConfig?.InvoiceActive?.isDemo
                     ) + '/api/invoice/sync-data-cash-register',
                   headers: {
                     'Content-Type': 'application/json'
@@ -307,7 +314,8 @@ function ElectronicInvoice(props) {
                     url:
                       formatString.getValueENV(
                         InvoiceConfig?.InvoiceActive?.TestUrl,
-                        InvoiceConfig?.InvoiceActive?.BaseUrl
+                        InvoiceConfig?.InvoiceActive?.BaseUrl,
+                        InvoiceConfig?.InvoiceActive?.isDemo
                       ) + '/api/invoice/lookup',
                     headers: {
                       'Content-Type': 'application/json'
@@ -334,7 +342,8 @@ function ElectronicInvoice(props) {
                     url:
                       formatString.getValueENV(
                         InvoiceConfig?.InvoiceActive?.TestUrl,
-                        InvoiceConfig?.InvoiceActive?.BaseUrl
+                        InvoiceConfig?.InvoiceActive?.BaseUrl,
+                        InvoiceConfig?.InvoiceActive?.isDemo
                       ) + '/api/invoice/sync-data-cash-register',
                     headers: {
                       'Content-Type': 'application/json'
@@ -355,7 +364,8 @@ function ElectronicInvoice(props) {
                       url:
                         formatString.getValueENV(
                           InvoiceConfig?.InvoiceActive?.TestUrl,
-                          InvoiceConfig?.InvoiceActive?.BaseUrl
+                          InvoiceConfig?.InvoiceActive?.BaseUrl,
+                          InvoiceConfig?.InvoiceActive?.isDemo
                         ) + '/api/invoice/lookup',
                       headers: {
                         'Content-Type': 'application/json'
@@ -543,7 +553,8 @@ function ElectronicInvoice(props) {
                   url:
                     formatString.getValueENV(
                       InvoiceConfig?.InvoiceActive?.TestUrl,
-                      InvoiceConfig?.InvoiceActive?.BaseUrl
+                      InvoiceConfig?.InvoiceActive?.BaseUrl,
+                      InvoiceConfig?.InvoiceActive?.isDemo
                     ) + '/invoice',
                   headers: {
                     'Content-Type': 'application/json'
@@ -630,7 +641,8 @@ function ElectronicInvoice(props) {
           url:
             formatString.getValueENV(
               InvoiceConfig?.InvoiceActive?.TestUrl,
-              InvoiceConfig?.InvoiceActive?.BaseUrl
+              InvoiceConfig?.InvoiceActive?.BaseUrl,
+              InvoiceConfig?.InvoiceActive?.isDemo
             ) + '/api/invoice/lookup',
           headers: {
             'Content-Type': 'application/json'
@@ -655,7 +667,8 @@ function ElectronicInvoice(props) {
                       'https://cpanel.hoadon30s.vn/',
                       'https://cphoadonuat.hoadon30s.vn/'
                     ) + '/view',
-                    rs?.data?.result?.hash + '/view'
+                    rs?.data?.result?.hash + '/view',
+                    InvoiceConfig?.InvoiceActive?.isDemo
                   ),
                   '_blank'
                 )
@@ -672,7 +685,8 @@ function ElectronicInvoice(props) {
           url:
             formatString.getValueENV(
               InvoiceConfig?.InvoiceActive?.TestUrl,
-              InvoiceConfig?.InvoiceActive?.BaseUrl
+              InvoiceConfig?.InvoiceActive?.BaseUrl,
+              InvoiceConfig?.InvoiceActive?.isDemo
             ) + '/invoice/publishview',
           headers: {
             'Content-Type': 'application/json'
@@ -1116,17 +1130,19 @@ function ElectronicInvoice(props) {
               </Button>
             )}
 
-            <PickerSettings>
-              {({ open }) => (
-                <Button
-                  type="button"
-                  className="relative flex items-center h-12 px-3 text-[#3F4254] transition rounded shadow-lg bg-[#E4E6EF] hover:bg-[#d7dae7] focus:outline-none focus:shadow-none disabled:opacity-70"
-                  onClick={open}
-                >
-                  <Cog6ToothIcon className="w-6" />
-                </Button>
-              )}
-            </PickerSettings>
+            {tong_hop?.hasRight && adminTools_byStock?.hasRight && (
+              <PickerSettings>
+                {({ open }) => (
+                  <Button
+                    type="button"
+                    className="relative flex items-center h-12 px-3 text-[#3F4254] transition rounded shadow-lg bg-[#E4E6EF] hover:bg-[#d7dae7] focus:outline-none focus:shadow-none disabled:opacity-70"
+                    onClick={open}
+                  >
+                    <Cog6ToothIcon className="w-6" />
+                  </Button>
+                )}
+              </PickerSettings>
+            )}
           </div>
         </div>
 

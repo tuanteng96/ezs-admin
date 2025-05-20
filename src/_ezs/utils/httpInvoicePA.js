@@ -50,7 +50,7 @@ class HttpInvoicePA {
             {
               url: window.ApiInvoice + '/oauth/token',
               headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
+                'Content-Type': 'application/json'
               },
               param: {},
               method: 'POST',

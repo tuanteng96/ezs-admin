@@ -71,7 +71,7 @@ function PickerWarehouseScale({ children, queryConfig }) {
       let newQueryConfig = {
         cmd: queryConfig.cmd,
         Pi: pageParam,
-        Ps: 1000,
+        Ps: 5000,
         manus: queryConfig.manus,
         to: queryConfig?.to,
         '(filter)Only': queryConfig.Only,

@@ -22,7 +22,7 @@ function PickerSettings({ children, initialValues, onChange }) {
 
   useEffect(() => {
     reset({
-      InvoiceTypes: InvoiceConfig.InvoiceTypes
+      InvoiceTypes: InvoiceConfig?.InvoiceTypes || []
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [InvoiceConfig, visible])
@@ -196,13 +196,13 @@ function PickerSettings({ children, initialValues, onChange }) {
                     <XMarkIcon className="w-8" />
                   </div>
                 </div>
-                <div className="overflow-auto grow p-5">
+                <div className="p-5 overflow-auto grow">
                   {fields.map((field, index) => (
                     <div
-                      className="border border-separator rounded mb-4 last:mb-0 overflow-hidden"
+                      className="mb-4 overflow-hidden border rounded border-separator last:mb-0"
                       key={field.id}
                     >
-                      <div className="bg-gray-200 flex justify-between px-5 py-3 items-center">
+                      <div className="flex items-center justify-between px-5 py-3 bg-gray-200">
                         <div className="font-semibold uppercase">
                           {field.Title}
                         </div>
@@ -310,6 +310,15 @@ function PickerSettings({ children, initialValues, onChange }) {
                                         </div>
                                       ) : (
                                         <Input
+                                          type={
+                                            [
+                                              'INVOICE_USERNAME_HDMISA',
+                                              'INVOICE_PASSWORD_HDMISA',
+                                              'INVOICE_SECRET_HDPAVN'
+                                            ].includes(keyName)
+                                              ? 'password'
+                                              : 'text'
+                                          }
                                           placeholder="Nhập giá trị"
                                           value={field.value}
                                           {...field}
