@@ -402,8 +402,11 @@ function PickerWarehouseScale({ children, queryConfig }) {
 
       if (PostN) rsN = await WarehouseAPI.updateImportExport(PostN)
       if (PostX) rsX = await WarehouseAPI.updateImportExport(PostX)
-      await refetch()
-      await queryClient.invalidateQueries({ queryKey: ['ListInventory'] })
+
+      if (rsN?.data?.data?.ID || rsX?.data?.data?.ID) {
+        await refetch()
+        await queryClient.invalidateQueries({ queryKey: ['ListInventory'] })
+      }
 
       return {
         rsN,
@@ -439,8 +442,16 @@ function PickerWarehouseScale({ children, queryConfig }) {
         ItemsX
       },
       {
-        onSuccess: () => {
-          toast.success('Cân kho thành công.')
+        onSuccess: ({ rsN, rsX }) => {
+          if (rsN?.data?.data?.ID || rsX?.data?.data?.ID) {
+            toast.success(`Cân kho thành công.`)
+          } else {
+            toast.error(
+              `Cân kho không thành công (${
+                rsN?.data?.error || rsX?.data?.error || '202'
+              }).`
+            )
+          }
         }
       }
     )
@@ -522,7 +533,14 @@ function PickerWarehouseScale({ children, queryConfig }) {
                     </div>
                     <Button
                       loading={updateMutation.isLoading}
-                      disabled={updateMutation.isLoading}
+                      disabled={
+                        updateMutation.isLoading ||
+                        Items.filter(
+                          x =>
+                            x.ActualInventory !== '' &&
+                            x.ActualInventory !== undefined
+                        ).length === 0
+                      }
                       type="submit"
                       className="relative flex items-center h-12 px-4 ml-2 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70 min-w-[165px]"
                     >
