@@ -704,7 +704,7 @@ function WareHouseExport(props) {
               icon: 'success',
               title: id ? 'Cập nhập thành công.' : 'Thêm mới thành công.',
               html: `${
-                id ? 'Tạo đơn xuất kho mới' : 'Chỉnh sửa đơn xuất kho'
+                !id ? 'Tạo đơn xuất kho mới' : 'Chỉnh sửa đơn xuất kho'
               } thành công. ( Mã ${data?.data?.data?.Code} )`,
               confirmButtonText: 'Đóng'
             }).then(() => {
@@ -718,7 +718,7 @@ function WareHouseExport(props) {
               icon: 'error',
               title: 'Xảy ra lỗi ?',
               html: `<span class="text-danger">${
-                id ? 'Tạo đơn xuất kho mới' : 'Chỉnh sửa đơn xuất kho'
+                !id ? 'Tạo đơn xuất kho mới' : 'Chỉnh sửa đơn xuất kho'
               } không thành công (${data?.data?.error || '202'}).</span>`
             })
           }
