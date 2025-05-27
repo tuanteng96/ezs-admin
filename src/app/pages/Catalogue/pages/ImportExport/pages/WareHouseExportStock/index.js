@@ -12,7 +12,6 @@ import moment from 'moment'
 import React, { useEffect, useMemo, useRef } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { toast } from 'react-toastify'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
@@ -25,6 +24,7 @@ import { ConversionTools } from '../../components'
 import UploadsAPI from 'src/_ezs/api/uploads.api'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import Tooltip from 'rc-tooltip'
+import Swal from 'sweetalert2'
 
 function WareHouseExportStock(props) {
   const navigate = useNavigate()
@@ -697,11 +697,27 @@ function WareHouseExportStock(props) {
       },
       {
         onSuccess: data => {
-          toast.success(id ? 'Cập nhập thành công.' : 'Thêm mới thành công.')
-          navigate({
-            pathname: state?.prevFrom || '/catalogue/import-export',
-            search: search
-          })
+          if (data?.data?.data?.ID) {
+            Swal.fire({
+              icon: 'success',
+              title: 'Xuất kho thành công.',
+              html: `Xuất kho chuyển đổi cơ sở thành công. ( Mã ${data?.data?.data?.Code} )`,
+              confirmButtonText: 'Đóng'
+            }).then(() => {
+              navigate({
+                pathname: state?.prevFrom || '/catalogue/import-export',
+                search: search
+              })
+            })
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Xảy ra lỗi ?',
+              html: `<span class="text-danger">Xuất kho chuyển đổi cơ sở không thành công (${
+                data?.data?.error || '202'
+              }).</span>`
+            })
+          }
         }
       }
     )

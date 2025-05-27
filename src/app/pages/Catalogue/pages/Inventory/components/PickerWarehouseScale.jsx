@@ -10,7 +10,6 @@ import { AnimatePresence, m } from 'framer-motion'
 import moment from 'moment'
 import React, { useEffect, useMemo, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
-import { toast } from 'react-toastify'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useAuth } from 'src/_ezs/core/Auth'
 import useDebounce from 'src/_ezs/hooks/useDebounce'
@@ -20,6 +19,7 @@ import { ImageLazy } from 'src/_ezs/partials/images'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
 import { formatArray } from 'src/_ezs/utils/formatArray'
+import Swal from 'sweetalert2'
 
 const ConvertViToEn = (str, toUpperCase = false) => {
   str = str.toLowerCase()
@@ -436,25 +436,57 @@ function PickerWarehouseScale({ children, queryConfig }) {
       }
     }
 
-    updateMutation.mutate(
-      {
-        ItemsN,
-        ItemsX
+    Swal.fire({
+      customClass: {
+        confirmButton: 'bg-success'
       },
-      {
-        onSuccess: ({ rsN, rsX }) => {
-          if (rsN?.data?.data?.ID || rsX?.data?.data?.ID) {
-            toast.success(`Cân kho thành công.`)
-          } else {
-            toast.error(
-              `Cân kho không thành công (${
-                rsN?.data?.error || rsX?.data?.error || '202'
-              }).`
-            )
-          }
+      title: 'Xác nhận cân kho ?',
+      html: `Bạn muốn thực hiện cân kho gồm ${
+        ItemsN.length > 0 ? 1 : 0
+      } đơn nhập ( ${ItemsN.length} sản phẩm ) - ${
+        ItemsX.length > 0 ? 1 : 0
+      } đơn xuất ( ${ItemsX.length} sản phẩm ).`,
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Cân kho',
+      cancelButtonText: 'Huỷ',
+      reverseButtons: true,
+      showLoaderOnConfirm: true,
+      preConfirm: async () => {
+        let { rsN, rsX } = await updateMutation.mutateAsync({
+          ItemsN,
+          ItemsX
+        })
+        return { rsN, rsX }
+      },
+      allowOutsideClick: () => !Swal.isLoading()
+    }).then(({ isConfirmed, value }) => {
+      if (isConfirmed) {
+        let { rsN, rsX } = value
+        if (rsN?.data?.data?.ID || rsX?.data?.data?.ID) {
+          Swal.fire({
+            icon: 'success',
+            title: 'Cân kho thành công',
+            html: `Tạo thành công ${ItemsN.length > 0 ? 1 : 0} đơn nhập${
+              rsN?.data?.data?.Code ? ` - Mã ${rsN?.data?.data?.Code}` : ``
+            } ( ${ItemsN.length} sản phẩm ) - ${
+              ItemsX.length > 0 ? 1 : 0
+            } đơn xuất${
+              rsX?.data?.data?.Code ? ` - Mã ${rsX?.data?.data?.Code}` : ``
+            } ( ${ItemsX.length} sản phẩm ).`,
+            confirmButtonText: 'Đóng'
+          })
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Cân kho lỗi',
+            html: `<span class="text-danger">Cân kho không thành công (${
+              rsN?.data?.error || rsX?.data?.error || '202'
+            }).</span>`
+          })
         }
       }
-    )
+    })
   }
 
   return (

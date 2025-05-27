@@ -12,7 +12,6 @@ import moment from 'moment'
 import React, { useEffect, useMemo, useRef } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { toast } from 'react-toastify'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
@@ -30,6 +29,7 @@ import UploadsAPI from 'src/_ezs/api/uploads.api'
 import ExcelHepers from 'src/_ezs/utils/ExcelHepers'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import Tooltip from 'rc-tooltip'
+import Swal from 'sweetalert2'
 
 function WareHouseImport(props) {
   const navigate = useNavigate()
@@ -708,11 +708,29 @@ function WareHouseImport(props) {
       },
       {
         onSuccess: data => {
-          toast.success(id ? 'Cập nhập thành công.' : 'Thêm mới thành công.')
-          navigate({
-            pathname: state?.prevFrom || '/catalogue/import-export',
-            search: search
-          })
+          if (data?.data?.data?.ID) {
+            Swal.fire({
+              icon: 'success',
+              title: id ? 'Cập nhập thành công.' : 'Thêm mới thành công.',
+              html: `${
+                id ? 'Tạo đơn nhập kho mới' : 'Chỉnh sửa đơn nhập kho'
+              } thành công. ( Mã ${data?.data?.data?.Code} )`,
+              confirmButtonText: 'Đóng'
+            }).then(() => {
+              navigate({
+                pathname: state?.prevFrom || '/catalogue/import-export',
+                search: search
+              })
+            })
+          } else {
+            Swal.fire({
+              icon: 'error',
+              title: 'Xảy ra lỗi ?',
+              html: `<span class="text-danger">${
+                id ? 'Tạo đơn nhập kho mới' : 'Chỉnh sửa đơn nhập kho'
+              } không thành công (${data?.data?.error || '202'}).</span>`
+            })
+          }
         }
       }
     )
