@@ -233,15 +233,20 @@ function PickerWarehouseScale({ children, queryConfig }) {
                   value={field.value}
                   placeholder="Nhập tồn thực tế"
                   onValueChange={val => {
-                    
-                    field.onChange(typeof val.floatValue !== 'undefined' ? val.floatValue : '')
+                    field.onChange(
+                      typeof val.floatValue !== 'undefined'
+                        ? val.floatValue
+                        : ''
+                    )
                     let newClientData = [...ClientData]
                     let index = newClientData.findIndex(
                       x => x.ProdID === rowData.ProdID
                     )
                     if (index > -1) {
                       newClientData[index].ActualInventory =
-                        typeof val.floatValue !== 'undefined' ? val.floatValue : ''
+                        typeof val.floatValue !== 'undefined'
+                          ? val.floatValue
+                          : ''
                     }
                   }}
                   allowNegative={false}
@@ -306,7 +311,9 @@ function PickerWarehouseScale({ children, queryConfig }) {
         PostN = {
           ie: {
             ID: dataN?.data?.data?.ID || 0,
-            Code: dataN?.data?.data?.Code,
+            Code: dataN?.data?.data?.Code
+              ? 'CK-' + dataN?.data?.data?.Code
+              : dataN?.data?.data?.Code,
             SupplierID: dataN?.data?.data?.SupplierID,
             ToPay: dataN?.data?.data?.ToPay,
             Total: dataN?.data?.data?.Total,
@@ -358,7 +365,9 @@ function PickerWarehouseScale({ children, queryConfig }) {
         PostX = {
           ie: {
             ID: dataX?.data?.data?.ID || 0,
-            Code: dataX?.data?.data?.Code,
+            Code: dataX?.data?.data?.Code
+              ? 'CK-' + dataX?.data?.data?.Code
+              : dataX?.data?.data?.Code,
             SupplierID: dataX?.data?.data?.SupplierID,
             ToPay: dataX?.data?.data?.ToPay,
             Total: dataX?.data?.data?.Total,
@@ -421,7 +430,7 @@ function PickerWarehouseScale({ children, queryConfig }) {
     let ItemsX = []
     let ItemsN = []
 
-    for (let item of Items) {
+    for (let item of ClientData) {
       if (item.ActualInventory !== '') {
         if (item.Qty - item.ActualInventory < 0) {
           ItemsN.push({
@@ -443,11 +452,9 @@ function PickerWarehouseScale({ children, queryConfig }) {
         confirmButton: 'bg-success'
       },
       title: 'Xác nhận cân kho ?',
-      html: `Bạn muốn thực hiện cân kho gồm ${
-        ItemsN.length > 0 ? 1 : 0
-      } đơn nhập ( ${ItemsN.length} sản phẩm ) - ${
-        ItemsX.length > 0 ? 1 : 0
-      } đơn xuất ( ${ItemsX.length} sản phẩm ).`,
+      html: `<div>Bạn muốn thực hiện cân kho gồm : </div>
+      <div>${ItemsN.length > 0 ? 1 : 0} đơn nhập ( ${ItemsN.length} sản phẩm )<div>
+      <div>${ItemsX.length > 0 ? 1 : 0} đơn xuất ( ${ItemsX.length} sản phẩm )</div>`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Cân kho',
@@ -565,11 +572,12 @@ function PickerWarehouseScale({ children, queryConfig }) {
                       />
                       <MagnifyingGlassIcon className="absolute w-6 text-gray-500 pointer-events-none top-2/4 -translate-y-2/4 left-4" />
                     </div>
+
                     <Button
                       loading={updateMutation.isLoading}
                       disabled={
                         updateMutation.isLoading ||
-                        Items.filter(
+                        ClientData.filter(
                           x =>
                             x.ActualInventory !== '' &&
                             x.ActualInventory !== undefined
