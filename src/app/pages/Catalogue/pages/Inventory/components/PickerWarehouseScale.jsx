@@ -233,13 +233,15 @@ function PickerWarehouseScale({ children, queryConfig }) {
                   value={field.value}
                   placeholder="Nhập tồn thực tế"
                   onValueChange={val => {
-                    field.onChange(val.floatValue)
+                    
+                    field.onChange(typeof val.floatValue !== 'undefined' ? val.floatValue : '')
                     let newClientData = [...ClientData]
                     let index = newClientData.findIndex(
                       x => x.ProdID === rowData.ProdID
                     )
                     if (index > -1) {
-                      newClientData[index].ActualInventory = val.floatValue
+                      newClientData[index].ActualInventory =
+                        typeof val.floatValue !== 'undefined' ? val.floatValue : ''
                     }
                   }}
                   allowNegative={false}
