@@ -128,7 +128,7 @@ function ElectronicInvoice(props) {
         RefIds[index].InvoiceIDs[0].InvoiceID)
     )
   }
-  
+
   const updateInvoiceMutation = useMutation({
     mutationFn: async body => {
       let selecteds = []
@@ -924,7 +924,7 @@ function ElectronicInvoice(props) {
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selected]
+    [selected, InvoiceConfig?.InvoiceActive]
   )
 
   const onElectronicInvoices = async () => {

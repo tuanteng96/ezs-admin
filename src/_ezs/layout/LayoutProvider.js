@@ -159,7 +159,7 @@ const LayoutProvider = ({ children }) => {
       if (data?.InvoiceActive) {
         window.ApiInvoice = data?.InvoiceActive?.isDemo
           ? data?.InvoiceActive?.TestUrl
-          : data?.InvoiceActive?.BaseUrlUrl
+          : data?.InvoiceActive?.BaseUrl
       }
     }
   })

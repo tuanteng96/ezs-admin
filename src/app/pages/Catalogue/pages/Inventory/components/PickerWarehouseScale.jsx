@@ -453,8 +453,12 @@ function PickerWarehouseScale({ children, queryConfig }) {
       },
       title: 'Xác nhận cân kho ?',
       html: `<div>Bạn muốn thực hiện cân kho gồm : </div>
-      <div>${ItemsN.length > 0 ? 1 : 0} đơn nhập ( ${ItemsN.length} sản phẩm )<div>
-      <div>${ItemsX.length > 0 ? 1 : 0} đơn xuất ( ${ItemsX.length} sản phẩm )</div>`,
+      <div>${ItemsN.length > 0 ? 1 : 0} đơn nhập ( ${
+        ItemsN.length
+      } sản phẩm )<div>
+      <div>${ItemsX.length > 0 ? 1 : 0} đơn xuất ( ${
+        ItemsX.length
+      } sản phẩm )</div>`,
       icon: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Cân kho',
