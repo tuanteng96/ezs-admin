@@ -219,8 +219,9 @@ function ElectronicInvoice(props) {
                 customer: {
                   cus_name: '',
                   cus_buyer:
-                    GlobalConfig?.Admin?.hddt?.SenderName || bill.SenderName,
-                  cus_tax_code: '',
+                    GlobalConfig?.Admin?.hddt?.SenderName ||
+                    `${bill.SenderName} - ${bill.SenderPhone}`,
+                  cus_tax_code: 'Khách không cung cấp',
                   cus_address: '',
                   cus_phone: bill.SenderPhone,
                   cus_email: '',
@@ -513,13 +514,13 @@ function ElectronicInvoice(props) {
                   //   .join('/'),
                   PaymentMethodName: 'TM/CK',
                   BuyerLegalName: '',
-                  BuyerTaxCode: '',
+                  BuyerTaxCode: 'Khách không cung cấp',
                   BuyerAddress: '',
                   BuyerCode: '',
                   BuyerPhoneNumber: item.SenderPhone,
                   BuyerEmail: '',
                   BuyerFullName:
-                    GlobalConfig?.Admin?.hddt?.SenderName || item.SenderName,
+                    GlobalConfig?.Admin?.hddt?.SenderName || `${item.SenderName} - ${item.SenderPhone}`,
                   BuyerBankAccount: '',
                   BuyerBankName: '',
                   TotalSaleAmountOC: formatArray.sumTotalKey(
