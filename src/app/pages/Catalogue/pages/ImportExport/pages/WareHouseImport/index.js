@@ -506,15 +506,18 @@ function WareHouseImport(props) {
                   value={field.value}
                   placeholder="Nhập chiết khấu"
                   onValueChange={val => {
-                    const { ImportPriceOrigin } = watchForm.items[rowIndex]
+                    const { ImportPriceOrigin, Qty } = watchForm.items[rowIndex]
                     field.onChange(val.floatValue || '')
 
-                    setValue(
-                      `items[${rowIndex}].ImportPrice`,
+                    let ImportPrice =
                       val?.floatValue > 100
                         ? ImportPriceOrigin - val?.floatValue
                         : ImportPriceOrigin -
-                            (ImportPriceOrigin * val?.floatValue) / 100
+                          (ImportPriceOrigin * val?.floatValue) / 100
+                    setValue(`items[${rowIndex}].ImportPrice`, ImportPrice)
+                    setValue(
+                      `items[${rowIndex}].ImportTotalPrice`,
+                      ImportPrice * (Qty || 0)
                     )
                     onUpdate()
                   }}
