@@ -221,8 +221,8 @@ function ElectronicInvoice(props) {
                   cus_buyer:
                     GlobalConfig?.Admin?.hddt?.SenderName ||
                     `${bill.SenderName} - ${bill.SenderPhone}`,
-                  cus_tax_code: 'Khách không cung cấp',
-                  cus_address: '',
+                  cus_tax_code: '',
+                  cus_address: bill?.SenderAddress || '',
                   cus_phone: bill.SenderPhone,
                   cus_email: '',
                   cus_email_cc: '',
@@ -514,13 +514,14 @@ function ElectronicInvoice(props) {
                   //   .join('/'),
                   PaymentMethodName: 'TM/CK',
                   BuyerLegalName: '',
-                  BuyerTaxCode: 'Khách không cung cấp',
-                  BuyerAddress: '',
+                  BuyerTaxCode: '',
+                  BuyerAddress: item?.SenderAddress || '',
                   BuyerCode: '',
                   BuyerPhoneNumber: item.SenderPhone,
                   BuyerEmail: '',
                   BuyerFullName:
-                    GlobalConfig?.Admin?.hddt?.SenderName || `${item.SenderName} - ${item.SenderPhone}`,
+                    GlobalConfig?.Admin?.hddt?.SenderName ||
+                    `${item.SenderName} - ${item.SenderPhone}`,
                   BuyerBankAccount: '',
                   BuyerBankName: '',
                   TotalSaleAmountOC: formatArray.sumTotalKey(
@@ -581,6 +582,7 @@ function ElectronicInvoice(props) {
             })
           })
         )
+        
         let updatePost = {
           arr: newRs
             .filter(
