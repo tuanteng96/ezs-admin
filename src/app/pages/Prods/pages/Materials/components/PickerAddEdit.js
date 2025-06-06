@@ -63,7 +63,11 @@ function PickerAddEdit({ children, initialValues }) {
   const { Stocks } = useAuth()
   const { GlobalConfig } = useLayout()
 
-  const { ReadApp_type, ReadCate } = useRoles(['ReadApp_type', 'ReadCate'])
+  const { ReadApp_type, ReadCate, DelApp } = useRoles([
+    'ReadApp_type',
+    'ReadCate',
+    'DelApp'
+  ])
 
   const queryClient = useQueryClient()
 
@@ -383,7 +387,7 @@ function PickerAddEdit({ children, initialValues }) {
     })
   }
 
-  let { BonusSaleJSON, StockUnit, OtherUnit } = watch()
+  let { BonusSaleJSON, StockUnit, OtherUnit, id } = watch()
 
   return (
     <>
@@ -930,19 +934,30 @@ function PickerAddEdit({ children, initialValues }) {
                                               field: { ref, ...field },
                                               fieldState
                                             }) => (
-                                              <InputNumber
-                                                thousandSeparator={true}
-                                                value={field.value}
-                                                placeholder="Nhập số tiền"
-                                                onValueChange={val => {
-                                                  field.onChange(
-                                                    typeof val?.floatValue !==
-                                                      'undefined'
-                                                      ? val.floatValue
-                                                      : ''
-                                                  )
-                                                }}
-                                              />
+                                              <>
+                                                {id && DelApp?.hasRight ? (
+                                                  <Input
+                                                    placeholder="*********"
+                                                    value="************"
+                                                    readOnly
+                                                    disabled
+                                                  />
+                                                ) : (
+                                                  <InputNumber
+                                                    thousandSeparator={true}
+                                                    value={field.value}
+                                                    placeholder="Nhập số tiền"
+                                                    onValueChange={val => {
+                                                      field.onChange(
+                                                        typeof val?.floatValue !==
+                                                          'undefined'
+                                                          ? val.floatValue
+                                                          : ''
+                                                      )
+                                                    }}
+                                                  />
+                                                )}
+                                              </>
                                             )}
                                           />
                                         </div>

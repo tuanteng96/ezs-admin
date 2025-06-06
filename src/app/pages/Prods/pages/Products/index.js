@@ -17,7 +17,12 @@ import { formatArray } from 'src/_ezs/utils/formatArray'
 import { formatString } from 'src/_ezs/utils/formatString'
 import Swal from 'sweetalert2'
 import { useProds } from '../../ProdsLayout'
-import { PickerAddEdit, PickerFilter } from './components'
+import {
+  PickerAddEdit,
+  PickerComboAddEdit,
+  PickerCourseAddEdit,
+  PickerFilter
+} from './components'
 import {
   PickerCatalogue,
   PickerSettingsCommission,
@@ -183,19 +188,53 @@ function ProductsPage(props) {
               trigger={['click']}
               overlay={
                 <div className="border-[#e5e5e5] border bg-white shadow-lg rounded-lg py-2.5">
-                  <PickerAddEdit initialValues={rowData}>
-                    {({ open }) => (
-                      <div
-                        className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
-                        onClick={() => {
-                          open()
-                          document.body.click()
-                        }}
-                      >
-                        Chỉnh sửa sản phẩm
-                      </div>
-                    )}
-                  </PickerAddEdit>
+                  {rowData?.CourseDays || rowData?.CourseNumber ? (
+                    <PickerCourseAddEdit initialValues={rowData}>
+                      {({ open }) => (
+                        <div
+                          className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
+                          onClick={() => {
+                            open()
+                            document.body.click()
+                          }}
+                        >
+                          Chỉnh sửa khoá học
+                        </div>
+                      )}
+                    </PickerCourseAddEdit>
+                  ) : (
+                    <>
+                      {rowData.Combo ? (
+                        <PickerComboAddEdit initialValues={rowData}>
+                          {({ open }) => (
+                            <div
+                              className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
+                              onClick={() => {
+                                open()
+                                document.body.click()
+                              }}
+                            >
+                              Chỉnh sửa combo
+                            </div>
+                          )}
+                        </PickerComboAddEdit>
+                      ) : (
+                        <PickerAddEdit initialValues={rowData}>
+                          {({ open }) => (
+                            <div
+                              className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
+                              onClick={() => {
+                                open()
+                                document.body.click()
+                              }}
+                            >
+                              Chỉnh sửa sản phẩm
+                            </div>
+                          )}
+                        </PickerAddEdit>
+                      )}
+                    </>
+                  )}
 
                   <div
                     className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition text-danger cursor-pointer"
@@ -385,7 +424,27 @@ function ProductsPage(props) {
                     </div>
                   )}
                 </PickerAddEdit>
-                <PickerCatalogue TypeOf="NH">
+                <PickerCourseAddEdit>
+                  {({ open }) => (
+                    <div
+                      onClick={() => {
+                        if (!ReadCate?.hasRight) {
+                          toast.error(
+                            'Bạn không có quyền truy cập chức năng này.'
+                          )
+                        } else {
+                          open()
+                        }
+                        document.body.click()
+                      }}
+                      className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                    >
+                      Khoá học
+                    </div>
+                  )}
+                </PickerCourseAddEdit>
+
+                <PickerComboAddEdit>
                   {({ open }) => (
                     <div
                       onClick={() => {
@@ -394,10 +453,10 @@ function ProductsPage(props) {
                       }}
                       className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
                     >
-                      Khoá học
+                      Combo
                     </div>
                   )}
-                </PickerCatalogue>
+                </PickerComboAddEdit>
               </div>
             }
             align={{

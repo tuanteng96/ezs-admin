@@ -220,7 +220,7 @@ function ElectronicInvoice(props) {
                   cus_name: '',
                   cus_buyer:
                     GlobalConfig?.Admin?.hddt?.SenderName ||
-                    `${bill.SenderName} - ${bill.SenderPhone}`,
+                    bill.SenderName,
                   cus_tax_code: '',
                   cus_address: bill?.SenderAddress || '',
                   cus_phone: bill.SenderPhone,
@@ -520,8 +520,7 @@ function ElectronicInvoice(props) {
                   BuyerPhoneNumber: item.SenderPhone,
                   BuyerEmail: '',
                   BuyerFullName:
-                    GlobalConfig?.Admin?.hddt?.SenderName ||
-                    `${item.SenderName} - ${item.SenderPhone}`,
+                    GlobalConfig?.Admin?.hddt?.SenderName || item.SenderName,
                   BuyerBankAccount: '',
                   BuyerBankName: '',
                   TotalSaleAmountOC: formatArray.sumTotalKey(

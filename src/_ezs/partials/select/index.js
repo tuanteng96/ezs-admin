@@ -34,6 +34,9 @@ import { SelectUserShifts } from './SelectUserShifts'
 import { SelectProductMaterials } from './SelectProductMaterials'
 import { SelectProdsTypeName } from './SelectProdsTypeName'
 import { SelectTypeGenerate2 } from './SelectTypeGenerate2'
+import { SelectProdsOption } from './SelectProdsOption'
+import { SelectProdsCombos } from './SelectProdsCombos'
+import { SelectProdsSurchargeCard } from './SelectProdsSurchargeCard'
 
 export {
   SelectDistrictsOtp,
@@ -71,5 +74,8 @@ export {
   SelectUserShifts,
   SelectProdsTypeName,
   SelectProductMaterials,
-  SelectTypeGenerate2
+  SelectTypeGenerate2,
+  SelectProdsOption,
+  SelectProdsCombos,
+  SelectProdsSurchargeCard
 }

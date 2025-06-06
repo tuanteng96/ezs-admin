@@ -81,7 +81,16 @@ const ProdsAPI = {
         key
       )}&pi=1&ps=1&foredit=${foredit}`
     ),
-  addEdit: data => http.post('/admin/smart.aspx?set_product=1&btn=save', data)
+  addEdit: data => http.post('/admin/smart.aspx?set_product=1&btn=save', data),
+  addEditOptions: data => http.post('/admin/smart.aspx?ProductJoin=1', data),
+  getProdsOption: (key = '') =>
+    http.get(`/services/prod/get.aspx?cmd=get&key=${key}`),
+  getProdsCombos: (key = '') =>
+    http.get(`/api/gl/select2?cmd=prod&ignore_all=1&only_root_and_cate_name=san_pham%2Cthe_tien%2Cnvl&includeSource=1&_type=query&q=${key}`),
+  getProdsIdOption: (data) =>
+    http.post(`/admin/smart.aspx?ProductJoin=1`, data),
+  getProdSurchargeCard: (key = '') =>
+    http.get(`https://cserbeauty.com/api/gl/select2?cmd=prod&ignore_all=1&ignore_rootsv=1&includeSource=1&cate_name=phu_phi&_type=query&q=${key}`),
 }
 
 export default ProdsAPI

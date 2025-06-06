@@ -40,6 +40,11 @@ const getHasRole = (Roles, CrStocks) => {
   if (hasRight && !Roles.IsAllStock) {
     hasRight = StockRoles.some(x => x.ID === CrStocks.ID)
   }
+
+  if (Roles.name === 'DelApp' && typeof Roles.hasRight === 'undefined') {
+    hasRight = false
+  }
+
   return {
     hasRight,
     StockRoles,
