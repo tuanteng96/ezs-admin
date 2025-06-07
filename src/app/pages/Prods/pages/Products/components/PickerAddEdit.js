@@ -106,7 +106,7 @@ function PickerAddEdit({ children, initialValues }) {
       BonusSale: '',
       KpiType: '',
       VAT: '',
-      OtherUnit: [],
+      OtherUnit: [], //[{ ProdID: '', ProdUnit: '', Qty: '', Unit: '' }],
       id: 0,
       Desc: '',
       Detail: '',
@@ -116,7 +116,50 @@ function PickerAddEdit({ children, initialValues }) {
           Title: '',
           ProdID: ''
         }
-      ]
+      ],
+      isCreateMaterials: false,
+      Materials: {
+        Title: '',
+        IsPublic: '',
+        IsReady: 1,
+        Type: '',
+        Types: '',
+        OnStocks: [
+          {
+            label: '(Ẩn)',
+            value: '-1'
+          }
+        ],
+        Combo: '',
+        IsService: 0,
+        IsAddFee: 0,
+        Bonus: 0,
+        IsDisplayPrice: 1,
+        InDays: 365,
+        IsMoney: false,
+        IsNVL: true,
+        BonusSale2: '',
+        DynamicID: '',
+        StockUnit: 'Gói',
+        PriceBase: '',
+        Manu: '',
+        Meta: {
+          comProdIDs: '',
+          otherUnit: [],
+          ByDomain: {}
+        },
+        PriceProduct: '',
+        BonusSaleJSON: '',
+        BonusSale: '',
+        KpiType: '',
+        VAT: '',
+        id: 0,
+        Desc: '',
+        Detail: '',
+        PhotoList: [],
+        Status: '',
+        Qty: 1
+      }
     },
     resolver: yupResolver(schemaAddEdit)
   })
@@ -227,7 +270,7 @@ function PickerAddEdit({ children, initialValues }) {
       )
 
       let { data: Options } = await ProdsAPI.getProdsIdOption(formData)
-      
+
       return data?.data?.list && data?.data?.list.length > 0
         ? {
             ...data?.data?.list[0],
@@ -267,7 +310,7 @@ function PickerAddEdit({ children, initialValues }) {
             }
           ])
         }
-        
+
         setValue(
           'Options',
           data.Options && data.Options.length > 0
@@ -343,9 +386,68 @@ function PickerAddEdit({ children, initialValues }) {
   })
 
   const addEditMutation = useMutation({
-    mutationFn: async ({ bodyFormData, optionsFormData }) => {
+    mutationFn: async ({ bodyFormData, optionsFormData, Materials }) => {
       let rs = await ProdsAPI.addEdit(bodyFormData)
       await ProdsAPI.addEditOptions(optionsFormData)
+
+      if (Materials?.isCreateMaterials && rs?.data?.data?.ID) {
+        let product = rs?.data?.data
+        let values = Materials
+        let newValues = {
+          ...values,
+          IsPublic:
+            values?.OnStocks && values?.OnStocks.some(x => x.value === '-1')
+              ? '0'
+              : '1',
+          Type: values?.Type?.value || '',
+          OnStocks: values?.OnStocks
+            ? values?.OnStocks.filter(x => x.value !== '-1')
+                .map(x => x.value)
+                .toString()
+            : '',
+          Meta: {
+            ByDomain: {},
+            comProdIDs: '',
+            otherUnit: [
+              {
+                ProdID: product?.ID,
+                ProdTitle: product?.Title,
+                ProdUnit: product?.StockUnit,
+                Qty: values.Qty
+              }
+            ]
+          },
+          Manu: values?.Manu?.value || '',
+          KpiType: values?.KpiType?.value || '',
+          PhotoList: values?.PhotoList
+            ? values?.PhotoList.map(x => x.image)
+            : []
+        }
+
+        var bodyMaterialsFormData = new FormData()
+        for (const property in newValues) {
+          if (property === 'id') {
+            bodyMaterialsFormData.append(property, newValues[property])
+          } else if (
+            property === 'OtherUnit' ||
+            property === 'isCreateMaterials'
+          ) {
+          } else if (typeof newValues[property] === 'object') {
+            bodyMaterialsFormData.append(
+              `[${property}]`,
+              JSON.stringify(newValues[property])
+            )
+          } else if (property === 'Desc' || property === 'Detail') {
+            bodyMaterialsFormData.append(
+              `[${property}]`,
+              encodeURI(newValues[property])
+            )
+          } else {
+            bodyMaterialsFormData.append(`[${property}]`, newValues[property])
+          }
+        }
+        await await ProdsAPI.addEdit(bodyMaterialsFormData)
+      }
 
       await queryClient.invalidateQueries({
         queryKey: ['ListProdsProducts']
@@ -407,7 +509,11 @@ function PickerAddEdit({ children, initialValues }) {
     addEditMutation.mutate(
       {
         bodyFormData,
-        optionsFormData
+        optionsFormData,
+        Materials: {
+          ...values.Materials,
+          isCreateMaterials: values.isCreateMaterials
+        }
       },
       {
         onSuccess: ({ data }) => {
@@ -426,7 +532,7 @@ function PickerAddEdit({ children, initialValues }) {
     )
   }
 
-  let { BonusSaleJSON, id } = watch()
+  let { BonusSaleJSON, id, isCreateMaterials, DynamicID, Title, VAT } = watch()
 
   return (
     <>
@@ -566,106 +672,261 @@ function PickerAddEdit({ children, initialValues }) {
                                             {...field}
                                             onChange={e => {
                                               field.onChange(e.target.value)
+                                              if (isCreateMaterials) {
+                                                setValue(
+                                                  'Materials.Title',
+                                                  e.target.value + ' (NVL)'
+                                                )
+                                              }
                                             }}
                                           />
                                         )}
                                       />
                                     </div>
                                   </div>
-                                  <div className="grid grid-cols-1 gap-4 mb-4 sm:grid-cols-2 last:mb-0">
-                                    <div>
-                                      <div className="font-medium">
-                                        Mã sản phẩm *
-                                      </div>
-                                      <div className="mt-1">
-                                        <Controller
-                                          name="DynamicID"
-                                          control={control}
-                                          render={({
-                                            field: { ref, ...field },
-                                            fieldState
-                                          }) => (
-                                            <Input
-                                              placeholder="Nhập mã"
-                                              value={field.value}
-                                              errorMessageForce={
-                                                fieldState?.invalid
-                                              }
-                                              //errorMessage={fieldState?.error?.message}
-                                              {...field}
-                                              onChange={e => {
-                                                field.onChange(e.target.value)
-                                              }}
-                                            />
-                                          )}
-                                        />
-                                      </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4 sm:gap-2">
+                                  <div className="mb-4 last:mb-0">
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                       <div>
                                         <div className="font-medium">
-                                          Đơn vị *
+                                          Mã sản phẩm *
                                         </div>
                                         <div className="mt-1">
                                           <Controller
-                                            name="StockUnit"
+                                            name="DynamicID"
                                             control={control}
                                             render={({
                                               field: { ref, ...field },
                                               fieldState
                                             }) => (
-                                              <SelectMeasure
+                                              <Input
+                                                placeholder="Nhập mã"
                                                 value={field.value}
-                                                onChange={val => {
-                                                  field.onChange(
-                                                    val ? val.value : ''
-                                                  )
-                                                }}
                                                 errorMessageForce={
                                                   fieldState?.invalid
                                                 }
-                                                menuPortalTarget={document.body}
-                                                menuPosition="fixed"
-                                                styles={{
-                                                  menuPortal: base => ({
-                                                    ...base,
-                                                    zIndex: 9999
-                                                  })
+                                                //errorMessage={fieldState?.error?.message}
+                                                {...field}
+                                                onChange={e => {
+                                                  field.onChange(e.target.value)
+                                                  if (isCreateMaterials) {
+                                                    setValue(
+                                                      'Materials.Title',
+                                                      'NVL' + e.target.value
+                                                    )
+                                                  }
                                                 }}
                                               />
                                             )}
                                           />
                                         </div>
                                       </div>
-                                      <div>
-                                        <div className="font-semibold">VAT</div>
-                                        <div className="mt-1">
-                                          <Controller
-                                            name={`VAT`}
-                                            control={control}
-                                            render={({
-                                              field: { ref, ...field },
-                                              fieldState
-                                            }) => (
-                                              <InputNumber
-                                                thousandSeparator={false}
-                                                value={field.value}
-                                                placeholder="Nhập VAT"
-                                                onValueChange={val =>
-                                                  field.onChange(
-                                                    typeof val?.floatValue !==
-                                                      'undefined'
-                                                      ? val.floatValue
-                                                      : ''
-                                                  )
-                                                }
-                                              />
-                                            )}
-                                          />
+                                      <div className="grid grid-cols-2 gap-4 sm:gap-2">
+                                        <div>
+                                          <div className="font-medium">
+                                            Đơn vị *
+                                          </div>
+                                          <div className="mt-1">
+                                            <Controller
+                                              name="StockUnit"
+                                              control={control}
+                                              render={({
+                                                field: { ref, ...field },
+                                                fieldState
+                                              }) => (
+                                                <SelectMeasure
+                                                  value={field.value}
+                                                  onChange={val => {
+                                                    field.onChange(
+                                                      val ? val.value : ''
+                                                    )
+                                                  }}
+                                                  errorMessageForce={
+                                                    fieldState?.invalid
+                                                  }
+                                                  menuPortalTarget={
+                                                    document.body
+                                                  }
+                                                  menuPosition="fixed"
+                                                  styles={{
+                                                    menuPortal: base => ({
+                                                      ...base,
+                                                      zIndex: 9999
+                                                    })
+                                                  }}
+                                                />
+                                              )}
+                                            />
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <div className="font-semibold">
+                                            VAT
+                                          </div>
+                                          <div className="mt-1">
+                                            <Controller
+                                              name={`VAT`}
+                                              control={control}
+                                              render={({
+                                                field: { ref, ...field },
+                                                fieldState
+                                              }) => (
+                                                <InputNumber
+                                                  thousandSeparator={false}
+                                                  value={field.value}
+                                                  placeholder="Nhập VAT"
+                                                  onValueChange={val =>
+                                                    field.onChange(
+                                                      typeof val?.floatValue !==
+                                                        'undefined'
+                                                        ? val.floatValue
+                                                        : ''
+                                                    )
+                                                  }
+                                                />
+                                              )}
+                                            />
+                                          </div>
                                         </div>
                                       </div>
                                     </div>
+
+                                    {!id && (
+                                      <>
+                                        <div className="grid grid-cols-1 gap-4 mt-3 sm:grid-cols-2">
+                                          <div className="flex items-center">
+                                            <Controller
+                                              name="isCreateMaterials"
+                                              control={control}
+                                              render={({
+                                                field: { ref, ...field },
+                                                fieldState
+                                              }) => (
+                                                <div className="flex items-center gap-1.5 mt-2">
+                                                  <div>
+                                                    <Switch
+                                                      checked={field.value}
+                                                      onChange={e => {
+                                                        field.onChange(e)
+                                                        setValue(
+                                                          'Materials.DynamicID',
+                                                          'NVL' + DynamicID
+                                                        )
+                                                        setValue(
+                                                          'Materials.Title',
+                                                          Title + ' (NVL)'
+                                                        )
+                                                        setValue(
+                                                          'Materials.VAT',
+                                                          VAT
+                                                        )
+                                                      }}
+                                                      className={clsx(
+                                                        'relative inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white/75',
+                                                        field.value
+                                                          ? 'bg-primary'
+                                                          : 'bg-[#d3d3d3]'
+                                                      )}
+                                                    >
+                                                      <span className="sr-only">
+                                                        Use setting
+                                                      </span>
+                                                      <span
+                                                        aria-hidden="true"
+                                                        className={clsx(
+                                                          'pointer-events-none inline-block h-[20px] w-[20px] transform rounded-full bg-white shadow-lg ring-0 top-0 transition duration-200 ease-in-out',
+                                                          field.value
+                                                            ? 'translate-x-5'
+                                                            : 'translate-x-0'
+                                                        )}
+                                                      />
+                                                    </Switch>
+                                                  </div>
+
+                                                  <div className="font-light text-muted2">
+                                                    Sản phẩm có tiêu hao khi làm
+                                                    dịch vụ
+                                                  </div>
+                                                </div>
+                                              )}
+                                            />
+                                          </div>
+                                          {isCreateMaterials && (
+                                            <div className="grid grid-cols-2 gap-4 sm:gap-2">
+                                              <div>
+                                                <div className="font-medium">
+                                                  Đơn vị *
+                                                </div>
+                                                <div className="mt-1">
+                                                  <Controller
+                                                    name="Materials.StockUnit"
+                                                    control={control}
+                                                    render={({
+                                                      field: { ref, ...field },
+                                                      fieldState
+                                                    }) => (
+                                                      <SelectMeasure
+                                                        value={field.value}
+                                                        onChange={val => {
+                                                          field.onChange(
+                                                            val ? val.value : ''
+                                                          )
+                                                        }}
+                                                        errorMessageForce={
+                                                          fieldState?.invalid
+                                                        }
+                                                        menuPortalTarget={
+                                                          document.body
+                                                        }
+                                                        menuPosition="fixed"
+                                                        styles={{
+                                                          menuPortal: base => ({
+                                                            ...base,
+                                                            zIndex: 9999
+                                                          })
+                                                        }}
+                                                      />
+                                                    )}
+                                                  />
+                                                </div>
+                                              </div>
+                                              <div>
+                                                <div className="font-semibold">
+                                                  Số lượng
+                                                </div>
+                                                <div className="mt-1">
+                                                  <Controller
+                                                    name={`Materials.Qty`}
+                                                    control={control}
+                                                    render={({
+                                                      field: { ref, ...field },
+                                                      fieldState
+                                                    }) => (
+                                                      <InputNumber
+                                                        thousandSeparator={
+                                                          false
+                                                        }
+                                                        value={field.value}
+                                                        placeholder="Nhập số lượng"
+                                                        onValueChange={val =>
+                                                          field.onChange(
+                                                            typeof val?.floatValue !==
+                                                              'undefined'
+                                                              ? val.floatValue
+                                                              : ''
+                                                          )
+                                                        }
+                                                      />
+                                                    )}
+                                                  />
+                                                </div>
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </>
+                                    )}
                                   </div>
+
                                   <div className="grid grid-cols-1 gap-4 mb-4 sm:grid-cols-2 last:mb-0">
                                     <div>
                                       <div className="font-medium">

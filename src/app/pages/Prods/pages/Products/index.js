@@ -2,8 +2,7 @@ import {
   AdjustmentsVerticalIcon,
   ChevronDownIcon,
   Cog6ToothIcon,
-  MagnifyingGlassIcon,
-  PlusIcon
+  MagnifyingGlassIcon
 } from '@heroicons/react/24/outline'
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query'
 import Tooltip from 'rc-tooltip'

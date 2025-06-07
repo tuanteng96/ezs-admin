@@ -46,7 +46,7 @@ function InventoryFilters(props) {
       search: search
     })
   )
-  
+
   const { control, handleSubmit } = useForm({
     defaultValues: state?.queryConfig
       ? {

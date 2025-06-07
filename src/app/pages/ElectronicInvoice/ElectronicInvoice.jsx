@@ -219,8 +219,7 @@ function ElectronicInvoice(props) {
                 customer: {
                   cus_name: '',
                   cus_buyer:
-                    GlobalConfig?.Admin?.hddt?.SenderName ||
-                    bill.SenderName,
+                    GlobalConfig?.Admin?.hddt?.SenderName || bill.SenderName,
                   cus_tax_code: '',
                   cus_address: bill?.SenderAddress || '',
                   cus_phone: bill.SenderPhone,
@@ -581,7 +580,7 @@ function ElectronicInvoice(props) {
             })
           })
         )
-        
+
         let updatePost = {
           arr: newRs
             .filter(

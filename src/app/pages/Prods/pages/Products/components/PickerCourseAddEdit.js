@@ -3,9 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import {
   ArrowSmallLeftIcon,
-  PlusCircleIcon,
   QuestionMarkCircleIcon,
-  TrashIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline'
 import {
@@ -24,7 +22,6 @@ import { FloatingPortal } from '@floating-ui/react'
 import {
   SelectCategoryProds,
   SelectMeasure,
-  SelectProdsOption,
   SelectStocks,
   SelectTypeGenerate
 } from 'src/_ezs/partials/select'
