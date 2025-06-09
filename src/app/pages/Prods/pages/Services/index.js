@@ -16,12 +16,7 @@ import { formatArray } from 'src/_ezs/utils/formatArray'
 import { formatString } from 'src/_ezs/utils/formatString'
 import Swal from 'sweetalert2'
 import { useProds } from '../../ProdsLayout'
-import {
-  PickerAddEdit,
-  PickerComboAddEdit,
-  PickerCourseAddEdit,
-  PickerFilter
-} from './components'
+import { PickerAddEdit, PickerFilter } from './components'
 import {
   PickerCatalogue,
   PickerSettingsCommission,
@@ -31,13 +26,13 @@ import { useRoles } from 'src/_ezs/hooks/useRoles'
 import clsx from 'clsx'
 import { useParams } from 'react-router-dom'
 
-function ProductsPage(props) {
+function ServicesPage(props) {
   let { CateID } = useParams()
 
   const { ReadCate, ReadApp_type } = useRoles(['ReadCate', 'ReadApp_type'])
   let { MenuActive } = useProds()
   let [filters, setFilters] = useState({
-    prods: '',
+    prods: 1,
     pi: 1,
     ps: 20,
     typeid: CateID,
@@ -51,7 +46,7 @@ function ProductsPage(props) {
     rightApp: '',
     v: 2,
     is_sale: 0,
-    ServiceOrFee: 0,
+    ServiceOrFee: 1,
     skip_display: 1
   })
 
@@ -80,13 +75,13 @@ function ProductsPage(props) {
 
   const columns = useMemo(
     () => [
-      // {
-      //   key: 'ID',
-      //   title: 'ID',
-      //   dataKey: 'ID',
-      //   width: 100,
-      //   sortable: false
-      // },
+      {
+        key: 'ID',
+        title: 'ID',
+        dataKey: 'ID',
+        width: 100,
+        sortable: false
+      },
       {
         key: 'TypeText',
         title: 'Hình ảnh',
@@ -123,25 +118,17 @@ function ProductsPage(props) {
         //align: 'center',
       },
       {
-        key: 'Title',
-        title: 'Tên sản phẩm',
-        dataKey: 'Title',
-        width: 280,
-        sortable: false,
-        cellRenderer: ({ rowData }) => (
-          <div>
-            <div className="mb-1">{rowData.Title}</div>
-            <div className="text-sm text-muted2 font-number">
-              #{rowData.ID}
-            </div>
-          </div>
-        )
-      },
-      {
         key: 'DynamicID',
-        title: 'Mã sản phẩm',
+        title: 'Mã dịch vụ',
         dataKey: 'DynamicID',
         width: 130,
+        sortable: false
+      },
+      {
+        key: 'Title',
+        title: 'Tên dịch vụ',
+        dataKey: 'Title',
+        width: 300,
         sortable: false
       },
       {
@@ -195,53 +182,19 @@ function ProductsPage(props) {
               trigger={['click']}
               overlay={
                 <div className="border-[#e5e5e5] border bg-white shadow-lg rounded-lg py-2.5">
-                  {rowData?.CourseDays || rowData?.CourseNumber ? (
-                    <PickerCourseAddEdit initialValues={rowData}>
-                      {({ open }) => (
-                        <div
-                          className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
-                          onClick={() => {
-                            open()
-                            document.body.click()
-                          }}
-                        >
-                          Chỉnh sửa khoá học
-                        </div>
-                      )}
-                    </PickerCourseAddEdit>
-                  ) : (
-                    <>
-                      {rowData.Combo ? (
-                        <PickerComboAddEdit initialValues={rowData}>
-                          {({ open }) => (
-                            <div
-                              className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
-                              onClick={() => {
-                                open()
-                                document.body.click()
-                              }}
-                            >
-                              Chỉnh sửa combo
-                            </div>
-                          )}
-                        </PickerComboAddEdit>
-                      ) : (
-                        <PickerAddEdit initialValues={rowData}>
-                          {({ open }) => (
-                            <div
-                              className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
-                              onClick={() => {
-                                open()
-                                document.body.click()
-                              }}
-                            >
-                              Chỉnh sửa sản phẩm
-                            </div>
-                          )}
-                        </PickerAddEdit>
-                      )}
-                    </>
-                  )}
+                  <PickerAddEdit initialValues={rowData}>
+                    {({ open }) => (
+                      <div
+                        className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
+                        onClick={() => {
+                          open()
+                          document.body.click()
+                        }}
+                      >
+                        Chỉnh sửa dịch vụ
+                      </div>
+                    )}
+                  </PickerAddEdit>
 
                   <div
                     className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition text-danger cursor-pointer"
@@ -334,8 +287,8 @@ function ProductsPage(props) {
           customClass: {
             confirmButton: '!bg-danger'
           },
-          title: 'Xóa sản phẩm ?',
-          html: `<span class="text-danger">Sản phẩm ${item?.Title} đã phát sinh giao dịch. Bạn không thể xóa vĩnh viễn mà chỉ có thể chuyển về chế độ Ngừng Kinh doanh.</span>`,
+          title: 'Xóa dịch vụ ?',
+          html: `<span class="text-danger">Dịch vụ ${item?.Title} đã phát sinh giao dịch. Bạn không thể xóa vĩnh viễn mà chỉ có thể chuyển về chế độ Ngừng Kinh doanh.</span>`,
           icon: 'warning',
           showCancelButton: true,
           confirmButtonText: 'Ngừng kinh doanh',
@@ -353,7 +306,7 @@ function ProductsPage(props) {
         }).then(result => {
           if (result.isConfirmed) {
             if (!result?.value?.data?.error) {
-              toast.success('Đã xóa sản phẩm.')
+              toast.success('Đã xóa dịch vụ.')
             } else {
               toast.error('Xảy ra lỗi không xác định.')
             }
@@ -364,8 +317,8 @@ function ProductsPage(props) {
           customClass: {
             confirmButton: '!bg-danger'
           },
-          title: 'Xóa sản phẩm ?',
-          html: `Bạn có chắc chắn muốn xoá sản phẩm <span class="text-primary font-medium">${item?.Title}</span>? Hành động này không thể được hoàn tác.`,
+          title: 'Xóa dịch vụ ?',
+          html: `Bạn có chắc chắn muốn xoá dịch vụ <span class="text-primary font-medium">${item?.Title}</span>? Hành động này không thể được hoàn tác.`,
           icon: 'warning',
           showCancelButton: true,
           confirmButtonText: 'Thực hiện',
@@ -384,7 +337,7 @@ function ProductsPage(props) {
         }).then(result => {
           if (result.isConfirmed) {
             if (!result?.value?.data?.error) {
-              toast.success('Đã xóa sản phẩm.')
+              toast.success('Đã xóa dịch vụ.')
             } else {
               toast.error('Xảy ra lỗi không xác định.')
             }
@@ -399,10 +352,10 @@ function ProductsPage(props) {
       <div className="flex items-end justify-between mb-5">
         <div>
           <div className="text-3xl font-bold dark:text-white">
-            <span className="hidden md:block">Quản lý sản phẩm</span>
-            <span className="md:hidden">Sản phẩm</span>
+            <span className="hidden md:block">Quản lý dịch vụ</span>
+            <span className="md:hidden">Dịch vụ</span>
           </div>
-          <div className="mt-1.5">Quản lý sản phẩm trong kho của bạn</div>
+          <div className="mt-1.5">Quản lý dịch vụ, thẻ dịch vụ của bạn</div>
         </div>
         <div className="flex pb-1 gap-2.5">
           <Tooltip
@@ -427,43 +380,10 @@ function ProductsPage(props) {
                       }}
                       className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
                     >
-                      Sản phẩm
+                      Dịch vụ
                     </div>
                   )}
                 </PickerAddEdit>
-                <PickerCourseAddEdit>
-                  {({ open }) => (
-                    <div
-                      onClick={() => {
-                        if (!ReadCate?.hasRight) {
-                          toast.error(
-                            'Bạn không có quyền truy cập chức năng này.'
-                          )
-                        } else {
-                          open()
-                        }
-                        document.body.click()
-                      }}
-                      className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
-                    >
-                      Khoá học
-                    </div>
-                  )}
-                </PickerCourseAddEdit>
-
-                <PickerComboAddEdit>
-                  {({ open }) => (
-                    <div
-                      onClick={() => {
-                        document.body.click()
-                        open()
-                      }}
-                      className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
-                    >
-                      Combo
-                    </div>
-                  )}
-                </PickerComboAddEdit>
               </div>
             }
             align={{
@@ -489,7 +409,7 @@ function ProductsPage(props) {
             <input
               className="border border-[#d3d3d3] h-11 md:h-9 rounded-full md:pl-10 pl-11 text-[14px] focus:border-primary transiton-all w-full md:max-w-[250px] md:min-w-[250px] xl:max-w-[450px] xl:min-w-[450px]"
               type="text"
-              placeholder="Nhập tên sản phẩm"
+              placeholder="Nhập tên dịch vụ"
               value={filters.key}
               onChange={e => {
                 setFilters(prevState => ({
@@ -582,7 +502,7 @@ function ProductsPage(props) {
                 </PickerCatalogue>
                 <PickerSettingsCommission
                   Type={{
-                    label: 'Tất cả sản phẩm',
+                    label: 'Tất cả dịch vụ',
                     value: MenuActive?.ID
                   }}
                   invalidateQueries={['ListProdsProducts']}
@@ -666,4 +586,4 @@ function ProductsPage(props) {
   )
 }
 
-export default ProductsPage
+export default ServicesPage

@@ -5,6 +5,7 @@ import { Navigate, Route, Routes } from 'react-router'
 import SuspensedView from 'src/app/routing/SuspensedView'
 
 const ProductsPage = lazy(() => import('./pages/Products'))
+const ServicesPage = lazy(() => import('./pages/Services'))
 const MaterialsPage = lazy(() => import('./pages/Materials'))
 const FeesPage = lazy(() => import('./pages/Fees'))
 const MoneyCardPage = lazy(() => import('./pages/MoneyCard'))
@@ -35,6 +36,23 @@ function ProdsPage(props) {
             element={
               <SuspensedView>
                 <ProductsPage />
+              </SuspensedView>
+            }
+          />
+        </Route>
+        <Route
+          path="dich-vu/:CateID"
+          element={
+            <SuspensedView>
+              <ServicesPage />
+            </SuspensedView>
+          }
+        >
+          <Route
+            path=":CateSubID"
+            element={
+              <SuspensedView>
+                <ServicesPage />
               </SuspensedView>
             }
           />

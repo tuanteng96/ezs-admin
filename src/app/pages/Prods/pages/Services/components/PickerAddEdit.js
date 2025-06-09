@@ -24,8 +24,7 @@ import { FloatingPortal } from '@floating-ui/react'
 import {
   SelectCategoryProds,
   SelectMeasure,
-  SelectProdsCombos,
-  SelectProdsSurchargeCard,
+  SelectProdsOption,
   SelectStocks,
   SelectTypeGenerate
 } from 'src/_ezs/partials/select'
@@ -43,14 +42,6 @@ import { toAbsolutePath, toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import Tooltip from 'rc-tooltip'
-import Select from 'react-select'
-import CalendarAPI from 'src/_ezs/api/calendar.api'
-
-let Options = [
-  { label: 'Ngày kích hoạt', value: 'ngay_kich_hoat' },
-  { label: 'Ngày mua hàng', value: 'ngay_mua_hang' },
-  { label: 'Buổi đầu', value: 'buoi_dau' }
-]
 
 const schemaAddEdit = yup
   .object({
@@ -60,7 +51,7 @@ const schemaAddEdit = yup
   })
   .required()
 
-function PickerComboAddEdit({ children, initialValues }) {
+function PickerAddEdit({ children, initialValues }) {
   const [visible, setVisible] = useState(false)
   const [selectedIndex, setSelectedIndex] = useState(0)
 
@@ -92,38 +83,7 @@ function PickerComboAddEdit({ children, initialValues }) {
           value: '*'
         }
       ],
-      Combo: [
-        {
-          Id: '',
-          baohanh: {
-            bh: false,
-            luong_bh: '',
-            tg_bh: '-1',
-            slg_bh_toi_da: '-1',
-            tinh_han_bh: 'ngay_kich_hoat',
-            unlimit: []
-          },
-          addfee: '',
-          isService: 0,
-          qty: '',
-          price: ''
-        }
-        // {
-        //   Id: 20182,
-        //   qty: 1,
-        //   price: 30000,
-        //   addfee: '20113',
-        //   baohanh: {
-        //     bh: true,
-        //     luong_bh: '20000',
-        //     tg_bh: 36500,
-        //     slg_bh_toi_da: 1000,
-        //     tinh_han_bh: 'ngay_kich_hoat',
-        //     unlimit: ['tg_bh', 'slg_bh_toi_da']
-        //   },
-        //   isService: 1
-        // }
-      ],
+      Combo: '',
       IsService: 0,
       IsAddFee: 0,
       Bonus: 0,
@@ -146,11 +106,60 @@ function PickerComboAddEdit({ children, initialValues }) {
       BonusSale: '',
       KpiType: '',
       VAT: '',
-      OtherUnit: [],
+      OtherUnit: [], //[{ ProdID: '', ProdUnit: '', Qty: '', Unit: '' }],
       id: 0,
       Desc: '',
       Detail: '',
-      PhotoList: []
+      PhotoList: [],
+      Options: [
+        {
+          Title: '',
+          ProdID: ''
+        }
+      ],
+      isCreateMaterials: false,
+      Materials: {
+        Title: '',
+        IsPublic: '',
+        IsReady: 1,
+        Type: '',
+        Types: '',
+        OnStocks: [
+          {
+            label: '(Ẩn)',
+            value: '-1'
+          }
+        ],
+        Combo: '',
+        IsService: 0,
+        IsAddFee: 0,
+        Bonus: 0,
+        IsDisplayPrice: 1,
+        InDays: 365,
+        IsMoney: false,
+        IsNVL: true,
+        BonusSale2: '',
+        DynamicID: '',
+        StockUnit: 'Gói',
+        PriceBase: '',
+        Manu: '',
+        Meta: {
+          comProdIDs: '',
+          otherUnit: [],
+          ByDomain: {}
+        },
+        PriceProduct: '',
+        BonusSaleJSON: '',
+        BonusSale: '',
+        KpiType: '',
+        VAT: '',
+        id: 0,
+        Desc: '',
+        Detail: '',
+        PhotoList: [],
+        Status: '',
+        Qty: 1
+      }
     },
     resolver: yupResolver(schemaAddEdit)
   })
@@ -163,12 +172,12 @@ function PickerComboAddEdit({ children, initialValues }) {
   })
 
   const {
-    fields: fieldsCombos,
-    append: appendCombos,
-    remove: removeCombos
+    fields: fieldsOptions,
+    append: appendOptions,
+    remove: removeOptions
   } = useFieldArray({
     control,
-    name: 'Combo'
+    name: 'Options'
   })
 
   const {
@@ -252,76 +261,25 @@ function PickerComboAddEdit({ children, initialValues }) {
         key: initialValues?.ID,
         foredit: initialValues?.ID
       })
-      let Combos = [
-        {
-          Id: '',
-          baohanh: {
-            bh: false,
-            luong_bh: '',
-            tg_bh: '-1',
-            slg_bh_toi_da: '-1',
-            tinh_han_bh: 'ngay_kich_hoat',
-            unlimit: []
-          },
-          addfee: '',
-          isService: 0,
-          qty: '',
-          price: ''
-        }
-      ]
-      if (
-        data?.data?.list &&
-        data?.data?.list.length > 0 &&
-        data?.data?.list[0] &&
-        data?.data?.list[0].Combo
-      ) {
-        let newCombo = JSON.parse(data?.data?.list[0].Combo)
-        if (newCombo && Array.isArray(newCombo) && newCombo.length > 0) {
-          let Selected = []
-          for (let item of newCombo) {
-            if (item.Id) Selected.push(item.Id)
-            if (item.addfee) Selected.push(Number(item.addfee))
-          }
-          let rsSelected = await CalendarAPI.bookOsSelected(Selected.toString())
-          if (rsSelected?.data?.data && rsSelected?.data?.data.length > 0) {
-            newCombo = newCombo.map(item => {
-              let obj = { ...item }
-              if (obj.Id) {
-                let index = rsSelected?.data?.data.findIndex(
-                  x => x.id === obj.Id
-                )
-                if (index > -1) {
-                  obj.Id = {
-                    ...rsSelected?.data?.data[index],
-                    label: rsSelected?.data?.data[index].text,
-                    value: rsSelected?.data?.data[index].id
-                  }
-                }
-              }
-              if (obj.addfee) {
-                let index = rsSelected?.data?.data.findIndex(
-                  x => x.id === Number(obj.addfee)
-                )
-                if (index > -1) {
-                  obj.addfee = {
-                    ...rsSelected?.data?.data[index],
-                    label: rsSelected?.data?.data[index].text,
-                    value: rsSelected?.data?.data[index].id
-                  }
-                }
-              }
-              return obj
-            })
+      let formData = new FormData()
+      formData.append(
+        'did',
+        data?.data?.list && data?.data?.list.length > 0
+          ? data?.data?.list[0]?.DynamicID || data?.data?.list[0].DynamicID_1
+          : ''
+      )
 
-            Combos = newCombo
-          }
-        }
-      }
+      let { data: Options } = await ProdsAPI.getProdsIdOption(formData)
 
       return data?.data?.list && data?.data?.list.length > 0
         ? {
             ...data?.data?.list[0],
-            Combo: Combos
+            Options: Options?.data || [
+              {
+                Title: '',
+                ProdID: ''
+              }
+            ]
           }
         : null
     },
@@ -353,9 +311,24 @@ function PickerComboAddEdit({ children, initialValues }) {
           ])
         }
 
-        if (data.Combo) {
-          setValue('Combo', data.Combo)
-        }
+        setValue(
+          'Options',
+          data.Options && data.Options.length > 0
+            ? data.Options.map(x => ({
+                Title: x.Opt1,
+                ProdID: {
+                  label: x.Target?.Title || x.TargetCode,
+                  value: x.Target?.ID || x.TargetCode,
+                  DynamicID: x.TargetCode
+                }
+              }))
+            : [
+                {
+                  Title: '',
+                  ProdID: ''
+                }
+              ]
+        )
         setValue(
           'IsDisplayPrice',
           data?.IsDisplayPrice && Number(data?.IsDisplayPrice) > 0
@@ -413,8 +386,68 @@ function PickerComboAddEdit({ children, initialValues }) {
   })
 
   const addEditMutation = useMutation({
-    mutationFn: async bodyFormData => {
+    mutationFn: async ({ bodyFormData, optionsFormData, Materials }) => {
       let rs = await ProdsAPI.addEdit(bodyFormData)
+      await ProdsAPI.addEditOptions(optionsFormData)
+
+      if (Materials?.isCreateMaterials && rs?.data?.data?.ID) {
+        let product = rs?.data?.data
+        let values = Materials
+        let newValues = {
+          ...values,
+          IsPublic:
+            values?.OnStocks && values?.OnStocks.some(x => x.value === '-1')
+              ? '0'
+              : '1',
+          Type: values?.Type?.value || '',
+          OnStocks: values?.OnStocks
+            ? values?.OnStocks.filter(x => x.value !== '-1')
+                .map(x => x.value)
+                .toString()
+            : '',
+          Meta: {
+            ByDomain: {},
+            comProdIDs: '',
+            otherUnit: [
+              {
+                ProdID: product?.ID,
+                ProdTitle: product?.Title,
+                ProdUnit: product?.StockUnit,
+                Qty: values.Qty
+              }
+            ]
+          },
+          Manu: values?.Manu?.value || '',
+          KpiType: values?.KpiType?.value || '',
+          PhotoList: values?.PhotoList
+            ? values?.PhotoList.map(x => x.image)
+            : []
+        }
+
+        var bodyMaterialsFormData = new FormData()
+        for (const property in newValues) {
+          if (property === 'id') {
+            bodyMaterialsFormData.append(property, newValues[property])
+          } else if (
+            property === 'OtherUnit' ||
+            property === 'isCreateMaterials'
+          ) {
+          } else if (typeof newValues[property] === 'object') {
+            bodyMaterialsFormData.append(
+              `[${property}]`,
+              JSON.stringify(newValues[property])
+            )
+          } else if (property === 'Desc' || property === 'Detail') {
+            bodyMaterialsFormData.append(
+              `[${property}]`,
+              encodeURI(newValues[property])
+            )
+          } else {
+            bodyMaterialsFormData.append(`[${property}]`, newValues[property])
+          }
+        }
+        await await ProdsAPI.addEdit(bodyMaterialsFormData)
+      }
 
       await queryClient.invalidateQueries({
         queryKey: ['ListProdsProducts']
@@ -444,44 +477,6 @@ function PickerComboAddEdit({ children, initialValues }) {
       PhotoList: values?.PhotoList ? values?.PhotoList.map(x => x.image) : []
     }
 
-    if (newValues.Combo && newValues.Combo.length > 0) {
-      newValues.Combo = newValues.Combo
-        ? newValues.Combo.filter(x => x.Id).map(x => {
-            let obj = {
-              ...x,
-              Id: x?.Id?.value || '',
-              addfee: x?.addfee?.value || '',
-              baohanh: {
-                ...x.baohanh
-              }
-            }
-            if (obj.baohanh.slg_bh_toi_da === '-1') {
-              obj.baohanh.slg_bh_toi_da = 0
-              obj.baohanh.unlimit.push('slg_bh_toi_da')
-            } else {
-              obj.baohanh.slg_bh_toi_da =
-                obj.baohanh.bh && obj.baohanh.slg_bh_toi_da === ''
-                  ? 0
-                  : obj.baohanh.slg_bh_toi_da
-            }
-            if (obj.baohanh.tg_bh === '-1') {
-              obj.baohanh.tg_bh = 0
-              obj.baohanh.unlimit.push('tg_bh')
-            } else {
-              obj.baohanh.tg_bh =
-                obj.baohanh.bh && obj.baohanh.tg_bh === ''
-                  ? 0
-                  : obj.baohanh.tg_bh
-            }
-            return obj
-          }).sort((a,b) => b.isService - a.isService)
-        : []
-    }
-
-    if (!newValues.Combo || newValues.Combo.length === 0) {
-      newValues.Combo = null
-    }
-    
     var bodyFormData = new FormData()
     for (const property in newValues) {
       if (property === 'id') {
@@ -499,21 +494,45 @@ function PickerComboAddEdit({ children, initialValues }) {
       }
     }
 
-    addEditMutation.mutate(bodyFormData, {
-      onSuccess: ({ data }) => {
-        if (data?.error) {
-          toast.error(data?.error)
-        } else {
-          toast.success(
-            initialValues?.ID ? 'Cập nhật thành công.' : 'Thêm mới thành công.'
-          )
-          onHide()
+    var optionsFormData = new FormData()
+    optionsFormData.append('did', values.DynamicID)
+    optionsFormData.append('set', '1')
+    for (let i of values?.Options || []) {
+      if (i.ProdID && i.Title) {
+        optionsFormData.append(
+          `[${i.Title},]`,
+          i.ProdID?.DynamicID || i.ProdID?.DynamicID_1
+        )
+      }
+    }
+
+    addEditMutation.mutate(
+      {
+        bodyFormData,
+        optionsFormData,
+        Materials: {
+          ...values.Materials,
+          isCreateMaterials: values.isCreateMaterials
+        }
+      },
+      {
+        onSuccess: ({ data }) => {
+          if (data?.error) {
+            toast.error(data?.error)
+          } else {
+            toast.success(
+              initialValues?.ID
+                ? 'Cập nhật thành công.'
+                : 'Thêm mới thành công.'
+            )
+            onHide()
+          }
         }
       }
-    })
+    )
   }
 
-  let { BonusSaleJSON, id, Combo } = watch()
+  let { BonusSaleJSON, id, isCreateMaterials, DynamicID, Title, VAT } = watch()
 
   return (
     <>
@@ -541,8 +560,8 @@ function PickerComboAddEdit({ children, initialValues }) {
                   </div>
                   <div className="flex items-center text-xl font-semibold sm:text-2xl lg:text-3xl">
                     {initialValues?.ID
-                      ? 'Chỉnh sửa combo sản phẩm'
-                      : 'Thêm mới combo sản phẩm'}
+                      ? 'Chỉnh sửa sản phẩm'
+                      : 'Thêm mới sản phẩm'}
                   </div>
                 </div>
                 <div className="hidden gap-3 sm:flex">
@@ -589,11 +608,11 @@ function PickerComboAddEdit({ children, initialValues }) {
                                   hasRight: ReadCate?.hasRight
                                 },
                                 {
-                                  Title: 'Cài đặt Combo',
+                                  Title: 'Thông tin trên WEB / APP',
                                   hasRight: ReadApp_type?.hasRight
                                 },
                                 {
-                                  Title: 'Thông tin trên WEB / APP',
+                                  Title: 'Cài đặt Options',
                                   hasRight: ReadApp_type?.hasRight
                                 }
                               ]
@@ -653,106 +672,261 @@ function PickerComboAddEdit({ children, initialValues }) {
                                             {...field}
                                             onChange={e => {
                                               field.onChange(e.target.value)
+                                              if (isCreateMaterials) {
+                                                setValue(
+                                                  'Materials.Title',
+                                                  e.target.value + ' (NVL)'
+                                                )
+                                              }
                                             }}
                                           />
                                         )}
                                       />
                                     </div>
                                   </div>
-                                  <div className="grid grid-cols-1 gap-4 mb-4 sm:grid-cols-2 last:mb-0">
-                                    <div>
-                                      <div className="font-medium">
-                                        Mã sản phẩm *
-                                      </div>
-                                      <div className="mt-1">
-                                        <Controller
-                                          name="DynamicID"
-                                          control={control}
-                                          render={({
-                                            field: { ref, ...field },
-                                            fieldState
-                                          }) => (
-                                            <Input
-                                              placeholder="Nhập mã"
-                                              value={field.value}
-                                              errorMessageForce={
-                                                fieldState?.invalid
-                                              }
-                                              //errorMessage={fieldState?.error?.message}
-                                              {...field}
-                                              onChange={e => {
-                                                field.onChange(e.target.value)
-                                              }}
-                                            />
-                                          )}
-                                        />
-                                      </div>
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-4 sm:gap-2">
+                                  <div className="mb-4 last:mb-0">
+                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                       <div>
                                         <div className="font-medium">
-                                          Đơn vị *
+                                          Mã sản phẩm *
                                         </div>
                                         <div className="mt-1">
                                           <Controller
-                                            name="StockUnit"
+                                            name="DynamicID"
                                             control={control}
                                             render={({
                                               field: { ref, ...field },
                                               fieldState
                                             }) => (
-                                              <SelectMeasure
+                                              <Input
+                                                placeholder="Nhập mã"
                                                 value={field.value}
-                                                onChange={val => {
-                                                  field.onChange(
-                                                    val ? val.value : ''
-                                                  )
-                                                }}
                                                 errorMessageForce={
                                                   fieldState?.invalid
                                                 }
-                                                menuPortalTarget={document.body}
-                                                menuPosition="fixed"
-                                                styles={{
-                                                  menuPortal: base => ({
-                                                    ...base,
-                                                    zIndex: 9999
-                                                  })
+                                                //errorMessage={fieldState?.error?.message}
+                                                {...field}
+                                                onChange={e => {
+                                                  field.onChange(e.target.value)
+                                                  if (isCreateMaterials) {
+                                                    setValue(
+                                                      'Materials.Title',
+                                                      'NVL' + e.target.value
+                                                    )
+                                                  }
                                                 }}
                                               />
                                             )}
                                           />
                                         </div>
                                       </div>
-                                      <div>
-                                        <div className="font-semibold">VAT</div>
-                                        <div className="mt-1">
-                                          <Controller
-                                            name={`VAT`}
-                                            control={control}
-                                            render={({
-                                              field: { ref, ...field },
-                                              fieldState
-                                            }) => (
-                                              <InputNumber
-                                                thousandSeparator={false}
-                                                value={field.value}
-                                                placeholder="Nhập VAT"
-                                                onValueChange={val =>
-                                                  field.onChange(
-                                                    typeof val?.floatValue !==
-                                                      'undefined'
-                                                      ? val.floatValue
-                                                      : ''
-                                                  )
-                                                }
-                                              />
-                                            )}
-                                          />
+                                      <div className="grid grid-cols-2 gap-4 sm:gap-2">
+                                        <div>
+                                          <div className="font-medium">
+                                            Đơn vị *
+                                          </div>
+                                          <div className="mt-1">
+                                            <Controller
+                                              name="StockUnit"
+                                              control={control}
+                                              render={({
+                                                field: { ref, ...field },
+                                                fieldState
+                                              }) => (
+                                                <SelectMeasure
+                                                  value={field.value}
+                                                  onChange={val => {
+                                                    field.onChange(
+                                                      val ? val.value : ''
+                                                    )
+                                                  }}
+                                                  errorMessageForce={
+                                                    fieldState?.invalid
+                                                  }
+                                                  menuPortalTarget={
+                                                    document.body
+                                                  }
+                                                  menuPosition="fixed"
+                                                  styles={{
+                                                    menuPortal: base => ({
+                                                      ...base,
+                                                      zIndex: 9999
+                                                    })
+                                                  }}
+                                                />
+                                              )}
+                                            />
+                                          </div>
+                                        </div>
+                                        <div>
+                                          <div className="font-semibold">
+                                            VAT
+                                          </div>
+                                          <div className="mt-1">
+                                            <Controller
+                                              name={`VAT`}
+                                              control={control}
+                                              render={({
+                                                field: { ref, ...field },
+                                                fieldState
+                                              }) => (
+                                                <InputNumber
+                                                  thousandSeparator={false}
+                                                  value={field.value}
+                                                  placeholder="Nhập VAT"
+                                                  onValueChange={val =>
+                                                    field.onChange(
+                                                      typeof val?.floatValue !==
+                                                        'undefined'
+                                                        ? val.floatValue
+                                                        : ''
+                                                    )
+                                                  }
+                                                />
+                                              )}
+                                            />
+                                          </div>
                                         </div>
                                       </div>
                                     </div>
+
+                                    {!id && (
+                                      <>
+                                        <div className="grid grid-cols-1 gap-4 mt-3 sm:grid-cols-2">
+                                          <div className="flex items-center">
+                                            <Controller
+                                              name="isCreateMaterials"
+                                              control={control}
+                                              render={({
+                                                field: { ref, ...field },
+                                                fieldState
+                                              }) => (
+                                                <div className="flex items-center gap-1.5 mt-2">
+                                                  <div>
+                                                    <Switch
+                                                      checked={field.value}
+                                                      onChange={e => {
+                                                        field.onChange(e)
+                                                        setValue(
+                                                          'Materials.DynamicID',
+                                                          'NVL' + DynamicID
+                                                        )
+                                                        setValue(
+                                                          'Materials.Title',
+                                                          Title + ' (NVL)'
+                                                        )
+                                                        setValue(
+                                                          'Materials.VAT',
+                                                          VAT
+                                                        )
+                                                      }}
+                                                      className={clsx(
+                                                        'relative inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white/75',
+                                                        field.value
+                                                          ? 'bg-primary'
+                                                          : 'bg-[#d3d3d3]'
+                                                      )}
+                                                    >
+                                                      <span className="sr-only">
+                                                        Use setting
+                                                      </span>
+                                                      <span
+                                                        aria-hidden="true"
+                                                        className={clsx(
+                                                          'pointer-events-none inline-block h-[20px] w-[20px] transform rounded-full bg-white shadow-lg ring-0 top-0 transition duration-200 ease-in-out',
+                                                          field.value
+                                                            ? 'translate-x-5'
+                                                            : 'translate-x-0'
+                                                        )}
+                                                      />
+                                                    </Switch>
+                                                  </div>
+
+                                                  <div className="font-light text-muted2">
+                                                    Sản phẩm có tiêu hao khi làm
+                                                    dịch vụ
+                                                  </div>
+                                                </div>
+                                              )}
+                                            />
+                                          </div>
+                                          {isCreateMaterials && (
+                                            <div className="grid grid-cols-2 gap-4 sm:gap-2">
+                                              <div>
+                                                <div className="font-medium">
+                                                  Đơn vị *
+                                                </div>
+                                                <div className="mt-1">
+                                                  <Controller
+                                                    name="Materials.StockUnit"
+                                                    control={control}
+                                                    render={({
+                                                      field: { ref, ...field },
+                                                      fieldState
+                                                    }) => (
+                                                      <SelectMeasure
+                                                        value={field.value}
+                                                        onChange={val => {
+                                                          field.onChange(
+                                                            val ? val.value : ''
+                                                          )
+                                                        }}
+                                                        errorMessageForce={
+                                                          fieldState?.invalid
+                                                        }
+                                                        menuPortalTarget={
+                                                          document.body
+                                                        }
+                                                        menuPosition="fixed"
+                                                        styles={{
+                                                          menuPortal: base => ({
+                                                            ...base,
+                                                            zIndex: 9999
+                                                          })
+                                                        }}
+                                                      />
+                                                    )}
+                                                  />
+                                                </div>
+                                              </div>
+                                              <div>
+                                                <div className="font-semibold">
+                                                  Số lượng
+                                                </div>
+                                                <div className="mt-1">
+                                                  <Controller
+                                                    name={`Materials.Qty`}
+                                                    control={control}
+                                                    render={({
+                                                      field: { ref, ...field },
+                                                      fieldState
+                                                    }) => (
+                                                      <InputNumber
+                                                        thousandSeparator={
+                                                          false
+                                                        }
+                                                        value={field.value}
+                                                        placeholder="Nhập số lượng"
+                                                        onValueChange={val =>
+                                                          field.onChange(
+                                                            typeof val?.floatValue !==
+                                                              'undefined'
+                                                              ? val.floatValue
+                                                              : ''
+                                                          )
+                                                        }
+                                                      />
+                                                    )}
+                                                  />
+                                                </div>
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </>
+                                    )}
                                   </div>
+
                                   <div className="grid grid-cols-1 gap-4 mb-4 sm:grid-cols-2 last:mb-0">
                                     <div>
                                       <div className="font-medium">
@@ -1420,522 +1594,6 @@ function PickerComboAddEdit({ children, initialValues }) {
                                 </div>
                               </div>
                             </Tab.Panel>
-                            <Tab.Panel>
-                              <div className="mb-6">
-                                <div className="mb-1 text-lg font-semibold sm:text-2xl">
-                                  Cài đặt Combo
-                                </div>
-                                <div className="font-light text-muted2">
-                                  Cấu hình cài đặt Combo cho sản phẩm.
-                                </div>
-                              </div>
-                              <div>
-                                <div>
-                                  {fieldsCombos &&
-                                    fieldsCombos.map((item, i) => (
-                                      <div
-                                        className="pb-5 mb-4 border-b border-separator last:pb-0 last:mb-0 last:border-0"
-                                        key={item.id}
-                                      >
-                                        <div className="flex gap-4">
-                                          <div className="flex-1">
-                                            <Controller
-                                              name={`Combo[${i}].Id`}
-                                              control={control}
-                                              render={({
-                                                field: { ref, ...field },
-                                                fieldState
-                                              }) => (
-                                                <SelectProdsCombos
-                                                  className="select-control"
-                                                  isClearable
-                                                  value={field.value}
-                                                  onChange={val => {
-                                                    field.onChange(val)
-                                                    if (val) {
-                                                      setValue(
-                                                        `Combo[${i}].qty`,
-                                                        1
-                                                      )
-                                                      if (
-                                                        val?.suffix === 'DV'
-                                                      ) {
-                                                        setValue(
-                                                          `Combo[${i}].isService`,
-                                                          1
-                                                        )
-                                                      } else {
-                                                        setValue(
-                                                          `Combo[${i}].baohanh`,
-                                                          {
-                                                            bh: false,
-                                                            luong_bh: '',
-                                                            tg_bh: '-1',
-                                                            slg_bh_toi_da: '-1',
-                                                            tinh_han_bh:
-                                                              'ngay_kich_hoat',
-                                                            unlimit: []
-                                                          }
-                                                        )
-                                                      }
-                                                    } else {
-                                                      setValue(
-                                                        `Combo[${i}].qty`,
-                                                        ''
-                                                      )
-                                                      setValue(
-                                                        `Combo[${i}].price`,
-                                                        ''
-                                                      )
-                                                      setValue(
-                                                        `Combo[${i}].isService`,
-                                                        0
-                                                      )
-                                                      setValue(
-                                                        `Combo[${i}].addfee`,
-                                                        ''
-                                                      )
-                                                      setValue(
-                                                        `Combo[${i}].baohanh`,
-                                                        {
-                                                          bh: false,
-                                                          luong_bh: '',
-                                                          tg_bh: '-1',
-                                                          slg_bh_toi_da: '-1',
-                                                          tinh_han_bh:
-                                                            'ngay_kich_hoat',
-                                                          unlimit: []
-                                                        }
-                                                      )
-                                                    }
-                                                  }}
-                                                  placeholder="Nhập tên mặt hàng"
-                                                />
-                                              )}
-                                            />
-                                          </div>
-                                          <div className="w-[100px]">
-                                            <Controller
-                                              name={`Combo[${i}].qty`}
-                                              control={control}
-                                              render={({
-                                                field: { ref, ...field },
-                                                fieldState
-                                              }) => (
-                                                <div className="relative">
-                                                  <InputNumber
-                                                    errorMessageForce={
-                                                      fieldState.invalid
-                                                    }
-                                                    placeholder="Số lượng"
-                                                    value={field.value}
-                                                    onValueChange={val => {
-                                                      field.onChange(
-                                                        typeof val.floatValue !==
-                                                          'undefined'
-                                                          ? val.floatValue
-                                                          : ''
-                                                      )
-                                                    }}
-                                                    allowNegative={false}
-                                                    isAllowed={inputObj => {
-                                                      const { floatValue } =
-                                                        inputObj
-                                                      if (floatValue < 0) return
-                                                      return true
-                                                    }}
-                                                  />
-                                                </div>
-                                              )}
-                                            />
-                                          </div>
-                                          <div className="w-[200px]">
-                                            <Controller
-                                              name={`Combo[${i}].price`}
-                                              control={control}
-                                              render={({
-                                                field: { ref, ...field },
-                                                fieldState
-                                              }) => (
-                                                <div className="relative">
-                                                  <InputNumber
-                                                    thousandSeparator={true}
-                                                    errorMessageForce={
-                                                      fieldState.invalid
-                                                    }
-                                                    placeholder="Nhập giá Combo"
-                                                    value={field.value}
-                                                    onValueChange={val => {
-                                                      field.onChange(
-                                                        typeof val.floatValue !==
-                                                          'undefined'
-                                                          ? val.floatValue
-                                                          : ''
-                                                      )
-                                                    }}
-                                                    allowNegative={false}
-                                                    isAllowed={inputObj => {
-                                                      const { floatValue } =
-                                                        inputObj
-                                                      if (floatValue < 0) return
-                                                      return true
-                                                    }}
-                                                  />
-                                                </div>
-                                              )}
-                                            />
-                                          </div>
-
-                                          <div
-                                            className="min-w-12 w-12 h-12 bg-[#f6f6f6] rounded flex items-center justify-center cursor-pointer text-danger"
-                                            onClick={() => removeCombos(i)}
-                                          >
-                                            <TrashIcon className="w-5" />
-                                          </div>
-                                        </div>
-                                        {Combo && Combo[i]?.isService === 1 && (
-                                          <div className="flex gap-4 mt-4">
-                                            <div className="flex-1">
-                                              <div className="flex items-center justify-end gap-5 mb-4">
-                                                <div>Có thể chuyển qua</div>
-                                                <div className="w-[315px]">
-                                                  <Controller
-                                                    name={`Combo[${i}].addfee`}
-                                                    control={control}
-                                                    render={({
-                                                      field: { ref, ...field },
-                                                      fieldState
-                                                    }) => (
-                                                      <SelectProdsSurchargeCard
-                                                        className="select-control"
-                                                        isClearable
-                                                        value={field.value}
-                                                        onChange={val => {
-                                                          field.onChange(val)
-                                                        }}
-                                                        placeholder="Chọn phụ phí"
-                                                      />
-                                                    )}
-                                                  />
-                                                </div>
-                                              </div>
-                                              <div className="flex items-center justify-end gap-5 mb-4">
-                                                <div>Dịch vụ bảo hành</div>
-                                                <div className="w-[315px]">
-                                                  <Controller
-                                                    name={`Combo[${i}].baohanh.bh`}
-                                                    control={control}
-                                                    render={({
-                                                      field: { ref, ...field },
-                                                      fieldState
-                                                    }) => (
-                                                      <Switch
-                                                        checked={field.value}
-                                                        onChange={e => {
-                                                          field.onChange(e)
-                                                        }}
-                                                        className={clsx(
-                                                          'relative inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white/75',
-                                                          field.value
-                                                            ? 'bg-primary'
-                                                            : 'bg-[#d3d3d3]'
-                                                        )}
-                                                      >
-                                                        <span className="sr-only">
-                                                          Use setting
-                                                        </span>
-                                                        <span
-                                                          aria-hidden="true"
-                                                          className={clsx(
-                                                            'pointer-events-none inline-block h-[20px] w-[20px] transform rounded-full bg-white shadow-lg ring-0 top-0 transition duration-200 ease-in-out',
-                                                            field.value
-                                                              ? 'translate-x-5'
-                                                              : 'translate-x-0'
-                                                          )}
-                                                        />
-                                                      </Switch>
-                                                    )}
-                                                  />
-                                                </div>
-                                              </div>
-                                              {Combo[i].baohanh.bh && (
-                                                <div>
-                                                  <div className="flex items-center justify-end gap-5 mb-4">
-                                                    <div>Lương bảo hành</div>
-                                                    <div className="w-[315px]">
-                                                      <Controller
-                                                        name={`Combo[${i}].baohanh.luong_bh`}
-                                                        control={control}
-                                                        render={({
-                                                          field: {
-                                                            ref,
-                                                            ...field
-                                                          },
-                                                          fieldState
-                                                        }) => (
-                                                          <div className="relative">
-                                                            <InputNumber
-                                                              thousandSeparator={
-                                                                true
-                                                              }
-                                                              errorMessageForce={
-                                                                fieldState.invalid
-                                                              }
-                                                              placeholder="Nhập số tiền"
-                                                              value={
-                                                                field.value
-                                                              }
-                                                              onValueChange={val => {
-                                                                field.onChange(
-                                                                  typeof val.floatValue !==
-                                                                    'undefined'
-                                                                    ? val.floatValue
-                                                                    : ''
-                                                                )
-                                                              }}
-                                                            />
-                                                          </div>
-                                                        )}
-                                                      />
-                                                    </div>
-                                                  </div>
-                                                  <div className="flex items-center justify-end gap-5 mb-4">
-                                                    <div>Số ngày bảo hành</div>
-                                                    <div className="w-[315px] flex gap-3">
-                                                      <Controller
-                                                        name={`Combo[${i}].baohanh.tg_bh`}
-                                                        control={control}
-                                                        render={({
-                                                          field: {
-                                                            ref,
-                                                            ...field
-                                                          },
-                                                          fieldState
-                                                        }) => (
-                                                          <>
-                                                            <div className="flex border border-[#e5e5e5] bg-[#f2f2f2] rounded p-1 gap-1">
-                                                              <div
-                                                                onClick={() =>
-                                                                  field.onChange(
-                                                                    365
-                                                                  )
-                                                                }
-                                                                className={clsx(
-                                                                  'px-2 border rounded flex items-center text-[12px] font-medium cursor-pointer transition-all',
-                                                                  field.value !==
-                                                                    '-1'
-                                                                    ? 'bg-white border-[#d3d3d3]'
-                                                                    : 'border-[#f2f2f2] hover:bg-[#eaeaea]'
-                                                                )}
-                                                              >
-                                                                Giới hạn
-                                                              </div>
-                                                              <div
-                                                                onClick={() =>
-                                                                  field.onChange(
-                                                                    '-1'
-                                                                  )
-                                                                }
-                                                                className={clsx(
-                                                                  'px-2 border rounded flex items-center text-[12px] font-medium cursor-pointer transition-all',
-                                                                  field.value ===
-                                                                    '-1'
-                                                                    ? 'bg-white border-[#d3d3d3]'
-                                                                    : 'border-[#f2f2f2] hover:bg-[#eaeaea]'
-                                                                )}
-                                                              >
-                                                                Không giới hạn
-                                                              </div>
-                                                            </div>
-                                                            <div className="relative flex-1">
-                                                              <InputNumber
-                                                                thousandSeparator={
-                                                                  false
-                                                                }
-                                                                errorMessageForce={
-                                                                  fieldState.invalid
-                                                                }
-                                                                placeholder="Số ngày"
-                                                                value={
-                                                                  field.value ===
-                                                                  '-1'
-                                                                    ? ''
-                                                                    : field.value
-                                                                }
-                                                                onValueChange={val => {
-                                                                  field.onChange(
-                                                                    typeof val.floatValue !==
-                                                                      'undefined'
-                                                                      ? val.floatValue
-                                                                      : ''
-                                                                  )
-                                                                }}
-                                                                disabled={
-                                                                  field.value ===
-                                                                  '-1'
-                                                                }
-                                                              />
-                                                            </div>
-                                                          </>
-                                                        )}
-                                                      />
-                                                    </div>
-                                                  </div>
-                                                  <div className="flex items-center justify-end gap-5 mb-4">
-                                                    <div>Số buổi bảo hành</div>
-                                                    <div className="w-[315px] flex gap-3">
-                                                      <Controller
-                                                        name={`Combo[${i}].baohanh.slg_bh_toi_da`}
-                                                        control={control}
-                                                        render={({
-                                                          field: {
-                                                            ref,
-                                                            ...field
-                                                          },
-                                                          fieldState
-                                                        }) => (
-                                                          <>
-                                                            <div className="flex border border-[#e5e5e5] bg-[#f2f2f2] rounded p-1 gap-1">
-                                                              <div
-                                                                onClick={() =>
-                                                                  field.onChange(
-                                                                    ''
-                                                                  )
-                                                                }
-                                                                className={clsx(
-                                                                  'px-2 border rounded flex items-center text-[12px] font-medium cursor-pointer transition-all',
-                                                                  field.value !==
-                                                                    '-1'
-                                                                    ? 'bg-white border-[#d3d3d3]'
-                                                                    : 'border-[#f2f2f2] hover:bg-[#eaeaea]'
-                                                                )}
-                                                              >
-                                                                Giới hạn
-                                                              </div>
-                                                              <div
-                                                                onClick={() =>
-                                                                  field.onChange(
-                                                                    '-1'
-                                                                  )
-                                                                }
-                                                                className={clsx(
-                                                                  'px-2 border rounded flex items-center text-[12px] font-medium cursor-pointer transition-all',
-                                                                  field.value ===
-                                                                    '-1'
-                                                                    ? 'bg-white border-[#d3d3d3]'
-                                                                    : 'border-[#f2f2f2] hover:bg-[#eaeaea]'
-                                                                )}
-                                                              >
-                                                                Không giới hạn
-                                                              </div>
-                                                            </div>
-                                                            <div className="relative flex-1">
-                                                              <InputNumber
-                                                                thousandSeparator={
-                                                                  false
-                                                                }
-                                                                errorMessageForce={
-                                                                  fieldState.invalid
-                                                                }
-                                                                placeholder="Số buổi"
-                                                                value={
-                                                                  field.value ===
-                                                                  '-1'
-                                                                    ? ''
-                                                                    : field.value
-                                                                }
-                                                                onValueChange={val => {
-                                                                  field.onChange(
-                                                                    typeof val.floatValue !==
-                                                                      'undefined'
-                                                                      ? val.floatValue
-                                                                      : ''
-                                                                  )
-                                                                }}
-                                                                disabled={
-                                                                  field.value ===
-                                                                  '-1'
-                                                                }
-                                                              />
-                                                            </div>
-                                                          </>
-                                                        )}
-                                                      />
-                                                    </div>
-                                                  </div>
-                                                  <div className="flex items-center justify-end gap-5">
-                                                    <div>
-                                                      Cách tính hạn bảo hành
-                                                    </div>
-                                                    <div className="w-[315px]">
-                                                      <Controller
-                                                        name={`Combo[${i}].baohanh.tinh_han_bh`}
-                                                        control={control}
-                                                        render={({
-                                                          field: {
-                                                            ref,
-                                                            ...field
-                                                          },
-                                                          fieldState
-                                                        }) => (
-                                                          <Select
-                                                            className="flex-1 select-control"
-                                                            value={Options.filter(
-                                                              x =>
-                                                                x.value ===
-                                                                field?.value
-                                                            )}
-                                                            classNamePrefix="select"
-                                                            options={
-                                                              Options || []
-                                                            }
-                                                            placeholder="Chọn cách tính"
-                                                            noOptionsMessage={() =>
-                                                              'Không có dữ liệu'
-                                                            }
-                                                          />
-                                                        )}
-                                                      />
-                                                    </div>
-                                                  </div>
-                                                </div>
-                                              )}
-                                            </div>
-                                            <div className="w-12"></div>
-                                          </div>
-                                        )}
-                                      </div>
-                                    ))}
-                                </div>
-                                <div className="mt-6">
-                                  <button
-                                    className="h-10 items-center flex border border-[#d3d3d3] rounded-full px-4 text-sm"
-                                    type="button"
-                                    onClick={() => {
-                                      appendCombos({
-                                        Id: '',
-                                        baohanh: {
-                                          bh: false,
-                                          luong_bh: '',
-                                          tg_bh: '-1',
-                                          slg_bh_toi_da: '-1',
-                                          tinh_han_bh: 'ngay_kich_hoat',
-                                          unlimit: []
-                                        },
-                                        isService: 0,
-                                        qty: '',
-                                        price: ''
-                                      })
-                                    }}
-                                  >
-                                    <PlusCircleIcon className="w-5" />
-                                    <span className="pl-1.5">
-                                      Thêm mới Combo
-                                    </span>
-                                  </button>
-                                </div>
-                              </div>
-                            </Tab.Panel>
                           </>
                         )}
                         {ReadApp_type?.hasRight && (
@@ -2134,6 +1792,102 @@ function PickerComboAddEdit({ children, initialValues }) {
                                 </div>
                               </div>
                             </Tab.Panel>
+                            <Tab.Panel>
+                              <div className="mb-6">
+                                <div className="mb-1 text-lg font-semibold sm:text-2xl">
+                                  Cài đặt Options
+                                </div>
+                                <div className="font-light text-muted2">
+                                  Thêm các loại option như kích thước, màu sắc,
+                                  size cho sản phẩm.
+                                </div>
+                              </div>
+                              <div>
+                                <div>
+                                  {fieldsOptions &&
+                                    fieldsOptions.map((item, i) => (
+                                      <div
+                                        className="pb-5 mb-4 border-b border-separator last:pb-0 last:mb-0 last:border-0"
+                                        key={item.id}
+                                      >
+                                        <div className="flex gap-4">
+                                          <div className="flex-1">
+                                            <Controller
+                                              name={`Options[${i}].Title`}
+                                              control={control}
+                                              render={({
+                                                field: { ref, ...field },
+                                                fieldState
+                                              }) => (
+                                                <div className="relative">
+                                                  <Input
+                                                    className="capitalize-first"
+                                                    value={field.value}
+                                                    errorMessageForce={
+                                                      fieldState?.invalid
+                                                    }
+                                                    placeholder="Tên Option (Size, Màu sắc ,...)"
+                                                    //errorMessage={fieldState?.error?.message}
+                                                    {...field}
+                                                    onChange={e => {
+                                                      field.onChange(
+                                                        e.target.value
+                                                      )
+                                                    }}
+                                                  />
+                                                </div>
+                                              )}
+                                            />
+                                          </div>
+                                          <div className="flex-1">
+                                            <Controller
+                                              name={`Options[${i}].ProdID`}
+                                              control={control}
+                                              render={({
+                                                field: { ref, ...field },
+                                                fieldState
+                                              }) => (
+                                                <SelectProdsOption
+                                                  className="select-control"
+                                                  isClearable
+                                                  value={field.value}
+                                                  onChange={val => {
+                                                    field.onChange(val)
+                                                  }}
+                                                  placeholder="Nhập tên, mã mặt hàng"
+                                                />
+                                              )}
+                                            />
+                                          </div>
+                                          <div
+                                            className="min-w-12 w-12 h-12 bg-[#f6f6f6] rounded flex items-center justify-center cursor-pointer text-danger"
+                                            onClick={() => removeOptions(i)}
+                                          >
+                                            <TrashIcon className="w-5" />
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                </div>
+                                <div className="mt-6">
+                                  <button
+                                    className="h-10 items-center flex border border-[#d3d3d3] rounded-full px-4 text-sm"
+                                    type="button"
+                                    onClick={() =>
+                                      appendOptions({
+                                        ProdID: '',
+                                        Title: ''
+                                      })
+                                    }
+                                  >
+                                    <PlusCircleIcon className="w-5" />
+                                    <span className="pl-1.5">
+                                      Thêm mới Option
+                                    </span>
+                                  </button>
+                                </div>
+                              </div>
+                            </Tab.Panel>
                           </>
                         )}
                       </Tab.Panels>
@@ -2167,4 +1921,4 @@ function PickerComboAddEdit({ children, initialValues }) {
   )
 }
 
-export default PickerComboAddEdit
+export default PickerAddEdit

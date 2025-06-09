@@ -759,6 +759,7 @@ function WareHouseExportStock(props) {
               ProdId: x.ProdID,
               Other: x?.Desc || '',
               Unit: x.StockUnit || '',
+              ImportTotalPrice: x.Qty * x.ImportPrice,
               convert: null
             }))
           )
