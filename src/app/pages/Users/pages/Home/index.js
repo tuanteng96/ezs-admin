@@ -48,6 +48,7 @@ function Home(props) {
     Status: [0],
     Levels: [],
     StockIDs: CrStocks?.ID,
+    Order: '[Order]',
     Pi: 1,
     Ps: 20
   })

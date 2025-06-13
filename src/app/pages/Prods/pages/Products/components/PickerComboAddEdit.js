@@ -446,42 +446,44 @@ function PickerComboAddEdit({ children, initialValues }) {
 
     if (newValues.Combo && newValues.Combo.length > 0) {
       newValues.Combo = newValues.Combo
-        ? newValues.Combo.filter(x => x.Id).map(x => {
-            let obj = {
-              ...x,
-              Id: x?.Id?.value || '',
-              addfee: x?.addfee?.value || '',
-              baohanh: {
-                ...x.baohanh
+        ? newValues.Combo.filter(x => x.Id)
+            .map(x => {
+              let obj = {
+                ...x,
+                Id: x?.Id?.value || '',
+                addfee: x?.addfee?.value || '',
+                baohanh: {
+                  ...x.baohanh
+                }
               }
-            }
-            if (obj.baohanh.slg_bh_toi_da === '-1') {
-              obj.baohanh.slg_bh_toi_da = 0
-              obj.baohanh.unlimit.push('slg_bh_toi_da')
-            } else {
-              obj.baohanh.slg_bh_toi_da =
-                obj.baohanh.bh && obj.baohanh.slg_bh_toi_da === ''
-                  ? 0
-                  : obj.baohanh.slg_bh_toi_da
-            }
-            if (obj.baohanh.tg_bh === '-1') {
-              obj.baohanh.tg_bh = 0
-              obj.baohanh.unlimit.push('tg_bh')
-            } else {
-              obj.baohanh.tg_bh =
-                obj.baohanh.bh && obj.baohanh.tg_bh === ''
-                  ? 0
-                  : obj.baohanh.tg_bh
-            }
-            return obj
-          }).sort((a,b) => b.isService - a.isService)
+              if (obj.baohanh.slg_bh_toi_da === '-1') {
+                obj.baohanh.slg_bh_toi_da = 0
+                obj.baohanh.unlimit.push('slg_bh_toi_da')
+              } else {
+                obj.baohanh.slg_bh_toi_da =
+                  obj.baohanh.bh && obj.baohanh.slg_bh_toi_da === ''
+                    ? 0
+                    : obj.baohanh.slg_bh_toi_da
+              }
+              if (obj.baohanh.tg_bh === '-1') {
+                obj.baohanh.tg_bh = 0
+                obj.baohanh.unlimit.push('tg_bh')
+              } else {
+                obj.baohanh.tg_bh =
+                  obj.baohanh.bh && obj.baohanh.tg_bh === ''
+                    ? 0
+                    : obj.baohanh.tg_bh
+              }
+              return obj
+            })
+            .sort((a, b) => b.isService - a.isService)
         : []
     }
 
     if (!newValues.Combo || newValues.Combo.length === 0) {
       newValues.Combo = null
     }
-    
+
     var bodyFormData = new FormData()
     for (const property in newValues) {
       if (property === 'id') {

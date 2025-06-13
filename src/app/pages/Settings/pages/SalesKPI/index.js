@@ -261,7 +261,7 @@ function SalesKPI(props) {
       },
       {
         onSuccess: data => {
-          refetch().then(() => toast.success('Cập nhập thành công'))
+          refetch().then(() => toast.success('Cập nhật thành công'))
         },
         onError: error => {
           console.log(error)

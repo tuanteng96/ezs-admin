@@ -85,7 +85,7 @@ const BtnCOD = ({ className, OrderID, children }) => {
             .invalidateQueries({ queryKey: ['MemberListPay'] })
             .then(() => {
               onHide()
-              toast.success('Cập nhập đơn vị vận chuyển thành công.')
+              toast.success('Cập nhật đơn vị vận chuyển thành công.')
             })
         }
       },

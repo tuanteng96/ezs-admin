@@ -154,7 +154,7 @@ const CalendarLock = props => {
       },
       {
         onSuccess: ({ data }) => {
-          toast.success('Cập nhập đơn vị vận chuyển thành công.')
+          toast.success('Cập nhật đơn vị vận chuyển thành công.')
           onHide()
         },
         onError: error => {

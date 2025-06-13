@@ -705,7 +705,7 @@ function WareHouseExport(props) {
           if (data?.data?.data?.ID) {
             Swal.fire({
               icon: 'success',
-              title: id ? 'Cập nhập thành công.' : 'Thêm mới thành công.',
+              title: id ? 'Cập nhật thành công.' : 'Thêm mới thành công.',
               html: `${
                 !id ? 'Tạo đơn xuất kho mới' : 'Chỉnh sửa đơn xuất kho'
               } thành công. ( Mã ${data?.data?.data?.Code} )`,
@@ -1322,7 +1322,7 @@ function WareHouseExport(props) {
                       moment(data?.CreateDate).format('DD-MM-YYYY') ? (
                       <>Không thể chỉnh sửa</>
                     ) : (
-                      <>{id ? 'Cập nhập' : 'Thêm mới'}</>
+                      <>{id ? 'Cập nhật' : 'Thêm mới'}</>
                     )}
                   </Button>
                 </div>

@@ -119,7 +119,7 @@ function SettingsPoint(props) {
       },
       {
         onSuccess: () => {
-          toast.success('Cập nhập thành công.')
+          toast.success('Cập nhật thành công.')
         }
       }
     )

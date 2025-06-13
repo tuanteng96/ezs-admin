@@ -193,7 +193,7 @@ function ClientAddEdit(props) {
           toast.success(
             isAddMode
               ? 'Thêm mới khách hàng thành công.'
-              : 'Cập nhập thông tin thành công.'
+              : 'Cập nhật thông tin thành công.'
           )
           if (isAddMode) {
             navigate(
@@ -318,7 +318,7 @@ function ClientAddEdit(props) {
                   type="submit"
                   className="relative flex items-center h-12 px-4 font-medium text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
                 >
-                  {isAddMode ? 'Thêm mới' : 'Cập nhập'}
+                  {isAddMode ? 'Thêm mới' : 'Cập nhật'}
                 </Button>
               </div>
             </div>

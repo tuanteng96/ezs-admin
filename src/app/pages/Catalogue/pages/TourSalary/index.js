@@ -47,7 +47,7 @@ const RendererBonusSale = ({ rowData }) => {
         customClass: {
           confirmButton: 'bg-success'
         },
-        title: 'Xác nhận cập nhập ?',
+        title: 'Xác nhận cập nhật ?',
         html: `Tất cả các sản phẩm được tìm kiếm theo bộ lọc sẽ được cập nhật về loại lương Tour : ${
           val || 0
         } và không thể khôi phục.`,
@@ -66,7 +66,7 @@ const RendererBonusSale = ({ rowData }) => {
       }).then(result => {
         if (result.isConfirmed) {
           setValue('')
-          window?.top?.toastr?.success('Đã cập nhập tất cả.', '', {
+          window?.top?.toastr?.success('Đã cập nhật tất cả.', '', {
             timeOut: 1500
           })
         } else {
@@ -141,7 +141,7 @@ const RendererLevels = ({ rowData, name }) => {
         customClass: {
           confirmButton: 'bg-success'
         },
-        title: 'Xác nhận cập nhập ?',
+        title: 'Xác nhận cập nhật ?',
         html: `Tất cả các sản phẩm được tìm kiếm theo bộ lọc sẽ được cập nhật về ${name} : ${
           val || 0
         } và không thể khôi phục.`,
@@ -160,7 +160,7 @@ const RendererLevels = ({ rowData, name }) => {
       }).then(result => {
         if (result.isConfirmed) {
           setValue('')
-          window?.top?.toastr?.success('Đã cập nhập tất cả.', '', {
+          window?.top?.toastr?.success('Đã cập nhật tất cả.', '', {
             timeOut: 1500
           })
         } else {
@@ -389,7 +389,7 @@ function TourSalary() {
           onEndReachedThreshold={1}
           onEndReached={fetchNextPage}
           frozenData={[
-            { filters, Title: 'Cập nhập tất cả theo bộ lọc', levels }
+            { filters, Title: 'Cập nhật tất cả theo bộ lọc', levels }
           ]}
           expandColumnKey={columns[1].key}
           rowRenderer={rowRenderer}

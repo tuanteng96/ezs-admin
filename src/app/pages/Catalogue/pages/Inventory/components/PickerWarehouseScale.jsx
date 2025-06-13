@@ -1,5 +1,9 @@
 import { FloatingPortal } from '@floating-ui/react'
-import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import {
+  ArrowUpTrayIcon,
+  MagnifyingGlassIcon,
+  XMarkIcon
+} from '@heroicons/react/24/outline'
 import {
   useInfiniteQuery,
   useMutation,
@@ -8,7 +12,7 @@ import {
 import clsx from 'clsx'
 import { AnimatePresence, m } from 'framer-motion'
 import moment from 'moment'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useAuth } from 'src/_ezs/core/Auth'
@@ -20,6 +24,7 @@ import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
 import { formatArray } from 'src/_ezs/utils/formatArray'
 import Swal from 'sweetalert2'
+import readXlsxFile from 'read-excel-file'
 
 const ConvertViToEn = (str, toUpperCase = false) => {
   str = str.toLowerCase()
@@ -41,12 +46,15 @@ function PickerWarehouseScale({ children, queryConfig }) {
   const [visible, setVisible] = useState(false)
   const [key, setKey] = useState(queryConfig?.Key || '')
   const [ClientData, setClientData] = useState([])
+  const [ExcelName, setExcelName] = useState('')
 
   const debouncedKey = useDebounce(key, 500)
 
   const queryClient = useQueryClient()
 
   const { Stocks } = useAuth()
+
+  const inputRef = useRef()
 
   const { control, handleSubmit, reset, watch } = useForm({
     defaultValues: {
@@ -79,7 +87,7 @@ function PickerWarehouseScale({ children, queryConfig }) {
         '(filter)StockID': queryConfig.StockID,
         '(filter)key': queryConfig.Key,
         '(filter)NotDelv': queryConfig.NotDelv,
-        '(filter)IsPublic': queryConfig.IsPublic,
+        '(filter)IsPublic': queryConfig.IsPublic ? true : false,
         Qty: 0
       }
       let { data } = await WarehouseAPI.getListInventory(newQueryConfig)
@@ -126,10 +134,11 @@ function PickerWarehouseScale({ children, queryConfig }) {
       setKey('')
       reset({ Items: [] })
       setClientData([])
+      setExcelName('')
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.pages, visible])
+  }, [data?.pages, visible, ExcelName])
 
   useEffect(() => {
     if (key) {
@@ -489,6 +498,7 @@ function PickerWarehouseScale({ children, queryConfig }) {
             } ( ${ItemsX.length} sản phẩm ).`,
             confirmButtonText: 'Đóng'
           })
+          setExcelName('')
         } else {
           Swal.fire({
             icon: 'error',
@@ -499,6 +509,55 @@ function PickerWarehouseScale({ children, queryConfig }) {
           })
         }
       }
+    })
+  }
+
+  const handleFileChange = e => {
+    const file = e.target.files[0]
+    setExcelName(file.name)
+    readXlsxFile(file).then(rows => {
+      let newRow = []
+      if (rows && rows.length > 0) {
+        for (let [i, item] of rows.entries()) {
+          if (i !== 0) {
+            newRow.push({
+              DynamicID: item[0],
+              Qty: item[1] !== '' ? Number(item[1]) : 0
+            })
+          }
+        }
+      }
+      WarehouseAPI.selectProdsQuery({
+        filter: newRow.map(x => ({
+          DynamicID: x.DynamicID
+        })),
+        ToDate: moment(queryConfig.to, 'DD/MM/YYYY').format('YYYY-MM-DD'),
+        StockID: queryConfig.StockID
+      }).then(({ data }) => {
+        if (data?.lst && data?.lst.length > 0) {
+          let newItems = data?.lst
+            .map(x => ({ ...x.Prod, Qty: x.Qty }))
+            .map(x => {
+              let index = newRow.findIndex(o => x.DynamicID === o.DynamicID)
+              if (index === -1) return null
+              let { Qty } = newRow[index]
+              let obj = {
+                ...x,
+                ActualInventory: Qty,
+                BalanceInventory: '',
+                ProdCode: x.DynamicID || x.DynamicID_1 || '',
+                ProdId: x.ID || x.ID_1 || '',
+                Unit: x.Unit
+              }
+              return obj
+            })
+
+          reset({
+            Items: newItems
+          })
+          setClientData(newItems)
+        }
+      })
     })
   }
 
@@ -564,19 +623,61 @@ function PickerWarehouseScale({ children, queryConfig }) {
                     loading={isLoading}
                   />
                   <div className="flex justify-between px-4 pb-4">
-                    <div className="max-w-[500px] w-full flex-1 relative">
-                      <Input
-                        className="pl-12 pr-4"
-                        wrapClass="w-full"
-                        placeholder="Nhập từ khóa"
-                        autoComplete="off"
-                        type="text"
-                        value={key}
-                        onChange={e => setKey(e.target.value)}
-                      />
-                      <MagnifyingGlassIcon className="absolute w-6 text-gray-500 pointer-events-none top-2/4 -translate-y-2/4 left-4" />
-                    </div>
+                    <div className="flex flex-1 gap-2">
+                      <div className="max-w-[320px] w-full relative">
+                        <Input
+                          className="pl-12 pr-4"
+                          wrapClass="w-full"
+                          placeholder="Nhập từ khóa"
+                          autoComplete="off"
+                          type="text"
+                          value={key}
+                          onChange={e => setKey(e.target.value)}
+                        />
+                        <MagnifyingGlassIcon className="absolute w-6 text-gray-500 pointer-events-none top-2/4 -translate-y-2/4 left-4" />
+                      </div>
+                      <div className="flex border border-[#d6d7da] h-[48px] rounded bg-white">
+                        <div className="min-w-[200px] w-[200px] relative">
+                          {ExcelName ? (
+                            <div className="flex items-center w-full h-full px-4">
+                              <div className="truncate">{ExcelName}</div>
+                            </div>
+                          ) : (
+                            <div
+                              className="flex items-center w-full h-full px-4 truncate cursor-pointer text-muted2"
+                              onClick={() => inputRef?.current?.click()}
+                            >
+                              File *.xlsx
+                            </div>
+                          )}
 
+                          {ExcelName && (
+                            <div
+                              className="absolute z-10 flex items-center justify-center w-6 h-6 bg-white rounded-full shadow-xl cursor-pointer -right-2 -top-2"
+                              onClick={() => {
+                                setExcelName('')
+                                refetch()
+                              }}
+                            >
+                              <XMarkIcon className="w-4" />
+                            </div>
+                          )}
+                        </div>
+                        <div className="bg-[#f3f3f3] px-4 flex items-center relative cursor-pointer rounded-r">
+                          <ArrowUpTrayIcon className="w-5 mr-2" />
+                          Chọn files
+                          <input
+                            value=""
+                            className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+                            type="file"
+                            accept=".xlsx, .xls"
+                            onChange={handleFileChange}
+                            ref={inputRef}
+                            //disable={initialMutation.isLoading.toString()}
+                          />
+                        </div>
+                      </div>
+                    </div>
                     <Button
                       loading={updateMutation.isLoading}
                       disabled={

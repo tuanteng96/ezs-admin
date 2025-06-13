@@ -351,7 +351,7 @@ function CategoriesAdd(props) {
                   type="submit"
                   className="relative flex items-center px-4 ml-2 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-11 focus:outline-none focus:shadow-none disabled:opacity-70"
                 >
-                  {addMode ? 'Thêm mới' : 'Cập nhập'}
+                  {addMode ? 'Thêm mới' : 'Cập nhật'}
                 </Button>
               </div>
             </div>

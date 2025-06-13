@@ -750,7 +750,7 @@ function AddEdit(props) {
                         className="relative flex items-center px-4 ml-2 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv h-11 focus:outline-none focus:shadow-none disabled:opacity-70"
                       >
                         {watchForm.IsSchedule ? (
-                          <>{watchForm.ID ? 'Cập nhập' : 'Đặt lịch gửi'}</>
+                          <>{watchForm.ID ? 'Cập nhật' : 'Đặt lịch gửi'}</>
                         ) : (
                           'Thực hiện gửi'
                         )}

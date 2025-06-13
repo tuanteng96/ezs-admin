@@ -116,7 +116,7 @@ function PickerSettings({ children, initialValues, onChange }) {
       },
       {
         onSuccess: data => {
-          toast.success('Cập nhập thành công.')
+          toast.success('Cập nhật thành công.')
           onHide()
         }
       }

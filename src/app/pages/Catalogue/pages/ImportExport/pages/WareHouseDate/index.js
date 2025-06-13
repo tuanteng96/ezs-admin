@@ -65,7 +65,7 @@ function WareHouseDate(props) {
             queryClient
               .invalidateQueries({ queryKey: ['ListImportExport'] })
               .then(() => {
-                toast.success('Cập nhập thành công.')
+                toast.success('Cập nhật thành công.')
                 navigate({
                   pathname: state?.prevFrom || '/catalogue/import-export',
                   search: search

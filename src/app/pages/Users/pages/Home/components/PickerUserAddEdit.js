@@ -59,6 +59,7 @@ function PickerUserAddEdit({ children, initialValues }) {
     defaultValues: {
       Avatar: '',
       id: 0,
+      order: 0,
       fn: '',
       pwd: 1234,
       usn: '',
@@ -98,6 +99,7 @@ function PickerUserAddEdit({ children, initialValues }) {
       setValue('Avatar', initialValues?.Avatar)
       setValue('fn', initialValues?.FullName)
       setValue('usn', initialValues?.UserName)
+      setValue('order', initialValues?.Order)
       setValue('stockid', initialValues?.StockID)
       setValue('IsOPTLogin', initialValues?.IsOPTLogin)
       setValue('pwd', '')
@@ -209,6 +211,7 @@ function PickerUserAddEdit({ children, initialValues }) {
     bodyFormData.append('fn', values?.fn)
     bodyFormData.append('pwd', values?.pwd)
     bodyFormData.append('usn', values?.usn)
+    bodyFormData.append('order', values?.order)
     bodyFormData.append('chk', '')
     bodyFormData.append('unchk', '')
     bodyFormData.append('stockid', values?.stockid || '')

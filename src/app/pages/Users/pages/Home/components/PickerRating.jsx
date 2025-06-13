@@ -23,7 +23,8 @@ function PickerRating({ children, initialValues }) {
     defaultValues: {
       AverRate: '',
       ID: '',
-      SoCaYeuCau: ''
+      SoCaYeuCau: '',
+      Order: ''
     }
   })
 
@@ -32,7 +33,8 @@ function PickerRating({ children, initialValues }) {
       reset({
         AverRate: initialValues?.AverRate || '',
         ID: initialValues?.ID || '',
-        SoCaYeuCau: initialValues?.SoCaYeuCau || ''
+        SoCaYeuCau: initialValues?.SoCaYeuCau || '',
+        Order: initialValues?.Order || ''
       })
     } else {
       reset()
@@ -41,8 +43,9 @@ function PickerRating({ children, initialValues }) {
   }, [visible])
 
   const updateMutation = useMutation({
-    mutationFn: async body => {
-      let rs = await UsersAPI.updateRatingUser(body)
+    mutationFn: async ({ Rating, Updates }) => {
+      let rs = await UsersAPI.updateRatingUser(Rating)
+      await UsersAPI.addEditUser2(Updates)
       await queryClient.invalidateQueries({
         queryKey: ['ListUserRoles']
       })
@@ -51,9 +54,22 @@ function PickerRating({ children, initialValues }) {
   })
 
   const onSubmit = values => {
+    let newValues = { ...values }
+    delete newValues.Order
+
     updateMutation.mutate(
       {
-        users: [values]
+        Rating: {
+          users: [newValues]
+        },
+        Updates: {
+          updates: [
+            {
+              UserID: initialValues.ID,
+              Order: values?.Order || 0
+            }
+          ]
+        }
       },
       {
         onSuccess: () => {
@@ -168,6 +184,29 @@ function PickerRating({ children, initialValues }) {
                             placeholder="Nhập số ca"
                             onValueChange={val => field.onChange(val.value)}
                             allowNegative={false}
+                          />
+                        )}
+                      />
+                    </div>
+                  </div>
+                  <div className="mb-4 last:mb-0">
+                    <div className="font-semibold">Số thứ tự</div>
+                    <div className="mt-1">
+                      <Controller
+                        name={`Order`}
+                        control={control}
+                        render={({ field: { ref, ...field }, fieldState }) => (
+                          <InputNumber
+                            thousandSeparator={false}
+                            value={field.value}
+                            placeholder="Nhập số thứ tự"
+                            onValueChange={val =>
+                              field.onChange(
+                                typeof val.floatValue !== 'undefined'
+                                  ? val.floatValue
+                                  : ''
+                              )
+                            }
                           />
                         )}
                       />

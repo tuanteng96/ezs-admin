@@ -59,8 +59,10 @@
         "react-toastify": "^9.1.1",
         "react-topbar-progress-indicator": "^4.1.1",
         "react-viewer": "^3.2.2",
+        "read-excel-file": "^5.8.8",
         "sweetalert2": "^11.7.3",
         "web-vitals": "^2.1.4",
+        "xlsx": "^0.18.5",
         "yup": "^1.0.2"
     },
     "scripts": {

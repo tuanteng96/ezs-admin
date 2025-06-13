@@ -173,7 +173,7 @@ function ForgotChange() {
               </svg>
             </div>
           )}
-          Cập nhập
+          Cập nhật
         </button>
         <div className="my-4 flex items-center before:mt-0.5 before:flex-1 before:border-t before:border-[#e8e8ee] after:mt-0.5 after:flex-1 after:border-t after:border-[#e8e8ee]">
           <p className="mx-4 mb-0 text-sm font-semibold text-center uppercase text-site-muted dark:text-white">

@@ -30,7 +30,7 @@ const ButtonAction = ({ item }) => {
         queryClient
           .invalidateQueries({ queryKey: ['ListInventoryProdID'] })
           .then(() => {
-            toast.success('Cập nhập thành công.')
+            toast.success('Cập nhật thành công.')
           })
       }
     })

@@ -184,7 +184,7 @@ function BusinessEstablishment(props) {
       allowOutsideClick: () => !Swal.isLoading()
     }).then(result => {
       if (!result?.isDismissed) {
-        toast.success('Cập nhập thành công.')
+        toast.success('Cập nhật thành công.')
       }
     })
   }

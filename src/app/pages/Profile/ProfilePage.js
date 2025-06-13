@@ -48,7 +48,7 @@ export default function ProfilePage() {
     updateUserMutation.mutate(dataUpdated, {
       onSuccess: data => {
         queryClient.invalidateQueries({ queryKey: ['Auth'] }).then(() => {
-          toast.success('Cập nhập thành công.')
+          toast.success('Cập nhật thành công.')
         })
       },
       onError: error => {

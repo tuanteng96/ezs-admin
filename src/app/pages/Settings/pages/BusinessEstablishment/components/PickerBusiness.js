@@ -244,7 +244,7 @@ function PickerBusiness({ children, initialValues }) {
       onSuccess: ({ data }) => {
         onHide()
         toast.success(
-          initialValues.ID ? 'Cập nhập thành công.' : 'Thêm mới thành công.'
+          initialValues.ID ? 'Cập nhật thành công.' : 'Thêm mới thành công.'
         )
         window?.top?.location && window?.top?.location?.reload()
       }
@@ -277,7 +277,7 @@ function PickerBusiness({ children, initialValues }) {
                   <ArrowSmallLeftIcon className="w-7 md:w-8" />
                 </div>
                 <div className="flex items-center text-2xl font-semibold md:text-3xl">
-                  {initialValues?.ID ? 'Cập nhập cơ sở' : 'Thêm mới cơ sở'}
+                  {initialValues?.ID ? 'Cập nhật cơ sở' : 'Thêm mới cơ sở'}
                 </div>
               </div>
               <div className="hidden gap-3 md:flex">

@@ -20,7 +20,8 @@ import { PickerAddEdit, PickerFilter } from './components'
 import {
   PickerCatalogue,
   PickerSettingsCommission,
-  PickerSettingsImages
+  PickerSettingsImages,
+  PickerSettingsTourSalary
 } from '../../components'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
 import clsx from 'clsx'
@@ -364,7 +365,7 @@ function ServicesPage(props) {
             placement="bottom"
             trigger={['click']}
             overlay={
-              <div className="rounded px-0 py-2 border-0 w-[150px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow">
+              <div className="rounded px-0 py-2 border-0 w-[220px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow">
                 <PickerAddEdit>
                   {({ open }) => (
                     <div
@@ -380,7 +381,26 @@ function ServicesPage(props) {
                       }}
                       className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
                     >
-                      Dịch vụ
+                      Thêm mới dịch vụ buổi lẻ
+                    </div>
+                  )}
+                </PickerAddEdit>
+                <PickerAddEdit>
+                  {({ open }) => (
+                    <div
+                      onClick={() => {
+                        if (!ReadCate?.hasRight) {
+                          toast.error(
+                            'Bạn không có quyền truy cập chức năng này.'
+                          )
+                        } else {
+                          open()
+                        }
+                        document.body.click()
+                      }}
+                      className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                    >
+                      Thêm mới thẻ liệu trình
                     </div>
                   )}
                 </PickerAddEdit>
@@ -474,79 +494,94 @@ function ServicesPage(props) {
             trigger={['click']}
             overlay={
               <div className="rounded px-0 py-2 border-0 w-[200px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow">
-                <PickerCatalogue TypeOf="SP">
-                  {({ open }) => (
-                    <div
-                      onClick={() => {
-                        document.body.click()
-                        open()
-                      }}
-                      className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
-                    >
-                      Quản lý danh mục
-                    </div>
-                  )}
-                </PickerCatalogue>
-                <PickerCatalogue TypeOf="NH">
-                  {({ open }) => (
-                    <div
-                      onClick={() => {
-                        document.body.click()
-                        open()
-                      }}
-                      className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
-                    >
-                      Quản lý nhãn hàng
-                    </div>
-                  )}
-                </PickerCatalogue>
-                <PickerSettingsCommission
-                  Type={{
-                    label: 'Tất cả dịch vụ',
-                    value: MenuActive?.ID
-                  }}
-                  invalidateQueries={['ListProdsProducts']}
-                >
-                  {({ open }) => (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        document.body.click()
-                        if (!ReadCate?.hasRight) {
-                          toast.error(
-                            'Bạn không có quyền truy cập chức năng này.'
-                          )
-                        } else {
+                <div className="rounded px-0 py-2 border-0 w-[200px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow">
+                  <PickerCatalogue TypeOf="DV">
+                    {({ open }) => (
+                      <div
+                        onClick={() => {
+                          document.body.click()
                           open()
-                        }
-                      }}
-                      className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
-                    >
-                      Quản lý hoa hồng
-                    </button>
-                  )}
-                </PickerSettingsCommission>
-                <hr className="h-px my-2 bg-gray-200 border-0" />
-                <PickerSettingsImages>
-                  {({ open }) => (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        document.body.click()
-                        if (ReadApp_type?.hasRight) {
-                          open()
-                        } else {
-                          toast.error(
-                            'Bạn không có quyền truy cập chức năng này.'
-                          )
-                        }
-                      }}
-                      className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
-                    >
-                      Cài đặt hình ảnh
-                    </button>
-                  )}
-                </PickerSettingsImages>
+                        }}
+                        className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                      >
+                        Quản lý danh mục
+                      </div>
+                    )}
+                  </PickerCatalogue>
+                  <PickerSettingsCommission
+                    Type={{
+                      label: 'Tất cả dịch vụ',
+                      value: MenuActive?.ID
+                    }}
+                    invalidateQueries={['ListProdsFees']}
+                  >
+                    {({ open }) => (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          document.body.click()
+                          if (!ReadCate?.hasRight) {
+                            toast.error(
+                              'Bạn không có quyền truy cập chức năng này.'
+                            )
+                          } else {
+                            open()
+                          }
+                        }}
+                        className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                      >
+                        Quản lý hoa hồng
+                      </button>
+                    )}
+                  </PickerSettingsCommission>
+                  <PickerSettingsTourSalary
+                    Type={{
+                      label: 'Tất cả dịch vụ',
+                      value: MenuActive?.ID
+                    }}
+                    invalidateQueries={['ListProdsFees']}
+                  >
+                    {({ open }) => (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          document.body.click()
+                          if (!ReadCate?.hasRight) {
+                            toast.error(
+                              'Bạn không có quyền truy cập chức năng này.'
+                            )
+                          } else {
+                            open()
+                          }
+                        }}
+                        className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                      >
+                        Quản lý lương Tour
+                      </button>
+                    )}
+                  </PickerSettingsTourSalary>
+                  <hr className="h-px my-2 bg-gray-200 border-0" />
+                  <PickerSettingsImages>
+                    {({ open }) => (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          document.body.click()
+                          if (ReadApp_type?.hasRight) {
+                            open()
+                          } else {
+                            toast.error(
+                              'Bạn không có quyền truy cập chức năng này.'
+                            )
+                          }
+                        }}
+                        className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                      >
+                        Cài đặt hình ảnh
+                      </button>
+                    )}
+                  </PickerSettingsImages>
+                </div>
               </div>
             }
             align={{

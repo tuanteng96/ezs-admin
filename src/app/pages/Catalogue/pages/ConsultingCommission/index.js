@@ -47,7 +47,7 @@ const RendererBonusSale = ({ rowData }) => {
         customClass: {
           confirmButton: 'bg-success'
         },
-        title: 'Xác nhận cập nhập ?',
+        title: 'Xác nhận cập nhật ?',
         html: `Tất cả các sản phẩm được tìm kiếm theo bộ lọc sẽ được cập nhật về loại hoa hồng tư vấn : ${
           val || 0
         } và không thể khôi phục.`,
@@ -66,7 +66,7 @@ const RendererBonusSale = ({ rowData }) => {
       }).then(result => {
         if (result.isConfirmed) {
           setValue('')
-          window?.top?.toastr?.success('Đã cập nhập tất cả.', '', {
+          window?.top?.toastr?.success('Đã cập nhật tất cả.', '', {
             timeOut: 1500
           })
         } else {
@@ -158,7 +158,7 @@ const RendererBonusSale2 = ({ rowData }) => {
         customClass: {
           confirmButton: 'bg-success'
         },
-        title: 'Xác nhận cập nhập ?',
+        title: 'Xác nhận cập nhật ?',
         html: `Tất cả các sản phẩm được tìm kiếm theo bộ lọc sẽ được cập nhật về loại hoa hồng tư vấn khách mới : ${
           val || 0
         } và không thể khôi phục.`,
@@ -177,7 +177,7 @@ const RendererBonusSale2 = ({ rowData }) => {
       }).then(result => {
         if (result.isConfirmed) {
           setValue('')
-          window?.top?.toastr?.success('Đã cập nhập tất cả.', '', {
+          window?.top?.toastr?.success('Đã cập nhật tất cả.', '', {
             timeOut: 1500
           })
         } else {
@@ -265,7 +265,7 @@ const RendererLevels = ({ rowData, name, levels }) => {
         customClass: {
           confirmButton: 'bg-success'
         },
-        title: 'Xác nhận cập nhập ?',
+        title: 'Xác nhận cập nhật ?',
         html: `Tất cả các sản phẩm được tìm kiếm theo bộ lọc sẽ được cập nhật về ${name} : ${
           val || 0
         } và không thể khôi phục.`,
@@ -284,7 +284,7 @@ const RendererLevels = ({ rowData, name, levels }) => {
       }).then(result => {
         if (result.isConfirmed) {
           setValue('')
-          window?.top?.toastr?.success('Đã cập nhập tất cả.', '', {
+          window?.top?.toastr?.success('Đã cập nhật tất cả.', '', {
             timeOut: 1500
           })
         } else {
@@ -556,7 +556,7 @@ function ConsultingCommission() {
           onEndReachedThreshold={1}
           onEndReached={fetchNextPage}
           frozenData={[
-            { filters, Title: 'Cập nhập tất cả theo bộ lọc', levels }
+            { filters, Title: 'Cập nhật tất cả theo bộ lọc', levels }
           ]}
         />
       </div>

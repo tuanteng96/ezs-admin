@@ -55,7 +55,7 @@ const EditableCell = ({ rowData }) => {
         customClass: {
           confirmButton: 'bg-success'
         },
-        title: 'Xác nhận cập nhập ?',
+        title: 'Xác nhận cập nhật ?',
         html: `Tất cả các sản phẩm được tìm kiếm theo bộ lọc sẽ được cập nhật về loại KPI : ${
           val.value || 0
         } và không thể khôi phục.`,
@@ -74,7 +74,7 @@ const EditableCell = ({ rowData }) => {
       }).then(result => {
         if (result.isConfirmed) {
           setValue('')
-          window?.top?.toastr?.success('Đã cập nhập tất cả.', '', {
+          window?.top?.toastr?.success('Đã cập nhật tất cả.', '', {
             timeOut: 1500
           })
         } else if (result.isDismissed) {
@@ -288,7 +288,7 @@ function SalesKPIClassify() {
                 rowHeight={78}
                 onEndReachedThreshold={1}
                 onEndReached={fetchNextPage}
-                frozenData={[{ filters, Title: 'Cập nhập tất cả theo bộ lọc' }]}
+                frozenData={[{ filters, Title: 'Cập nhật tất cả theo bộ lọc' }]}
               />
             </form>
           </div>

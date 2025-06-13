@@ -728,7 +728,7 @@ function AppointmentsOsAddEdit(props) {
                         'flex-1'
                     )}
                   >
-                    Cập nhập
+                    Cập nhật
                   </Button>
                   <Button
                     disabled={editBookOSMutation.isLoading}

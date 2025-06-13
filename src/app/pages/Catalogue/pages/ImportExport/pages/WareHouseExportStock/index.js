@@ -25,6 +25,7 @@ import UploadsAPI from 'src/_ezs/api/uploads.api'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import Tooltip from 'rc-tooltip'
 import Swal from 'sweetalert2'
+import ExcelHepers from 'src/_ezs/utils/ExcelHepers'
 
 function WareHouseExportStock(props) {
   const navigate = useNavigate()
@@ -774,6 +775,159 @@ function WareHouseExportStock(props) {
     })
   }
 
+  const onExport = () => {
+    if (!data) return
+    window?.top?.loading &&
+      window?.top?.loading('Đang thực hiện ...', () => {
+        ExcelHepers.dataToExcel(
+          'don-xuat-kho-' + data.Code,
+          (sheet, workbook) => {
+            workbook.suspendPaint()
+            workbook.suspendEvent()
+            let Head = [
+              'TÊN SẢN PHẨM',
+              'MÃ',
+              'ĐƠN VỊ',
+              'SỐ LƯỢNG',
+              'NGUYÊN GIÁ',
+              'CHIẾT KHẤU',
+              'ĐƠN GIÁ',
+              'THÀNH TIỀN',
+              'GIẢM GIÁ CẢ ĐƠN',
+              'CÒN LẠI',
+              'GHI CHÚ'
+            ]
+
+            let Response = [Head]
+
+            for (let item of data.stockItems) {
+              let newArray = [
+                item.ProdTitle,
+                item.ProdCode,
+                item.Unit,
+                item.Qty,
+                item.ImportPriceOrigin,
+                item.ImportDiscount > 100
+                  ? item.ImportDiscount
+                  : item.ImportDiscount + '%',
+                item.ImportPrice,
+                item.ImportPrice * item.Qty,
+                '',
+                '',
+                item.Desc
+              ]
+              Response.push(newArray)
+            }
+            let Total = 0
+
+            for (let i of Response) {
+              if (Number(i[7] > 0)) Total += Number(i[7])
+            }
+            Response.push([
+              '',
+              '',
+              '',
+              '',
+              '',
+              '',
+              '',
+              Total,
+              data?.Discount,
+              Total - data?.Discount,
+              data.Other
+            ])
+            let TotalRow = Response.length
+            let TotalColumn = Head.length
+
+            sheet.setArray(2, 0, Response)
+
+            //title
+            workbook
+              .getActiveSheet()
+              .getCell(0, 0)
+              .value('Đơn nhập kho ' + data.Code)
+            workbook.getActiveSheet().getCell(0, 0).font('18pt Arial')
+
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, 1, TotalColumn)
+              .font('12pt Arial')
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, 1, TotalColumn)
+              .backColor('#E7E9EB')
+            //border
+            var border = new window.GC.Spread.Sheets.LineBorder()
+            border.color = '#000'
+            border.style = window.GC.Spread.Sheets.LineStyle.thin
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderLeft(border)
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderRight(border)
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderBottom(border)
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderTop(border)
+            //filter
+            var cellrange = new window.GC.Spread.Sheets.Range(
+              3,
+              0,
+              1,
+              TotalColumn
+            )
+            var hideRowFilter =
+              new window.GC.Spread.Sheets.Filter.HideRowFilter(cellrange)
+            workbook.getActiveSheet().rowFilter(hideRowFilter)
+
+            //format number
+            workbook
+              .getActiveSheet()
+              .getCell(2, 0)
+              .hAlign(window.GC.Spread.Sheets.HorizontalAlign.center)
+
+            //auto fit width and height
+            workbook.getActiveSheet().autoFitRow(TotalRow + 2)
+            workbook.getActiveSheet().autoFitRow(0)
+
+            workbook
+              .getActiveSheet()
+              .setColumnWidth(
+                0,
+                400.0,
+                window.GC.Spread.Sheets.SheetArea.viewport
+              )
+
+            for (let i = 1; i < TotalColumn; i++) {
+              workbook.getActiveSheet().autoFitColumn(i)
+            }
+
+            for (let i = 0; i <= TotalRow; i++) {
+              workbook.getActiveSheet().setFormatter(i + 3, 4, '#,#')
+              workbook.getActiveSheet().setFormatter(i + 3, 5, '#,#')
+              workbook.getActiveSheet().setFormatter(i + 3, 6, '#,#')
+              workbook.getActiveSheet().setFormatter(i + 3, 7, '#,#')
+              workbook.getActiveSheet().setFormatter(i + 3, 8, '#,#')
+              workbook.getActiveSheet().setFormatter(i + 3, 9, '#,#')
+            }
+
+            window.top?.toastr?.remove()
+
+            //Finish
+            workbook.resumePaint()
+            workbook.resumeEvent()
+          }
+        )
+      })
+  }
+
   return (
     <LayoutGroup key={pathname}>
       <div className="fixed w-full h-full z-[1002] top-0 left-0">
@@ -1088,7 +1242,17 @@ function WareHouseExportStock(props) {
                     </div>
                   </div>
                 </div>
-                <div className="px-4 py-4 border-t lg:px-6 border-separator">
+                <div className="flex gap-2.5 px-4 py-4 border-t lg:px-6 border-separator">
+                  {id && xuat_nhap_diem?.hasRight && (
+                    <Button
+                      type="button"
+                      className="relative flex items-center justify-center w-full h-12 px-4 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                      onClick={onExport}
+                    >
+                      Xuất Excel
+                    </Button>
+                  )}
+
                   <Button
                     disabled={
                       updateMutation.isLoading ||
@@ -1107,7 +1271,7 @@ function WareHouseExportStock(props) {
                       moment(data?.CreateDate).format('DD-MM-YYYY') ? (
                       <>Không thể chỉnh sửa</>
                     ) : (
-                      <>{id ? 'Cập nhập' : 'Thêm mới'}</>
+                      <>{id ? 'Cập nhật' : 'Thêm mới'}</>
                     )}
                   </Button>
                 </div>
