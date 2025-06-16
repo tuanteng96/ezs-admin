@@ -419,7 +419,7 @@ function ElectronicInvoice(props) {
               })
 
               let dataPost = {
-                SignType: InvoiceConfig?.InvoiceActive?.SignType || 5,
+                SignType: Number(InvoiceConfig?.InvoiceActive?.SignType) || 5,
                 PublishInvoiceData: null,
                 InvoiceData: []
               }

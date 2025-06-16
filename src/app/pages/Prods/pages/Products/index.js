@@ -131,9 +131,7 @@ function ProductsPage(props) {
         cellRenderer: ({ rowData }) => (
           <div>
             <div className="mb-1">{rowData.Title}</div>
-            <div className="text-sm text-muted2 font-number">
-              #{rowData.ID}
-            </div>
+            <div className="text-sm text-muted2 font-number">#{rowData.ID}</div>
           </div>
         )
       },

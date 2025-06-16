@@ -1,4 +1,5 @@
-//no-useless-concat
+/* eslint-disable no-useless-concat */
+
 import React from 'react'
 import ProdsAPI from 'src/_ezs/api/prods.api'
 import { AsyncPaginate } from 'react-select-async-paginate'

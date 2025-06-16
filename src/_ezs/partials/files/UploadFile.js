@@ -76,7 +76,7 @@ const UploadFile = ({
             Kéo tệp hoặc nhấp chuột vào đây.
           </div> */}
           <svg
-            className="w-9"
+            className={clsx(size === 'xs' ? 'w-7' : 'w-9')}
             viewBox="0 0 25 23"
             xmlns="http://www.w3.org/2000/svg"
           >
@@ -88,8 +88,8 @@ const UploadFile = ({
           </svg>
           <div
             className={clsx(
-              'text-primary font-medium mt-2',
-              size === 'xs' ? 'text-xs' : 'text-sm'
+              'text-primary font-medium',
+              size === 'xs' ? 'text-xs mt-1' : 'text-sm mt-2'
             )}
           >
             {buttonText}

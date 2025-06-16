@@ -1,10 +1,18 @@
+/* eslint-disable react/jsx-no-target-blank */
+
 import React, { useState, useEffect } from 'react'
 import {
   ArrowPathIcon,
   ArrowSmallLeftIcon,
-  QuestionMarkCircleIcon
+  QuestionMarkCircleIcon,
+  XMarkIcon
 } from '@heroicons/react/24/outline'
-import { Controller, FormProvider, useForm } from 'react-hook-form'
+import {
+  Controller,
+  FormProvider,
+  useFieldArray,
+  useForm
+} from 'react-hook-form'
 import { Checkbox, Input, InputNumber } from 'src/_ezs/partials/forms'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'react-toastify'
@@ -28,6 +36,7 @@ import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { UploadFile } from 'src/_ezs/partials/files'
 import StickyBox from 'react-sticky-box'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
+import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
 
 const schemaAddEdit = yup
   .object({
@@ -86,7 +95,8 @@ function PickerUserAddEdit({ children, initialValues }) {
       NGAY_PHEP: '',
       LOAI_TINH_LUONG: 'NGAY_CONG',
       SO_NGAY: '',
-      GroupIDs: null
+      GroupIDs: null,
+      PhotoJSON: []
     },
     resolver: yupResolver(schemaAddEdit)
   })
@@ -109,12 +119,24 @@ function PickerUserAddEdit({ children, initialValues }) {
           ? initialValues?.GroupList.map(x => x.GroupID)
           : null
       )
+      let newPhotoJSON = initialValues?.PhotoJSON
+        ? JSON.parse(initialValues?.PhotoJSON)
+        : []
+      setValue(
+        'PhotoJSON',
+        newPhotoJSON.map(x => ({ image: x }))
+      )
     } else {
       reset()
     }
     setIsEditPwd(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible])
+
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'PhotoJSON'
+  })
 
   const onHide = () => {
     setVisible(false)
@@ -299,6 +321,13 @@ function PickerUserAddEdit({ children, initialValues }) {
     bodyFormData.append('chluongData', JSON.stringify(newchluongData))
     bodyFormData.append('chluongGr', JSON.stringify([]))
 
+    bodyFormData.append(
+      'PhotoJSON',
+      JSON.stringify(
+        values?.PhotoJSON ? values?.PhotoJSON.map(x => x.image) : ''
+      )
+    )
+
     addEditMutation.mutate(
       {
         data: bodyFormData,
@@ -343,7 +372,7 @@ function PickerUserAddEdit({ children, initialValues }) {
     })
   }, 500)
 
-  let { stockid } = watch()
+  let { stockid, Avatar } = watch()
 
   return (
     <PickerUserInfo>
@@ -1004,7 +1033,7 @@ function PickerUserAddEdit({ children, initialValues }) {
                         className="!relative xl:!sticky"
                         style={{ zIndex: 1000 }}
                       >
-                        <div className="xl:w-[280px] w-[120px] xl:sticky z-10 top-0 xl:order-last order-first">
+                        <div className="xl:w-[280px] lg:w-[300px] w-full xl:sticky z-10 top-0 xl:order-last order-first">
                           <div className="border-gray-300 rounded-lg xl:border">
                             <div className="mb-1 border-gray-300 xl:py-4 xl:px-5 xl:border-b xl:mb-0">
                               <div className="mb-px font-semibold xl:text-xl">
@@ -1028,6 +1057,49 @@ function PickerUserAddEdit({ children, initialValues }) {
                                   />
                                 )}
                               />
+                              {(Avatar ||
+                                (!Avatar && fields && fields.length > 0)) && (
+                                <div className="grid grid-cols-3 gap-3 mt-3">
+                                  {fields && fields.length > 0 && (
+                                    <>
+                                      {fields.map((image, i) => (
+                                        <div
+                                          className="relative"
+                                          key={image.id}
+                                        >
+                                          <a
+                                            href={toAbsolutePath(image.image)}
+                                            target="_blank"
+                                            rel="noopener"
+                                          >
+                                            <img
+                                              className="object-cover object-top rounded aspect-square"
+                                              src={toAbsolutePath(image.image)}
+                                              alt={image.image}
+                                            />
+                                          </a>
+                                          <div
+                                            className="absolute z-10 flex items-center justify-center w-6 h-6 text-gray-700 transition bg-white rounded-full shadow-lg cursor-pointer dark:text-darkgray-800 dark:bg-graydark-200 -top-2 -right-2 hover:text-primary"
+                                            onClick={() => remove(i)}
+                                          >
+                                            <XMarkIcon className="w-4" />
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </>
+                                  )}
+                                  <UploadFile
+                                    className="aspect-square"
+                                    width="w-auto"
+                                    height="h-auto"
+                                    onChange={val => {
+                                      append({ image: val })
+                                    }}
+                                    size="xs"
+                                    buttonText="Thêm ảnh"
+                                  />
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
