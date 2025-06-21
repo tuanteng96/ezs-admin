@@ -156,7 +156,9 @@ function ElectronicInvoice(props) {
           x.Items &&
           x.Items.length > 0 &&
           (x.CK || x.QT || x.TM) &&
-          !x.Items.some(o => !o.VAT)
+          (!GlobalConfig?.Admin?.VAT0
+            ? !x.Items.some(o => !o.VAT)
+            : GlobalConfig?.Admin?.VAT0)
       )
 
       let newRs = []
@@ -800,7 +802,9 @@ function ElectronicInvoice(props) {
             {(rowData.TM > 0 || rowData.CK > 0 || rowData.QT > 0) &&
             rowData.Items &&
             rowData.Items.length > 0 &&
-            rowData.Items.every(x => x.VAT) ? (
+            rowData.Items.every(x =>
+              GlobalConfig?.Admin?.VAT0 ? GlobalConfig?.Admin?.VAT0 : x.VAT
+            ) ? (
               <>
                 {rowData?.InvoiceIDStatus === 'done' && rowData.InvoiceID ? (
                   <div
