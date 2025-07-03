@@ -25,8 +25,6 @@ const LayoutProvider = ({ children }) => {
   useEffect(() => {
     if (['/massage/checkin', '/checkin'].includes(pathname)) {
       setLayoutIframe(true)
-    } else {
-      setLayoutIframe(false)
     }
   }, [pathname])
 
