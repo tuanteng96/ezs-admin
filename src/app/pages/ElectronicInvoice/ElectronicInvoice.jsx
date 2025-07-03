@@ -229,7 +229,10 @@ function ElectronicInvoice(props) {
                   cus_email_cc: '',
                   cus_citizen_identity: '',
                   cus_bank_no: '',
-                  cus_bank_name: ''
+                  cus_bank_name: '',
+                  cus_budget_code: '',
+                  cus_citizen_identity: '',
+                  cus_passport: ''
                 },
                 payment_type: '3', // Tiền mặt / chuyển khoản
                 discount: 0,
@@ -451,7 +454,7 @@ function ElectronicInvoice(props) {
                     AmountOC: PriceVAT,
                     AmountWithoutVATOC: PriceVAT,
                     AmountWithoutVAT: PriceVAT,
-                    VATRateName: x.VAT + '%',
+                    VATRateName: x.VAT === 0 ? 'KKKNT' : `${x.VAT}%`,
                     VATAmountOC: PriceTotalVAT,
                     VATAmount: PriceTotalVAT
                   }

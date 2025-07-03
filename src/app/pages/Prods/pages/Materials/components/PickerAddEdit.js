@@ -43,6 +43,7 @@ import { toAbsolutePath, toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import Tooltip from 'rc-tooltip'
+import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 
 const schemaAddEdit = yup
   .object({
@@ -112,7 +113,8 @@ function PickerAddEdit({ children, initialValues }) {
       Desc: '',
       Detail: '',
       PhotoList: [],
-      Status: ''
+      Status: '',
+      RenewDate: new Date()
     },
     resolver: yupResolver(schemaAddEdit)
   })
@@ -245,7 +247,7 @@ function PickerAddEdit({ children, initialValues }) {
             }
           ])
         }
-
+        setValue('RenewDate', data?.RenewDate || new Date())
         setValue('PriceBase', data?.PriceBase || '')
         setValue('PriceProduct', data?.PriceProduct || '')
         setValue('VAT', data?.VAT || '')
@@ -1516,6 +1518,36 @@ function PickerAddEdit({ children, initialValues }) {
                                         value={field.value}
                                         onChange={val => field.onChange(val)}
                                         placeholder="Nhập chi tiết"
+                                      />
+                                    )}
+                                  />
+                                </div>
+                              </div>
+                              <div className="mb-4 last:mb-0">
+                                <div className="font-medium">Ngày làm mới</div>
+                                <div className="mt-1">
+                                  <Controller
+                                    rules={{ required: true }}
+                                    name="RenewDate"
+                                    control={control}
+                                    render={({
+                                      field: { ref, ...field },
+                                      fieldState
+                                    }) => (
+                                      <InputDatePicker
+                                        placeholderText="Chọn thời gian"
+                                        autoComplete="off"
+                                        onChange={field.onChange}
+                                        selected={
+                                          field.value
+                                            ? new Date(field.value)
+                                            : null
+                                        }
+                                        {...field}
+                                        dateFormat="HH:mm dd/MM/yyyy"
+                                        showTimeSelect
+                                        errorMessageForce={fieldState?.invalid}
+                                        //timeFormat="HH:mm"
                                       />
                                     )}
                                   />

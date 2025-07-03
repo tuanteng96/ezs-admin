@@ -42,6 +42,7 @@ import { toAbsolutePath, toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import Tooltip from 'rc-tooltip'
+import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 
 const schemaAddEdit = yup
   .object({
@@ -159,7 +160,8 @@ function PickerAddEdit({ children, initialValues }) {
         PhotoList: [],
         Status: '',
         Qty: 1
-      }
+      },
+      RenewDate: new Date()
     },
     resolver: yupResolver(schemaAddEdit)
   })
@@ -310,7 +312,7 @@ function PickerAddEdit({ children, initialValues }) {
             }
           ])
         }
-
+        setValue('RenewDate', data?.RenewDate || new Date())
         setValue(
           'Options',
           data.Options && data.Options.length > 0
@@ -1127,19 +1129,24 @@ function PickerAddEdit({ children, initialValues }) {
                                           field: { ref, ...field },
                                           fieldState
                                         }) => (
-                                          <InputNumber
-                                            thousandSeparator={false}
-                                            value={field.value}
-                                            placeholder="Nhập số ngày"
-                                            onValueChange={val =>
-                                              field.onChange(
-                                                typeof val?.floatValue !==
-                                                  'undefined'
-                                                  ? val.floatValue
-                                                  : ''
-                                              )
-                                            }
-                                          />
+                                          <div className="relative">
+                                            <InputNumber
+                                              thousandSeparator={false}
+                                              value={field.value}
+                                              placeholder="Nhập số ngày"
+                                              onValueChange={val =>
+                                                field.onChange(
+                                                  typeof val?.floatValue !==
+                                                    'undefined'
+                                                    ? val.floatValue
+                                                    : ''
+                                                )
+                                              }
+                                            />
+                                            <div className="absolute top-0 right-0 flex items-center justify-center w-16 h-full pointer-events-none text-muted">
+                                              Ngày
+                                            </div>
+                                          </div>
                                         )}
                                       />
                                     </div>
@@ -1682,7 +1689,7 @@ function PickerAddEdit({ children, initialValues }) {
                                     />
                                   </div>
                                 </div>
-                                <div className="mb-8 last:mb-0">
+                                <div className="mb-5 last:mb-0">
                                   <div className="font-medium">Chi tiết</div>
                                   <div className="mt-1">
                                     <Controller
@@ -1697,6 +1704,40 @@ function PickerAddEdit({ children, initialValues }) {
                                           value={field.value}
                                           onChange={val => field.onChange(val)}
                                           placeholder="Nhập chi tiết"
+                                        />
+                                      )}
+                                    />
+                                  </div>
+                                </div>
+                                <div className="mb-8 last:mb-0">
+                                  <div className="font-medium">
+                                    Ngày làm mới
+                                  </div>
+                                  <div className="mt-1">
+                                    <Controller
+                                      rules={{ required: true }}
+                                      name="RenewDate"
+                                      control={control}
+                                      render={({
+                                        field: { ref, ...field },
+                                        fieldState
+                                      }) => (
+                                        <InputDatePicker
+                                          placeholderText="Chọn thời gian"
+                                          autoComplete="off"
+                                          onChange={field.onChange}
+                                          selected={
+                                            field.value
+                                              ? new Date(field.value)
+                                              : null
+                                          }
+                                          {...field}
+                                          dateFormat="HH:mm dd/MM/yyyy"
+                                          showTimeSelect
+                                          errorMessageForce={
+                                            fieldState?.invalid
+                                          }
+                                          //timeFormat="HH:mm"
                                         />
                                       )}
                                     />

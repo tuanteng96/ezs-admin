@@ -34,6 +34,7 @@ function ReactBaseTable({
   emptyRenderer,
   onChange,
   pagination,
+  wrapStyle = {},
   paginationClassName = 'flex items-center justify-between w-full mt-4',
   ...props
 }) {
@@ -57,7 +58,7 @@ function ReactBaseTable({
 
   return (
     <>
-      <div className={clsx(wrapClassName)}>
+      <div className={clsx(wrapClassName)} style={wrapStyle}>
         <AutoResizer>
           {({ width, height }) => (
             <Table

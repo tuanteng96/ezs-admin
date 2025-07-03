@@ -167,14 +167,6 @@ function PickerFilter({ children, initialValues, onChange }) {
                                 label: 'Tất cả ',
                                 value: '-1'
                               }
-                              // {
-                              //   label: 'Ngừng kinh doanh',
-                              //   value: '-2'
-                              // },
-                              // {
-                              //   label: 'Đang kinh doanh tất cả cơ sở',
-                              //   value: '-3'
-                              // }
                             ]}
                             //StockRoles={usrmng.StockRoles}
                             value={field.value}
@@ -196,7 +188,7 @@ function PickerFilter({ children, initialValues, onChange }) {
                     </div>
                   </div>
                   <div className="mb-4 last:mb-0">
-                    <div className="font-semibold">Nhóm sản phẩm</div>
+                    <div className="font-semibold">Nhóm dịch vụ</div>
                     <div className="mt-1">
                       <Controller
                         name="typeid"
@@ -208,7 +200,7 @@ function PickerFilter({ children, initialValues, onChange }) {
                             onChange={val => {
                               field.onChange(val)
                             }}
-                            Type="SP"
+                            Type="DV"
                             errorMessageForce={fieldState?.invalid}
                             menuPosition="fixed"
                             styles={{
@@ -218,38 +210,8 @@ function PickerFilter({ children, initialValues, onChange }) {
                               })
                             }}
                             menuPortalTarget={document.body}
-                            placeholder="Chọn nhóm sản phẩm"
-                            noOptionsMessage={() => 'Chưa có nhóm sản phẩm.'}
-                          />
-                        )}
-                      />
-                    </div>
-                  </div>
-                  <div className="mb-4 last:mb-0">
-                    <div className="font-semibold">Nhãn hàng</div>
-                    <div className="mt-1">
-                      <Controller
-                        name="manu"
-                        control={control}
-                        render={({ field: { ref, ...field }, fieldState }) => (
-                          <SelectCategoryProds
-                            isClearable
-                            value={field.value}
-                            onChange={val => {
-                              field.onChange(val)
-                            }}
-                            Type="NH"
-                            errorMessageForce={fieldState?.invalid}
-                            menuPosition="fixed"
-                            styles={{
-                              menuPortal: base => ({
-                                ...base,
-                                zIndex: 9999
-                              })
-                            }}
-                            menuPortalTarget={document.body}
-                            placeholder="Chọn nhãn hàng"
-                            noOptionsMessage={() => 'Chưa có nhãn hàng.'}
+                            placeholder="Chọn nhóm dịch vụ"
+                            noOptionsMessage={() => 'Chưa có nhóm dịch vụ.'}
                           />
                         )}
                       />

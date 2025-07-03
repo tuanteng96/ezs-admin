@@ -45,6 +45,7 @@ import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import Tooltip from 'rc-tooltip'
 import Select from 'react-select'
 import CalendarAPI from 'src/_ezs/api/calendar.api'
+import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 
 let Options = [
   { label: 'Ngày kích hoạt', value: 'ngay_kich_hoat' },
@@ -108,21 +109,6 @@ function PickerComboAddEdit({ children, initialValues }) {
           qty: '',
           price: ''
         }
-        // {
-        //   Id: 20182,
-        //   qty: 1,
-        //   price: 30000,
-        //   addfee: '20113',
-        //   baohanh: {
-        //     bh: true,
-        //     luong_bh: '20000',
-        //     tg_bh: 36500,
-        //     slg_bh_toi_da: 1000,
-        //     tinh_han_bh: 'ngay_kich_hoat',
-        //     unlimit: ['tg_bh', 'slg_bh_toi_da']
-        //   },
-        //   isService: 1
-        // }
       ],
       IsService: 0,
       IsAddFee: 0,
@@ -150,7 +136,8 @@ function PickerComboAddEdit({ children, initialValues }) {
       id: 0,
       Desc: '',
       Detail: '',
-      PhotoList: []
+      PhotoList: [],
+      RenewDate: new Date()
     },
     resolver: yupResolver(schemaAddEdit)
   })
@@ -352,7 +339,7 @@ function PickerComboAddEdit({ children, initialValues }) {
             }
           ])
         }
-
+        setValue('RenewDate', data?.RenewDate || new Date())
         if (data.Combo) {
           setValue('Combo', data.Combo)
         }
@@ -955,19 +942,24 @@ function PickerComboAddEdit({ children, initialValues }) {
                                           field: { ref, ...field },
                                           fieldState
                                         }) => (
-                                          <InputNumber
-                                            thousandSeparator={false}
-                                            value={field.value}
-                                            placeholder="Nhập số ngày"
-                                            onValueChange={val =>
-                                              field.onChange(
-                                                typeof val?.floatValue !==
-                                                  'undefined'
-                                                  ? val.floatValue
-                                                  : ''
-                                              )
-                                            }
-                                          />
+                                          <div className="relative">
+                                            <InputNumber
+                                              thousandSeparator={false}
+                                              value={field.value}
+                                              placeholder="Nhập số ngày"
+                                              onValueChange={val =>
+                                                field.onChange(
+                                                  typeof val?.floatValue !==
+                                                    'undefined'
+                                                    ? val.floatValue
+                                                    : ''
+                                                )
+                                              }
+                                            />
+                                            <div className="absolute top-0 right-0 flex items-center justify-center w-16 h-full pointer-events-none text-muted">
+                                              Ngày
+                                            </div>
+                                          </div>
                                         )}
                                       />
                                     </div>
@@ -1881,6 +1873,11 @@ function PickerComboAddEdit({ children, initialValues }) {
                                                           fieldState
                                                         }) => (
                                                           <Select
+                                                            onChange={val =>
+                                                              field.onChange(
+                                                                val?.value || ''
+                                                              )
+                                                            }
                                                             className="flex-1 select-control"
                                                             value={Options.filter(
                                                               x =>
@@ -2026,7 +2023,7 @@ function PickerComboAddEdit({ children, initialValues }) {
                                     />
                                   </div>
                                 </div>
-                                <div className="mb-8 last:mb-0">
+                                <div className="mb-5 last:mb-0">
                                   <div className="font-medium">Chi tiết</div>
                                   <div className="mt-1">
                                     <Controller
@@ -2041,6 +2038,40 @@ function PickerComboAddEdit({ children, initialValues }) {
                                           value={field.value}
                                           onChange={val => field.onChange(val)}
                                           placeholder="Nhập chi tiết"
+                                        />
+                                      )}
+                                    />
+                                  </div>
+                                </div>
+                                <div className="mb-8 last:mb-0">
+                                  <div className="font-medium">
+                                    Ngày làm mới
+                                  </div>
+                                  <div className="mt-1">
+                                    <Controller
+                                      rules={{ required: true }}
+                                      name="RenewDate"
+                                      control={control}
+                                      render={({
+                                        field: { ref, ...field },
+                                        fieldState
+                                      }) => (
+                                        <InputDatePicker
+                                          placeholderText="Chọn thời gian"
+                                          autoComplete="off"
+                                          onChange={field.onChange}
+                                          selected={
+                                            field.value
+                                              ? new Date(field.value)
+                                              : null
+                                          }
+                                          {...field}
+                                          dateFormat="HH:mm dd/MM/yyyy"
+                                          showTimeSelect
+                                          errorMessageForce={
+                                            fieldState?.invalid
+                                          }
+                                          //timeFormat="HH:mm"
                                         />
                                       )}
                                     />

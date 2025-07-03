@@ -72,7 +72,7 @@ function MoneyCardList({ resultMoneyCard }) {
         sortable: false,
         cellRenderer: ({ rowData }) => (
           <div className="flex">
-            <ChevronRightIcon className="w-4 text-muted2 mr-1 icon-expanded" />
+            <ChevronRightIcon className="w-4 mr-1 text-muted2 icon-expanded" />
             {rowData.id}
           </div>
         )
@@ -88,7 +88,7 @@ function MoneyCardList({ resultMoneyCard }) {
             <div>
               {rowData.ten}
               {rowData.trang_thai === 'Khóa' && (
-                <b className="text-danger text-capitalize text-sm">- Đã khóa</b>
+                <b className="text-sm text-danger text-capitalize">- Đã khóa</b>
               )}
             </div>
             <div>
@@ -225,9 +225,9 @@ function MoneyCardList({ resultMoneyCard }) {
               rowData.content.map((item, index) => (
                 <li className="mb-10 ml-4 last:mb-0" key={index}>
                   <div className="absolute w-3 h-3 bg-primary rounded-full mt-1.5 -left-1.5 border border-white dark:border-gray-900 dark:bg-gray-700" />
-                  <h3 className="font-bold text-lg text-gray-900 dark:text-white font-inter">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white font-inter">
                     {formatString.formatVND(item.Value)}
-                    <time className="mb-1 text-sm font-medium leading-none text-gray-800 dark:text-gray-500 pl-2">
+                    <time className="pl-2 mb-1 text-sm font-medium leading-none text-gray-800 dark:text-gray-500">
                       {moment(item.CreateDate).format('HH:mm DD-MM-YYYY')}
                     </time>
                   </h3>
@@ -237,7 +237,7 @@ function MoneyCardList({ resultMoneyCard }) {
                 </li>
               ))
             ) : (
-              <div>Không có lịch sửu</div>
+              <div>Không có lịch sử</div>
             )}
           </ol>
         </div>
@@ -247,7 +247,7 @@ function MoneyCardList({ resultMoneyCard }) {
 
   return (
     <>
-      <div className="text-2xl font-bold dark:text-graydark-800 pt-3 py-6">
+      <div className="py-6 pt-3 text-2xl font-bold dark:text-graydark-800">
         Thẻ tiền
       </div>
       <ReactBaseTable

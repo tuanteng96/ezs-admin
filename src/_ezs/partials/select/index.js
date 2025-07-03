@@ -37,6 +37,7 @@ import { SelectTypeGenerate2 } from './SelectTypeGenerate2'
 import { SelectProdsOption } from './SelectProdsOption'
 import { SelectProdsCombos } from './SelectProdsCombos'
 import { SelectProdsSurchargeCard } from './SelectProdsSurchargeCard'
+import { SelectProdSelect2 } from './SelectProdSelect2'
 
 export {
   SelectDistrictsOtp,
@@ -77,5 +78,6 @@ export {
   SelectTypeGenerate2,
   SelectProdsOption,
   SelectProdsCombos,
-  SelectProdsSurchargeCard
+  SelectProdsSurchargeCard,
+  SelectProdSelect2
 }

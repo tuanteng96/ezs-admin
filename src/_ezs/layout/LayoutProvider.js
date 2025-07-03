@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { createContext, useContext, useState } from 'react'
+import { createContext, useContext, useEffect, useState } from 'react'
 import InvoiceAPI from '../api/invoice.api'
 import ConfigAPI from '../api/config'
+import { useLocation } from 'react-router'
 
 const LayoutContext = createContext()
 
@@ -11,10 +12,23 @@ const useLayout = () => {
 }
 
 const LayoutProvider = ({ children }) => {
+  let { pathname } = useLocation()
+
   const [loadingContent, setLoadingContent] = useState(false)
-  const [LayoutIframe] = useState(window?.top?.token)
+  const [LayoutIframe, setLayoutIframe] = useState(
+    window?.top?.token || ['/massage/checkin', '/checkin'].includes(pathname)
+  )
+
   const [GlobalConfig, setGlobalConfig] = useState(null)
   const [InvoiceConfig, setInvoiceConfig] = useState(null)
+
+  useEffect(() => {
+    if (['/massage/checkin', '/checkin'].includes(pathname)) {
+      setLayoutIframe(true)
+    } else {
+      setLayoutIframe(false)
+    }
+  }, [pathname])
 
   const updateLoadingContent = loading => {
     setLoadingContent(loading)

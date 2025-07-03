@@ -40,6 +40,7 @@ import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import Tooltip from 'rc-tooltip'
 import Select from 'react-select'
+import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 
 const OptionsStatus = [
   {
@@ -118,7 +119,8 @@ function PickerAddEdit({ children, initialValues }) {
       Detail: '',
       PhotoList: [],
       _USERLEVEL: '',
-      Status: ''
+      Status: '',
+      RenewDate: new Date()
     },
     resolver: yupResolver(schemaAddEdit)
   })
@@ -247,7 +249,7 @@ function PickerAddEdit({ children, initialValues }) {
             }
           ])
         }
-
+        setValue('RenewDate', data?.RenewDate || new Date())
         setValue(
           'IsDisplayPrice',
           data?.IsDisplayPrice && Number(data?.IsDisplayPrice) > 0
@@ -1372,7 +1374,7 @@ function PickerAddEdit({ children, initialValues }) {
                                   />
                                 </div>
                               </div>
-                              <div className="mb-8 last:mb-0">
+                              <div className="mb-4 last:mb-0">
                                 <div className="font-medium">Chi tiết</div>
                                 <div className="mt-1">
                                   <Controller
@@ -1387,6 +1389,36 @@ function PickerAddEdit({ children, initialValues }) {
                                         value={field.value}
                                         onChange={val => field.onChange(val)}
                                         placeholder="Nhập chi tiết"
+                                      />
+                                    )}
+                                  />
+                                </div>
+                              </div>
+                              <div className="mb-8 last:mb-0">
+                                <div className="font-medium">Ngày làm mới</div>
+                                <div className="mt-1">
+                                  <Controller
+                                    rules={{ required: true }}
+                                    name="RenewDate"
+                                    control={control}
+                                    render={({
+                                      field: { ref, ...field },
+                                      fieldState
+                                    }) => (
+                                      <InputDatePicker
+                                        placeholderText="Chọn thời gian"
+                                        autoComplete="off"
+                                        onChange={field.onChange}
+                                        selected={
+                                          field.value
+                                            ? new Date(field.value)
+                                            : null
+                                        }
+                                        {...field}
+                                        dateFormat="HH:mm dd/MM/yyyy"
+                                        showTimeSelect
+                                        errorMessageForce={fieldState?.invalid}
+                                        //timeFormat="HH:mm"
                                       />
                                     )}
                                   />

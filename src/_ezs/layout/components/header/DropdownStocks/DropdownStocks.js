@@ -45,12 +45,12 @@ const DropdownStocks = () => {
     <>
       <Listbox value={CrStocks} onChange={val => onChangeStock(val)}>
         <div className="relative h-full">
-          <div className="flex items-center justify-center h-full">
+          <div className="flex items-center justify-center h-full w-[260px]">
             <Listbox.Button
               type="button"
-              className="flex items-center px-3 mr-2 text-sm font-medium transition rounded text-primary font-inter h-11 bg-light dark:bg-dark-light focus:outline-none focus:shadow-none focus:z-10 hover:bg-primary dark:hover:bg-primary hover:text-white dark:hover:text-white dark:text-white"
+              className="flex items-center w-full px-3 text-sm font-medium transition rounded text-primary font-inter h-11 bg-light dark:bg-dark-light focus:outline-none focus:shadow-none focus:z-10 hover:bg-primary dark:hover:bg-primary hover:text-white dark:hover:text-white dark:text-white"
             >
-              <span className="block w-[135px] text-left truncate capitalize">
+              <span className="flex-1 block text-left capitalize truncate">
                 {CrStocks?.Title}
               </span>
               <ChevronDownIcon className="w-3.5 ml-2" />
@@ -62,7 +62,7 @@ const DropdownStocks = () => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Listbox.Options className="z-[1001] rounded px-0 py-2 border-0 max-w-[200px] w-full bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow absolute left-0">
+            <Listbox.Options className="z-[1001] rounded px-0 py-2 border-0 w-full bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow absolute left-0">
               {StockRights.map((item, index) => (
                 <Listbox.Option key={index} value={item}>
                   {({ selected }) => (

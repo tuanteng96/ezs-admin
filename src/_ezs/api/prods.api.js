@@ -1,4 +1,5 @@
 import http from 'src/_ezs/utils/http'
+import { formatObject } from '../utils/formatObject'
 
 const ProdsAPI = {
   get: ({
@@ -26,6 +27,7 @@ const ProdsAPI = {
     http.get(
       `/app/index.aspx?cmd=search_prods&token=&key=${key}&cates=${cates}&pi=${pi}&ps=${ps}`
     ),
+  getListIds: data => http.post(`/admin/smart.aspx?comboby=1&v=2`, data),
   getListTypeName: ({ key = '' }) =>
     http.get(
       `/api/gl/select2?cmd=prod&ignore_rootsv=1&ignore_all=1&_type=query&q=${key}`
@@ -93,7 +95,15 @@ const ProdsAPI = {
   getProdSurchargeCard: (key = '') =>
     http.get(
       `/api/gl/select2?cmd=prod&ignore_all=1&ignore_rootsv=1&includeSource=1&cate_name=phu_phi&_type=query&q=${key}`
-    )
+    ),
+  getListSelect2: body =>
+    http.get(`/api/gl/select2?${formatObject.toQueryString(body)}`),
+  consumableMaterialsId: ProdID =>
+    http.get(`/admin/smart.aspx?ServiceItem=1&ProdID=${ProdID}`),
+  updateConsumableMaterialsId: body =>
+    http.post(`/api/v3/serviceitem?cmd=saveitem`, body),
+  updateCareServiceId: data =>
+    http.post(`/api/v3/orderservicenoti?cmd=noticalendar`, data)
 }
 
 export default ProdsAPI

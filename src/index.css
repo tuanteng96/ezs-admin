@@ -195,3 +195,13 @@ body .react-viewer-list>li>img {
 .tox.tox-tinymce .tox-statusbar__branding {
     @apply hidden
 }
+
+/* */
+
+.BaseTable__body_height .BaseTable__body {
+    @apply !h-auto !overflow-y-hidden
+}
+
+.BaseTable__body_height .BaseTable__table-frozen-right .BaseTable__body {
+    @apply !overflow-hidden
+}

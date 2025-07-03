@@ -1,5 +1,5 @@
 import React, { lazy } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useSearchParams } from 'react-router-dom'
 import { MasterLayout } from 'src/_ezs/layout/MasterLayout'
 import SuspensedView from './SuspensedView'
 import { RoleAccess } from 'src/_ezs/layout/RoleAccess'
@@ -11,6 +11,8 @@ const CalendarPage = lazy(() => import('../pages/Calendar'))
 const BannersPage = lazy(() => import('../pages/Banners'))
 const PostsPage = lazy(() => import('../pages/Posts'))
 const UsersPage = lazy(() => import('../pages/Users'))
+const MassagePage = lazy(() => import('../pages/Massage'))
+const CheckinPage = lazy(() => import('../pages/Checkin'))
 const ClientsPage = lazy(() => import('../pages/Clients'))
 const AppointmentsPage = lazy(() => import('../pages/Appointments'))
 const CataloguePage = lazy(() => import('../pages/Catalogue'))
@@ -22,6 +24,7 @@ const SearchPage = lazy(() => import('../pages/Search'))
 const UnauthorizedPage = lazy(() => import('../pages/Unauthorized'))
 
 function PrivateRoutes(props) {
+  const [searchParams] = useSearchParams()
   const { pos_mng, notification, thu_chi, ReadApp_type, ReadCate } = useRoles([
     'pos_mng',
     'notification',
@@ -33,7 +36,10 @@ function PrivateRoutes(props) {
   return (
     <Routes>
       <Route element={<MasterLayout />}>
-        <Route path="auth/*" element={<Navigate to="/dashboard" />} />
+        <Route
+          path="auth/*"
+          element={<Navigate to={searchParams.get('prev') || '/dashboard'} />}
+        />
         <Route
           path="profile"
           element={
@@ -75,6 +81,24 @@ function PrivateRoutes(props) {
           element={
             <SuspensedView>
               <UsersPage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path="massage/*"
+          element={
+            <SuspensedView>
+              <MassagePage />
+            </SuspensedView>
+          }
+        />
+
+        <Route
+          path="checkin/*"
+          element={
+            <SuspensedView>
+              <CheckinPage />
             </SuspensedView>
           }
         />

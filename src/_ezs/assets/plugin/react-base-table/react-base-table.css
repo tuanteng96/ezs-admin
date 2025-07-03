@@ -2,7 +2,8 @@
     --tabel-bs-bg: #ffffff;
     --tabel-bs-bg-header: #f8f8f8;
     --tabel-bs-border-color: #eee;
-    --tabel-bs-bg-row-hover: #f3f3f3;
+    --tabel-bs-bg-row-hover: #f5f5f5; 
+    /* #f3f3f3 */
 }
 
 html.dark {

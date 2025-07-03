@@ -5,3 +5,9 @@ export const toAbsolutePath = pathname =>
     : '') +
   '/upload/image/' +
   pathname
+export const toAbsoluteAvatar = (pathname, path = '/upload/image/') =>
+  (!process.env.NODE_ENV || process.env.NODE_ENV === 'development'
+    ? process.env.REACT_APP_API_URL
+    : '') +
+  path +
+  pathname

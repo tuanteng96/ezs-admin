@@ -24,7 +24,8 @@ import { FloatingPortal } from '@floating-ui/react'
 import {
   SelectCategoryProds,
   SelectMeasure,
-  SelectProdsOption,
+  SelectProdsCombos,
+  SelectProdsSurchargeCard,
   SelectStocks,
   SelectTypeGenerate
 } from 'src/_ezs/partials/select'
@@ -42,6 +43,7 @@ import { toAbsolutePath, toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import Tooltip from 'rc-tooltip'
+import Select from 'react-select'
 
 const schemaAddEdit = yup
   .object({
@@ -50,6 +52,12 @@ const schemaAddEdit = yup
     StockUnit: yup.string().required('Vui lòng chọn đơn vị')
   })
   .required()
+
+let Options = [
+  { label: 'Ngày kích hoạt', value: 'ngay_kich_hoat' },
+  { label: 'Ngày mua hàng', value: 'ngay_mua_hang' },
+  { label: 'Buổi đầu', value: 'buoi_dau' }
+]
 
 function PickerAddEdit({ children, initialValues }) {
   const [visible, setVisible] = useState(false)
@@ -111,6 +119,23 @@ function PickerAddEdit({ children, initialValues }) {
       Desc: '',
       Detail: '',
       PhotoList: [],
+      Combo: [
+        {
+          Id: '',
+          baohanh: {
+            bh: false,
+            luong_bh: '',
+            tg_bh: '-1',
+            slg_bh_toi_da: '-1',
+            tinh_han_bh: 'ngay_kich_hoat',
+            unlimit: []
+          },
+          addfee: '',
+          isService: 1,
+          qty: '',
+          price: ''
+        }
+      ],
       Options: [
         {
           Title: '',
@@ -159,6 +184,9 @@ function PickerAddEdit({ children, initialValues }) {
         PhotoList: [],
         Status: '',
         Qty: 1
+      },
+      OriginalService: {
+        ServiceMinutes: ''
       }
     },
     resolver: yupResolver(schemaAddEdit)
@@ -172,12 +200,12 @@ function PickerAddEdit({ children, initialValues }) {
   })
 
   const {
-    fields: fieldsOptions,
-    append: appendOptions,
-    remove: removeOptions
+    fields: fieldsCombos,
+    append: appendCombos,
+    remove: removeCombos
   } = useFieldArray({
     control,
-    name: 'Options'
+    name: 'Combo'
   })
 
   const {
@@ -229,7 +257,7 @@ function PickerAddEdit({ children, initialValues }) {
         '[Types]': MenuActive?.ID,
         '[OnStocks]': '*',
         '[Combo]': '',
-        '[IsService]': 0,
+        '[IsService]': 1,
         '[IsAddFee]': 0,
         '[Bonus]': 0,
         '[IsDisplayPrice]': 1,
@@ -532,7 +560,7 @@ function PickerAddEdit({ children, initialValues }) {
     )
   }
 
-  let { BonusSaleJSON, id, isCreateMaterials, DynamicID, Title, VAT } = watch()
+  let { BonusSaleJSON, id, isCreateMaterials, Combo } = watch()
 
   return (
     <>
@@ -561,7 +589,7 @@ function PickerAddEdit({ children, initialValues }) {
                   <div className="flex items-center text-xl font-semibold sm:text-2xl lg:text-3xl">
                     {initialValues?.ID
                       ? 'Chỉnh sửa sản phẩm'
-                      : 'Thêm mới sản phẩm'}
+                      : 'Thêm mới dịch vụ'}
                   </div>
                 </div>
                 <div className="hidden gap-3 sm:flex">
@@ -608,11 +636,15 @@ function PickerAddEdit({ children, initialValues }) {
                                   hasRight: ReadCate?.hasRight
                                 },
                                 {
-                                  Title: 'Thông tin trên WEB / APP',
-                                  hasRight: ReadApp_type?.hasRight
+                                  Title: 'Thông tin bảo hành',
+                                  hasRight: true
                                 },
                                 {
-                                  Title: 'Cài đặt Options',
+                                  Title: 'Thông tin nâng cao',
+                                  hasRight: true
+                                },
+                                {
+                                  Title: 'Thông tin trên WEB / APP',
                                   hasRight: ReadApp_type?.hasRight
                                 }
                               ]
@@ -650,7 +682,7 @@ function PickerAddEdit({ children, initialValues }) {
                                 <div>
                                   <div className="mb-4 last:mb-0">
                                     <div className="font-medium">
-                                      Tên sản phẩm *
+                                      Tên dịch vụ *
                                     </div>
                                     <div className="mt-1">
                                       <Controller
@@ -688,7 +720,7 @@ function PickerAddEdit({ children, initialValues }) {
                                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                       <div>
                                         <div className="font-medium">
-                                          Mã sản phẩm *
+                                          Mã dịch vụ *
                                         </div>
                                         <div className="mt-1">
                                           <Controller
@@ -789,148 +821,12 @@ function PickerAddEdit({ children, initialValues }) {
                                         </div>
                                       </div>
                                     </div>
-
-                                    {!id && (
-                                      <>
-                                        <div className="grid grid-cols-1 gap-4 mt-3 sm:grid-cols-2">
-                                          <div className="flex items-center">
-                                            <Controller
-                                              name="isCreateMaterials"
-                                              control={control}
-                                              render={({
-                                                field: { ref, ...field },
-                                                fieldState
-                                              }) => (
-                                                <div className="flex items-center gap-1.5 mt-2">
-                                                  <div>
-                                                    <Switch
-                                                      checked={field.value}
-                                                      onChange={e => {
-                                                        field.onChange(e)
-                                                        setValue(
-                                                          'Materials.DynamicID',
-                                                          'NVL' + DynamicID
-                                                        )
-                                                        setValue(
-                                                          'Materials.Title',
-                                                          Title + ' (NVL)'
-                                                        )
-                                                        setValue(
-                                                          'Materials.VAT',
-                                                          VAT
-                                                        )
-                                                      }}
-                                                      className={clsx(
-                                                        'relative inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white/75',
-                                                        field.value
-                                                          ? 'bg-primary'
-                                                          : 'bg-[#d3d3d3]'
-                                                      )}
-                                                    >
-                                                      <span className="sr-only">
-                                                        Use setting
-                                                      </span>
-                                                      <span
-                                                        aria-hidden="true"
-                                                        className={clsx(
-                                                          'pointer-events-none inline-block h-[20px] w-[20px] transform rounded-full bg-white shadow-lg ring-0 top-0 transition duration-200 ease-in-out',
-                                                          field.value
-                                                            ? 'translate-x-5'
-                                                            : 'translate-x-0'
-                                                        )}
-                                                      />
-                                                    </Switch>
-                                                  </div>
-
-                                                  <div className="font-light text-muted2">
-                                                    Sản phẩm có tiêu hao khi làm
-                                                    dịch vụ
-                                                  </div>
-                                                </div>
-                                              )}
-                                            />
-                                          </div>
-                                          {isCreateMaterials && (
-                                            <div className="grid grid-cols-2 gap-4 sm:gap-2">
-                                              <div>
-                                                <div className="font-medium">
-                                                  Đơn vị *
-                                                </div>
-                                                <div className="mt-1">
-                                                  <Controller
-                                                    name="Materials.StockUnit"
-                                                    control={control}
-                                                    render={({
-                                                      field: { ref, ...field },
-                                                      fieldState
-                                                    }) => (
-                                                      <SelectMeasure
-                                                        value={field.value}
-                                                        onChange={val => {
-                                                          field.onChange(
-                                                            val ? val.value : ''
-                                                          )
-                                                        }}
-                                                        errorMessageForce={
-                                                          fieldState?.invalid
-                                                        }
-                                                        menuPortalTarget={
-                                                          document.body
-                                                        }
-                                                        menuPosition="fixed"
-                                                        styles={{
-                                                          menuPortal: base => ({
-                                                            ...base,
-                                                            zIndex: 9999
-                                                          })
-                                                        }}
-                                                      />
-                                                    )}
-                                                  />
-                                                </div>
-                                              </div>
-                                              <div>
-                                                <div className="font-semibold">
-                                                  Số lượng
-                                                </div>
-                                                <div className="mt-1">
-                                                  <Controller
-                                                    name={`Materials.Qty`}
-                                                    control={control}
-                                                    render={({
-                                                      field: { ref, ...field },
-                                                      fieldState
-                                                    }) => (
-                                                      <InputNumber
-                                                        thousandSeparator={
-                                                          false
-                                                        }
-                                                        value={field.value}
-                                                        placeholder="Nhập số lượng"
-                                                        onValueChange={val =>
-                                                          field.onChange(
-                                                            typeof val?.floatValue !==
-                                                              'undefined'
-                                                              ? val.floatValue
-                                                              : ''
-                                                          )
-                                                        }
-                                                      />
-                                                    )}
-                                                  />
-                                                </div>
-                                              </div>
-                                            </div>
-                                          )}
-                                        </div>
-                                      </>
-                                    )}
                                   </div>
 
-                                  <div className="grid grid-cols-1 gap-4 mb-4 sm:grid-cols-2 last:mb-0">
+                                  <div className="grid grid-cols-1 gap-4 mb-4 sm:grid-cols-1 last:mb-0">
                                     <div>
                                       <div className="font-medium">
-                                        Nhóm sản phẩm
+                                        Nhóm dịch vụ
                                       </div>
                                       <div className="mt-1">
                                         <Controller
@@ -941,7 +837,7 @@ function PickerAddEdit({ children, initialValues }) {
                                             fieldState
                                           }) => (
                                             <PickerAddCategories
-                                              TypeOf="SP"
+                                              TypeOf="DV"
                                               onAddSuccess={val => {
                                                 field.onChange({
                                                   label: val?.Title || '',
@@ -956,7 +852,7 @@ function PickerAddEdit({ children, initialValues }) {
                                                   onChange={val => {
                                                     field.onChange(val)
                                                   }}
-                                                  Type="SP"
+                                                  Type="DV"
                                                   errorMessageForce={
                                                     fieldState?.invalid
                                                   }
@@ -970,9 +866,9 @@ function PickerAddEdit({ children, initialValues }) {
                                                   menuPortalTarget={
                                                     document.body
                                                   }
-                                                  placeholder="Chọn nhóm sản phẩm"
+                                                  placeholder="Chọn nhóm dịch vụ"
                                                   noOptionsMessage={() =>
-                                                    'Chưa có nhóm sản phẩm.'
+                                                    'Chưa có nhóm dịch vụ.'
                                                   }
                                                   createOptionPosition="first"
                                                   isValidNewOption={(
@@ -1022,131 +918,80 @@ function PickerAddEdit({ children, initialValues }) {
                                         />
                                       </div>
                                     </div>
+                                  </div>
+                                  <div className="grid grid-cols-2 gap-5 mb-4 last:mb-0">
                                     <div>
-                                      <div className="font-medium">
-                                        Nhãn hàng
+                                      <div className="font-semibold">
+                                        Số phút thực hiện
                                       </div>
                                       <div className="mt-1">
                                         <Controller
-                                          name="Manu"
+                                          name={`OriginalService.ServiceMinutes`}
                                           control={control}
                                           render={({
                                             field: { ref, ...field },
                                             fieldState
                                           }) => (
-                                            <PickerAddCategories
-                                              TypeOf="NH"
-                                              onAddSuccess={val => {
-                                                field.onChange({
-                                                  label: val?.Title || '',
-                                                  value: val?.ID
-                                                })
-                                              }}
-                                            >
-                                              {({ open }) => (
-                                                <SelectCategoryProds
-                                                  isClearable
-                                                  value={field.value}
-                                                  onChange={val => {
-                                                    field.onChange(val)
-                                                  }}
-                                                  Type="NH"
-                                                  className="select-control"
-                                                  menuPosition="fixed"
-                                                  styles={{
-                                                    menuPortal: base => ({
-                                                      ...base,
-                                                      zIndex: 9999
-                                                    })
-                                                  }}
-                                                  menuPortalTarget={
-                                                    document.body
-                                                  }
-                                                  placeholder="Chọn nhãn hàng"
-                                                  noOptionsMessage={() =>
-                                                    'Chưa có nhãn hàng.'
-                                                  }
-                                                  createOptionPosition="first"
-                                                  isValidNewOption={(
-                                                    inputValue,
-                                                    selectValue,
-                                                    options
-                                                  ) => {
-                                                    let returnValue = false
-                                                    options.forEach(option => {
-                                                      if (
-                                                        inputValue &&
-                                                        inputValue.toLowerCase() !==
-                                                          option.label.toLowerCase()
-                                                      ) {
-                                                        returnValue = true
-                                                      }
-                                                    })
-                                                    return returnValue
-                                                  }}
-                                                  formatCreateLabel={val => (
-                                                    <span className="text-primary">
-                                                      Tạo mới nhãn hàng
-                                                      {val ? (
-                                                        <span className="pl-1">
-                                                          "{val}"
-                                                        </span>
-                                                      ) : (
-                                                        <></>
-                                                      )}
-                                                    </span>
-                                                  )}
-                                                  onCreateOption={inputValue => {
-                                                    if (!ReadCate?.hasRight) {
-                                                      toast.error(
-                                                        'Bạn không có quyền truy cập chức năng này.'
-                                                      )
-                                                    } else {
-                                                      open({
-                                                        Title: inputValue
-                                                      })
-                                                    }
-                                                  }}
-                                                />
-                                              )}
-                                            </PickerAddCategories>
+                                            <div className="relative">
+                                              <InputNumber
+                                                thousandSeparator={false}
+                                                value={field.value}
+                                                placeholder="Nhập số phút"
+                                                onValueChange={val =>
+                                                  field.onChange(
+                                                    typeof val?.floatValue !==
+                                                      'undefined'
+                                                      ? val.floatValue
+                                                      : ''
+                                                  )
+                                                }
+                                              />
+                                              <div className="absolute top-0 right-0 flex items-center justify-center w-16 h-full pointer-events-none text-muted">
+                                                Phút
+                                              </div>
+                                            </div>
                                           )}
                                         />
                                       </div>
                                     </div>
-                                  </div>
-                                  <div className="mb-4 last:mb-0">
-                                    <div className="font-semibold">
-                                      Thời gian sử dụng
-                                    </div>
-                                    <div className="mt-1">
-                                      <Controller
-                                        name={`InDays`}
-                                        control={control}
-                                        render={({
-                                          field: { ref, ...field },
-                                          fieldState
-                                        }) => (
-                                          <InputNumber
-                                            thousandSeparator={false}
-                                            value={field.value}
-                                            placeholder="Nhập số ngày"
-                                            onValueChange={val =>
-                                              field.onChange(
-                                                typeof val?.floatValue !==
-                                                  'undefined'
-                                                  ? val.floatValue
-                                                  : ''
-                                              )
-                                            }
-                                          />
-                                        )}
-                                      />
-                                    </div>
-                                    <div className="font-light text-muted2 mt-1.5">
-                                      Trung bình sử dụng trong 60 ngày sẽ hết 1
-                                      sản phẩm, để gần ngày hết hạn nhân viên sẽ
-                                      tiếp cận để Up Sale
+                                    <div>
+                                      <div className="font-semibold">
+                                        Thời gian sử dụng
+                                      </div>
+                                      <div className="mt-1">
+                                        <Controller
+                                          name={`InDays`}
+                                          control={control}
+                                          render={({
+                                            field: { ref, ...field },
+                                            fieldState
+                                          }) => (
+                                            <div className="relative">
+                                              <InputNumber
+                                                thousandSeparator={false}
+                                                value={field.value}
+                                                placeholder="Nhập số ngày"
+                                                onValueChange={val =>
+                                                  field.onChange(
+                                                    typeof val?.floatValue !==
+                                                      'undefined'
+                                                      ? val.floatValue
+                                                      : ''
+                                                  )
+                                                }
+                                              />
+                                              <div className="absolute top-0 right-0 flex items-center justify-center w-16 h-full pointer-events-none text-muted">
+                                                Ngày
+                                              </div>
+                                            </div>
+                                          )}
+                                        />
+                                      </div>
+                                      {/* <div className="font-light text-muted2 mt-1.5">
+                                        Trung bình sử dụng trong 60 ngày sẽ hết
+                                        1 sản phẩm, để gần ngày hết hạn nhân
+                                        viên sẽ tiếp cận để Up Sale
+                                      </div> */}
                                     </div>
                                   </div>
                                 </div>
@@ -1247,7 +1092,7 @@ function PickerAddEdit({ children, initialValues }) {
                                     <div className="grid grid-cols-1 gap-4 mb-4 sm:grid-cols-2">
                                       <div>
                                         <div className="font-semibold">
-                                          Giá Cost / 1 đơn vị
+                                          Giá Cost
                                         </div>
                                         <div className="mt-1">
                                           <Controller
@@ -1287,7 +1132,7 @@ function PickerAddEdit({ children, initialValues }) {
                                       </div>
                                       <div>
                                         <div className="font-semibold">
-                                          Giá bán / 1 đơn vị
+                                          Giá bán
                                         </div>
                                         <div className="mt-1">
                                           <Controller
@@ -1596,6 +1441,345 @@ function PickerAddEdit({ children, initialValues }) {
                             </Tab.Panel>
                           </>
                         )}
+                        <Tab.Panel>
+                          <div>
+                            <div className="flex items-center justify-between mb-4">
+                              <div>
+                                <div className="mb-1 text-lg font-semibold sm:text-2xl">
+                                  Thông tin bảo hành
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  <div className="pr-4 font-light text-muted2">
+                                    Chọn Switch để cài đặt bảo hành cho dịch vụ
+                                  </div>
+                                </div>
+                              </div>
+                              {fieldsCombos &&
+                                fieldsCombos.map((item, i) => (
+                                  <div key={item.Id}>
+                                    <Controller
+                                      name={`Combo[${i}].baohanh.bh`}
+                                      control={control}
+                                      render={({
+                                        field: { ref, ...field },
+                                        fieldState
+                                      }) => (
+                                        <Switch
+                                          checked={field.value}
+                                          onChange={e => {
+                                            field.onChange(e)
+                                          }}
+                                          className={clsx(
+                                            'relative inline-flex h-[24px] w-[44px] shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus-visible:ring-2  focus-visible:ring-white/75',
+                                            field.value
+                                              ? 'bg-primary'
+                                              : 'bg-[#d3d3d3]'
+                                          )}
+                                        >
+                                          <span className="sr-only">
+                                            Use setting
+                                          </span>
+                                          <span
+                                            aria-hidden="true"
+                                            className={clsx(
+                                              'pointer-events-none inline-block h-[20px] w-[20px] transform rounded-full bg-white shadow-lg ring-0 top-0 transition duration-200 ease-in-out',
+                                              field.value
+                                                ? 'translate-x-5'
+                                                : 'translate-x-0'
+                                            )}
+                                          />
+                                        </Switch>
+                                      )}
+                                    />
+                                  </div>
+                                ))}
+                            </div>
+                            <div>
+                              <div>
+                                {fieldsCombos &&
+                                  fieldsCombos.map((item, i) => (
+                                    <div
+                                      className="pb-5 mb-4 border-b border-separator last:pb-0 last:mb-0 last:border-0"
+                                      key={item.id}
+                                    >
+                                      <div>
+                                        {Combo[i].baohanh.bh && (
+                                          <div>
+                                            <div className="grid grid-cols-2">
+                                              <div className="grid grid-cols-1 gap-4">
+                                                <div>
+                                                  <div className="font-medium">
+                                                    Lương bảo hành
+                                                  </div>
+                                                  <div className="mt-1">
+                                                    <Controller
+                                                      name={`Combo[${i}].baohanh.luong_bh`}
+                                                      control={control}
+                                                      render={({
+                                                        field: {
+                                                          ref,
+                                                          ...field
+                                                        },
+                                                        fieldState
+                                                      }) => (
+                                                        <div className="relative">
+                                                          <InputNumber
+                                                            thousandSeparator={
+                                                              true
+                                                            }
+                                                            errorMessageForce={
+                                                              fieldState.invalid
+                                                            }
+                                                            placeholder="Nhập số tiền"
+                                                            value={field.value}
+                                                            onValueChange={val => {
+                                                              field.onChange(
+                                                                typeof val.floatValue !==
+                                                                  'undefined'
+                                                                  ? val.floatValue
+                                                                  : ''
+                                                              )
+                                                            }}
+                                                          />
+                                                        </div>
+                                                      )}
+                                                    />
+                                                  </div>
+                                                </div>
+                                                <div>
+                                                  <div className="font-medium">
+                                                    Số ngày bảo hành
+                                                  </div>
+                                                  <div className="flex gap-3 mt-1">
+                                                    <Controller
+                                                      name={`Combo[${i}].baohanh.tg_bh`}
+                                                      control={control}
+                                                      render={({
+                                                        field: {
+                                                          ref,
+                                                          ...field
+                                                        },
+                                                        fieldState
+                                                      }) => (
+                                                        <>
+                                                          <div className="flex border border-[#e5e5e5] bg-[#f2f2f2] rounded p-1 gap-1">
+                                                            <div
+                                                              onClick={() =>
+                                                                field.onChange(
+                                                                  365
+                                                                )
+                                                              }
+                                                              className={clsx(
+                                                                'px-2 border rounded flex items-center text-[12px] font-medium cursor-pointer transition-all',
+                                                                field.value !==
+                                                                  '-1'
+                                                                  ? 'bg-white border-[#d3d3d3]'
+                                                                  : 'border-[#f2f2f2] hover:bg-[#eaeaea]'
+                                                              )}
+                                                            >
+                                                              Giới hạn
+                                                            </div>
+                                                            <div
+                                                              onClick={() =>
+                                                                field.onChange(
+                                                                  '-1'
+                                                                )
+                                                              }
+                                                              className={clsx(
+                                                                'px-2 border rounded flex items-center text-[12px] font-medium cursor-pointer transition-all',
+                                                                field.value ===
+                                                                  '-1'
+                                                                  ? 'bg-white border-[#d3d3d3]'
+                                                                  : 'border-[#f2f2f2] hover:bg-[#eaeaea]'
+                                                              )}
+                                                            >
+                                                              Không giới hạn
+                                                            </div>
+                                                          </div>
+                                                          <div className="relative flex-1">
+                                                            <InputNumber
+                                                              thousandSeparator={
+                                                                false
+                                                              }
+                                                              errorMessageForce={
+                                                                fieldState.invalid
+                                                              }
+                                                              placeholder="Số ngày"
+                                                              value={
+                                                                field.value ===
+                                                                '-1'
+                                                                  ? ''
+                                                                  : field.value
+                                                              }
+                                                              onValueChange={val => {
+                                                                field.onChange(
+                                                                  typeof val.floatValue !==
+                                                                    'undefined'
+                                                                    ? val.floatValue
+                                                                    : ''
+                                                                )
+                                                              }}
+                                                              disabled={
+                                                                field.value ===
+                                                                '-1'
+                                                              }
+                                                            />
+                                                          </div>
+                                                        </>
+                                                      )}
+                                                    />
+                                                  </div>
+                                                </div>
+                                                <div>
+                                                  <div className="font-medium">
+                                                    Số buổi bảo hành
+                                                  </div>
+                                                  <div className="flex gap-3 mt-1">
+                                                    <Controller
+                                                      name={`Combo[${i}].baohanh.slg_bh_toi_da`}
+                                                      control={control}
+                                                      render={({
+                                                        field: {
+                                                          ref,
+                                                          ...field
+                                                        },
+                                                        fieldState
+                                                      }) => (
+                                                        <>
+                                                          <div className="flex border border-[#e5e5e5] bg-[#f2f2f2] rounded p-1 gap-1">
+                                                            <div
+                                                              onClick={() =>
+                                                                field.onChange(
+                                                                  ''
+                                                                )
+                                                              }
+                                                              className={clsx(
+                                                                'px-2 border rounded flex items-center text-[12px] font-medium cursor-pointer transition-all',
+                                                                field.value !==
+                                                                  '-1'
+                                                                  ? 'bg-white border-[#d3d3d3]'
+                                                                  : 'border-[#f2f2f2] hover:bg-[#eaeaea]'
+                                                              )}
+                                                            >
+                                                              Giới hạn
+                                                            </div>
+                                                            <div
+                                                              onClick={() =>
+                                                                field.onChange(
+                                                                  '-1'
+                                                                )
+                                                              }
+                                                              className={clsx(
+                                                                'px-2 border rounded flex items-center text-[12px] font-medium cursor-pointer transition-all',
+                                                                field.value ===
+                                                                  '-1'
+                                                                  ? 'bg-white border-[#d3d3d3]'
+                                                                  : 'border-[#f2f2f2] hover:bg-[#eaeaea]'
+                                                              )}
+                                                            >
+                                                              Không giới hạn
+                                                            </div>
+                                                          </div>
+                                                          <div className="relative flex-1">
+                                                            <InputNumber
+                                                              thousandSeparator={
+                                                                false
+                                                              }
+                                                              errorMessageForce={
+                                                                fieldState.invalid
+                                                              }
+                                                              placeholder="Số buổi"
+                                                              value={
+                                                                field.value ===
+                                                                '-1'
+                                                                  ? ''
+                                                                  : field.value
+                                                              }
+                                                              onValueChange={val => {
+                                                                field.onChange(
+                                                                  typeof val.floatValue !==
+                                                                    'undefined'
+                                                                    ? val.floatValue
+                                                                    : ''
+                                                                )
+                                                              }}
+                                                              disabled={
+                                                                field.value ===
+                                                                '-1'
+                                                              }
+                                                            />
+                                                          </div>
+                                                        </>
+                                                      )}
+                                                    />
+                                                  </div>
+                                                </div>
+                                              </div>
+                                              <div></div>
+                                            </div>
+                                            <div className='mt-6'>
+                                              <div>
+                                                <div className="mb-1 text-lg font-semibold sm:text-2xl">
+                                                  Tính hạn bảo hành
+                                                </div>
+                                                <div className="font-light text-muted2">
+                                                  Encourage clients to book
+                                                  additional services and buy
+                                                  suitable memberships when
+                                                  booking online. Manage your
+                                                  workspace settings or learn
+                                                  more.
+                                                </div>
+                                              </div>
+                                              <div className="mt-3">
+                                                <Controller
+                                                  name={`Combo[${i}].baohanh.tinh_han_bh`}
+                                                  control={control}
+                                                  render={({
+                                                    field: { ref, ...field },
+                                                    fieldState
+                                                  }) => (
+                                                    <Select
+                                                      onChange={val =>
+                                                        field.onChange(
+                                                          val?.value || ''
+                                                        )
+                                                      }
+                                                      className="flex-1 select-control"
+                                                      value={Options.filter(
+                                                        x =>
+                                                          x.value ===
+                                                          field?.value
+                                                      )}
+                                                      classNamePrefix="select"
+                                                      options={Options || []}
+                                                      placeholder="Chọn cách tính"
+                                                      noOptionsMessage={() =>
+                                                        'Không có dữ liệu'
+                                                      }
+                                                    />
+                                                  )}
+                                                />
+                                              </div>
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  ))}
+                              </div>
+                            </div>
+                          </div>
+                        </Tab.Panel>
+                        <Tab.Panel>
+                          <div>
+                            <div className="mb-4">
+                              <div className="mb-1 text-lg font-semibold sm:text-2xl">
+                                Thông tin nâng cao
+                              </div>
+                            </div>
+                          </div>
+                        </Tab.Panel>
                         {ReadApp_type?.hasRight && (
                           <>
                             <Tab.Panel>
@@ -1789,102 +1973,6 @@ function PickerAddEdit({ children, initialValues }) {
                                       />
                                     </div>
                                   </div>
-                                </div>
-                              </div>
-                            </Tab.Panel>
-                            <Tab.Panel>
-                              <div className="mb-6">
-                                <div className="mb-1 text-lg font-semibold sm:text-2xl">
-                                  Cài đặt Options
-                                </div>
-                                <div className="font-light text-muted2">
-                                  Thêm các loại option như kích thước, màu sắc,
-                                  size cho sản phẩm.
-                                </div>
-                              </div>
-                              <div>
-                                <div>
-                                  {fieldsOptions &&
-                                    fieldsOptions.map((item, i) => (
-                                      <div
-                                        className="pb-5 mb-4 border-b border-separator last:pb-0 last:mb-0 last:border-0"
-                                        key={item.id}
-                                      >
-                                        <div className="flex gap-4">
-                                          <div className="flex-1">
-                                            <Controller
-                                              name={`Options[${i}].Title`}
-                                              control={control}
-                                              render={({
-                                                field: { ref, ...field },
-                                                fieldState
-                                              }) => (
-                                                <div className="relative">
-                                                  <Input
-                                                    className="capitalize-first"
-                                                    value={field.value}
-                                                    errorMessageForce={
-                                                      fieldState?.invalid
-                                                    }
-                                                    placeholder="Tên Option (Size, Màu sắc ,...)"
-                                                    //errorMessage={fieldState?.error?.message}
-                                                    {...field}
-                                                    onChange={e => {
-                                                      field.onChange(
-                                                        e.target.value
-                                                      )
-                                                    }}
-                                                  />
-                                                </div>
-                                              )}
-                                            />
-                                          </div>
-                                          <div className="flex-1">
-                                            <Controller
-                                              name={`Options[${i}].ProdID`}
-                                              control={control}
-                                              render={({
-                                                field: { ref, ...field },
-                                                fieldState
-                                              }) => (
-                                                <SelectProdsOption
-                                                  className="select-control"
-                                                  isClearable
-                                                  value={field.value}
-                                                  onChange={val => {
-                                                    field.onChange(val)
-                                                  }}
-                                                  placeholder="Nhập tên, mã mặt hàng"
-                                                />
-                                              )}
-                                            />
-                                          </div>
-                                          <div
-                                            className="min-w-12 w-12 h-12 bg-[#f6f6f6] rounded flex items-center justify-center cursor-pointer text-danger"
-                                            onClick={() => removeOptions(i)}
-                                          >
-                                            <TrashIcon className="w-5" />
-                                          </div>
-                                        </div>
-                                      </div>
-                                    ))}
-                                </div>
-                                <div className="mt-6">
-                                  <button
-                                    className="h-10 items-center flex border border-[#d3d3d3] rounded-full px-4 text-sm"
-                                    type="button"
-                                    onClick={() =>
-                                      appendOptions({
-                                        ProdID: '',
-                                        Title: ''
-                                      })
-                                    }
-                                  >
-                                    <PlusCircleIcon className="w-5" />
-                                    <span className="pl-1.5">
-                                      Thêm mới Option
-                                    </span>
-                                  </button>
                                 </div>
                               </div>
                             </Tab.Panel>
