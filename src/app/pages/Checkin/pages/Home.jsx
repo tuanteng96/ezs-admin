@@ -8,22 +8,41 @@ import UsersAPI from 'src/_ezs/api/users.api'
 import WorksheetAPI from 'src/_ezs/api/workshee.api'
 import { useAuth } from 'src/_ezs/core/Auth'
 import { DropdownStocks } from 'src/_ezs/layout/components/header/DropdownStocks'
+import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import { toAbsoluteAvatar, toAbsoluteUrl } from 'src/_ezs/utils/assetPath'
 import CookieHelpers from 'src/_ezs/utils/CookieHelpers'
 import Swal from 'sweetalert2'
 
 function Home(props) {
   const { CrStocks, logout } = useAuth()
+  const { GlobalConfig } = useLayout()
+
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['Massage-Checkin', CrStocks],
     queryFn: async () => {
+      let CrDate = moment().format('DD/MM/YYYY')
+      if (GlobalConfig?.Admin?.checkout_time) {
+        let now = moment()
+        let CrOut = moment().set({
+          hours: '00',
+          minute: '00'
+        })
+        let CrOutEnd = moment().set({
+          hours: GlobalConfig?.Admin?.checkout_time.split(';')[1].split(':')[0],
+          minute: GlobalConfig?.Admin?.checkout_time.split(';')[1].split(':')[1]
+        })
+
+        if (now.isBetween(CrOut, CrOutEnd, null, '[]')) {
+          CrDate = moment().subtract(1, 'days').format('DD/MM/YYYY')
+        }
+      }
       const { data } = await UsersAPI.listService({
         Key: '',
         StockID: CrStocks?.ID || CookieHelpers.get('StockID')
       })
       const rs = await WorksheetAPI.getAllWorkSheet({
-        From: moment().format('DD/MM/YYYY'),
-        To: moment().format('DD/MM/YYYY'),
+        From: CrDate,
+        To: CrDate,
         //StockID: CrStocks?.ID || CookieHelpers.get('StockID'),
         key: ''
       })
@@ -62,38 +81,65 @@ function Home(props) {
       item?.Dates[0]?.WorkTrack?.CheckOut
     )
       return
+
+    let obj = {
+      CheckIn: item?.Dates[0]?.WorkTrack?.CheckIn
+        ? moment(item?.Dates[0]?.WorkTrack?.CheckIn).format(
+            'YYYY-MM-DD HH:mm:ss'
+          )
+        : '',
+      CheckOut: item?.Dates[0]?.WorkTrack?.CheckOut
+        ? moment(item?.Dates[0]?.WorkTrack?.CheckOut).format(
+            'YYYY-MM-DD HH:mm:ss'
+          )
+        : '',
+      CreateDate: moment(item.Dates[0].Date).format('YYYY-MM-DD'),
+      Info: {
+        ...(item.Dates[0].WorkTrack?.Info || {})
+      },
+      StockID: item.StockID,
+      UserID: item.UserID
+    }
+
     let isOut = Boolean(item?.Dates[0]?.WorkTrack?.CheckIn)
 
-    let values = {
-      edit: [
-        {
-          CheckIn: !isOut
-            ? moment(item.Dates[0].Date)
-                .set({
-                  hour: moment().get('hour'),
-                  minute: moment().get('minute'),
-                  second: moment().get('second')
-                })
-                .format('YYYY-MM-DD HH:mm:ss')
-            : moment(item?.Dates[0]?.WorkTrack?.CheckIn).format(
-                'YYYY-MM-DD HH:mm:ss'
-              ),
-          CheckOut: isOut
-            ? moment(item.Dates[0].Date)
-                .set({
-                  hour: moment().get('hour'),
-                  minute: moment().get('minute'),
-                  second: moment().get('second')
-                })
-                .format('YYYY-MM-DD HH:mm:ss')
-            : '',
-          CreateDate: moment(item.Dates[0].Date).format('YYYY-MM-DD'),
-          Info: {},
-          StockID: item.StockID,
-          UserID: item.UserID
-        }
-      ]
+    if (
+      moment(item.Dates[0].Date).format('YYYY-MM-DD') !==
+      moment().format('YYYY-MM-DD')
+    ) {
+      if (!isOut) {
+        obj.CheckIn = moment()
+          .subtract(1, 'days')
+          .set({
+            hour: '23',
+            minute: '59',
+            second: '59'
+          })
+          .format('YYYY-MM-DD HH:mm:ss')
+        obj.Info['CheckInReality'] = moment().format('YYYY-MM-DD HH:mm:ss')
+      } else {
+        obj.CheckOut = moment()
+          .subtract(1, 'days')
+          .set({
+            hour: '23',
+            minute: '59',
+            second: '59'
+          })
+          .format('YYYY-MM-DD HH:mm:ss')
+        obj.Info['CheckOutReality'] = moment().format('YYYY-MM-DD HH:mm:ss')
+      }
+    } else {
+      if (!isOut) {
+        obj.CheckIn = moment().format('YYYY-MM-DD HH:mm:ss')
+      } else {
+        obj.CheckOut = moment().format('YYYY-MM-DD HH:mm:ss')
+      }
     }
+
+    let values = {
+      edit: [obj]
+    }
+
     Swal.fire({
       customClass: {
         confirmButton: '!bg-primary'
@@ -226,18 +272,29 @@ function Home(props) {
                       <div>
                         <span>Đến lúc </span>
                         <span className="font-number">
-                          {moment(item?.Dates[0]?.WorkTrack?.CheckIn).format(
-                            'HH:mm'
-                          )}
+                          {item?.Dates[0]?.WorkTrack?.Info?.CheckInReality
+                            ? moment(
+                                item?.Dates[0]?.WorkTrack?.Info?.CheckInReality,
+                                'YYYY-MM-DD HH:mm'
+                              ).format('HH:mm DD-MM-YYYY')
+                            : moment(item?.Dates[0]?.WorkTrack?.CheckIn).format(
+                                'HH:mm DD-MM-YYYY'
+                              )}
                         </span>
                       </div>
                       {item?.Dates[0]?.WorkTrack?.CheckOut && (
                         <div className="mt-px">
                           <span>Về lúc </span>
                           <span className="font-number">
-                            {moment(item?.Dates[0]?.WorkTrack?.CheckOut).format(
-                              'HH:mm'
-                            )}
+                            {item?.Dates[0]?.WorkTrack?.Info?.CheckOutReality
+                              ? moment(
+                                  item?.Dates[0]?.WorkTrack?.Info
+                                    ?.CheckOutReality,
+                                  'YYYY-MM-DD HH:mm'
+                                ).format('HH:mm DD-MM-YYYY')
+                              : moment(
+                                  item?.Dates[0]?.WorkTrack?.CheckOut
+                                ).format('HH:mm DD-MM-YYYY')}
                           </span>
                         </div>
                       )}
