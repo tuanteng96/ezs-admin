@@ -50,6 +50,19 @@ const formatRowRenderer = arr => {
   return newArray
 }
 
+const getVATRateName = VAT => {
+  if (Number(VAT) === -2) {
+    return 'KKKNT'
+  }
+  if (Number(VAT) === -1) {
+    return 'KCT'
+  }
+  if ([0, 5, 8, 10].includes(Number(VAT))) {
+    return `${VAT}%`
+  }
+  return `KHAC:${VAT}%`
+}
+
 function ElectronicInvoice(props) {
   const { CrStocks } = useAuth()
   const { GlobalConfig, InvoiceConfig } = useLayout()
@@ -156,9 +169,7 @@ function ElectronicInvoice(props) {
           x.Items &&
           x.Items.length > 0 &&
           (x.CK || x.QT || x.TM) &&
-          (!GlobalConfig?.Admin?.VAT0
-            ? !x.Items.some(o => !o.VAT)
-            : GlobalConfig?.Admin?.VAT0)
+          !x.Items.some(o => Number(o.VAT) === -3)
       )
 
       let newRs = []
@@ -179,14 +190,17 @@ function ElectronicInvoice(props) {
               })
 
               let newItems = bill.Items.map((x, i) => {
-                let PriceVAT = Math.round(
-                  x.Thanh_toanVAT / ((100 + x.VAT) / 100)
-                )
+                let PriceVAT =
+                  x.VAT > 0
+                    ? Math.round(x.Thanh_toanVAT / ((100 + x.VAT) / 100))
+                    : x.Thanh_toanVAT
 
                 let PriceTotalVAT = x.Thanh_toanVAT - PriceVAT
 
-                let detailVatRate = [5, 8, 10].includes(x.VAT) ? x.VAT : -3
-
+                let detailVatRate = -3
+                if ([-1, -2, 0, 5, 8, 10].includes(x.VAT)) {
+                  detailVatRate = x.VAT
+                }
                 return {
                   feature: 1,
                   code: x.ProdCode,
@@ -196,7 +210,8 @@ function ElectronicInvoice(props) {
                   price: PriceVAT / x.Qty,
                   detailTotal: PriceVAT,
                   detailVatRate: detailVatRate,
-                  detailVatRateOther: detailVatRate === -3 ? x.VAT : '',
+                  detailVatRateOther:
+                    detailVatRate === -3 ? x.VAT : '',
                   detailVatAmount: PriceTotalVAT,
                   detailDiscount: '',
                   detailDiscountAmount: '',
@@ -436,7 +451,9 @@ function ElectronicInvoice(props) {
                 )
                 let newItems = item.Items.map((x, i) => {
                   let PriceVAT = Math.round(
-                    x.Thanh_toanVAT / ((100 + x.VAT) / 100)
+                    x.VAT > 0
+                      ? x.Thanh_toanVAT / ((100 + x.VAT) / 100)
+                      : x.Thanh_toanVAT
                   )
                   let PriceTotalVAT = x.Thanh_toanVAT - PriceVAT
                   return {
@@ -454,11 +471,12 @@ function ElectronicInvoice(props) {
                     AmountOC: PriceVAT,
                     AmountWithoutVATOC: PriceVAT,
                     AmountWithoutVAT: PriceVAT,
-                    VATRateName: x.VAT === 0 ? 'KKKNT' : `${x.VAT}%`,
+                    VATRateName: getVATRateName(x.VAT),
                     VATAmountOC: PriceTotalVAT,
                     VATAmount: PriceTotalVAT
                   }
                 })
+                console.log(newItems)
                 let TotalOrderVAT = formatArray.sumTotalKey(newItems, 'Amount')
 
                 let TaxRateInfo = [
@@ -805,9 +823,7 @@ function ElectronicInvoice(props) {
             {(rowData.TM > 0 || rowData.CK > 0 || rowData.QT > 0) &&
             rowData.Items &&
             rowData.Items.length > 0 &&
-            rowData.Items.every(x =>
-              GlobalConfig?.Admin?.VAT0 ? GlobalConfig?.Admin?.VAT0 : x.VAT
-            ) ? (
+            rowData.Items.every(x => Number(x.VAT) !== -3) ? (
               <>
                 {rowData?.InvoiceIDStatus === 'done' && rowData.InvoiceID ? (
                   <div
@@ -1183,7 +1199,7 @@ function ElectronicInvoice(props) {
           rowRenderer={rowRenderer}
           rowClassName={({ rowData }) => {
             return (
-              (!rowData.VAT ||
+              (rowData.VAT === '' ||
                 !(rowData.TM > 0 || rowData.CK > 0 || rowData.QT > 0)) &&
               '!bg-dangerlight'
             )

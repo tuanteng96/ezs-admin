@@ -69,12 +69,13 @@ class HttpInvoicePA {
               }
             }
           )
+          if (rs?.data?.result?.access_token) {
+            newData['headers']['Authorization'] =
+              'Bearer ' + rs?.data?.result?.access_token
 
-          newData['headers']['Authorization'] =
-            'Bearer ' + rs?.data?.result?.access_token
-
-          this.accessTokenInvoice = rs?.data?.result?.access_token
-          storeLocalStorage(rs?.data?.result?.access_token, 'v1tk_invoicePA')
+            this.accessTokenInvoice = rs?.data?.result?.access_token
+            storeLocalStorage(rs?.data?.result?.access_token, 'v1tk_invoicePA')
+          }
 
           let response = await this.instance({
             ...originalRequest,
