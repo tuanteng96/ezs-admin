@@ -82,7 +82,7 @@ function InventoryFilters(props) {
         RootTypeID: values.RootTypeID ? values.RootTypeID.toString() : '',
         manus: values.manus ? values.manus.toString() : '',
         to: values.to
-          ? moment(values.to, 'DD/MM/YYYY').format('DD/MM/YYYY')
+          ? moment(values.to, 'HH:mm DD/MM/YYYY').format('HH:mm DD/MM/YYYY')
           : null
       }).toString()
     })
@@ -272,22 +272,23 @@ function InventoryFilters(props) {
                       control={control}
                       render={({ field: { ref, ...field }, fieldState }) => (
                         <InputDatePicker
-                          placeholderText="Chọn ngày"
+                          placeholderText="Chọn thời gian"
                           autoComplete="off"
                           onChange={field.onChange}
                           selected={
                             field.value
-                              ? moment(field.value, 'DD/MM/YYYY').toDate()
+                              ? moment(field.value, 'HH:mm DD/MM/YYYY').toDate()
                               : null
                           }
                           {...field}
-                          dateFormat="dd/MM/yyyy"
+                          dateFormat="HH:mm dd/MM/yyyy"
+                          showTimeSelect
                         />
                       )}
                     />
                   </div>
                 </div>
-                <div>
+                <div className="mb-3.5 last:mb-0">
                   <div className="flex items-center justify-between">
                     <div className="font-medium text-[15px]">
                       Ẩn mặt hàng ngừng kinh doanh

@@ -1,15 +1,19 @@
 import { ArrowRightIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { LayoutGroup, m } from 'framer-motion'
-import React, { useMemo } from 'react'
+import moment from 'moment'
+import React, { useMemo, useRef } from 'react'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'react-toastify'
+import UploadsAPI from 'src/_ezs/api/uploads.api'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useAuth } from 'src/_ezs/core/Auth'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
+import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import { Button } from 'src/_ezs/partials/button'
 import { InputNumber } from 'src/_ezs/partials/forms'
+import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import { SelectProdCode, SelectStocksWareHouse } from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 
@@ -82,6 +86,7 @@ const FormAddMaterial = ({ onSubmit: onSubmitAdd }) => {
             rules={{ required: true }}
             render={({ field: { ref, ...field }, fieldState }) => (
               <SelectProdCode
+                isDisabled={!watch().fromTitle}
                 Key={watch().fromTitle}
                 className="select-control"
                 Params={
@@ -130,12 +135,20 @@ function MaterialConversion(props) {
   const { pathname, state, search } = useLocation()
   const { CrStocks } = useAuth()
   const queryClient = useQueryClient()
-  const { xuat_nhap_diem, xuat_nhap_ten_slg } = useRoles([
+  const { xuat_nhap_diem, xuat_nhap_ten_slg, adminTools_byStock } = useRoles([
     'xuat_nhap_diem',
-    'xuat_nhap_ten_slg'
+    'xuat_nhap_ten_slg',
+    'adminTools_byStock'
   ])
 
+  const fileInput = useRef(null)
+
+  const handleClick = () => {
+    fileInput.current.click()
+  }
+
   const {
+    watch,
     control,
     handleSubmit,
     setValue,
@@ -144,7 +157,8 @@ function MaterialConversion(props) {
   } = useForm({
     defaultValues: {
       data: [],
-      stockid: CrStocks?.ID || 0
+      stockid: CrStocks?.ID || 0,
+      CreateDate: null
     }
   })
 
@@ -178,9 +192,9 @@ function MaterialConversion(props) {
         )
       },
       {
-        key: 'CreateDate',
+        key: 'fromQty',
         title: 'Số lượng',
-        dataKey: 'CreateDate',
+        dataKey: 'fromQty',
         width: 200,
         cellRenderer: ({ rowData, rowIndex }) => (
           <Controller
@@ -293,10 +307,42 @@ function MaterialConversion(props) {
     }
   })
 
+  const uploadMutation = useMutation({
+    mutationFn: async body => {
+      const file = await UploadsAPI.sendFile(body)
+      return WarehouseAPI.importExcelFile({ file: file?.data?.data })
+    }
+  })
+
+  const recheckMutation = useMutation({
+    mutationFn: async body => {
+      let newBody = { ...body }
+      delete newBody.from
+      let { data } = await WarehouseAPI.getListProdCode(body)
+
+      return data?.data && data?.data.length > 0
+        ? {
+            ...data?.data[0],
+            from: body.from
+          }
+        : null
+    }
+  })
+
   const onSubmit = values => {
     var bodyFormData = new FormData()
     bodyFormData.append('stockid', values.stockid)
-    bodyFormData.append('data', JSON.stringify(values.data))
+    bodyFormData.append(
+      'data',
+      JSON.stringify(
+        values?.CreateDate
+          ? values.data.map(x => ({
+              ...x,
+              CreateDate: moment(values?.CreateDate).format('YYYY-MM-DD HH:mm')
+            }))
+          : values.data
+      )
+    )
 
     ConvertMutation.mutate(bodyFormData, {
       onSuccess: data => {
@@ -305,6 +351,80 @@ function MaterialConversion(props) {
       }
     })
   }
+
+  const handleFileChange = event => {
+    const data = new FormData()
+    data.append(event.target.files[0].name, event.target.files[0])
+    uploadMutation.mutate(data, {
+      onSuccess: async ({ data }) => {
+        fileInput.current.value = ''
+        let newItems =
+          data?.items && data.items.length > 0
+            ? data.items.filter(x => x.ProdID)
+            : []
+        if (newItems.length > 0) {
+          const requests = newItems.map(async item => {
+            return recheckMutation.mutateAsync({
+              cmd: 'prodcode',
+              includeSource: 1,
+              cate_name: 'san_pham,nvl',
+              _type: 'query',
+              relUnit: item?.StockUnit || '',
+              relUnitID: item?.ProdID || '',
+              q: '',
+              from: item
+            })
+          })
+
+          try {
+            const results = await Promise.all(requests)
+            if (results && results.length > 0) {
+              setValue(
+                'data',
+                results
+                  .filter(x => x)
+                  .map(val => {
+                    let obj = null
+                    let fromTitle = val?.from
+                    let toTitle = val
+                    let Meta = JSON.parse(toTitle.source?.Meta)
+                    let index = Meta?.otherUnit.findIndex(
+                      x => Number(x.ProdID) === fromTitle?.ProdID
+                    )
+
+                    if (index > -1) {
+                      obj = {
+                        fromCode: fromTitle?.ProdCode,
+                        fromUnit: fromTitle?.StockUnit,
+                        fromTitle: fromTitle?.ProdTitle,
+                        fromQty: 1,
+                        fromBarcode: null,
+                        fromPrice: 0,
+                        toCode: toTitle.id,
+                        toUnit: toTitle.source?.StockUnit,
+                        toTitle: toTitle.text,
+                        toQty: Number(Meta?.otherUnit[index].Qty),
+                        toQtyInit: Number(Meta?.otherUnit[index].Qty),
+                        toBarcode: null,
+                        toPrice: 0,
+                        valid: true,
+                        ratioText: `1x${Meta?.otherUnit[index].Qty}`,
+                        validCount: 3
+                      }
+                    }
+                    return obj
+                  })
+              )
+            }
+          } catch (error) {
+            console.error('One or more API calls failed:', error)
+          }
+        }
+      }
+    })
+  }
+
+  let { data } = watch()
 
   return (
     <LayoutGroup key={pathname}>
@@ -330,8 +450,35 @@ function MaterialConversion(props) {
         >
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between px-4 py-4 border-b lg:px-6 border-separator dark:border-dark-separator">
-              <div className="w-10/12 text-xl font-bold truncate lg:text-2xl dark:text-graydark-800">
-                Xuất kho làm nguyên liệu
+              <div className="w-10/12">
+                <div className="text-xl font-bold truncate lg:text-2xl dark:text-graydark-800">
+                  Xuất kho làm nguyên liệu
+                </div>
+
+                <div className="mt-1">
+                  Bạn có thể
+                  <a
+                    href="/v2/filemau1.xlsx"
+                    className="text-primary pl-1.5 cursor-pointer"
+                    download
+                  >
+                    tải file Excel mẫu
+                  </a>
+                  <span className="pl-1.5">và chọn</span>
+                  <span
+                    className="text-primary pl-1.5 cursor-pointer"
+                    onClick={handleClick}
+                  >
+                    Import từ Excel
+                  </span>
+                  <span className="pl-1.5">để tải lên.</span>
+                  <input
+                    className="hidden"
+                    type="file"
+                    onChange={e => handleFileChange(e)}
+                    ref={fileInput}
+                  />
+                </div>
               </div>
               <div
                 className="flex items-center justify-center w-10 h-10 transition cursor-pointer lg:w-12 lg:h-12 dark:text-graydark-800 hover:text-primary"
@@ -372,11 +519,13 @@ function MaterialConversion(props) {
                     validCount: 3
                   })
                   reset()
+                } else {
+                  toast.error('Sản phẩm, nvl này không thể chuyển đổi.')
                 }
               }}
             />
             <form
-              className="flex flex-col grow"
+              className="relative flex flex-col grow"
               onSubmit={handleSubmit(onSubmit)}
               onKeyDown={e => {
                 if (e.key === 'Enter') e.preventDefault()
@@ -391,7 +540,7 @@ function MaterialConversion(props) {
                 onEndReachedThreshold={1}
               />
               <div className="flex px-4 py-4 border-t border-separator dark:border-dark-separator lg:px-6">
-                <div className="mr-3.5 flex-1 md:flex-auto">
+                <div className="mr-3.5 flex-1 md:flex-auto flex gap-4">
                   <Controller
                     name="stockid"
                     control={control}
@@ -424,9 +573,34 @@ function MaterialConversion(props) {
                       />
                     )}
                   />
+                  {adminTools_byStock?.hasRight && (
+                    <Controller
+                      name="CreateDate"
+                      control={control}
+                      render={({ field: { ref, ...field }, fieldState }) => (
+                        <div className="w-full md:w-[300px]">
+                          <InputDatePicker
+                            placeholderText="Chọn thời gian thực hiện"
+                            autoComplete="off"
+                            onChange={field.onChange}
+                            selected={
+                              field.value ? new Date(field.value) : null
+                            }
+                            {...field}
+                            dateFormat="HH:mm dd/MM/yyyy"
+                            showTimeSelect
+                            errorMessageForce={fieldState?.invalid}
+                            //timeFormat="HH:mm"
+                          />
+                        </div>
+                      )}
+                    />
+                  )}
                 </div>
                 <Button
-                  disabled={ConvertMutation.isLoading || !isDirty || !isValid}
+                  disabled={
+                    ConvertMutation.isLoading || !data || data.length === 0
+                  }
                   loading={ConvertMutation.isLoading}
                   type="submit"
                   className="relative flex items-center h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
@@ -435,6 +609,10 @@ function MaterialConversion(props) {
                   <span className="md:hidden">Thực hiện</span>
                 </Button>
               </div>
+              <LoadingComponentFull
+                bgClassName="bg-white/[.7] dark:bg-dark-aside z-[10]"
+                loading={uploadMutation.isLoading}
+              />
             </form>
           </div>
         </m.div>

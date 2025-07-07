@@ -13,7 +13,7 @@ import { toast } from 'react-toastify'
 
 function PickerConsumableMaterials({ children, item }) {
   const [visible, setVisible] = useState(false)
-    
+
   const queryClient = useQueryClient()
 
   const { control, handleSubmit, reset, watch } = useForm({
@@ -29,7 +29,7 @@ function PickerConsumableMaterials({ children, item }) {
 
   let watchForm = watch()
 
-  const { data, isLoading } = useQuery({
+  const { isLoading } = useQuery({
     queryKey: [
       'ConsumableMaterialsId',
       {

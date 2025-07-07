@@ -30,7 +30,6 @@ import {
   PickerSettingsTourSalary
 } from '../../components'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
-import clsx from 'clsx'
 import { useParams } from 'react-router-dom'
 import useInfiniteScroll from 'react-infinite-scroll-hook'
 import { NotFound } from 'src/_ezs/layout/components/notfound'

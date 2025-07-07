@@ -38,6 +38,7 @@ import { SelectProdsOption } from './SelectProdsOption'
 import { SelectProdsCombos } from './SelectProdsCombos'
 import { SelectProdsSurchargeCard } from './SelectProdsSurchargeCard'
 import { SelectProdSelect2 } from './SelectProdSelect2'
+import { SelectVAT } from './SelectVAT'
 
 export {
   SelectDistrictsOtp,
@@ -79,5 +80,6 @@ export {
   SelectProdsOption,
   SelectProdsCombos,
   SelectProdsSurchargeCard,
-  SelectProdSelect2
+  SelectProdSelect2,
+  SelectVAT
 }

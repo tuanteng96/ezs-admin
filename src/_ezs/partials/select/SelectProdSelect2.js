@@ -10,7 +10,7 @@ function SelectProdSelect2({ Params, Key = '', removes = [], ...props }) {
       ? data?.data
           .map(x => ({
             ...x,
-            label: x.text + ' ' + `(${x.suffix})`,
+            label: `${x.text} (${x.suffix})`,
             value: x.id
           }))
           .filter(x => !removes.includes(x.id))

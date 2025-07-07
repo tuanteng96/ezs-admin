@@ -333,17 +333,9 @@ function PickerWarehouseScale({ children, queryConfig }) {
             UserID: dataN?.data?.data?.UserID || '',
             Target: dataN?.data?.data?.Target || '',
             TargetCreated: dataN?.data?.data?.TargetCreated || '',
-            CreateDate:
-              moment(queryConfig.to, 'DD/MM/YYYY').format('DD/MM/YYYY') ===
-              moment().format('DD/MM/YYYY')
-                ? moment().format('YYYY-MM-DD HH:mm')
-                : moment(queryConfig.to, 'DD/MM/YYYY')
-                    .set({
-                      hour: '23',
-                      minute: '59',
-                      second: '59'
-                    })
-                    .format('YYYY-MM-DD HH:mm')
+            CreateDate: moment(queryConfig.to, 'HH:mm DD/MM/YYYY').format(
+              'YYYY-MM-DD HH:mm'
+            )
           },
           items: ItemsN.map(x => ({
             ImportDiscount: '',
@@ -358,8 +350,8 @@ function PickerWarehouseScale({ children, queryConfig }) {
             convert: null,
             Desc: `Cân kho tự động: ${StockName} - Ngày ${moment(
               queryConfig.to,
-              'DD/MM/YYYY'
-            ).format('DD/MM/YYYY')} - Số lượng sau cân kho: ${
+              'HH:mm DD/MM/YYYY'
+            ).format('HH:mm DD/MM/YYYY')} - Số lượng sau cân kho: ${
               x.ActualInventory
             }`
           }))
@@ -387,17 +379,9 @@ function PickerWarehouseScale({ children, queryConfig }) {
             UserID: dataX?.data?.data?.UserID || '',
             Target: dataX?.data?.data?.Target || '',
             TargetCreated: dataX?.data?.data?.TargetCreated || '',
-            CreateDate:
-              moment(queryConfig.to, 'DD/MM/YYYY').format('DD/MM/YYYY') ===
-              moment().format('DD/MM/YYYY')
-                ? moment().format('YYYY-MM-DD HH:mm')
-                : moment(queryConfig.to, 'DD/MM/YYYY')
-                    .set({
-                      hour: '23',
-                      minute: '59',
-                      second: '59'
-                    })
-                    .format('YYYY-MM-DD HH:mm')
+            CreateDate: moment(queryConfig.to, 'HH:mm DD/MM/YYYY').format(
+              'YYYY-MM-DD HH:mm'
+            )
           },
           items: ItemsX.map(x => ({
             ImportDiscount: '',
@@ -412,8 +396,8 @@ function PickerWarehouseScale({ children, queryConfig }) {
             convert: null,
             Desc: `Cân kho tự động: ${StockName} - Ngày ${moment(
               queryConfig.to,
-              'DD/MM/YYYY'
-            ).format('DD/MM/YYYY')} - Số lượng sau cân kho: ${
+              'HH:mm DD/MM/YYYY'
+            ).format('HH:mm DD/MM/YYYY')} - Số lượng sau cân kho: ${
               x.ActualInventory
             }`
           }))
@@ -594,7 +578,7 @@ function PickerWarehouseScale({ children, queryConfig }) {
                 >
                   <div className="flex items-center justify-between px-4 py-4 border-b lg:px-6 border-separator dark:border-dark-separator">
                     <div className="w-10/12 text-xl font-bold truncate lg:text-2xl dark:text-graydark-800">
-                      Cân kho đến ngày {queryConfig.to}
+                      Cân kho đến {queryConfig.to}
                     </div>
                     <div
                       className="flex items-center justify-center w-10 h-10 transition cursor-pointer lg:w-12 lg:h-12 dark:text-graydark-800 hover:text-primary"

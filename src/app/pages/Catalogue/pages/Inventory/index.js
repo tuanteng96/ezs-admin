@@ -40,7 +40,7 @@ function Inventory(props) {
     cmd: 'prodinstock',
     Pi: queryParams.Pi || 1,
     Ps: queryParams.Ps || 10,
-    to: queryParams.to || moment().format('DD/MM/YYYY'),
+    to: queryParams.to || moment().format('HH:mm DD/MM/YYYY'),
     Only: queryParams.Only || true,
     RootTypeID: 'RootTypeID' in queryParams ? queryParams.RootTypeID : '794',
     manus: queryParams.manus || '',

@@ -7,7 +7,6 @@ import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { Input, InputNumber, InputTextarea } from 'src/_ezs/partials/forms'
-import { SelectProdSelect2 } from 'src/_ezs/partials/select'
 import ProdsAPI from 'src/_ezs/api/prods.api'
 import { toast } from 'react-toastify'
 
@@ -29,7 +28,7 @@ function PickerCare({ children, item }) {
 
   let watchForm = watch()
 
-  const { data, isLoading } = useQuery({
+  const { isLoading } = useQuery({
     queryKey: [
       'CareServiceId',
       {

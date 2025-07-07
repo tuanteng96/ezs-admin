@@ -210,8 +210,7 @@ function ElectronicInvoice(props) {
                   price: PriceVAT / x.Qty,
                   detailTotal: PriceVAT,
                   detailVatRate: detailVatRate,
-                  detailVatRateOther:
-                    detailVatRate === -3 ? x.VAT : '',
+                  detailVatRateOther: detailVatRate === -3 ? x.VAT : '',
                   detailVatAmount: PriceTotalVAT,
                   detailDiscount: '',
                   detailDiscountAmount: '',
@@ -246,7 +245,6 @@ function ElectronicInvoice(props) {
                   cus_bank_no: '',
                   cus_bank_name: '',
                   cus_budget_code: '',
-                  cus_citizen_identity: '',
                   cus_passport: ''
                 },
                 payment_type: '3', // Tiền mặt / chuyển khoản
@@ -476,7 +474,7 @@ function ElectronicInvoice(props) {
                     VATAmount: PriceTotalVAT
                   }
                 })
-                console.log(newItems)
+
                 let TotalOrderVAT = formatArray.sumTotalKey(newItems, 'Amount')
 
                 let TaxRateInfo = [
@@ -501,7 +499,75 @@ function ElectronicInvoice(props) {
                       newItems.filter(x => x.VATRateName === '8%'),
                       'VATAmount'
                     )
-                  }
+                  },
+                  {
+                    VATRateName: '5%',
+                    AmountWithoutVATOC: formatArray.sumTotalKey(
+                      newItems.filter(x => x.VATRateName === '5%'),
+                      'Amount'
+                    ),
+                    VATAmountOC: formatArray.sumTotalKey(
+                      newItems.filter(x => x.VATRateName === '5%'),
+                      'VATAmount'
+                    )
+                  },
+                  {
+                    VATRateName: '5%',
+                    AmountWithoutVATOC: formatArray.sumTotalKey(
+                      newItems.filter(x => x.VATRateName === '5%'),
+                      'Amount'
+                    ),
+                    VATAmountOC: formatArray.sumTotalKey(
+                      newItems.filter(x => x.VATRateName === '5%'),
+                      'VATAmount'
+                    )
+                  },
+                  {
+                    VATRateName: '0%',
+                    AmountWithoutVATOC: formatArray.sumTotalKey(
+                      newItems.filter(x => x.VATRateName === '0%'),
+                      'Amount'
+                    ),
+                    VATAmountOC: formatArray.sumTotalKey(
+                      newItems.filter(x => x.VATRateName === '0%'),
+                      'VATAmount'
+                    )
+                  },
+                  {
+                    VATRateName: 'KCT',
+                    AmountWithoutVATOC: formatArray.sumTotalKey(
+                      newItems.filter(x => x.VATRateName === 'KCT'),
+                      'Amount'
+                    ),
+                    VATAmountOC: formatArray.sumTotalKey(
+                      newItems.filter(x => x.VATRateName === 'KCT'),
+                      'VATAmount'
+                    )
+                  },
+                  {
+                    VATRateName: 'KKKNT',
+                    AmountWithoutVATOC: formatArray.sumTotalKey(
+                      newItems.filter(x => x.VATRateName === 'KKKNT'),
+                      'Amount'
+                    ),
+                    VATAmountOC: formatArray.sumTotalKey(
+                      newItems.filter(x => x.VATRateName === 'KKKNT'),
+                      'VATAmount'
+                    )
+                  },
+                  ...(newItems
+                    .filter(x => x.VATRateName.indexOf('KHAC:') > -1)
+                    .map(k => ({
+                      VATRateName: k.VATRateName,
+                      AmountWithoutVATOC: formatArray.sumTotalKey(
+                        newItems.filter(x => x.VATRateName === k.VATRateName),
+                        'Amount'
+                      ),
+                      VATAmountOC: formatArray.sumTotalKey(
+                        newItems.filter(x => x.VATRateName === k.VATRateName),
+                        'VATAmount'
+                      )
+                    })) || [])
                 ].filter(x => x.AmountWithoutVATOC && x.VATAmountOC)
 
                 let obj = {
@@ -823,7 +889,7 @@ function ElectronicInvoice(props) {
             {(rowData.TM > 0 || rowData.CK > 0 || rowData.QT > 0) &&
             rowData.Items &&
             rowData.Items.length > 0 &&
-            rowData.Items.every(x => Number(x.VAT) !== -3) ? (
+            rowData.Items.every(x => Number(x.VAT) !== -3 && x.VAT !== '') ? (
               <>
                 {rowData?.InvoiceIDStatus === 'done' && rowData.InvoiceID ? (
                   <div
@@ -1199,8 +1265,8 @@ function ElectronicInvoice(props) {
           rowRenderer={rowRenderer}
           rowClassName={({ rowData }) => {
             return (
-              (rowData.VAT === '' ||
-                !(rowData.TM > 0 || rowData.CK > 0 || rowData.QT > 0)) &&
+              (rowData.VAT === '' || rowData.VAT === -3) &&
+              !(rowData.TM > 0 || rowData.CK > 0 || rowData.QT > 0) &&
               '!bg-dangerlight'
             )
           }}

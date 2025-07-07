@@ -8,7 +8,7 @@ const PostsAPI = {
   categoriesAddEdit: body =>
     http.post(`/api/v3/cate25@edit`, JSON.stringify(body)),
   categoriesDelete: body =>
-    http.post(`/api/v3/cate25@delete`, JSON.stringify(body)),
+    http.post(`/api/v3/cate25@delete`, JSON.stringify(body))
 }
 
 export default PostsAPI

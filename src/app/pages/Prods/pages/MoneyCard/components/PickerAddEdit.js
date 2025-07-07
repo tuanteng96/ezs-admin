@@ -25,7 +25,8 @@ import {
   SelectMeasure,
   SelectProdsTypeName,
   SelectStocks,
-  SelectTypeGenerate
+  SelectTypeGenerate,
+  SelectVAT
 } from 'src/_ezs/partials/select'
 import clsx from 'clsx'
 import { Switch, Tab } from '@headlessui/react'
@@ -171,6 +172,7 @@ function PickerAddEdit({ children, initialValues }) {
       BonusSale: '',
       KpiType: '',
       VAT: '',
+      TIP: '',
       OtherUnit: [{ ProdID: '', ProdUnit: '', Qty: '', Unit: '' }],
       id: 0,
       Desc: '',
@@ -324,7 +326,8 @@ function PickerAddEdit({ children, initialValues }) {
 
         setValue('PriceBase', data?.PriceBase || '')
         setValue('PriceProduct', data?.PriceProduct || '')
-        setValue('VAT', data?.VAT || '')
+        setValue('VAT', data?.VAT !== '' ? data?.VAT : '')
+        setValue('TIP', data?.TIP || '')
         setValue(
           'KpiType',
           data?.KpiType
@@ -617,7 +620,7 @@ function PickerAddEdit({ children, initialValues }) {
                                     />
                                   </div>
                                 </div>
-                                <div className="grid grid-cols-1 gap-4 mb-4 sm:grid-cols-2 last:mb-0">
+                                <div className="grid grid-cols-1 gap-4 mb-4 xl:grid-cols-2 last:mb-0">
                                   <div>
                                     <div className="font-medium">
                                       Mã thẻ tiền *
@@ -646,56 +649,84 @@ function PickerAddEdit({ children, initialValues }) {
                                       />
                                     </div>
                                   </div>
-                                  <div className="grid grid-cols-2 gap-4 sm:gap-2">
-                                    <div>
-                                      <div className="font-medium">
-                                        Đơn vị *
-                                      </div>
-                                      <div className="mt-1">
-                                        <Controller
-                                          name="StockUnit"
-                                          control={control}
-                                          render={({
-                                            field: { ref, ...field },
-                                            fieldState
-                                          }) => (
-                                            <SelectMeasure
-                                              value={field.value}
-                                              onChange={val => {
-                                                field.onChange(
-                                                  val ? val.value : ''
-                                                )
-                                              }}
-                                              errorMessageForce={
-                                                fieldState?.invalid
-                                              }
-                                              menuPortalTarget={document.body}
-                                              menuPosition="fixed"
-                                              styles={{
-                                                menuPortal: base => ({
-                                                  ...base,
-                                                  zIndex: 9999
-                                                })
-                                              }}
-                                            />
-                                          )}
-                                        />
-                                      </div>
+
+                                  <div>
+                                    <div className="font-medium">Đơn vị *</div>
+                                    <div className="mt-1">
+                                      <Controller
+                                        name="StockUnit"
+                                        control={control}
+                                        render={({
+                                          field: { ref, ...field },
+                                          fieldState
+                                        }) => (
+                                          <SelectMeasure
+                                            value={field.value}
+                                            onChange={val => {
+                                              field.onChange(
+                                                val ? val.value : ''
+                                              )
+                                            }}
+                                            errorMessageForce={
+                                              fieldState?.invalid
+                                            }
+                                            menuPortalTarget={document.body}
+                                            menuPosition="fixed"
+                                            styles={{
+                                              menuPortal: base => ({
+                                                ...base,
+                                                zIndex: 9999
+                                              })
+                                            }}
+                                          />
+                                        )}
+                                      />
                                     </div>
-                                    <div>
-                                      <div className="font-semibold">VAT</div>
-                                      <div className="mt-1">
-                                        <Controller
-                                          name={`VAT`}
-                                          control={control}
-                                          render={({
-                                            field: { ref, ...field },
-                                            fieldState
-                                          }) => (
+                                  </div>
+                                  <div>
+                                    <div className="font-medium">VAT</div>
+                                    <div className="mt-1">
+                                      <Controller
+                                        name={`VAT`}
+                                        control={control}
+                                        render={({
+                                          field: { ref, ...field },
+                                          fieldState
+                                        }) => (
+                                          <SelectVAT
+                                            className="select-control"
+                                            isClearable
+                                            value={field.value}
+                                            onChange={val => {
+                                              field.onChange(
+                                                val?.value === '' ||
+                                                  typeof val?.value ===
+                                                    'undefined' ||
+                                                  val?.value === undefined
+                                                  ? ''
+                                                  : val?.value
+                                              )
+                                            }}
+                                          />
+                                        )}
+                                      />
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <div className="font-medium">TIP</div>
+                                    <div className="mt-1">
+                                      <Controller
+                                        name={`TIP`}
+                                        control={control}
+                                        render={({
+                                          field: { ref, ...field },
+                                          fieldState
+                                        }) => (
+                                          <div className="relative">
                                             <InputNumber
-                                              thousandSeparator={false}
+                                              thousandSeparator={true}
                                               value={field.value}
-                                              placeholder="Nhập VAT"
+                                              placeholder="Nhập TIP"
                                               onValueChange={val =>
                                                 field.onChange(
                                                   typeof val?.floatValue !==
@@ -705,9 +736,16 @@ function PickerAddEdit({ children, initialValues }) {
                                                 )
                                               }
                                             />
-                                          )}
-                                        />
-                                      </div>
+                                            {field.value !== '' && (
+                                              <div className="absolute top-0 flex items-center h-full text-xs text-gray-600 pointer-events-none right-4">
+                                                {field.value > 100
+                                                  ? 'VNĐ'
+                                                  : '%'}
+                                              </div>
+                                            )}
+                                          </div>
+                                        )}
+                                      />
                                     </div>
                                   </div>
                                 </div>

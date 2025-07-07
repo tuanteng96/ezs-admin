@@ -91,7 +91,6 @@ function PickerAddEdit({ children, initialValues }) {
           value: '*'
         }
       ],
-      Combo: '',
       IsService: 0,
       IsAddFee: 0,
       Bonus: 0,
@@ -1717,7 +1716,7 @@ function PickerAddEdit({ children, initialValues }) {
                                               </div>
                                               <div></div>
                                             </div>
-                                            <div className='mt-6'>
+                                            <div className="mt-6">
                                               <div>
                                                 <div className="mb-1 text-lg font-semibold sm:text-2xl">
                                                   Tính hạn bảo hành
