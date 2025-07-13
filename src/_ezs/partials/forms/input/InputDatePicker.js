@@ -23,6 +23,7 @@ const InputDatePicker = ({ errorMessage, errorMessageForce, ...props }) => {
           )}
           popperContainer={CalendarContainer}
           timeIntervals={5}
+          timeFormat="HH:mm"
           {...props}
         />
         {errorMessageForce && (

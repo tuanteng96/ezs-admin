@@ -762,7 +762,7 @@ function PickerAddEdit({ children, initialValues }) {
                                         </div>
                                       </div>
                                       <div>
-                                        <div className="font-semibold">VAT</div>
+                                        <div className="font-medium">VAT</div>
                                         <div className="mt-1">
                                           <Controller
                                             name={`VAT`}

@@ -24,10 +24,9 @@ import { FloatingPortal } from '@floating-ui/react'
 import {
   SelectCategoryProds,
   SelectMeasure,
-  SelectProdsCombos,
-  SelectProdsSurchargeCard,
   SelectStocks,
-  SelectTypeGenerate
+  SelectTypeGenerate,
+  SelectVAT
 } from 'src/_ezs/partials/select'
 import clsx from 'clsx'
 import { Switch, Tab } from '@headlessui/react'
@@ -44,6 +43,7 @@ import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import Tooltip from 'rc-tooltip'
 import Select from 'react-select'
+import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 
 const schemaAddEdit = yup
   .object({
@@ -58,6 +58,46 @@ let Options = [
   { label: 'Ngày mua hàng', value: 'ngay_mua_hang' },
   { label: 'Buổi đầu', value: 'buoi_dau' }
 ]
+
+let OptionsCost = [
+  { label: 'Tính giá cost cố đinh', value: '0' },
+  { label: 'Tính giá cost theo nguyên vật liệu tiêu hao', value: '1' }
+]
+
+let OptionSsessionPrice = [
+  {
+    label: 'Giá bán/Số buổi niêm yết, Giá trị buổi tặng = giá trị buổi thường',
+    value: '1'
+  },
+  { label: 'Giá bán/Số buổi niêm yết, Giá trị buổi tặng = 0', value: '2' },
+  { label: 'Giá bán/(số buổi niêm yết + số buổi tặng)', value: '3' }
+]
+
+let OptionMethodAuto = [
+  {
+    label: 'Theo số buổi nhắc',
+    value: '1',
+    sub: 'Cứ sau mỗi buổi cách số ngày sẽ nhắc (VD : 3 ngày)'
+  },
+  {
+    label: 'Theo nhóm buổi nhắc',
+    value: '2',
+    sub: 'Cài đặt theo nhóm các buổi (VD : Buổi 1 đến buổi 3 nhắc sau số ngày)'
+  }
+]
+
+const CustomOption = ({ innerProps, data, isSelected }) => (
+  <div
+    {...innerProps}
+    className={clsx(
+      'cursor-pointer px-3 py-2.5 text-[#3F4254] hover:bg-[#f4f6fa] hover:text-primary',
+      isSelected && 'bg-[#f4f6fa] text-primary'
+    )}
+  >
+    <div className="font-medium">{data.label}</div>
+    <div className="font-light text-muted2 text-[13px]">{data?.sub}</div>
+  </div>
+)
 
 function PickerAddEdit({ children, initialValues }) {
   const [visible, setVisible] = useState(false)
@@ -113,6 +153,7 @@ function PickerAddEdit({ children, initialValues }) {
       BonusSale: '',
       KpiType: '',
       VAT: '',
+      TIP: '',
       OtherUnit: [], //[{ ProdID: '', ProdUnit: '', Qty: '', Unit: '' }],
       id: 0,
       Desc: '',
@@ -184,9 +225,20 @@ function PickerAddEdit({ children, initialValues }) {
         Status: '',
         Qty: 1
       },
+      OSCostMethod: '2',
       OriginalService: {
-        ServiceMinutes: ''
-      }
+        ServiceMinutes: '',
+        IsRootPublic: true,
+        ServiceType: '1',
+        CostBaseOption: '0',
+        PriceBase: ''
+      },
+      AutoScheduleConfig: {
+        Type: '',
+        Day: '',
+        Differents: []
+      },
+      RenewDate: new Date()
     },
     resolver: yupResolver(schemaAddEdit)
   })
@@ -214,6 +266,15 @@ function PickerAddEdit({ children, initialValues }) {
   } = useFieldArray({
     control,
     name: 'PhotoList'
+  })
+
+  const {
+    fields: fieldsDifferents,
+    append: appendDifferents,
+    remove: removeDifferents
+  } = useFieldArray({
+    control,
+    name: 'Differents'
   })
 
   useEffect(() => {
@@ -360,12 +421,13 @@ function PickerAddEdit({ children, initialValues }) {
           'IsDisplayPrice',
           data?.IsDisplayPrice && Number(data?.IsDisplayPrice) > 0
         )
-
+        setValue('RenewDate', data?.RenewDate || new Date())
         setValue('IsPublic', data?.IsPublic && Number(data?.IsPublic) > 0)
 
         setValue('PriceBase', data?.PriceBase || '')
         setValue('PriceProduct', data?.PriceProduct || '')
         setValue('VAT', data?.VAT || '')
+        setValue('TIP', data?.TIP || '')
         setValue(
           'KpiType',
           data?.KpiType
@@ -559,7 +621,14 @@ function PickerAddEdit({ children, initialValues }) {
     )
   }
 
-  let { BonusSaleJSON, id, isCreateMaterials, Combo } = watch()
+  let {
+    BonusSaleJSON,
+    id,
+    isCreateMaterials,
+    Combo,
+    OriginalService,
+    AutoScheduleConfig
+  } = watch()
 
   return (
     <>
@@ -716,7 +785,7 @@ function PickerAddEdit({ children, initialValues }) {
                                     </div>
                                   </div>
                                   <div className="mb-4 last:mb-0">
-                                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                    <div className="grid grid-cols-1 gap-4 mb-4 xl:grid-cols-2 last:mb-0">
                                       <div>
                                         <div className="font-medium">
                                           Mã dịch vụ *
@@ -751,60 +820,85 @@ function PickerAddEdit({ children, initialValues }) {
                                           />
                                         </div>
                                       </div>
-                                      <div className="grid grid-cols-2 gap-4 sm:gap-2">
-                                        <div>
-                                          <div className="font-medium">
-                                            Đơn vị *
-                                          </div>
-                                          <div className="mt-1">
-                                            <Controller
-                                              name="StockUnit"
-                                              control={control}
-                                              render={({
-                                                field: { ref, ...field },
-                                                fieldState
-                                              }) => (
-                                                <SelectMeasure
-                                                  value={field.value}
-                                                  onChange={val => {
-                                                    field.onChange(
-                                                      val ? val.value : ''
-                                                    )
-                                                  }}
-                                                  errorMessageForce={
-                                                    fieldState?.invalid
-                                                  }
-                                                  menuPortalTarget={
-                                                    document.body
-                                                  }
-                                                  menuPosition="fixed"
-                                                  styles={{
-                                                    menuPortal: base => ({
-                                                      ...base,
-                                                      zIndex: 9999
-                                                    })
-                                                  }}
-                                                />
-                                              )}
-                                            />
-                                          </div>
+                                      <div>
+                                        <div className="font-medium">
+                                          Đơn vị *
                                         </div>
-                                        <div>
-                                          <div className="font-semibold">
-                                            VAT
-                                          </div>
-                                          <div className="mt-1">
-                                            <Controller
-                                              name={`VAT`}
-                                              control={control}
-                                              render={({
-                                                field: { ref, ...field },
-                                                fieldState
-                                              }) => (
+                                        <div className="mt-1">
+                                          <Controller
+                                            name="StockUnit"
+                                            control={control}
+                                            render={({
+                                              field: { ref, ...field },
+                                              fieldState
+                                            }) => (
+                                              <SelectMeasure
+                                                value={field.value}
+                                                onChange={val => {
+                                                  field.onChange(
+                                                    val ? val.value : ''
+                                                  )
+                                                }}
+                                                errorMessageForce={
+                                                  fieldState?.invalid
+                                                }
+                                                menuPortalTarget={document.body}
+                                                menuPosition="fixed"
+                                                styles={{
+                                                  menuPortal: base => ({
+                                                    ...base,
+                                                    zIndex: 9999
+                                                  })
+                                                }}
+                                              />
+                                            )}
+                                          />
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <div className="font-medium">VAT</div>
+                                        <div className="mt-1">
+                                          <Controller
+                                            name={`VAT`}
+                                            control={control}
+                                            render={({
+                                              field: { ref, ...field },
+                                              fieldState
+                                            }) => (
+                                              <SelectVAT
+                                                className="select-control"
+                                                isClearable
+                                                value={field.value}
+                                                onChange={val => {
+                                                  field.onChange(
+                                                    val?.value === '' ||
+                                                      typeof val?.value ===
+                                                        'undefined' ||
+                                                      val?.value === undefined
+                                                      ? ''
+                                                      : val?.value
+                                                  )
+                                                }}
+                                              />
+                                            )}
+                                          />
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <div className="font-medium">TIP</div>
+                                        <div className="mt-1">
+                                          <Controller
+                                            name={`TIP`}
+                                            control={control}
+                                            render={({
+                                              field: { ref, ...field },
+                                              fieldState
+                                            }) => (
+                                              <div className="relative">
                                                 <InputNumber
-                                                  thousandSeparator={false}
+                                                  thousandSeparator={true}
                                                   value={field.value}
-                                                  placeholder="Nhập VAT"
+                                                  placeholder="Nhập TIP"
                                                   onValueChange={val =>
                                                     field.onChange(
                                                       typeof val?.floatValue !==
@@ -814,9 +908,16 @@ function PickerAddEdit({ children, initialValues }) {
                                                     )
                                                   }
                                                 />
-                                              )}
-                                            />
-                                          </div>
+                                                {field.value !== '' && (
+                                                  <div className="absolute top-0 flex items-center h-full text-xs text-gray-600 pointer-events-none right-4">
+                                                    {field.value > 100
+                                                      ? 'VNĐ'
+                                                      : '%'}
+                                                  </div>
+                                                )}
+                                              </div>
+                                            )}
+                                          />
                                         </div>
                                       </div>
                                     </div>
@@ -920,7 +1021,7 @@ function PickerAddEdit({ children, initialValues }) {
                                   </div>
                                   <div className="grid grid-cols-2 gap-5 mb-4 last:mb-0">
                                     <div>
-                                      <div className="font-semibold">
+                                      <div className="font-medium">
                                         Số phút thực hiện
                                       </div>
                                       <div className="mt-1">
@@ -954,7 +1055,7 @@ function PickerAddEdit({ children, initialValues }) {
                                       </div>
                                     </div>
                                     <div>
-                                      <div className="font-semibold">
+                                      <div className="font-medium">
                                         Thời gian sử dụng
                                       </div>
                                       <div className="mt-1">
@@ -1005,132 +1106,93 @@ function PickerAddEdit({ children, initialValues }) {
                                     </div>
                                   </div>
                                   <div>
-                                    <div className="mb-4 last:mb-0">
-                                      <div className="font-medium">
-                                        Điểm bán
-                                      </div>
-                                      <div className="mt-1">
-                                        <Controller
-                                          name={`OnStocks`}
-                                          control={control}
-                                          render={({
-                                            field: { ref, ...field },
-                                            fieldState
-                                          }) => (
-                                            <SelectStocks
-                                              isClearable
-                                              isMulti
-                                              value={field.value}
-                                              onChange={val => {
-                                                if (val) {
-                                                  if (
-                                                    val.some(
-                                                      x => x.value === '*'
-                                                    ) &&
-                                                    field?.value?.findIndex(
-                                                      x => x.value === '*'
-                                                    ) === -1
-                                                  ) {
-                                                    field.onChange(
-                                                      val.filter(
-                                                        x => x.value === '*'
-                                                      )
-                                                    )
-                                                  } else if (
-                                                    val.some(
-                                                      x => x.value === '-1'
-                                                    ) &&
-                                                    field?.value?.findIndex(
-                                                      x => x.value === '-1'
-                                                    ) === -1
-                                                  ) {
-                                                    field.onChange(
-                                                      val.filter(
-                                                        x => x.value === '-1'
-                                                      )
-                                                    )
-                                                  } else {
-                                                    field.onChange(
-                                                      val
-                                                        ? val.filter(
-                                                            x =>
-                                                              x.value !== '*' &&
-                                                              x.value !== '-1'
-                                                          )
-                                                        : []
-                                                    )
-                                                  }
-                                                } else {
-                                                  field.onChange(val)
-                                                }
-                                              }}
-                                              className="select-control"
-                                              menuPosition="fixed"
-                                              styles={{
-                                                menuPortal: base => ({
-                                                  ...base,
-                                                  zIndex: 9999
-                                                })
-                                              }}
-                                              menuPortalTarget={document.body}
-                                              allOption={[
-                                                {
-                                                  label: 'Tất cả cơ sở',
-                                                  value: '*'
-                                                },
-                                                {
-                                                  label: '(Ẩn)',
-                                                  value: '-1'
-                                                }
-                                              ]}
-                                            />
-                                          )}
-                                        />
-                                      </div>
-                                    </div>
                                     <div className="grid grid-cols-1 gap-4 mb-4 sm:grid-cols-2">
                                       <div>
-                                        <div className="font-semibold">
-                                          Giá Cost
+                                        <div className="font-medium">
+                                          Điểm bán
                                         </div>
                                         <div className="mt-1">
                                           <Controller
-                                            name={`PriceBase`}
+                                            name={`OnStocks`}
                                             control={control}
                                             render={({
                                               field: { ref, ...field },
                                               fieldState
                                             }) => (
-                                              <>
-                                                {id && DelApp?.hasRight ? (
-                                                  <Input
-                                                    placeholder="*********"
-                                                    value="************"
-                                                    readOnly
-                                                    disabled
-                                                  />
-                                                ) : (
-                                                  <InputNumber
-                                                    thousandSeparator={true}
-                                                    value={field.value}
-                                                    placeholder="Nhập số tiền"
-                                                    onValueChange={val => {
+                                              <SelectStocks
+                                                isClearable
+                                                isMulti
+                                                value={field.value}
+                                                onChange={val => {
+                                                  if (val) {
+                                                    if (
+                                                      val.some(
+                                                        x => x.value === '*'
+                                                      ) &&
+                                                      field?.value?.findIndex(
+                                                        x => x.value === '*'
+                                                      ) === -1
+                                                    ) {
                                                       field.onChange(
-                                                        typeof val?.floatValue !==
-                                                          'undefined'
-                                                          ? val.floatValue
-                                                          : ''
+                                                        val.filter(
+                                                          x => x.value === '*'
+                                                        )
                                                       )
-                                                    }}
-                                                  />
-                                                )}
-                                              </>
+                                                    } else if (
+                                                      val.some(
+                                                        x => x.value === '-1'
+                                                      ) &&
+                                                      field?.value?.findIndex(
+                                                        x => x.value === '-1'
+                                                      ) === -1
+                                                    ) {
+                                                      field.onChange(
+                                                        val.filter(
+                                                          x => x.value === '-1'
+                                                        )
+                                                      )
+                                                    } else {
+                                                      field.onChange(
+                                                        val
+                                                          ? val.filter(
+                                                              x =>
+                                                                x.value !==
+                                                                  '*' &&
+                                                                x.value !== '-1'
+                                                            )
+                                                          : []
+                                                      )
+                                                    }
+                                                  } else {
+                                                    field.onChange(val)
+                                                  }
+                                                }}
+                                                className="select-control"
+                                                menuPosition="fixed"
+                                                styles={{
+                                                  menuPortal: base => ({
+                                                    ...base,
+                                                    zIndex: 9999
+                                                  })
+                                                }}
+                                                menuPortalTarget={document.body}
+                                                allOption={[
+                                                  {
+                                                    label: 'Tất cả cơ sở',
+                                                    value: '*'
+                                                  },
+                                                  {
+                                                    label: '(Ẩn)',
+                                                    value: '-1'
+                                                  }
+                                                ]}
+                                              />
                                             )}
                                           />
                                         </div>
                                       </div>
                                       <div>
-                                        <div className="font-semibold">
+                                        <div className="font-medium">
                                           Giá bán
                                         </div>
                                         <div className="mt-1">
@@ -1387,7 +1449,7 @@ function PickerAddEdit({ children, initialValues }) {
                                     )}
 
                                     <div>
-                                      <div className="flex items-end font-semibold">
+                                      <div className="flex items-end font-medium">
                                         <span>Nhóm KPI</span>
                                         <Tooltip
                                           overlayClassName="text-white dark:text-dark-light"
@@ -1722,12 +1784,9 @@ function PickerAddEdit({ children, initialValues }) {
                                                   Tính hạn bảo hành
                                                 </div>
                                                 <div className="font-light text-muted2">
-                                                  Encourage clients to book
-                                                  additional services and buy
-                                                  suitable memberships when
-                                                  booking online. Manage your
-                                                  workspace settings or learn
-                                                  more.
+                                                  Cách phương thức tính ra hạn
+                                                  bảo hành chính xác của buổi
+                                                  dịch vụ.
                                                 </div>
                                               </div>
                                               <div className="mt-3">
@@ -1739,6 +1798,16 @@ function PickerAddEdit({ children, initialValues }) {
                                                     fieldState
                                                   }) => (
                                                     <Select
+                                                      menuPortalTarget={
+                                                        document.body
+                                                      }
+                                                      menuPosition="fixed"
+                                                      styles={{
+                                                        menuPortal: base => ({
+                                                          ...base,
+                                                          zIndex: 9999
+                                                        })
+                                                      }}
                                                       onChange={val =>
                                                         field.onChange(
                                                           val?.value || ''
@@ -1772,10 +1841,515 @@ function PickerAddEdit({ children, initialValues }) {
                         </Tab.Panel>
                         <Tab.Panel>
                           <div>
-                            <div className="mb-4">
+                            <div className="mb-6">
                               <div className="mb-1 text-lg font-semibold sm:text-2xl">
                                 Thông tin nâng cao
                               </div>
+                              <div className="font-light text-muted2">
+                                Encourage clients to book additional services
+                                and buy suitable memberships when booking
+                                online. Manage your workspace settings or learn
+                                more.
+                              </div>
+                            </div>
+
+                            <div className="mb-6">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                  <div className="mb-5 last:mb-0">
+                                    <div>
+                                      <Controller
+                                        name={`OriginalService.ServiceType`}
+                                        control={control}
+                                        render={({
+                                          field: { ref, ...field },
+                                          fieldState
+                                        }) => (
+                                          <label
+                                            htmlFor="#tp3"
+                                            className={clsx(
+                                              'flex w-full font-medium text-gray-900 cursor-pointer checkbox checkbox-border dark:text-gray-300'
+                                            )}
+                                          >
+                                            <input
+                                              className="absolute opacity-0"
+                                              type="radio"
+                                              id="#tp3"
+                                              value="1"
+                                              onChange={field.onChange}
+                                              checked={field.value === '1'}
+                                            />
+                                            <span
+                                              className={clsx(
+                                                'w-6 h-6 border border-[#d3d3d3] rounded block icon checkbox-primary relative after:absolute after:left-2 after:top-[3px] transition'
+                                              )}
+                                              //style={styleChecked}
+                                            ></span>
+                                            <div className="pl-3">
+                                              <div className="text-base font-medium">
+                                                Dịch vụ thường
+                                              </div>
+                                              <div className="text-[#727373] font-light text-[14px]">
+                                                Encourage clients to book
+                                                additional services.
+                                              </div>
+                                            </div>
+                                          </label>
+                                        )}
+                                      />
+                                    </div>
+                                  </div>
+                                  <div className="mb-5 last:mb-0">
+                                    <div>
+                                      <Controller
+                                        name={`OriginalService.ServiceType`}
+                                        control={control}
+                                        render={({
+                                          field: { ref, ...field },
+                                          fieldState
+                                        }) => (
+                                          <label
+                                            htmlFor="#tp1"
+                                            className={clsx(
+                                              'flex w-full font-medium text-gray-900 cursor-pointer checkbox checkbox-border dark:text-gray-300'
+                                            )}
+                                          >
+                                            <input
+                                              className="absolute opacity-0"
+                                              type="radio"
+                                              id="#tp1"
+                                              value="2"
+                                              onChange={field.onChange}
+                                              checked={field.value === '2'}
+                                            />
+                                            <span
+                                              className={clsx(
+                                                'w-6 h-6 border border-[#d3d3d3] rounded block icon checkbox-primary relative after:absolute after:left-2 after:top-[3px] transition'
+                                              )}
+                                              //style={styleChecked}
+                                            ></span>
+                                            <div className="pl-3">
+                                              <div className="text-base font-medium">
+                                                Dịch vụ Nail
+                                              </div>
+                                              <div className="text-[#727373] font-light text-[14px]">
+                                                Buy suitable memberships when
+                                                booking online.
+                                              </div>
+                                            </div>
+                                          </label>
+                                        )}
+                                      />
+                                    </div>
+                                  </div>
+                                  <div className="mb-5 last:mb-0">
+                                    <div>
+                                      <Controller
+                                        name={`OriginalService.ServiceType`}
+                                        control={control}
+                                        render={({
+                                          field: { ref, ...field },
+                                          fieldState
+                                        }) => (
+                                          <label
+                                            htmlFor="#tp2"
+                                            className={clsx(
+                                              'flex w-full font-medium text-gray-900 cursor-pointer checkbox checkbox-border dark:text-gray-300'
+                                            )}
+                                          >
+                                            <input
+                                              className="absolute opacity-0"
+                                              type="radio"
+                                              id="#tp2"
+                                              value="3"
+                                              onChange={field.onChange}
+                                              checked={field.value === '3'}
+                                            />
+                                            <span
+                                              className={clsx(
+                                                'w-6 h-6 border border-[#d3d3d3] rounded block icon checkbox-primary relative after:absolute after:left-2 after:top-[3px] transition'
+                                              )}
+                                              //style={styleChecked}
+                                            ></span>
+                                            <div className="pl-3">
+                                              <div className="text-base font-medium">
+                                                Dịch vụ phác đồ
+                                              </div>
+                                              <div className="text-[#727373] font-light text-[14px]">
+                                                Manage your workspace settings
+                                                or learn more.
+                                              </div>
+                                            </div>
+                                          </label>
+                                        )}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div className="mb-6">
+                              <div className="mb-5 last:mb-0">
+                                <div className="font-medium">
+                                  Cách tính / Giá Cost
+                                </div>
+                                <div className="grid grid-cols-2 gap-4 mt-1">
+                                  <div>
+                                    <Controller
+                                      name={`OriginalService.CostBaseOption`}
+                                      control={control}
+                                      render={({
+                                        field: { ref, ...field },
+                                        fieldState
+                                      }) => (
+                                        <Select
+                                          menuPortalTarget={document.body}
+                                          menuPosition="fixed"
+                                          styles={{
+                                            menuPortal: base => ({
+                                              ...base,
+                                              zIndex: 9999
+                                            })
+                                          }}
+                                          onChange={val => {
+                                            field.onChange(val?.value || '')
+                                            if (val?.value === '1') {
+                                              setValue(
+                                                'OriginalService.PriceBase',
+                                                ''
+                                              )
+                                            }
+                                          }}
+                                          className="flex-1 select-control"
+                                          value={OptionsCost.filter(
+                                            x => x.value === field?.value
+                                          )}
+                                          classNamePrefix="select"
+                                          options={OptionsCost || []}
+                                          placeholder="Chọn cách tính giá Cost"
+                                          noOptionsMessage={() =>
+                                            'Không có dữ liệu'
+                                          }
+                                        />
+                                      )}
+                                    />
+                                  </div>
+                                  <div>
+                                    <Controller
+                                      name={`OriginalService.PriceBase`}
+                                      control={control}
+                                      render={({
+                                        field: { ref, ...field },
+                                        fieldState
+                                      }) => (
+                                        <>
+                                          {id && DelApp?.hasRight ? (
+                                            <Input
+                                              placeholder="*********"
+                                              value="************"
+                                              readOnly
+                                              disabled
+                                            />
+                                          ) : (
+                                            <InputNumber
+                                              disabled={
+                                                OriginalService?.CostBaseOption ===
+                                                '1'
+                                              }
+                                              thousandSeparator={true}
+                                              value={field.value}
+                                              placeholder="Nhập giá Cost"
+                                              onValueChange={val => {
+                                                field.onChange(
+                                                  typeof val?.floatValue !==
+                                                    'undefined'
+                                                    ? val.floatValue
+                                                    : ''
+                                                )
+                                              }}
+                                            />
+                                          )}
+                                        </>
+                                      )}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="mb-5 last:mb-0">
+                                <div className="font-medium">
+                                  Tính giá buổi dịch vụ
+                                </div>
+                                <div className="mt-1">
+                                  <Controller
+                                    name={`OSCostMethod`}
+                                    control={control}
+                                    render={({
+                                      field: { ref, ...field },
+                                      fieldState
+                                    }) => (
+                                      <Select
+                                        menuPortalTarget={document.body}
+                                        menuPosition="fixed"
+                                        styles={{
+                                          menuPortal: base => ({
+                                            ...base,
+                                            zIndex: 9999
+                                          })
+                                        }}
+                                        onChange={val => {
+                                          field.onChange(val?.value || '')
+                                        }}
+                                        className="flex-1 select-control"
+                                        value={OptionSsessionPrice.filter(
+                                          x => x.value === field?.value
+                                        )}
+                                        classNamePrefix="select"
+                                        options={OptionSsessionPrice || []}
+                                        placeholder="Chọn cách tính giá Cost"
+                                        noOptionsMessage={() =>
+                                          'Không có dữ liệu'
+                                        }
+                                      />
+                                    )}
+                                  />
+                                </div>
+                              </div>
+                            </div>
+                            <div className="mb-6">
+                              <div className="mb-1 text-lg font-semibold sm:text-2xl">
+                                Tự động đặt lịch
+                              </div>
+                              <div className="font-light text-muted2">
+                                Số ngày tự động đặt lịch sau khi hoàn thành buổi
+                                & Chỉ áp dụng khi mua thẻ dịch vụ.
+                              </div>
+                            </div>
+
+                            <div>
+                              <div className="mb-5 last:mb-0">
+                                <div className="font-medium">
+                                  Cách thức tính tự động
+                                </div>
+                                <div className="mt-1">
+                                  <Controller
+                                    name={`AutoScheduleConfig.Type`}
+                                    control={control}
+                                    render={({
+                                      field: { ref, ...field },
+                                      fieldState
+                                    }) => (
+                                      <Select
+                                        isClearable
+                                        menuPortalTarget={document.body}
+                                        menuPosition="fixed"
+                                        styles={{
+                                          menuPortal: base => ({
+                                            ...base,
+                                            zIndex: 9999
+                                          })
+                                        }}
+                                        onChange={val => {
+                                          if (val?.value === '1') {
+                                            setValue(
+                                              'AutoScheduleConfig.Day',
+                                              ''
+                                            )
+                                          } else if (val?.value === '2') {
+                                            setValue(
+                                              'AutoScheduleConfig.Differents',
+                                              []
+                                            )
+                                          }
+                                          field.onChange(val?.value || '')
+                                        }}
+                                        className="select-control"
+                                        value={OptionMethodAuto.filter(
+                                          x => x.value === field?.value
+                                        )}
+                                        classNamePrefix="select"
+                                        options={OptionMethodAuto || []}
+                                        placeholder="Chọn cách thức"
+                                        noOptionsMessage={() =>
+                                          'Không có dữ liệu'
+                                        }
+                                        components={{ Option: CustomOption }}
+                                      />
+                                    )}
+                                  />
+                                </div>
+                              </div>
+                              {AutoScheduleConfig?.Type === '1' && (
+                                <div className="mb-5 last:mb-0">
+                                  <div className="font-medium">
+                                    Số ngày nhắc sau buổi
+                                  </div>
+                                  <div className="mt-1">
+                                    <Controller
+                                      name={`AutoScheduleConfig.Day`}
+                                      control={control}
+                                      render={({
+                                        field: { ref, ...field },
+                                        fieldState
+                                      }) => (
+                                        <div className="relative">
+                                          <InputNumber
+                                            thousandSeparator={true}
+                                            value={field.value}
+                                            placeholder="Nhập số ngày"
+                                            onValueChange={val => {
+                                              field.onChange(
+                                                typeof val?.floatValue !==
+                                                  'undefined'
+                                                  ? val.floatValue
+                                                  : ''
+                                              )
+                                            }}
+                                          />
+                                          <div className="absolute top-0 flex items-center h-full text-sm pointer-events-none right-4 text-muted2">
+                                            Ngày
+                                          </div>
+                                        </div>
+                                      )}
+                                    />
+                                  </div>
+                                </div>
+                              )}
+                              {AutoScheduleConfig?.Type === '2' && (
+                                <div>
+                                  <div>
+                                    {fieldsDifferents &&
+                                      fieldsDifferents.map((item, index) => (
+                                        <div
+                                          className="flex items-end gap-4"
+                                          key={item.id}
+                                        >
+                                          <div className="flex-1">
+                                            <div className="mb-1 font-medium">
+                                              Từ buổi
+                                            </div>
+                                            <div>
+                                              <Controller
+                                                name={`Differents[${index}].From`}
+                                                control={control}
+                                                render={({
+                                                  field: { ref, ...field },
+                                                  fieldState
+                                                }) => (
+                                                  <div className="relative">
+                                                    <InputNumber
+                                                      thousandSeparator={true}
+                                                      value={field.value}
+                                                      placeholder="Nhập buổi"
+                                                      onValueChange={val => {
+                                                        field.onChange(
+                                                          typeof val?.floatValue !==
+                                                            'undefined'
+                                                            ? val.floatValue
+                                                            : ''
+                                                        )
+                                                      }}
+                                                    />
+                                                  </div>
+                                                )}
+                                              />
+                                            </div>
+                                          </div>
+                                          <div className="flex-1">
+                                            <div className="mb-1 font-medium">
+                                              Đến buổi
+                                            </div>
+                                            <div>
+                                              <Controller
+                                                name={`Differents[${index}].To`}
+                                                control={control}
+                                                render={({
+                                                  field: { ref, ...field },
+                                                  fieldState
+                                                }) => (
+                                                  <div className="relative">
+                                                    <InputNumber
+                                                      thousandSeparator={true}
+                                                      value={field.value}
+                                                      placeholder="Nhập buổi"
+                                                      onValueChange={val => {
+                                                        field.onChange(
+                                                          typeof val?.floatValue !==
+                                                            'undefined'
+                                                            ? val.floatValue
+                                                            : ''
+                                                        )
+                                                      }}
+                                                    />
+                                                  </div>
+                                                )}
+                                              />
+                                            </div>
+                                          </div>
+                                          <div className="flex-1">
+                                            <div className="mb-1 font-medium">
+                                              Số ngày nhắc sau buổi
+                                            </div>
+                                            <div>
+                                              <Controller
+                                                name={`Differents[${index}].Day`}
+                                                control={control}
+                                                render={({
+                                                  field: { ref, ...field },
+                                                  fieldState
+                                                }) => (
+                                                  <div className="relative">
+                                                    <InputNumber
+                                                      thousandSeparator={true}
+                                                      value={field.value}
+                                                      placeholder="Nhập số ngày"
+                                                      onValueChange={val => {
+                                                        field.onChange(
+                                                          typeof val?.floatValue !==
+                                                            'undefined'
+                                                            ? val.floatValue
+                                                            : ''
+                                                        )
+                                                      }}
+                                                    />
+                                                    <div className="absolute top-0 flex items-center h-full text-sm pointer-events-none right-4 text-muted2">
+                                                      Ngày
+                                                    </div>
+                                                  </div>
+                                                )}
+                                              />
+                                            </div>
+                                          </div>
+                                          <div
+                                            className="min-w-12 w-12 h-12 bg-[#f6f6f6] rounded flex items-center justify-center cursor-pointer text-danger"
+                                            onClick={() =>
+                                              removeDifferents(index)
+                                            }
+                                          >
+                                            <TrashIcon className="w-5" />
+                                          </div>
+                                        </div>
+                                      ))}
+                                  </div>
+                                  <div className="mt-5">
+                                    <button
+                                      className="h-10 items-center flex border border-[#d3d3d3] rounded-full px-4 text-sm"
+                                      type="button"
+                                      onClick={() => {
+                                        appendDifferents({
+                                          From: '',
+                                          To: '',
+                                          Day: ''
+                                        })
+                                      }}
+                                    >
+                                      <PlusCircleIcon className="w-5" />
+                                      <span className="pl-1.5">
+                                        Thêm mới cấu hình
+                                      </span>
+                                    </button>
+                                  </div>
+                                </div>
+                              )}
                             </div>
                           </div>
                         </Tab.Panel>
@@ -1791,7 +2365,7 @@ function PickerAddEdit({ children, initialValues }) {
                                   App, Zalo App
                                 </div>
                               </div>
-                              <div>
+                              <div className="mb-6">
                                 <div className="mb-4 last:mb-0">
                                   <div className="font-medium">Hình ảnh</div>
                                   <div className="grid grid-cols-3 gap-4 mt-1 sm:grid-cols-4">
@@ -1865,7 +2439,7 @@ function PickerAddEdit({ children, initialValues }) {
                                     />
                                   </div>
                                 </div>
-                                <div className="mb-8 last:mb-0">
+                                <div className="mb-5 last:mb-0">
                                   <div className="font-medium">Chi tiết</div>
                                   <div className="mt-1">
                                     <Controller
@@ -1885,6 +2459,47 @@ function PickerAddEdit({ children, initialValues }) {
                                     />
                                   </div>
                                 </div>
+                                <div className="mb-8 last:mb-0">
+                                  <div className="font-medium">
+                                    Ngày làm mới
+                                  </div>
+                                  <div className="mt-1">
+                                    <Controller
+                                      rules={{ required: true }}
+                                      name="RenewDate"
+                                      control={control}
+                                      render={({
+                                        field: { ref, ...field },
+                                        fieldState
+                                      }) => (
+                                        <InputDatePicker
+                                          placeholderText="Chọn thời gian"
+                                          autoComplete="off"
+                                          onChange={field.onChange}
+                                          selected={
+                                            field.value
+                                              ? new Date(field.value)
+                                              : null
+                                          }
+                                          {...field}
+                                          dateFormat="HH:mm dd/MM/yyyy"
+                                          showTimeSelect
+                                          errorMessageForce={
+                                            fieldState?.invalid
+                                          }
+                                          //timeFormat="HH:mm"
+                                        />
+                                      )}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="mb-4">
+                                <div className="mb-1 text-lg font-semibold sm:text-lg">
+                                  Cài đặt bán
+                                </div>
+                              </div>
+                              <div className="mb-6">
                                 <div>
                                   <div className="mb-5 last:mb-0">
                                     <div>
@@ -1973,6 +2588,52 @@ function PickerAddEdit({ children, initialValues }) {
                                     </div>
                                   </div>
                                 </div>
+                              </div>
+                              <div className="mb-4">
+                                <div className="mb-1 text-lg font-semibold sm:text-lg">
+                                  Cài đặt đặt lịch
+                                </div>
+                              </div>
+                              <div>
+                                <Controller
+                                  name={`OriginalService.IsRootPublic`}
+                                  control={control}
+                                  render={({
+                                    field: { ref, ...field },
+                                    fieldState
+                                  }) => (
+                                    <label
+                                      htmlFor="#5"
+                                      className={clsx(
+                                        'flex w-full font-medium text-gray-900 cursor-pointer checkbox checkbox-border dark:text-gray-300'
+                                      )}
+                                    >
+                                      <input
+                                        className="absolute opacity-0"
+                                        type="checkbox"
+                                        id="#5"
+                                        value={field.value}
+                                        onChange={field.onChange}
+                                        checked={field.value}
+                                      />
+                                      <span
+                                        className={clsx(
+                                          'w-6 h-6 border border-[#d3d3d3] rounded block icon checkbox-primary relative after:absolute after:left-2 after:top-[3px] transition'
+                                        )}
+                                        //style={styleChecked}
+                                      ></span>
+                                      <div className="pl-3">
+                                        <div className="text-base font-medium">
+                                          Hiển thị đặt lịch WEB/APP
+                                        </div>
+                                        <div className="text-[#727373] font-light text-[14px]">
+                                          Bỏ tích này sản phẩm sẽ không được
+                                          hiển thị.
+                                        </div>
+                                      </div>
+                                    </label>
+                                  )}
+                                />
                               </div>
                             </Tab.Panel>
                           </>

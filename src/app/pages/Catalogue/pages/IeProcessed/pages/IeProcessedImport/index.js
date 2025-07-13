@@ -33,7 +33,7 @@ function IeProcessedImport(props) {
     'xuat_nhap'
   ])
 
-  const { CrStocks } = useAuth()
+  const { CrStocks, Stocks } = useAuth()
 
   const { control, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
@@ -497,6 +497,12 @@ function IeProcessedImport(props) {
   })
 
   const onSubmit = values => {
+    let TargetTitle = ''
+    if (values?.ie?.Source) {
+      let index = Stocks.findIndex(x => x.ID === values?.ie?.Source)
+      if (index > -1) TargetTitle = Stocks[index].Title
+    }
+
     updateMutation.mutate(
       {
         ...values,
@@ -505,8 +511,13 @@ function IeProcessedImport(props) {
           stockItems: values.items.map(x => ({
             ...x,
             ProdTitle: x.ProdTitle.text,
-            Desc: x?.Other || ''
-          }))
+            Desc: x?.Other
+              ? `${x?.Other} - [Từ cơ sở ${TargetTitle}]`
+              : `[Từ cơ sở ${TargetTitle}]`
+          })),
+          Other: values?.ie?.Other
+            ? `${values?.ie?.Other} - [Từ cơ sở ${TargetTitle}]`
+            : `[Từ cơ sở ${TargetTitle}]`
         },
         items: values.items.map(x => ({
           ...x,
@@ -661,7 +672,9 @@ function IeProcessedImport(props) {
                           }) => (
                             <SelectStocksWareHouse
                               value={field.value}
-                              onChange={val => field.onChange(val?.value || '')}
+                              onChange={val => {
+                                field.onChange(val?.value || '')
+                              }}
                               className="select-control"
                               menuPosition="fixed"
                               styles={{

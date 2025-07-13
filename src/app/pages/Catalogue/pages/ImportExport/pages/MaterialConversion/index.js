@@ -379,6 +379,7 @@ function MaterialConversion(props) {
           try {
             const results = await Promise.all(requests)
             if (results && results.length > 0) {
+              
               setValue(
                 'data',
                 results
@@ -397,7 +398,7 @@ function MaterialConversion(props) {
                         fromCode: fromTitle?.ProdCode,
                         fromUnit: fromTitle?.StockUnit,
                         fromTitle: fromTitle?.ProdTitle,
-                        fromQty: 1,
+                        fromQty: fromTitle?.Qty || 1,
                         fromBarcode: null,
                         fromPrice: 0,
                         toCode: toTitle.id,
@@ -590,7 +591,6 @@ function MaterialConversion(props) {
                             dateFormat="HH:mm dd/MM/yyyy"
                             showTimeSelect
                             errorMessageForce={fieldState?.invalid}
-                            //timeFormat="HH:mm"
                           />
                         </div>
                       )}

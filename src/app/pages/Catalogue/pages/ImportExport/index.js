@@ -208,7 +208,34 @@ function ImportExport(props) {
         title: 'Cơ sở',
         dataKey: 'SourceTitle',
         width: 200,
-        cellRenderer: ({ rowData }) => rowData.SourceTitle,
+        cellRenderer: ({ rowData }) => {
+          return rowData.SourceTitle
+        },
+        sortable: false
+      },
+      {
+        key: 'SourceFromTo',
+        title: 'Từ / Đến',
+        dataKey: 'SourceFromTo',
+        width: 300,
+        cellRenderer: ({ rowData }) => {
+          let Title = ''
+          if (rowData.Target > 0) {
+            Title = `Đến cơ sở ${rowData?.TargetTitle}`
+          }
+          if (rowData?.Other) {
+            var text = rowData?.Other
+            var regex = /\[([^\][]*)]/g
+            var results = [],
+              m
+            while ((m = regex.exec(text))) {
+              results.push(m[1])
+            }
+            let index = results.findIndex(x => x.indexOf('Từ cơ sở') > -1)
+            if (index > -1) Title = results[index]
+          }
+          return Title
+        },
         sortable: false
       },
       {
