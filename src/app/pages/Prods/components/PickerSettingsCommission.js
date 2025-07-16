@@ -12,7 +12,6 @@ import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import Select from 'react-select'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
-import { toast } from 'react-toastify'
 import { formatString } from 'src/_ezs/utils/formatString'
 
 const OptionsStatus = [
@@ -138,6 +137,11 @@ function PickerSettingsCommission({ children, Type, invalidateQueries }) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible])
+
+  useEffect(() => {
+    reset({ Items: [] })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters])
 
   const { isLoading, refetch } = useQuery({
     queryKey: ['ListProdRose', filters],
@@ -610,9 +614,17 @@ function PickerSettingsCommission({ children, Type, invalidateQueries }) {
                 rowHeight={78}
                 //onEndReachedThreshold={1}
                 //onEndReached={fetchNextPage}
-                frozenData={[
-                  { filters, Title: 'Cập nhật tất cả theo bộ lọc', levels }
-                ]}
+                frozenData={
+                  !isLoading
+                    ? [
+                        {
+                          filters,
+                          Title: 'Cập nhật tất cả theo bộ lọc',
+                          levels
+                        }
+                      ]
+                    : []
+                }
                 // onScroll={e => {
                 //   if (disabled) setDisabled(false)
                 // }}

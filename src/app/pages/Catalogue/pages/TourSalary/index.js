@@ -1,10 +1,5 @@
 import { ChevronDownIcon } from '@heroicons/react/24/outline'
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient
-} from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import React, { useEffect, useRef } from 'react'
 import { useMemo, useState } from 'react'
 import ProdsAPI from 'src/_ezs/api/prods.api'
@@ -12,7 +7,6 @@ import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import { Input, InputNumber } from 'src/_ezs/partials/forms'
 import { SelectCategories } from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
-import { formatArray } from 'src/_ezs/utils/formatArray'
 import Swal from 'sweetalert2'
 import Text from 'react-texty'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
@@ -105,6 +99,11 @@ function TourSalary() {
     }
   })
 
+  useEffect(() => {
+    reset({ Items: [] })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters])
+
   const { fields } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormProvider)
     name: 'Items' // unique name for your Field Array
@@ -118,23 +117,52 @@ function TourSalary() {
       const { data } = await ProdsAPI.getListProd24({
         ...filters
       })
-      return {
-        ...data,
-        list: data.list
-          ? data.list.map(x => {
+
+      let newList = []
+
+      if (data.list && data.list.length > 0) {
+        for (let x of data.list) {
+          let newBonusJSON =
+            x.BonusJSON && x.BonusJSON !== 'null'
+              ? x.BonusJSON
+              : JSON.stringify(
+                  data.levels.map(o => ({
+                    Level: o,
+                    Salary: null
+                  }))
+                )
+
+          let obj = {
+            ...x,
+            //children: x.IsAddFee === 0 ? x.Children : null,
+            BonusJSON: newBonusJSON,
+            BonusJSONs: JSON.parse(newBonusJSON)
+              .map(x => ({
+                ...x,
+                PositionIndex: [...(data?.levels || [])].findIndex(
+                  o => o === x.Level
+                )
+              }))
+              .filter(x => x.PositionIndex > -1)
+              .sort((a, b) => a.PositionIndex - b.PositionIndex)
+          }
+          newList.push(obj)
+
+          if (x.IsAddFee === 0 && x.Children && x.Children.length > 0) {
+            for (let item of x.Children) {
               let newBonusJSON =
-                x.BonusJSON && x.BonusJSON !== 'null'
-                  ? x.BonusJSON
+                item.BonusJSON && item.BonusJSON !== 'null'
+                  ? item.BonusJSON
                   : JSON.stringify(
                       data.levels.map(o => ({
                         Level: o,
                         Salary: null
                       }))
                     )
-
-              let obj = {
-                ...x,
-                children: x.IsAddFee === 0 ? x.Children : null,
+              let newItem = {
+                ...item,
+                isChild: true,
+                children: item.IsAddFee === 0 ? item.Children : null,
                 BonusJSON: newBonusJSON,
                 BonusJSONs: JSON.parse(newBonusJSON)
                   .map(x => ({
@@ -146,9 +174,15 @@ function TourSalary() {
                   .filter(x => x.PositionIndex > -1)
                   .sort((a, b) => a.PositionIndex - b.PositionIndex)
               }
-              return obj
-            })
-          : []
+              newList.push(newItem)
+            }
+          }
+        }
+      }
+
+      return {
+        ...data,
+        list: newList
       }
     },
     onSuccess: data => {
@@ -167,7 +201,21 @@ function TourSalary() {
           title: 'ID',
           dataKey: 'ID',
           width: 120,
-          sortable: false
+          sortable: false,
+          cellRenderer: ({ rowData }) => {
+            return (
+              <div
+                className={clsx(
+                  'w-full',
+                  rowData.isChild
+                    ? 'flex justify-center text-gray-600'
+                    : 'font-medium'
+                )}
+              >
+                {rowData.ID}
+              </div>
+            )
+          }
         },
         {
           key: 'Title',
@@ -177,7 +225,12 @@ function TourSalary() {
           sortable: false,
           cellRenderer: ({ rowData }) => (
             <>
-              <div className="flex w-full">
+              <div
+                className={clsx(
+                  'flex w-full',
+                  rowData.isChild ? 'text-gray-600' : 'font-medium'
+                )}
+              >
                 <Text className="flex-1" tooltipMaxWidth={280}>
                   {rowData.Title}
                 </Text>
@@ -473,9 +526,17 @@ function TourSalary() {
           rowHeight={78}
           // onEndReachedThreshold={1}
           // onEndReached={fetchNextPage}
-          frozenData={[
-            { filters, Title: 'Cập nhật tất cả theo bộ lọc', levels }
-          ]}
+          frozenData={
+            !isLoading
+              ? [
+                  {
+                    filters,
+                    Title: 'Cập nhật tất cả theo bộ lọc',
+                    levels
+                  }
+                ]
+              : []
+          }
           expandColumnKey={columns[1].key}
           rowRenderer={rowRenderer}
           // expandIconProps={({ expandable, expanded, onExpand }) => {

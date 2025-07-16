@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import clsx from 'clsx'
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useMemo } from 'react'
 import { useState } from 'react'
 import ProdsAPI from 'src/_ezs/api/prods.api'
@@ -11,7 +11,6 @@ import { ReactBaseTable } from 'src/_ezs/partials/table'
 import Swal from 'sweetalert2'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import { formatString } from 'src/_ezs/utils/formatString'
-import { toast } from 'react-toastify'
 import { Button } from 'src/_ezs/partials/button'
 
 const RendererLevelAll = ({ onSubmit }) => {
@@ -104,6 +103,11 @@ function ConsultingCommission() {
       Items: []
     }
   })
+
+  useEffect(() => {
+    reset({ Items: [] })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters])
 
   const { fields } = useFieldArray({
     control, // control props comes from useForm (optional: if you are using FormProvider)
@@ -517,7 +521,7 @@ function ConsultingCommission() {
         )}
       </div>
       <div className="flex justify-between gap-6 pb-6">
-        <div className='flex w-2/4 gap-4'>
+        <div className="flex w-2/4 gap-4">
           <div className="flex-1">
             <Input
               placeholder="Nhập từ khóa ..."
@@ -581,9 +585,17 @@ function ConsultingCommission() {
           rowHeight={78}
           // onEndReachedThreshold={1}
           // onEndReached={fetchNextPage}
-          frozenData={[
-            { filters, Title: 'Cập nhật tất cả theo bộ lọc', levels }
-          ]}
+          frozenData={
+            !isLoading
+              ? [
+                  {
+                    filters,
+                    Title: 'Cập nhật tất cả theo bộ lọc',
+                    levels
+                  }
+                ]
+              : []
+          }
         />
       </div>
     </form>

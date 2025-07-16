@@ -1,17 +1,11 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react'
 import { ChevronDownIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { Input, InputNumber } from 'src/_ezs/partials/forms'
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient
-} from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { Button } from 'src/_ezs/partials/button'
 import { FloatingPortal } from '@floating-ui/react'
 import { SelectCategories } from 'src/_ezs/partials/select'
 import ProdsAPI from 'src/_ezs/api/prods.api'
-import { formatArray } from 'src/_ezs/utils/formatArray'
 import Swal from 'sweetalert2'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import Select from 'react-select'
@@ -19,7 +13,6 @@ import Text from 'react-texty'
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
 import clsx from 'clsx'
 import { formatString } from 'src/_ezs/utils/formatString'
-import { toast } from 'react-toastify'
 
 const OptionsStatus = [
   {
@@ -139,29 +132,63 @@ function PickerSettingsTourSalary({ children, Type, invalidateQueries }) {
     }
   }, [visible, Type])
 
+  useEffect(() => {
+    reset({ Items: [] })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filters])
+
   const { isLoading, refetch } = useQuery({
-    queryKey: ['ListProdTour', filters],
+    queryKey: ['ListProdTours', filters],
     queryFn: async () => {
       const { data } = await ProdsAPI.getListProd24({
         ...filters
       })
-      return {
-        ...data,
-        list: data.list
-          ? data.list.map(x => {
+
+      let newList = []
+
+      if (data.list && data.list.length > 0) {
+        for (let x of data.list) {
+          let newBonusJSON =
+            x.BonusJSON && x.BonusJSON !== 'null'
+              ? x.BonusJSON
+              : JSON.stringify(
+                  data.levels.map(o => ({
+                    Level: o,
+                    Salary: null
+                  }))
+                )
+
+          let obj = {
+            ...x,
+            //children: x.IsAddFee === 0 ? x.Children : null,
+            BonusJSON: newBonusJSON,
+            BonusJSONs: JSON.parse(newBonusJSON)
+              .map(x => ({
+                ...x,
+                PositionIndex: [...(data?.levels || [])].findIndex(
+                  o => o === x.Level
+                )
+              }))
+              .filter(x => x.PositionIndex > -1)
+              .sort((a, b) => a.PositionIndex - b.PositionIndex)
+          }
+          newList.push(obj)
+
+          if (x.IsAddFee === 0 && x.Children && x.Children.length > 0) {
+            for (let item of x.Children) {
               let newBonusJSON =
-                x.BonusJSON && x.BonusJSON !== 'null'
-                  ? x.BonusJSON
+                item.BonusJSON && item.BonusJSON !== 'null'
+                  ? item.BonusJSON
                   : JSON.stringify(
                       data.levels.map(o => ({
                         Level: o,
                         Salary: null
                       }))
                     )
-
-              let obj = {
-                ...x,
-                children: x.IsAddFee === 0 ? x.Children : null,
+              let newItem = {
+                ...item,
+                isChild: true,
+                children: item.IsAddFee === 0 ? item.Children : null,
                 BonusJSON: newBonusJSON,
                 BonusJSONs: JSON.parse(newBonusJSON)
                   .map(x => ({
@@ -173,9 +200,15 @@ function PickerSettingsTourSalary({ children, Type, invalidateQueries }) {
                   .filter(x => x.PositionIndex > -1)
                   .sort((a, b) => a.PositionIndex - b.PositionIndex)
               }
-              return obj
-            })
-          : []
+              newList.push(newItem)
+            }
+          }
+        }
+      }
+
+      return {
+        ...data,
+        list: newList
       }
     },
     onSuccess: data => {
@@ -203,7 +236,21 @@ function PickerSettingsTourSalary({ children, Type, invalidateQueries }) {
           title: 'ID',
           dataKey: 'ID',
           width: 120,
-          sortable: false
+          sortable: false,
+          cellRenderer: ({ rowData }) => {
+            return (
+              <div
+                className={clsx(
+                  'w-full',
+                  rowData.isChild
+                    ? 'flex justify-center text-gray-600'
+                    : 'font-medium'
+                )}
+              >
+                {rowData.ID}
+              </div>
+            )
+          }
         },
         {
           key: 'Title',
@@ -213,7 +260,12 @@ function PickerSettingsTourSalary({ children, Type, invalidateQueries }) {
           sortable: false,
           cellRenderer: ({ rowData }) => (
             <>
-              <div className="flex w-full">
+              <div
+                className={clsx(
+                  'flex w-full',
+                  rowData.isChild ? 'text-gray-600' : 'font-medium'
+                )}
+              >
                 <Text className="flex-1" tooltipMaxWidth={280}>
                   {getTitle(rowData)}
                 </Text>
@@ -344,7 +396,6 @@ function PickerSettingsTourSalary({ children, Type, invalidateQueries }) {
         Bonus: x.Bonus || ''
       }))
     }
-
     updateMutation.mutate(values, {
       onSuccess: () => {
         window?.top?.toastr?.success('Cập nhật thành công.', '', {
@@ -526,6 +577,7 @@ function PickerSettingsTourSalary({ children, Type, invalidateQueries }) {
                 Lưu thay đổi
               </Button>
             </div>
+
             <div className="flex flex-col w-full px-6 pb-6 mx-auto max-w-[1440px] grow">
               <ReactBaseTable
                 loading={isLoading}
@@ -536,9 +588,17 @@ function PickerSettingsTourSalary({ children, Type, invalidateQueries }) {
                 rowHeight={78}
                 // onEndReachedThreshold={1}
                 // onEndReached={fetchNextPage}
-                frozenData={[
-                  { filters, Title: 'Cập nhật tất cả theo bộ lọc', levels }
-                ]}
+                frozenData={
+                  !isLoading
+                    ? [
+                        {
+                          filters,
+                          Title: 'Cập nhật tất cả theo bộ lọc',
+                          levels
+                        }
+                      ]
+                    : []
+                }
                 expandColumnKey={columns[1].key}
                 rowRenderer={rowRenderer}
               />
