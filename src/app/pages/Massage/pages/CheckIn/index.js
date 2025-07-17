@@ -46,6 +46,7 @@ function CheckIn(props) {
           Photo: item.photo,
           Order: item?.source?.Order
         }))
+        .filter(x => x.Dates && x.Dates.length > 0)
         .sort((a, b) => a.Order - b.Order)
       return newRs || []
     }
