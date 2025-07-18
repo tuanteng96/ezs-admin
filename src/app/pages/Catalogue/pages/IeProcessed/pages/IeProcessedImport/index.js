@@ -210,13 +210,13 @@ function IeProcessedImport(props) {
         )
       },
       {
-        key: 'ProdId',
+        key: 'ProdCode',
         title: 'Mã',
-        dataKey: 'ProdId',
+        dataKey: 'ProdCode',
         width: 100,
         cellRenderer: ({ rowData, rowIndex }) => (
           <Controller
-            name={`items[${rowIndex}].ProdId`}
+            name={`items[${rowIndex}].ProdCode`}
             control={control}
             render={({ field: { ref, ...field }, fieldState }) => (
               <>{field.value}</>
