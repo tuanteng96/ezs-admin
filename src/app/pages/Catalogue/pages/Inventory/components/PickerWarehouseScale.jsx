@@ -88,7 +88,8 @@ function PickerWarehouseScale({ children, queryConfig }) {
         '(filter)key': queryConfig.Key,
         '(filter)NotDelv': queryConfig.NotDelv,
         '(filter)IsPublic': queryConfig.IsPublic ? true : false,
-        Qty: 0
+        Qty: 0,
+        cankho: 1
       }
       let { data } = await WarehouseAPI.getListInventory(newQueryConfig)
       return data?.data
