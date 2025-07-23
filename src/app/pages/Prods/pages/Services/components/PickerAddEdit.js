@@ -44,6 +44,7 @@ import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import Tooltip from 'rc-tooltip'
 import Select from 'react-select'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
+import moment from 'moment'
 
 const schemaAddEdit = yup
   .object({
@@ -421,12 +422,17 @@ function PickerAddEdit({ children, initialValues }) {
           'IsDisplayPrice',
           data?.IsDisplayPrice && Number(data?.IsDisplayPrice) > 0
         )
-        setValue('RenewDate', data?.RenewDate || new Date())
+        setValue(
+          'RenewDate',
+          data?.RenewDate
+            ? moment(data?.RenewDate, 'YYYY-MM-DD HH:mm').toDate()
+            : new Date()
+        )
         setValue('IsPublic', data?.IsPublic && Number(data?.IsPublic) > 0)
 
         setValue('PriceBase', data?.PriceBase || '')
         setValue('PriceProduct', data?.PriceProduct || '')
-        setValue('VAT', data?.VAT || '')
+        setValue('VAT', data?.VAT !== '' && data?.VAT !== null ? data?.VAT : '')
         setValue('TIP', data?.TIP || '')
         setValue(
           'KpiType',
@@ -656,7 +662,7 @@ function PickerAddEdit({ children, initialValues }) {
                   </div>
                   <div className="flex items-center text-xl font-semibold sm:text-2xl lg:text-3xl">
                     {initialValues?.ID
-                      ? 'Chỉnh sửa sản phẩm'
+                      ? 'Chỉnh sửa dịch vụ'
                       : 'Thêm mới dịch vụ'}
                   </div>
                 </div>

@@ -67,6 +67,7 @@ function ProductsPage(props) {
               : CateID,
           manu: filters?.manu?.value || '',
           byStock: filters?.byStock || '',
+          skip_display: !filters.display ? '1' : '0',
           pi: pageParam
         })
 

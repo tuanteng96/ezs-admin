@@ -224,6 +224,7 @@ function ProductAdd(props) {
         }
       ]
     }
+    
     addProducMutation.mutate(dataPost, {
       onSuccess: data => {
         if (!data?.data?.error) {
@@ -294,7 +295,7 @@ function ProductAdd(props) {
                 </div>
               </div>
               {!isAddMode && isLoading && (
-                <div className="grow relative">
+                <div className="relative grow">
                   <LoadingComponentFull bgClassName="bg-white" loading={true} />
                 </div>
               )}
@@ -791,7 +792,7 @@ function ProductAdd(props) {
                                     )}
                                   />
                                   <button
-                                    className="absolute right-0 top-0 h-full px-3 border-gray-300 text-primary font-medium"
+                                    className="absolute top-0 right-0 h-full px-3 font-medium border-gray-300 text-primary"
                                     type="button"
                                     onClick={() =>
                                       setValue('RenewDate', new Date())
@@ -860,7 +861,7 @@ function ProductAdd(props) {
                       <div>
                         <div className="border border-gray-300 rounded-lg">
                           <div className="px-5 py-4 border-b border-gray-300">
-                            <div className="text-xl font-bold mb-px">
+                            <div className="mb-px text-xl font-bold">
                               Hình ảnh sản phẩm
                             </div>
                             <div>Kéo và thả ảnh để thay đổi thứ tự.</div>

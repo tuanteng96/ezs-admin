@@ -41,6 +41,7 @@ import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import Tooltip from 'rc-tooltip'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
+import moment from 'moment'
 
 const schemaAddEdit = yup
   .object({
@@ -254,7 +255,12 @@ function PickerCourseAddEdit({ children, initialValues }) {
             }
           ])
         }
-        setValue('RenewDate', data?.RenewDate || new Date())
+        setValue(
+          'RenewDate',
+          data?.RenewDate
+            ? moment(data?.RenewDate, 'YYYY-MM-DD HH:mm').toDate()
+            : new Date()
+        )
         setValue(
           'IsDisplayPrice',
           data?.IsDisplayPrice && Number(data?.IsDisplayPrice) > 0
@@ -264,7 +270,7 @@ function PickerCourseAddEdit({ children, initialValues }) {
 
         setValue('PriceBase', data?.PriceBase || '')
         setValue('PriceProduct', data?.PriceProduct || '')
-        setValue('VAT', data?.VAT !== '' ? data?.VAT : '')
+        setValue('VAT', data?.VAT !== '' && data?.VAT !== null ? data?.VAT : '')
         setValue('TIP', data?.TIP || '')
         setValue(
           'KpiType',

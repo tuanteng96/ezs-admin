@@ -40,7 +40,7 @@ function PickerFilter({ children, initialValues, onChange }) {
         byStock: initialValues?.byStock || '',
         manu: initialValues?.manu || '',
         typeid: initialValues?.typeid || '',
-        byPublic: initialValues?.byPublic || ''
+        display: initialValues?.display || ''
       })
     } else {
       reset()
@@ -120,7 +120,7 @@ function PickerFilter({ children, initialValues, onChange }) {
                     <div className="font-semibold">Trạng thái</div>
                     <div className="mt-1">
                       <Controller
-                        name="byPublic"
+                        name="display"
                         control={control}
                         render={({ field: { ref, ...field }, fieldState }) => (
                           <Select

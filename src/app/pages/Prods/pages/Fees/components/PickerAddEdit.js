@@ -42,6 +42,7 @@ import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import Tooltip from 'rc-tooltip'
 import Select from 'react-select'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
+import moment from 'moment'
 
 const OptionsStatus = [
   {
@@ -251,7 +252,12 @@ function PickerAddEdit({ children, initialValues }) {
             }
           ])
         }
-        setValue('RenewDate', data?.RenewDate || new Date())
+        setValue(
+          'RenewDate',
+          data?.RenewDate
+            ? moment(data?.RenewDate, 'YYYY-MM-DD HH:mm').toDate()
+            : new Date()
+        )
         setValue(
           'IsDisplayPrice',
           data?.IsDisplayPrice && Number(data?.IsDisplayPrice) > 0
@@ -259,7 +265,7 @@ function PickerAddEdit({ children, initialValues }) {
 
         setValue('IsPublic', data?.IsPublic && Number(data?.IsPublic) > 0)
         setValue('PriceProduct_1', data?.PriceProduct_1 || '')
-        setValue('VAT', data?.VAT !== '' ? data?.VAT : '')
+        setValue('VAT', data?.VAT !== '' && data?.VAT !== null ? data?.VAT : '')
         setValue('TIP', data?.TIP || '')
         setValue(
           'KpiType',
