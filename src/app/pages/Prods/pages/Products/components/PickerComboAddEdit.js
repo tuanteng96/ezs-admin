@@ -422,6 +422,7 @@ function PickerComboAddEdit({ children, initialValues }) {
   const onSubmit = values => {
     let newValues = {
       ...values,
+      RenewDate: values.RenewDate ? moment(values.RenewDate).format("MM/DD/YYYY HH:mm") : null,
       IsDisplayPrice: values?.IsDisplayPrice ? '1' : '0',
       IsPublic: values?.IsPublic ? '1' : '0',
       Type: values?.Type?.value || '',

@@ -512,12 +512,14 @@ function PickerWarehouseScale({ children, queryConfig }) {
           }
         }
       }
+      console.log(queryConfig?.to)
       WarehouseAPI.selectProdsQuery({
         filter: newRow.map(x => ({
           DynamicID: x.DynamicID
         })),
-        ToDate: moment(queryConfig.to, 'DD/MM/YYYY').format('YYYY-MM-DD'),
-        StockID: queryConfig.StockID
+        ToDate: moment(queryConfig?.to, 'HH:mm DD/MM/YYYY').format('YYYY-MM-DD HH:mm'),
+        StockID: queryConfig.StockID,
+        // cankho: 1
       }).then(({ data }) => {
         if (data?.lst && data?.lst.length > 0) {
           let newItems = data?.lst
