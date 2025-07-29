@@ -467,10 +467,18 @@ function WareHouseExportStock(props) {
                 onValueChange={val => {
                   const { ImportDiscount } = watchForm.items[rowIndex]
                   field.onChange(val.floatValue || '')
-                  setValue(
-                    `items[${rowIndex}].ImportPrice`,
-                    (val?.floatValue || 0) - ImportDiscount
-                  )
+                  if (ImportDiscount > 100) {
+                    setValue(
+                      `items[${rowIndex}].ImportPrice`,
+                      (val?.floatValue || 0) - ImportDiscount
+                    )
+                  } else {
+                    setValue(
+                      `items[${rowIndex}].ImportPrice`,
+                      (val?.floatValue || 0) -
+                        (ImportDiscount * (val?.floatValue || 0)) / 100
+                    )
+                  }
                   onUpdate()
                 }}
               />
