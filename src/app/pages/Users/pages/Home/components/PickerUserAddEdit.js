@@ -252,11 +252,9 @@ function PickerUserAddEdit({ children, initialValues }) {
     )
     bodyFormData.append(
       'chluongLevels',
-      JSON.stringify(
-        values?.chluongLevels
-          ? [{ id: values?.id || 0, Level: values?.chluongLevels || '' }]
-          : []
-      )
+      JSON.stringify([
+        { id: values?.id || 0, Level: values?.chluongLevels || '' }
+      ])
     )
 
     let newchluongData = []
