@@ -554,7 +554,9 @@ function PickerAddEdit({ children, initialValues }) {
   const onSubmit = values => {
     let newValues = {
       ...values,
-      RenewDate: values.RenewDate ? moment(values.RenewDate).format("MM/DD/YYYY HH:mm") : null,
+      RenewDate: values.RenewDate
+        ? moment(values.RenewDate).format('MM/DD/YYYY HH:mm')
+        : null,
       IsDisplayPrice: values?.IsDisplayPrice ? '1' : '0',
       IsPublic: values?.IsPublic ? '1' : '0',
       Type: values?.Type?.value || '',
@@ -663,8 +665,8 @@ function PickerAddEdit({ children, initialValues }) {
                   </div>
                   <div className="flex items-center text-xl font-semibold sm:text-2xl lg:text-3xl">
                     {initialValues?.ID
-                      ? 'Chỉnh sửa dịch vụ'
-                      : 'Thêm mới dịch vụ'}
+                      ? 'Chỉnh sửa dịch vụ (Buổi lẻ)'
+                      : 'Thêm mới dịch vụ (Buổi lẻ)'}
                   </div>
                 </div>
                 <div className="hidden gap-3 sm:flex">
@@ -858,71 +860,6 @@ function PickerAddEdit({ children, initialValues }) {
                                                   })
                                                 }}
                                               />
-                                            )}
-                                          />
-                                        </div>
-                                      </div>
-                                      <div>
-                                        <div className="font-medium">VAT</div>
-                                        <div className="mt-1">
-                                          <Controller
-                                            name={`VAT`}
-                                            control={control}
-                                            render={({
-                                              field: { ref, ...field },
-                                              fieldState
-                                            }) => (
-                                              <SelectVAT
-                                                className="select-control"
-                                                isClearable
-                                                value={field.value}
-                                                onChange={val => {
-                                                  field.onChange(
-                                                    val?.value === '' ||
-                                                      typeof val?.value ===
-                                                        'undefined' ||
-                                                      val?.value === undefined
-                                                      ? ''
-                                                      : val?.value
-                                                  )
-                                                }}
-                                              />
-                                            )}
-                                          />
-                                        </div>
-                                      </div>
-                                      <div>
-                                        <div className="font-medium">TIP</div>
-                                        <div className="mt-1">
-                                          <Controller
-                                            name={`TIP`}
-                                            control={control}
-                                            render={({
-                                              field: { ref, ...field },
-                                              fieldState
-                                            }) => (
-                                              <div className="relative">
-                                                <InputNumber
-                                                  thousandSeparator={true}
-                                                  value={field.value}
-                                                  placeholder="Nhập TIP"
-                                                  onValueChange={val =>
-                                                    field.onChange(
-                                                      typeof val?.floatValue !==
-                                                        'undefined'
-                                                        ? val.floatValue
-                                                        : ''
-                                                    )
-                                                  }
-                                                />
-                                                {field.value !== '' && (
-                                                  <div className="absolute top-0 flex items-center h-full text-xs text-gray-600 pointer-events-none right-4">
-                                                    {field.value > 100
-                                                      ? 'VNĐ'
-                                                      : '%'}
-                                                  </div>
-                                                )}
-                                              </div>
                                             )}
                                           />
                                         </div>
@@ -1223,6 +1160,71 @@ function PickerAddEdit({ children, initialValues }) {
                                                   )
                                                 }
                                               />
+                                            )}
+                                          />
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <div className="font-medium">VAT</div>
+                                        <div className="mt-1">
+                                          <Controller
+                                            name={`VAT`}
+                                            control={control}
+                                            render={({
+                                              field: { ref, ...field },
+                                              fieldState
+                                            }) => (
+                                              <SelectVAT
+                                                className="select-control"
+                                                isClearable
+                                                value={field.value}
+                                                onChange={val => {
+                                                  field.onChange(
+                                                    val?.value === '' ||
+                                                      typeof val?.value ===
+                                                        'undefined' ||
+                                                      val?.value === undefined
+                                                      ? ''
+                                                      : val?.value
+                                                  )
+                                                }}
+                                              />
+                                            )}
+                                          />
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <div className="font-medium">TIP</div>
+                                        <div className="mt-1">
+                                          <Controller
+                                            name={`TIP`}
+                                            control={control}
+                                            render={({
+                                              field: { ref, ...field },
+                                              fieldState
+                                            }) => (
+                                              <div className="relative">
+                                                <InputNumber
+                                                  thousandSeparator={true}
+                                                  value={field.value}
+                                                  placeholder="Nhập TIP"
+                                                  onValueChange={val =>
+                                                    field.onChange(
+                                                      typeof val?.floatValue !==
+                                                        'undefined'
+                                                        ? val.floatValue
+                                                        : ''
+                                                    )
+                                                  }
+                                                />
+                                                {field.value !== '' && (
+                                                  <div className="absolute top-0 flex items-center h-full text-xs text-gray-600 pointer-events-none right-4">
+                                                    {field.value > 100
+                                                      ? 'VNĐ'
+                                                      : '%'}
+                                                  </div>
+                                                )}
+                                              </div>
                                             )}
                                           />
                                         </div>

@@ -49,6 +49,7 @@
         "react-number-format": "^5.1.4",
         "react-overlays": "^5.2.1",
         "react-perfect-scrollbar": "^1.5.8",
+        "react-quill": "^2.0.0",
         "react-router": "^6.9.0",
         "react-router-dom": "^6.9.0",
         "react-scripts": "5.0.1",

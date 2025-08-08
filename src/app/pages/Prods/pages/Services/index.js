@@ -20,6 +20,7 @@ import { useProds } from '../../ProdsLayout'
 import {
   PickerAddEdit,
   PickerCare,
+  PickerCombosAddEdit,
   PickerConsumableMaterials,
   PickerFilter
 } from './components'
@@ -153,7 +154,7 @@ function ServicesPage(props) {
         sortable: false,
         cellRenderer: ({ rowData }) => (
           <div>
-            <div className="mb-1 font-medium">{rowData.Title}</div>
+            <div className="mb-1 font-medium line-clamp-2">{rowData.Title}</div>
             <div className="text-sm text-muted2 font-number">
               #{rowData.ID} / {rowData?.DynamicID}
             </div>
@@ -524,7 +525,7 @@ function ServicesPage(props) {
             placement="bottom"
             trigger={['click']}
             overlay={
-              <div className="rounded px-0 py-2 border-0 w-[220px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow">
+              <div className="rounded px-0 py-2 border-0 w-[250px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow">
                 <PickerAddEdit>
                   {({ open }) => (
                     <div
@@ -540,11 +541,11 @@ function ServicesPage(props) {
                       }}
                       className="w-full text-[15px] flex items-center px-5 py-3 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
                     >
-                      Thêm mới dịch vụ
+                      Thêm mới dịch vụ (Buổi lẻ)
                     </div>
                   )}
                 </PickerAddEdit>
-                <PickerAddEdit>
+                <PickerCombosAddEdit>
                   {({ open }) => (
                     <div
                       onClick={() => {
@@ -562,7 +563,7 @@ function ServicesPage(props) {
                       Thêm mới thẻ liệu trình
                     </div>
                   )}
-                </PickerAddEdit>
+                </PickerCombosAddEdit>
               </div>
             }
             align={{
@@ -808,7 +809,7 @@ function ServicesPage(props) {
                 <div key={index} ref={sentryRef}>
                   <div className="flex py-1 items-center relative after:w-full after:h-[1px] after:content-[''] after:border-t font-number after:border-dashed after:border-[#eee] after:absolute after:top-7 after:left-0 after:hidden border-b border-[#eee]">
                     <div className="w-2/4">
-                      <div className="relative z-10 inline-block pr-4 text-sm font-semibold uppercase bg-white text-primary">
+                      <div className="relative z-10 inline-block pr-4 text-sm font-semibold uppercase bg-white text-muted2">
                         {item.Title}
                       </div>
                     </div>
@@ -886,7 +887,7 @@ function ServicesPage(props) {
                   </div>
                   <ReactBaseTable
                     wrapStyle={{
-                      height: `${96 * (item?.Items.length || 1)}px`
+                      height: `${99 * (item?.Items.length || 1)}px`
                     }}
                     wrapClassName="BaseTable__body_height basetable-no-border"
                     headerHeight={0}

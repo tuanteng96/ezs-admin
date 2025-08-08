@@ -46,9 +46,9 @@ function Home(props) {
         //StockID: CrStocks?.ID || CookieHelpers.get('StockID'),
         key: ''
       })
-      
+
       let newRs = data?.data || []
-      
+
       for (let m of rs?.data?.list || []) {
         let index = newRs.findIndex(x => x.id === m.UserID)
         if (index > -1) {
@@ -60,18 +60,19 @@ function Home(props) {
           newRs[index].UserName = m.UserName
         }
       }
-      
+
       newRs = newRs
         .map(item => ({
           ...item,
           Photo: item.photo,
           Order: item?.source?.Order
-        })).filter(x => x.Dates && x.Dates.length > 0)
+        }))
+        .filter(x => x.Dates && x.Dates.length > 0)
         .sort((a, b) => a.Order - b.Order)
       return newRs || []
     }
   })
-  
+
   const updateMutation = useMutation({
     mutationFn: body => WorksheetAPI.checkinWorkSheet(body)
   })

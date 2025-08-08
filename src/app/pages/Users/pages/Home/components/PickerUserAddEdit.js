@@ -703,6 +703,7 @@ function PickerUserAddEdit({ children, initialValues }) {
                             </div>
                             <div>
                               <SelectUserLevels
+                                isClearable={true}
                                 className="select-control"
                                 menuPosition="fixed"
                                 styles={{
@@ -983,6 +984,7 @@ function PickerUserAddEdit({ children, initialValues }) {
                                     }) => (
                                       <>
                                         <SelectUserShifts
+                                          isClearable={true}
                                           value={field.value}
                                           onChange={val => field.onChange(val)}
                                           className="select-control"

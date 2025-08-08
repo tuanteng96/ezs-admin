@@ -395,6 +395,7 @@ function ImportExport(props) {
               'CÒN LẠI',
               'LOẠI',
               'CƠ SỞ',
+              'TỪ ĐẾN',
               'NHÀ CUNG CẤP',
               'NHÂN VIÊN THỰC HIỆN',
               'GHI CHÚ',
@@ -419,6 +420,22 @@ function ImportExport(props) {
                   ? data.data[index - 1].Items.length + indexStart
                   : indexStart
               for (let [i, prod] of item.Items.entries()) {
+                let Title = ''
+                if (item.Target > 0) {
+                  Title = `Đến cơ sở ${item?.TargetTitle}`
+                }
+                else if (item?.Other) {
+                  var text = item?.Other
+                  var regex = /\[([^\][]*)]/g
+                  var results = [],
+                    m
+                  while ((m = regex.exec(text))) {
+                    results.push(m[1])
+                  }
+                  let index = results.findIndex(x => x.indexOf('Từ cơ sở') > -1)
+                  if (index > -1) Title = results[index]
+                }
+
                 let newArray = [
                   item.ID,
                   item.Code,
@@ -428,6 +445,7 @@ function ImportExport(props) {
                   item?.ToPay - Math.abs(item?.Payed),
                   item.Type === 'N' ? 'Đơn Nhập' : 'Đơn Xuất',
                   item.SourceTitle,
+                  Title,
                   item.SupplierText,
                   item?.UserName,
                   item.Other,
@@ -449,6 +467,7 @@ function ImportExport(props) {
                 }
               }
             }
+            
             let TotalRow = Response.length
             let TotalColumn = Head.length
 

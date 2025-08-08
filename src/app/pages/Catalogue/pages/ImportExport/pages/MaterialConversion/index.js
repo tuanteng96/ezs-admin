@@ -152,8 +152,8 @@ function MaterialConversion(props) {
     control,
     handleSubmit,
     setValue,
-    reset,
-    formState: { isDirty, isValid }
+    reset
+    //formState: { isDirty, isValid }
   } = useForm({
     defaultValues: {
       data: [],
@@ -379,7 +379,6 @@ function MaterialConversion(props) {
           try {
             const results = await Promise.all(requests)
             if (results && results.length > 0) {
-              
               setValue(
                 'data',
                 results

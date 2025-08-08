@@ -224,7 +224,7 @@ function ProductAdd(props) {
         }
       ]
     }
-    
+
     addProducMutation.mutate(dataPost, {
       onSuccess: data => {
         if (!data?.data?.error) {

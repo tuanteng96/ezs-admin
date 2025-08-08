@@ -1,14 +1,13 @@
 import React from 'react'
-import { createFilter } from 'react-select';
+import { createFilter } from 'react-select'
 import CreatableSelect from 'react-select/creatable'
 
 const filterConfig = {
   ignoreCase: true,
-  matchFrom: 'start', // Only match if the input starts with the option's label/value
-};
+  matchFrom: 'start' // Only match if the input starts with the option's label/value
+}
 
-const customFilter = createFilter(filterConfig);
-
+const customFilter = createFilter(filterConfig)
 
 const SelectVAT = ({ value, ...props }) => {
   let data = [
@@ -41,9 +40,8 @@ const SelectVAT = ({ value, ...props }) => {
       label: 'Không xuất hoá đơn'
     }
   ]
-  
+
   const getValue = val => {
-    
     if (val === '') return null
     let index = data.findIndex(x => x.value === Number(val))
     if (index > -1) {
@@ -55,9 +53,9 @@ const SelectVAT = ({ value, ...props }) => {
     }
   }
 
-  const formatCreateLabel = (val) => {
+  const formatCreateLabel = val => {
     let index = data.findIndex(x => x.value === Number(val))
-    if(index > -1) {
+    if (index > -1) {
       return data[index].label
     }
     return `VAT Khác: ${val}%`
@@ -96,7 +94,11 @@ const SelectVAT = ({ value, ...props }) => {
           return returnValue
         }}
         formatCreateLabel={val =>
-          val && Number(val) > -1 ? <span>{formatCreateLabel(val)}</span> : <></>
+          val && Number(val) > -1 ? (
+            <span>{formatCreateLabel(val)}</span>
+          ) : (
+            <></>
+          )
         }
         // onCreateOption={inputValue => {
         //   props.onChange(inputValue)
