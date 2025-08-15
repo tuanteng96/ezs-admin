@@ -164,7 +164,8 @@ function PickerAddEdit({ children, initialValues }) {
         Status: '',
         Qty: 1
       },
-      RenewDate: new Date()
+      RenewDate: new Date(),
+      Qty: ''
     },
     resolver: yupResolver(schemaAddEdit)
   })
@@ -348,6 +349,8 @@ function PickerAddEdit({ children, initialValues }) {
 
         setValue('PriceBase', data?.PriceBase || '')
         setValue('PriceProduct', data?.PriceProduct || '')
+
+        setValue('Qty', data?.Qty || '')
 
         setValue('VAT', data?.VAT !== '' && data?.VAT !== null ? data?.VAT : '')
         setValue('TIP', data?.TIP || '')
@@ -1144,87 +1147,121 @@ function PickerAddEdit({ children, initialValues }) {
                                     </div>
                                   </div>
                                   <div>
-                                    <div className="mb-4 last:mb-0">
-                                      <div className="font-medium">
-                                        Điểm bán
-                                      </div>
-                                      <div className="mt-1">
-                                        <Controller
-                                          name={`OnStocks`}
-                                          control={control}
-                                          render={({
-                                            field: { ref, ...field },
-                                            fieldState
-                                          }) => (
-                                            <SelectStocks
-                                              isClearable
-                                              isMulti
-                                              value={field.value}
-                                              onChange={val => {
-                                                if (val) {
-                                                  if (
-                                                    val.some(
-                                                      x => x.value === '*'
-                                                    ) &&
-                                                    field?.value?.findIndex(
-                                                      x => x.value === '*'
-                                                    ) === -1
-                                                  ) {
-                                                    field.onChange(
-                                                      val.filter(
+                                    <div className="grid grid-cols-1 gap-4 mb-4 sm:grid-cols-2 last:mb-0">
+                                      <div>
+                                        <div className="font-medium">
+                                          Điểm bán
+                                        </div>
+                                        <div className="mt-1">
+                                          <Controller
+                                            name={`OnStocks`}
+                                            control={control}
+                                            render={({
+                                              field: { ref, ...field },
+                                              fieldState
+                                            }) => (
+                                              <SelectStocks
+                                                isClearable
+                                                isMulti
+                                                value={field.value}
+                                                onChange={val => {
+                                                  if (val) {
+                                                    if (
+                                                      val.some(
                                                         x => x.value === '*'
+                                                      ) &&
+                                                      field?.value?.findIndex(
+                                                        x => x.value === '*'
+                                                      ) === -1
+                                                    ) {
+                                                      field.onChange(
+                                                        val.filter(
+                                                          x => x.value === '*'
+                                                        )
                                                       )
-                                                    )
-                                                  } else if (
-                                                    val.some(
-                                                      x => x.value === '-1'
-                                                    ) &&
-                                                    field?.value?.findIndex(
-                                                      x => x.value === '-1'
-                                                    ) === -1
-                                                  ) {
-                                                    field.onChange(
-                                                      val.filter(
+                                                    } else if (
+                                                      val.some(
                                                         x => x.value === '-1'
+                                                      ) &&
+                                                      field?.value?.findIndex(
+                                                        x => x.value === '-1'
+                                                      ) === -1
+                                                    ) {
+                                                      field.onChange(
+                                                        val.filter(
+                                                          x => x.value === '-1'
+                                                        )
                                                       )
-                                                    )
+                                                    } else {
+                                                      field.onChange(
+                                                        val
+                                                          ? val.filter(
+                                                              x =>
+                                                                x.value !==
+                                                                  '*' &&
+                                                                x.value !== '-1'
+                                                            )
+                                                          : []
+                                                      )
+                                                    }
                                                   } else {
+                                                    field.onChange(val)
+                                                  }
+                                                }}
+                                                className="select-control"
+                                                menuPosition="fixed"
+                                                styles={{
+                                                  menuPortal: base => ({
+                                                    ...base,
+                                                    zIndex: 9999
+                                                  })
+                                                }}
+                                                menuPortalTarget={document.body}
+                                                allOption={[
+                                                  {
+                                                    label: 'Tất cả cơ sở',
+                                                    value: '*'
+                                                  },
+                                                  {
+                                                    label: '(Ẩn)',
+                                                    value: '-1'
+                                                  }
+                                                ]}
+                                              />
+                                            )}
+                                          />
+                                        </div>
+                                      </div>
+                                      <div>
+                                        <div className="font-medium">
+                                          Số lượng tối thiểu
+                                        </div>
+                                        <div className="mt-1">
+                                          <Controller
+                                            name={`Qty`}
+                                            control={control}
+                                            render={({
+                                              field: { ref, ...field },
+                                              fieldState
+                                            }) => (
+                                              <div className="relative">
+                                                <InputNumber
+                                                  thousandSeparator={true}
+                                                  value={field.value}
+                                                  placeholder="Nhập số lượng"
+                                                  onValueChange={val =>
                                                     field.onChange(
-                                                      val
-                                                        ? val.filter(
-                                                            x =>
-                                                              x.value !== '*' &&
-                                                              x.value !== '-1'
-                                                          )
-                                                        : []
+                                                      typeof val?.floatValue !==
+                                                        'undefined'
+                                                        ? val.floatValue
+                                                        : ''
                                                     )
                                                   }
-                                                } else {
-                                                  field.onChange(val)
-                                                }
-                                              }}
-                                              className="select-control"
-                                              menuPosition="fixed"
-                                              styles={{
-                                                menuPortal: base => ({
-                                                  ...base,
-                                                  zIndex: 9999
-                                                })
-                                              }}
-                                              menuPortalTarget={document.body}
-                                              allOption={[
-                                                {
-                                                  label: 'Tất cả cơ sở',
-                                                  value: '*'
-                                                },
-                                                {
-                                                  label: '(Ẩn)',
-                                                  value: '-1'
-                                                }
-                                              ]}
-                                            />
-                                          )}
-                                        />
+                                                />
+                                              </div>
+                                            )}
+                                          />
+                                        </div>
                                       </div>
                                     </div>
                                     <div className="grid grid-cols-1 gap-4 mb-4 sm:grid-cols-2">

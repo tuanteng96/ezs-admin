@@ -18,7 +18,11 @@ import { ImageLazy } from 'src/_ezs/partials/images'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
 import { formatString } from 'src/_ezs/utils/formatString'
-import { PickerInventory, PickerWarehouseScale } from './components'
+import {
+  PickerInventory,
+  PickerInventoryAlmost,
+  PickerWarehouseScale
+} from './components'
 import { useAuth } from 'src/_ezs/core/Auth'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
@@ -182,7 +186,11 @@ function Inventory(props) {
         headerClassNames: () => 'justify-center adad',
         width: 80,
         cellRenderer: ({ rowData }) => (
-          <PickerInventory item={rowData} StockID={queryConfig.StockID}>
+          <PickerInventory
+            item={rowData}
+            StockID={queryConfig.StockID}
+            to={queryConfig.to}
+          >
             {({ open }) => (
               <div className="flex justify-center w-full">
                 <button
@@ -212,9 +220,7 @@ function Inventory(props) {
           <div className="text-xl font-bold sm:text-3xl dark:text-white">
             Kho & hàng tồn
           </div>
-          <div className="mt-1.5 hidden sm:block">
-            Quản lý sản phẩm còn hết của bạn trong kho
-          </div>
+          <PickerInventoryAlmost queryConfig={queryConfig} />
         </div>
         <div className="flex sm:pb-1">
           {queryConfig?.StockID && (

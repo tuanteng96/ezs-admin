@@ -4,6 +4,18 @@ import { formatObject } from '../utils/formatObject'
 const WarehouseAPI = {
   getListInventory: body =>
     http.post(`/api/v3/whouse2?${formatObject.toQueryString(body)}`),
+  getListInventoryAlmost: ({
+    Pi = 1,
+    Ps = 20,
+    To = '',
+    StockID = '',
+    Key = ''
+  }) =>
+    http.get(
+      `/api/v3/whouse2?cmd=prodinstock2&Pi=${Pi}&Ps=${Ps}&manus=&to=${To}&(filter)Only=false&(filter)RootTypeID=794&(filter)StockID=${StockID}&(filter)key=${Key}&(filter)NotDelv=false&(filter)IsPublic=1&Qty=0`
+    ),
+  getListInventoryByStock: body =>
+    http.post(`/api/v3/whouse3@Prods`, JSON.stringify(body)),
   getListSupplier: body =>
     http.post(`/api/v3/SupplierTable?${formatObject.toQueryString(body)}`),
   getSelectSupplier: key =>
