@@ -26,6 +26,7 @@ import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import Tooltip from 'rc-tooltip'
 import Swal from 'sweetalert2'
 import ExcelHepers from 'src/_ezs/utils/ExcelHepers'
+import { useCatalogue } from 'src/app/pages/Catalogue/CatalogueLayout'
 
 function WareHouseExportStock(props) {
   const navigate = useNavigate()
@@ -36,6 +37,8 @@ function WareHouseExportStock(props) {
     'xuat_nhap_ten_slg',
     'adminTools_byStock'
   ])
+
+  const { hasWarehouse } = useCatalogue()
 
   const queryClient = useQueryClient()
 
@@ -1250,39 +1253,41 @@ function WareHouseExportStock(props) {
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-2.5 px-4 py-4 border-t lg:px-6 border-separator">
-                  {id && xuat_nhap_diem?.hasRight && (
-                    <Button
-                      type="button"
-                      className="relative flex items-center justify-center w-full h-12 px-4 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
-                      onClick={onExport}
-                    >
-                      Xuất Excel
-                    </Button>
-                  )}
-
-                  <Button
-                    disabled={
-                      updateMutation.isLoading ||
-                      (!adminTools_byStock?.hasRight &&
-                        data &&
-                        moment().format('DD-MM-YYYY') !==
-                          moment(data?.CreateDate).format('DD-MM-YYYY'))
-                    }
-                    loading={updateMutation.isLoading}
-                    type="submit"
-                    className="relative flex items-center justify-center w-full h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
-                  >
-                    {!adminTools_byStock?.hasRight &&
-                    data &&
-                    moment().format('DD-MM-YYYY') !==
-                      moment(data?.CreateDate).format('DD-MM-YYYY') ? (
-                      <>Không thể chỉnh sửa</>
-                    ) : (
-                      <>{id ? 'Cập nhật' : 'Thêm mới'}</>
+                {!hasWarehouse && (
+                  <div className="flex gap-2.5 px-4 py-4 border-t lg:px-6 border-separator">
+                    {id && xuat_nhap_diem?.hasRight && (
+                      <Button
+                        type="button"
+                        className="relative flex items-center justify-center w-full h-12 px-4 text-white transition rounded shadow-lg bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                        onClick={onExport}
+                      >
+                        Xuất Excel
+                      </Button>
                     )}
-                  </Button>
-                </div>
+
+                    <Button
+                      disabled={
+                        updateMutation.isLoading ||
+                        (!adminTools_byStock?.hasRight &&
+                          data &&
+                          moment().format('DD-MM-YYYY') !==
+                            moment(data?.CreateDate).format('DD-MM-YYYY'))
+                      }
+                      loading={updateMutation.isLoading}
+                      type="submit"
+                      className="relative flex items-center justify-center w-full h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                    >
+                      {!adminTools_byStock?.hasRight &&
+                      data &&
+                      moment().format('DD-MM-YYYY') !==
+                        moment(data?.CreateDate).format('DD-MM-YYYY') ? (
+                        <>Không thể chỉnh sửa</>
+                      ) : (
+                        <>{id ? 'Cập nhật' : 'Thêm mới'}</>
+                      )}
+                    </Button>
+                  </div>
+                )}
               </div>
               <LoadingComponentFull
                 bgClassName="bg-white dark:bg-dark-aside z-[10]"

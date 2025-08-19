@@ -33,7 +33,7 @@ import moment from 'moment'
 function Inventory(props) {
   const { CrStocks } = useAuth()
   const { GlobalConfig } = useLayout()
-  const { openMenu } = useCatalogue()
+  const { openMenu, hasWarehouse } = useCatalogue()
   const navigate = useNavigate()
   const { pathname, search } = useLocation()
   const queryParams = useQueryParams()
@@ -223,7 +223,7 @@ function Inventory(props) {
           <PickerInventoryAlmost queryConfig={queryConfig} />
         </div>
         <div className="flex sm:pb-1">
-          {queryConfig?.StockID && (
+          {queryConfig?.StockID && !hasWarehouse && (
             <PickerWarehouseScale queryConfig={queryConfig}>
               {({ open }) => (
                 <button

@@ -19,11 +19,13 @@ import {
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import { useAuth } from 'src/_ezs/core/Auth'
+import { useCatalogue } from 'src/app/pages/Catalogue/CatalogueLayout'
 
 function IeProcessedImport(props) {
   const navigate = useNavigate()
   const { pathname, state, search } = useLocation()
   const { id } = useParams()
+  const { hasWarehouse } = useCatalogue()
 
   const queryClient = useQueryClient()
 
@@ -149,6 +151,7 @@ function IeProcessedImport(props) {
               rules={{ required: true }}
               render={({ field: { ref, ...field }, fieldState }) => (
                 <SelectProdCode
+                  isDisabled={hasWarehouse}
                   className={clsx(
                     'select-control',
                     fieldState?.invalid && 'select-control-error'
@@ -253,6 +256,7 @@ function IeProcessedImport(props) {
             render={({ field: { ref, ...field }, fieldState }) => (
               <>
                 <InputNumber
+                  disabled={hasWarehouse}
                   className={clsx('px-3 py-2.5')}
                   placeholder="Nhập SL"
                   value={field.value}
@@ -398,6 +402,7 @@ function IeProcessedImport(props) {
                 placeholder="Nhập ghi chú"
                 autoComplete="off"
                 type="text"
+                disabled={hasWarehouse}
                 {...field}
               />
             )}
@@ -455,11 +460,12 @@ function IeProcessedImport(props) {
         width: 110,
         sortable: false,
         align: 'center',
-        frozen: 'right'
+        frozen: 'right',
+        hidden: hasWarehouse
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [fields, watchForm?.items]
+    [fields, watchForm?.items, hasWarehouse]
   )
 
   const onUpdate = () => {
@@ -625,6 +631,7 @@ function IeProcessedImport(props) {
                               }
                               {...field}
                               dateFormat="dd/MM/yyyy"
+                              disabled={hasWarehouse}
                             />
                           )}
                         />
@@ -644,6 +651,7 @@ function IeProcessedImport(props) {
                               placeholder="Nhập mã đơn"
                               autoComplete="off"
                               type="text"
+                              disabled={hasWarehouse}
                               {...field}
                             />
                           )}
@@ -692,6 +700,7 @@ function IeProcessedImport(props) {
                                 })
                               }}
                               menuPortalTarget={document.body}
+                              isDisabled={hasWarehouse}
                             />
                           )}
                         />
@@ -720,6 +729,7 @@ function IeProcessedImport(props) {
                                   zIndex: 9999
                                 })
                               }}
+                              isDisabled={hasWarehouse}
                             />
                           )}
                         />
@@ -740,6 +750,7 @@ function IeProcessedImport(props) {
                                 fieldState
                               }) => (
                                 <InputNumber
+                                  disabled={hasWarehouse}
                                   thousandSeparator={true}
                                   value={field.value}
                                   placeholder="Nhập số tiền"
@@ -763,6 +774,7 @@ function IeProcessedImport(props) {
                               }) => (
                                 <div className="relative">
                                   <InputNumber
+                                    disabled={hasWarehouse}
                                     thousandSeparator={true}
                                     value={field.value}
                                     placeholder="Nhập số tiền"
@@ -805,6 +817,7 @@ function IeProcessedImport(props) {
                                   onValueChange={val =>
                                     field.onChange(val.floatValue || '')
                                   }
+                                  disabled={hasWarehouse}
                                 />
                               )}
                             />
@@ -827,6 +840,7 @@ function IeProcessedImport(props) {
                               value={field.value}
                               onChange={field.onChange}
                               rows={3}
+                              disabled={hasWarehouse}
                               {...field}
                             />
                           )}

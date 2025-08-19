@@ -29,7 +29,7 @@ import ExcelHepers from 'src/_ezs/utils/ExcelHepers'
 
 function ImportExport(props) {
   const { CrStocks, auth } = useAuth()
-  const { openMenu } = useCatalogue()
+  const { openMenu, hasWarehouse } = useCatalogue()
   const navigate = useNavigate()
   const { pathname, search } = useLocation()
   const queryParams = useQueryParams()
@@ -350,20 +350,21 @@ function ImportExport(props) {
                   </NavLink>
                 </div>
               )}
-              {(adminTools_byStock?.hasRight ||
-                (!adminTools_byStock?.hasRight &&
-                  moment().format('DD-MM-YYYY') ===
-                    moment(rowData.CreateDate).format('DD-MM-YYYY'))) && (
-                <div>
-                  <button
-                    type="button"
-                    className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light font-inter transition cursor-pointer dark:text-white text-danger"
-                    onClick={() => onDelete(rowData)}
-                  >
-                    Xóa đơn
-                  </button>
-                </div>
-              )}
+              {!hasWarehouse &&
+                (adminTools_byStock?.hasRight ||
+                  (!adminTools_byStock?.hasRight &&
+                    moment().format('DD-MM-YYYY') ===
+                      moment(rowData.CreateDate).format('DD-MM-YYYY'))) && (
+                  <div>
+                    <button
+                      type="button"
+                      className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light font-inter transition cursor-pointer dark:text-white text-danger"
+                      onClick={() => onDelete(rowData)}
+                    >
+                      Xóa đơn
+                    </button>
+                  </div>
+                )}
             </DropdownMenu>
           </div>
         ),
@@ -423,8 +424,7 @@ function ImportExport(props) {
                 let Title = ''
                 if (item.Target > 0) {
                   Title = `Đến cơ sở ${item?.TargetTitle}`
-                }
-                else if (item?.Other) {
+                } else if (item?.Other) {
                   var text = item?.Other
                   var regex = /\[([^\][]*)]/g
                   var results = [],
@@ -467,7 +467,7 @@ function ImportExport(props) {
                 }
               }
             }
-            
+
             let TotalRow = Response.length
             let TotalColumn = Head.length
 
@@ -586,6 +586,7 @@ function ImportExport(props) {
           >
             <AdjustmentsVerticalIcon className="w-6 sm:w-7" />
           </NavLink>
+
           <Menu as="div" className="relative">
             <div>
               <Menu.Button className="relative flex items-center justify-center w-10 h-10 text-white transition rounded shadow-lg sm:w-12 sm:h-12 md:w-auto md:px-4 bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70">
@@ -605,36 +606,41 @@ function ImportExport(props) {
             >
               <Menu.Items className="z-[1001] absolute right-0 rounded px-0 py-2 border-0 w-[225px] bg-white shadow-lg shadow-blue-gray-500/10 dark:bg-site-aside dark:shadow-dark-shadow">
                 <div>
-                  <Menu.Item>
-                    <NavLink
-                      to={{
-                        pathname: 'import',
-                        search: search
-                      }}
-                      state={{
-                        prevFrom: pathname,
-                        queryConfig
-                      }}
-                      className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
-                    >
-                      Đơn nhập kho
-                    </NavLink>
-                  </Menu.Item>
-                  <Menu.Item>
-                    <NavLink
-                      to={{
-                        pathname: 'export',
-                        search: search
-                      }}
-                      state={{
-                        prevFrom: pathname,
-                        queryConfig
-                      }}
-                      className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
-                    >
-                      Đơn xuất kho
-                    </NavLink>
-                  </Menu.Item>
+                  {!hasWarehouse && (
+                    <>
+                      <Menu.Item>
+                        <NavLink
+                          to={{
+                            pathname: 'import',
+                            search: search
+                          }}
+                          state={{
+                            prevFrom: pathname,
+                            queryConfig
+                          }}
+                          className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                        >
+                          Đơn nhập kho
+                        </NavLink>
+                      </Menu.Item>
+                      <Menu.Item>
+                        <NavLink
+                          to={{
+                            pathname: 'export',
+                            search: search
+                          }}
+                          state={{
+                            prevFrom: pathname,
+                            queryConfig
+                          }}
+                          className="w-full text-[15px] flex items-center px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                        >
+                          Đơn xuất kho
+                        </NavLink>
+                      </Menu.Item>
+                    </>
+                  )}
+
                   <Menu.Item>
                     <NavLink
                       to={{
@@ -649,29 +655,33 @@ function ImportExport(props) {
                       Xuất kho làm nguyên liệu
                     </NavLink>
                   </Menu.Item>
-                  <Menu.Item>
-                    <NavLink
-                      to={{
-                        pathname: 'export-stock',
-                        search: search
-                      }}
-                      state={{
-                        prevFrom: pathname,
-                        queryConfig
-                      }}
-                      className="w-full text-[15px] flex flex-col px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
-                    >
-                      Xuất chuyển đổi cơ sở
-                    </NavLink>
-                  </Menu.Item>
-                  <Menu.Item>
-                    <div
-                      className="w-full text-[15px] text-danger flex flex-col px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-danger font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
-                      onClick={onExport}
-                    >
-                      Xuất Excel
-                    </div>
-                  </Menu.Item>
+                  {!hasWarehouse && (
+                    <>
+                      <Menu.Item>
+                        <NavLink
+                          to={{
+                            pathname: 'export-stock',
+                            search: search
+                          }}
+                          state={{
+                            prevFrom: pathname,
+                            queryConfig
+                          }}
+                          className="w-full text-[15px] flex flex-col px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-primary font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                        >
+                          Xuất chuyển đổi cơ sở
+                        </NavLink>
+                      </Menu.Item>
+                      <Menu.Item>
+                        <div
+                          className="w-full text-[15px] text-danger flex flex-col px-5 py-2.5 hover:bg-[#F4F6FA] dark:hover:bg-dark-light hover:text-danger font-inter transition cursor-pointer dark:hover:text-primary dark:text-white"
+                          onClick={onExport}
+                        >
+                          Xuất Excel
+                        </div>
+                      </Menu.Item>
+                    </>
+                  )}
                 </div>
               </Menu.Items>
             </Transition>

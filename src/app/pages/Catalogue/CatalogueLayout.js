@@ -20,8 +20,9 @@ const useCatalogue = () => {
 
 function CatalogueLayout({ paths, isReceive }) {
   const { pathname } = useLocation()
-  const { CrStocks } = useAuth()
+  const { CrStocks, auth } = useAuth()
   const [isOpenMenu, setIsOpenMenu] = useState(false)
+  const [hasWarehouse, setHasWarehouse] = useState(false)
 
   const { xuat_nhap, xuat_nhap_ten_slg, xuat_nhap_diem } = useRoles([
     'xuat_nhap',
@@ -33,6 +34,14 @@ function CatalogueLayout({ paths, isReceive }) {
     if (isOpenMenu) setIsOpenMenu(false)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname])
+
+  useEffect(() => {
+    if (auth.Groups && auth.Groups.length > 0) {
+      setHasWarehouse(
+        auth.Groups.some(x => x.Title.toUpperCase().indexOf('KHO LỄ TÂN') > -1)
+      )
+    }
+  }, [auth])
 
   const { data } = useQuery({
     queryKey: ['ReceiveStock', CrStocks],
@@ -52,6 +61,7 @@ function CatalogueLayout({ paths, isReceive }) {
     <CatalogueContext.Provider
       value={{
         isOpenMenu,
+        hasWarehouse,
         openMenu: () => setIsOpenMenu(true),
         hideMenu: () => setIsOpenMenu(false)
       }}
@@ -70,22 +80,26 @@ function CatalogueLayout({ paths, isReceive }) {
             </div>
             <ul>
               {paths &&
-                paths.map(({ to, name }, index) => (
-                  <li key={index}>
-                    <NavLink
-                      className={({ isActive }) =>
-                        clsx(
-                          'block px-4 py-3 text-[15px] rounded-md font-medium hover:bg-primarylight hover:text-primary dark:hover:bg-dark-light transition mt-1 dark:text-white',
-                          isActive &&
-                            'bg-primarylight text-primary dark:bg-dark-light'
-                        )
-                      }
-                      to={to}
-                    >
-                      {name}
-                    </NavLink>
-                  </li>
-                ))}
+                paths
+                  .filter(x =>
+                    x.to === '/catalogue/supplier' ? !hasWarehouse : true
+                  )
+                  .map(({ to, name }, index) => (
+                    <li key={index}>
+                      <NavLink
+                        className={({ isActive }) =>
+                          clsx(
+                            'block px-4 py-3 text-[15px] rounded-md font-medium hover:bg-primarylight hover:text-primary dark:hover:bg-dark-light transition mt-1 dark:text-white',
+                            isActive &&
+                              'bg-primarylight text-primary dark:bg-dark-light'
+                          )
+                        }
+                        to={to}
+                      >
+                        {name}
+                      </NavLink>
+                    </li>
+                  ))}
               {isReceive && data && data.length > 0 && (
                 <li>
                   <NavLink
