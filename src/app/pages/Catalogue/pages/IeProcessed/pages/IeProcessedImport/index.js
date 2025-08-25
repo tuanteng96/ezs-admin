@@ -21,6 +21,7 @@ import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import { useAuth } from 'src/_ezs/core/Auth'
 import { useCatalogue } from 'src/app/pages/Catalogue/CatalogueLayout'
 import ExcelHepers from 'src/_ezs/utils/ExcelHepers'
+import moment from 'moment'
 
 function IeProcessedImport(props) {
   const navigate = useNavigate()
@@ -535,6 +536,7 @@ function IeProcessedImport(props) {
         ...values,
         ie: {
           ...values.ie,
+          CreateDate: moment().format('YYYY-MM-DD HH:mm'),
           stockItems: values.items.map(x => ({
             ...x,
             ProdTitle: x.ProdTitle.text,

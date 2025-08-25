@@ -13,6 +13,7 @@ import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import { Button } from 'src/_ezs/partials/button'
 import { DropdownMenu } from 'src/_ezs/partials/dropdown'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
+import ExcelHepers from 'src/_ezs/utils/ExcelHepers'
 
 const ButtonAction = ({ item }) => {
   const queryClient = useQueryClient()
@@ -295,6 +296,109 @@ function PickerInventory({ children, item, StockID, to }) {
     [byStock]
   )
 
+  const onExport = () => {
+    if (!dataStocks || !dataStocks.Stocks) return
+    window?.top?.loading &&
+      window?.top?.loading('Đang thực hiện ...', () => {
+        ExcelHepers.dataToExcel(
+          'ton-theo-co-so-' + dataStocks?.Prod?.Title,
+          (sheet, workbook) => {
+            workbook.suspendPaint()
+            workbook.suspendEvent()
+            let Head = ['CƠ SỞ', 'SỐ LƯỢNG']
+
+            let Response = [Head]
+
+            for (let item of dataStocks?.Stocks || []) {
+              let newArray = [item.StockTitle, item.Qty]
+              Response.push(newArray)
+            }
+
+            let TotalRow = Response.length
+            let TotalColumn = Head.length
+
+            sheet.setArray(2, 0, Response)
+
+            //title
+            workbook
+              .getActiveSheet()
+              .getCell(0, 0)
+              .value(
+                'Tồn theo cơ sở đến ngày (' + dataStocks?.Prod?.Title + ')'
+              )
+            workbook.getActiveSheet().getCell(0, 0).font('18pt Arial')
+
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, 1, TotalColumn)
+              .font('12pt Arial')
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, 1, TotalColumn)
+              .backColor('#E7E9EB')
+            //border
+            var border = new window.GC.Spread.Sheets.LineBorder()
+            border.color = '#000'
+            border.style = window.GC.Spread.Sheets.LineStyle.thin
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderLeft(border)
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderRight(border)
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderBottom(border)
+            workbook
+              .getActiveSheet()
+              .getRange(2, 0, TotalRow, TotalColumn)
+              .borderTop(border)
+            //filter
+            var cellrange = new window.GC.Spread.Sheets.Range(
+              3,
+              0,
+              1,
+              TotalColumn
+            )
+            var hideRowFilter =
+              new window.GC.Spread.Sheets.Filter.HideRowFilter(cellrange)
+            workbook.getActiveSheet().rowFilter(hideRowFilter)
+
+            //format number
+            workbook
+              .getActiveSheet()
+              .getCell(2, 0)
+              .hAlign(window.GC.Spread.Sheets.HorizontalAlign.center)
+
+            //auto fit width and height
+            workbook.getActiveSheet().autoFitRow(TotalRow + 2)
+            workbook.getActiveSheet().autoFitRow(0)
+
+            workbook
+              .getActiveSheet()
+              .setColumnWidth(
+                0,
+                400.0,
+                window.GC.Spread.Sheets.SheetArea.viewport
+              )
+
+            for (let i = 1; i < TotalColumn; i++) {
+              workbook.getActiveSheet().autoFitColumn(i)
+            }
+
+            window.top?.toastr?.remove()
+
+            //Finish
+            workbook.resumePaint()
+            workbook.resumeEvent()
+          }
+        )
+      })
+  }
+
   return (
     <>
       {children({
@@ -346,7 +450,7 @@ function PickerInventory({ children, item, StockID, to }) {
                     </div>
                   </div>
                   <ReactBaseTable
-                    pagination
+                    pagination={!byStock}
                     wrapClassName="grow p-4 lg:p-6"
                     paginationClassName="flex items-center justify-between w-full px-4 pb-4 lg:px-6 lg:pb-6"
                     rowKey="ID"
@@ -372,6 +476,18 @@ function PickerInventory({ children, item, StockID, to }) {
                         Ps: pageSize
                       }))
                     }}
+                    footerHeight={byStock ? 60 : 0}
+                    footerRenderer={() => (
+                      <div className="flex justify-end pt-3">
+                        <Button
+                          type="button"
+                          className="relative text-[14px] flex items-center justify-center h-12 px-4 text-white transition rounded shadow-lg w-[110px] bg-primary hover:bg-primaryhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                          onClick={onExport}
+                        >
+                          Xuất Excel
+                        </Button>
+                      </div>
+                    )}
                   />
                 </div>
               </m.div>
