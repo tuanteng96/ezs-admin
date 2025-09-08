@@ -55,6 +55,8 @@ function PickerSettings({ children, initialValues, onChange }) {
           isDemo: false,
           SignType: 0,
           InvSeries: '1C25MEZ',
+          name: 'Hoá đơn giá trị gia tăng máy tính tiền',
+          init_invoice: 'HDGTGTMTT',
           INVOICE_APPID_HDPAVN: '',
           INVOICE_SECRET_HDPAVN: ''
         }
@@ -150,6 +152,10 @@ function PickerSettings({ children, initialValues, onChange }) {
       return 'Môi trường thử nghiệm'
     } else if (text === 'SignType') {
       return 'Loại xuất hóa đơn'
+    } else if (text === 'init_invoice') {
+      return 'Mã khởi tạo (INIT INVOICE)'
+    } else if (text === 'name') {
+      return 'Tên hóa đơn (NAME)'
     }
     return text
   }

@@ -85,5 +85,13 @@ export const formatArray = {
       }
     }
     return data
+  },
+  mergeArrays: (arr1, arr2) => {
+    return arr2.map(item2 => {
+      const item1 = arr1.find(x => x.Code === item2.Code)
+      if (!item1) return item2
+      const merged = { ...item1, ...item2 }
+      return merged
+    })
   }
 }

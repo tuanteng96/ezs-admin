@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 import InvoiceAPI from '../api/invoice.api'
 import ConfigAPI from '../api/config'
 import { useLocation } from 'react-router'
+import { formatArray } from '../utils/formatArray'
 
 const LayoutContext = createContext()
 
@@ -89,6 +90,8 @@ const LayoutProvider = ({ children }) => {
           TestUrl: 'https://cphoadonuat.hoadon30s.vn',
           SignType: 0,
           InvSeries: '1C25MEZ',
+          name: 'Hoá đơn giá trị gia tăng máy tính tiền',
+          init_invoice: 'HDGTGTMTT',
           INVOICE_APPID_HDPAVN: '',
           INVOICE_SECRET_HDPAVN: '',
           isActive: false,
@@ -98,7 +101,8 @@ const LayoutProvider = ({ children }) => {
       if (Config?.data?.data && Config?.data?.data.length > 0) {
         let { Value } = Config?.data?.data[0]
         if (Value) {
-          newInvoiceTypes = JSON.parse(Value)
+          let newValue = JSON.parse(Value)
+          newInvoiceTypes = formatArray.mergeArrays(newInvoiceTypes, newValue)
         }
       }
       if (data?.ENV) {

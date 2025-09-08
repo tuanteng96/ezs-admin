@@ -219,7 +219,8 @@ function ElectronicInvoice(props) {
               })
 
               let dataPost = {
-                init_invoice: 'HDGTGTMTT',
+                init_invoice:
+                  InvoiceConfig?.InvoiceActive?.init_invoice || 'Lỗi',
                 action: 'create',
                 id_attr: '',
                 reference_id: '',
@@ -229,7 +230,7 @@ function ElectronicInvoice(props) {
                   CDate: moment(bill.CDate).format('DD-MM-YYYY')
                 }),
                 invoice_type: '',
-                name: 'Hoá đơn giá trị gia tăng máy tính tiền',
+                name: InvoiceConfig?.InvoiceActive?.name || 'Lỗi',
                 serial: InvoiceConfig?.InvoiceActive?.InvSeries,
                 date_export: moment().format('YYYY-MM-DD'),
                 customer: {
