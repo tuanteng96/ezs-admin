@@ -22,6 +22,7 @@ import { useAuth } from 'src/_ezs/core/Auth'
 import { useCatalogue } from 'src/app/pages/Catalogue/CatalogueLayout'
 import ExcelHepers from 'src/_ezs/utils/ExcelHepers'
 import moment from 'moment'
+import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 
 function IeProcessedImport(props) {
   const navigate = useNavigate()
@@ -30,6 +31,7 @@ function IeProcessedImport(props) {
   const { hasWarehouse } = useCatalogue()
 
   const queryClient = useQueryClient()
+  const { GlobalConfig } = useLayout()
 
   const { xuat_nhap_diem, xuat_nhap_ten_slg, xuat_nhap } = useRoles([
     'xuat_nhap_diem',
@@ -80,7 +82,19 @@ function IeProcessedImport(props) {
         cmd: 'getie_id',
         id: id
       })
-      return data?.data
+
+      let result = data?.data ? { ...data?.data } : null
+      
+      if (Boolean(GlobalConfig?.Admin?.dinh_dang_ma_don_nhap_xuat_kho)) {
+        let { data: rs } = await WarehouseAPI.getListInventory({
+          cmd: 'getie_id',
+          id: 'typeN'
+        })
+        if (result && rs?.data?.Code) {
+          result.Code = rs?.data?.Code
+        }
+      }
+      return result
     },
     onSuccess: data => {
       if (data) {

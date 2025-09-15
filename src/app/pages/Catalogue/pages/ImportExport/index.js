@@ -28,7 +28,7 @@ import clsx from 'clsx'
 import ExcelHepers from 'src/_ezs/utils/ExcelHepers'
 
 function ImportExport(props) {
-  const { CrStocks, auth } = useAuth()
+  const { CrStocks, auth, Stocks } = useAuth()
   const { openMenu, hasWarehouse } = useCatalogue()
   const navigate = useNavigate()
   const { pathname, search } = useLocation()
@@ -37,7 +37,7 @@ function ImportExport(props) {
     'xuat_nhap_diem',
     'adminTools_byStock'
   ])
-
+  console.log(Stocks)
   const queryConfig = {
     cmd: 'getie',
     Pi: queryParams.Pi || 1,

@@ -27,6 +27,7 @@ const AuthProvider = ({ children }) => {
     if (auth) {
       let newStocks = auth.Stocks
         ? auth.Stocks.filter(x => x.ParentID !== 0).map(x => ({
+            ...x,
             Title: x.Title,
             ID: x.ID,
             value: x.ID,
@@ -35,6 +36,7 @@ const AuthProvider = ({ children }) => {
         : []
       let newStocksRights = auth.StockRights
         ? auth.StockRights.map(x => ({
+          ...x,
             Title: x.Title,
             ID: x.ID,
             value: x.ID,

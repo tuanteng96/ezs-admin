@@ -1,5 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import {
+  ArrowPathIcon,
   ExclamationCircleIcon,
   PlusIcon,
   TrashIcon,
@@ -952,6 +953,52 @@ function WareHouseImport(props) {
       })
   }
 
+  const checkWarehouse = async () => {
+    let { items, ie } = watchForm
+
+    let newQueryConfig = {
+      cmd: 'prodinstock',
+      Pi: 1,
+      Ps: items.length,
+      manus: '',
+      to: moment(ie.CreateDate).format('HH:mm DD/MM/YYYY'), //10:38 15/09/2025
+      '(filter)Only': true,
+      '(filter)RootTypeID': 794,
+      '(filter)StockID': ie.Source,
+      '(filter)key': '',
+      '(filter)NotDelv': false,
+      '(filter)IsPublic': true,
+      '(filter)Ids': items.map(x => x.ProdId).toString(),
+      Qty: 0,
+      cankho: 1
+    }
+    let { data } = await WarehouseAPI.getListInventory(newQueryConfig)
+
+    let newItems = [...(items || [])]
+    if (data?.data?.list && data?.data?.list.length > 0) {
+      newItems = newItems.map(item => {
+        let newItem = { ...item }
+        let index = data?.data?.list.findIndex(x => x.ProdID === item.ProdId)
+        if (index > -1) {
+          let Qty = data?.data?.list[index].Qty
+
+          if (item.Desc) {
+            const match = item.Desc.match(/Số lượng sau cân kho:\s*(\d+)/)
+            const quantity = match ? parseInt(match[1], 10) : null
+
+            if (quantity) {
+            }
+
+            console.log('SL cân kho:', item.Qty)
+            console.log('Tại thời điểm đó:', Qty)
+            console.log('Sau cân kho:', quantity)
+          }
+        }
+        return newItem
+      })
+    }
+  }
+
   return (
     <LayoutGroup key={pathname}>
       <div className="fixed w-full h-full z-[1002] top-0 left-0">
@@ -1269,6 +1316,19 @@ function WareHouseImport(props) {
                 </div>
                 {!hasWarehouse && (
                   <div className="flex gap-2.5 px-4 py-4 border-t lg:px-6 border-separator">
+                    {/* {data &&
+                      data?.ID &&
+                      data?.Code &&
+                      data.Code.startsWith('CK-') && (
+                        <Button
+                          onClick={() => checkWarehouse()}
+                          type="button"
+                          className="w-[48px] h-12 min-w-[48px] flex items-center justify-center text-warning cursor-pointer border rounded border-gray-300"
+                        >
+                          <ArrowPathIcon className="w-6" />
+                        </Button>
+                      )} */}
+
                     {id && xuat_nhap_diem?.hasRight && (
                       <Button
                         type="button"
