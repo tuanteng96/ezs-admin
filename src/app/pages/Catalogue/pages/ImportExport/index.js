@@ -37,7 +37,7 @@ function ImportExport(props) {
     'xuat_nhap_diem',
     'adminTools_byStock'
   ])
-  console.log(Stocks)
+
   const queryConfig = {
     cmd: 'getie',
     Pi: queryParams.Pi || 1,

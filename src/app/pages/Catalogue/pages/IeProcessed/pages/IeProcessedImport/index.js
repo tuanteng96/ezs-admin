@@ -84,7 +84,7 @@ function IeProcessedImport(props) {
       })
 
       let result = data?.data ? { ...data?.data } : null
-      
+
       if (Boolean(GlobalConfig?.Admin?.dinh_dang_ma_don_nhap_xuat_kho)) {
         let { data: rs } = await WarehouseAPI.getListInventory({
           cmd: 'getie_id',

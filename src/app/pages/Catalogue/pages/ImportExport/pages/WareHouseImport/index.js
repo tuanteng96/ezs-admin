@@ -32,10 +32,13 @@ import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import Tooltip from 'rc-tooltip'
 import Swal from 'sweetalert2'
 import { useCatalogue } from 'src/app/pages/Catalogue/CatalogueLayout'
+import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 
 function WareHouseImport(props) {
   const navigate = useNavigate()
   const { pathname, state, search } = useLocation()
+
+  const { GlobalConfig } = useLayout()
 
   const { id } = useParams()
   const { xuat_nhap_diem, xuat_nhap_ten_slg, adminTools_byStock } = useRoles([
@@ -758,6 +761,281 @@ function WareHouseImport(props) {
     fileInput.current.click()
   }
 
+  const checkWarehouseMutation = useMutation({
+    mutationFn: async body => {
+      let ieID = data?.ID
+      let { data: rechecks } = await WarehouseAPI.recheckIE({ ID: ieID })
+
+      let ieInsert = null
+      let ieImport = null
+      let ieExport = null
+      let ieDate = null
+
+      if (rechecks?.rs && rechecks?.rs?.length > 0) {
+        ieInsert = rechecks?.rs.find(x => x.ie.ID === ieID)
+        ieImport = rechecks?.rs.find(x => x.ie.ID !== ieID && x.ie.Type === 'N')
+        ieExport = rechecks?.rs.find(x => x.ie.ID !== ieID && x.ie.Type === 'X')
+      }
+
+      if (ieImport) {
+        ieDate = ieImport.ie.CreateDate
+      }
+
+      if (ieExport) {
+        if (
+          !ieDate ||
+          (ieDate && moment(ieDate).isBefore(moment(ieExport.ie.CreateDate)))
+        ) {
+          ieDate = ieExport.ie.CreateDate
+        }
+      }
+
+      let newItems = [
+        ...(ieImport?.items || []).map(x => ({
+          ...x,
+          ieType: ieImport?.ie?.Type
+        })),
+        ...(ieExport?.items || []).map(x => ({
+          ...x,
+          ieType: ieExport?.ie?.Type
+        }))
+      ]
+
+      let newQueryConfig = {
+        cmd: 'prodinstock',
+        Pi: 1,
+        Ps: newItems.length,
+        manus: '',
+        to: moment(ieDate).format('HH:mm DD/MM/YYYY'), //10:38 15/09/2025
+        '(filter)Only': true,
+        '(filter)RootTypeID': 794,
+        '(filter)StockID': ieInsert.ie.Source,
+        '(filter)key': '',
+        '(filter)NotDelv': false,
+        '(filter)IsPublic': true,
+        '(filter)DIDs': newItems.map(x => x.ProdCode).toString(),
+        Qty: 0,
+        cankho: 1
+      }
+
+      let { data: SelectQty } = await WarehouseAPI.getListInventory(
+        newQueryConfig
+      )
+
+      if (SelectQty?.data?.list && SelectQty?.data?.list.length > 0) {
+        newItems = newItems.map(item => {
+          let newItem = { ...item }
+          if (ieInsert?.items && ieInsert?.items.length > 0) {
+            if (
+              ieInsert?.items.findIndex(x => x.ProdCode === item.ProdCode) > -1
+            ) {
+              let index = SelectQty?.data?.list.findIndex(
+                x => x.ProdCode === item.ProdCode
+              )
+              if (index > -1) {
+                let Qty = SelectQty?.data?.list[index].Qty
+
+                if (item.Desc) {
+                  const match = item.Desc.match(/Số lượng sau cân kho:\s*(\d+)/)
+                  const quantity = match ? parseInt(match[1], 10) : null
+
+                  if (quantity) {
+                    newItem.Qty = quantity - Qty
+                    if (newItem.Qty < 0) {
+                      newItem.ieType = 'X'
+                    }
+                  }
+                  // console.log('SL cân kho:', item.Qty)
+                  // console.log('Tại thời điểm đó:', Qty)
+                  // console.log('Sau cân kho:', quantity)
+                  // console.log('SL cân kho mới', newItem.Qty)
+                  // console.log('-----')
+                }
+              }
+            }
+          }
+          return newItem
+        })
+      }
+
+      if (ieInsert.items && ieInsert.items.length > 0) {
+        for (let item of ieInsert.items) {
+          let index = newItems.findIndex(x => x.ProdCode === item.ProdCode)
+          if (index === -1) {
+            newItems.push({
+              ...item,
+              ieType: ieInsert?.ie?.Type === 'N' ? 'X' : 'N'
+            })
+          }
+        }
+      }
+
+      let newImport = newItems.filter(x => x.ieType === 'N')
+      let newExport = newItems.filter(x => x.ieType === 'X')
+
+      if (newImport && newImport.length > 0) {
+        if (ieImport?.ie?.ID) {
+          // Sửa đơn
+          console.log('Sửa đơn nhập', {
+            ...ieImport,
+            ie: {
+              ...ieExport,
+              CreateDate: moment(ieImport.ie.CreateDate).format(
+                'YYYY-MM-DD HH:mm'
+              ),
+              stockItems: newImport.map(x => ({
+                ...x
+              }))
+            },
+            items: newImport
+          })
+          // await WarehouseAPI.updateImportExport({
+          //   ...ieImport,
+          //   ie: {
+          //     ...ieExport,
+          //     CreateDate: moment(ieImport.ie.CreateDate).format(
+          //       'YYYY-MM-DD HH:mm'
+          //     ),
+          //     stockItems: newImport.map(x => ({
+          //       ...x
+          //     }))
+          //   },
+          //   items: newImport
+          // })
+        } else if (ieExport) {
+          console.log('Tạo đơn nhập', newImport)
+          // Tạo đơn
+          // let { data: ieCreateN } = await WarehouseAPI.getListInventory({
+          //   cmd: 'getie_id',
+          //   id: 'typeN'
+          // })
+          // if (ieCreateN?.data) {
+          //   await WarehouseAPI.updateImportExport({
+          //     ...ieExport,
+          //     ie: {
+          //       ID: '',
+          //       Code: ieCreateN?.data?.Code || '',
+          //       SupplierID: '',
+          //       ToPay: '',
+          //       Total: '',
+          //       Type: 'N',
+          //       Other: '',
+          //       Payed: 0,
+          //       Discount: '',
+          //       Source: ieExport?.ie?.Source,
+          //       UserID: 0,
+          //       Target: 0,
+          //       TargetCreated: '',
+          //       CreateDate: ieExport?.ie?.CreateDate
+          //         ? moment(
+          //             ieExport?.ie?.CreateDate,
+          //             'YYYY-MM-DD HH:mm'
+          //           ).toDate()
+          //         : new Date(),
+          //       Summary: '',
+          //       ReceiverID: 0,
+          //       stockItems: newImport.map(x => ({
+          //         ...x
+          //       }))
+          //     },
+          //     items: newImport
+          //   })
+          // }
+        }
+      } else {
+        if (ieImport?.ie?.ID) {
+          console.log('Xoá đơn nhập', ieImport?.ie?.ID)
+          //Xoá đơn
+          // await WarehouseAPI.deleteImportExport({
+          //   cmd: 'delete_ie',
+          //   id: ieImport?.ie?.ID
+          // })
+        }
+      }
+
+      if (newExport && newExport.length > 0) {
+        if (ieExport?.ie?.ID) {
+          // Sửa đơn
+          console.log('Sửa đơn xuất', {
+            ...ieExport,
+            ie: {
+              ...ieExport,
+              CreateDate: moment(ieExport.ie.CreateDate).format(
+                'YYYY-MM-DD HH:mm'
+              ),
+              stockItems: newExport.map(x => ({
+                ...x
+              }))
+            },
+            items: newExport
+          })
+          // await WarehouseAPI.updateImportExport({
+          //   ...ieExport,
+          //   ie: {
+          //     ...ieExport,
+          //     CreateDate: moment(ieExport.ie.CreateDate).format(
+          //       'YYYY-MM-DD HH:mm'
+          //     ),
+          //     stockItems: newExport.map(x => ({
+          //       ...x
+          //     }))
+          //   },
+          //   items: newExport
+          // })
+        } else if (ieImport) {
+          console.log('Tạo đơn xuất', newExport)
+          // Tạo đơn
+          // let { data: ieCreateX } = await WarehouseAPI.getListInventory({
+          //   cmd: 'getie_id',
+          //   id: 'typeX'
+          // })
+          // if (ieCreateX?.data) {
+          //   await WarehouseAPI.updateImportExport({
+          //     ...ieExport,
+          //     ie: {
+          //       ID: '',
+          //       Code: ieCreateX?.data?.Code || '',
+          //       SupplierID: '',
+          //       ToPay: '',
+          //       Total: '',
+          //       Type: 'X',
+          //       Other: '',
+          //       Payed: 0,
+          //       Discount: '',
+          //       Source: ieImport?.ie?.Source,
+          //       UserID: 0,
+          //       Target: 0,
+          //       TargetCreated: '',
+          //       CreateDate: ieImport?.ie?.CreateDate
+          //         ? moment(
+          //             ieImport?.ie?.CreateDate,
+          //             'YYYY-MM-DD HH:mm'
+          //           ).toDate()
+          //         : new Date(),
+          //       Summary: '',
+          //       ReceiverID: 0,
+          //       stockItems: newExport.map(x => ({
+          //         ...x
+          //       }))
+          //     },
+          //     items: newExport
+          //   })
+          // }
+        }
+      } else {
+        if (ieExport?.ie?.ID) {
+          console.log('Xoá đơn xuất', ieExport?.ie?.ID)
+          //Xoá đơn
+          // await WarehouseAPI.deleteImportExport({
+          //   cmd: 'delete_ie',
+          //   id: ieExport?.ie?.ID
+          // })
+        }
+      }
+      return null
+    }
+  })
+
   const uploadMutation = useMutation({
     mutationFn: async body => {
       const file = await UploadsAPI.sendFile(body)
@@ -954,48 +1232,41 @@ function WareHouseImport(props) {
   }
 
   const checkWarehouse = async () => {
-    let { items, ie } = watchForm
+    checkWarehouseMutation.mutate(
+      {},
+      {
+        onSuccess: () => {
+          console.log('Done')
+        }
+      }
+    )
+  }
 
-    let newQueryConfig = {
-      cmd: 'prodinstock',
-      Pi: 1,
-      Ps: items.length,
-      manus: '',
-      to: moment(ie.CreateDate).format('HH:mm DD/MM/YYYY'), //10:38 15/09/2025
-      '(filter)Only': true,
-      '(filter)RootTypeID': 794,
-      '(filter)StockID': ie.Source,
-      '(filter)key': '',
-      '(filter)NotDelv': false,
-      '(filter)IsPublic': true,
-      '(filter)Ids': items.map(x => x.ProdId).toString(),
-      Qty: 0,
-      cankho: 1
+  const recheckMutation = useMutation({
+    mutationFn: async body => {
+      let { data } = await WarehouseAPI.getListInventory(body)
+      return data?.data?.Code || null
     }
-    let { data } = await WarehouseAPI.getListInventory(newQueryConfig)
+  })
 
-    let newItems = [...(items || [])]
-    if (data?.data?.list && data?.data?.list.length > 0) {
-      newItems = newItems.map(item => {
-        let newItem = { ...item }
-        let index = data?.data?.list.findIndex(x => x.ProdID === item.ProdId)
-        if (index > -1) {
-          let Qty = data?.data?.list[index].Qty
-
-          if (item.Desc) {
-            const match = item.Desc.match(/Số lượng sau cân kho:\s*(\d+)/)
-            const quantity = match ? parseInt(match[1], 10) : null
-
-            if (quantity) {
+  const getCodeIE = ({ Date, StockID }) => {
+    let { ie } = watchForm
+    if (Boolean(GlobalConfig?.Admin?.dinh_dang_ma_don_nhap_xuat_kho) && !id) {
+      recheckMutation.mutate(
+        {
+          cmd: 'getie_id',
+          id: 'typeN',
+          date: moment(Date ? Date : ie.CreateDate).format('YYYY-MM-DD HH:mm'),
+          stockid: StockID?.value || ie?.Source
+        },
+        {
+          onSuccess: data => {
+            if (data) {
+              setValue('ie.Code', data)
             }
-
-            console.log('SL cân kho:', item.Qty)
-            console.log('Tại thời điểm đó:', Qty)
-            console.log('Sau cân kho:', quantity)
           }
         }
-        return newItem
-      })
+      )
     }
   }
 
@@ -1100,11 +1371,16 @@ function WareHouseImport(props) {
                               <InputDatePicker
                                 placeholderText="Chọn thời gian"
                                 autoComplete="off"
-                                onChange={field.onChange}
                                 selected={
                                   field.value ? new Date(field.value) : null
                                 }
                                 {...field}
+                                onChange={e => {
+                                  field.onChange(e)
+                                  getCodeIE({
+                                    Date: e
+                                  })
+                                }}
                                 dateFormat="HH:mm dd/MM/yyyy"
                                 showTimeSelect
                                 errorMessageForce={fieldState?.invalid}
@@ -1126,12 +1402,37 @@ function WareHouseImport(props) {
                             field: { ref, ...field },
                             fieldState
                           }) => (
-                            <Input
-                              placeholder="Nhập mã đơn"
-                              autoComplete="off"
-                              type="text"
-                              {...field}
-                            />
+                            <div className="relative">
+                              <Input
+                                placeholder="Nhập mã đơn"
+                                autoComplete="off"
+                                type="text"
+                                {...field}
+                              />
+                              {recheckMutation?.isLoading && (
+                                <div className="absolute top-0 right-0 flex items-center justify-center w-12 h-full">
+                                  <div role="status">
+                                    <svg
+                                      aria-hidden="true"
+                                      className="w-6 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                                      viewBox="0 0 100 101"
+                                      fill="none"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                      <path
+                                        d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                                        fill="currentColor"
+                                      />
+                                      <path
+                                        d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                                        fill="currentFill"
+                                      />
+                                    </svg>
+                                    <span className="sr-only">Loading...</span>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           )}
                         />
                       </div>
@@ -1148,7 +1449,10 @@ function WareHouseImport(props) {
                           }) => (
                             <SelectStocksWareHouse
                               value={field.value}
-                              onChange={val => field.onChange(val?.value || '')}
+                              onChange={val => {
+                                field.onChange(val?.value || '')
+                                getCodeIE({ StockID: val })
+                              }}
                               className="select-control"
                               menuPosition="fixed"
                               styles={{
@@ -1316,18 +1620,15 @@ function WareHouseImport(props) {
                 </div>
                 {!hasWarehouse && (
                   <div className="flex gap-2.5 px-4 py-4 border-t lg:px-6 border-separator">
-                    {/* {data &&
-                      data?.ID &&
-                      data?.Code &&
-                      data.Code.startsWith('CK-') && (
-                        <Button
-                          onClick={() => checkWarehouse()}
-                          type="button"
-                          className="w-[48px] h-12 min-w-[48px] flex items-center justify-center text-warning cursor-pointer border rounded border-gray-300"
-                        >
-                          <ArrowPathIcon className="w-6" />
-                        </Button>
-                      )} */}
+                    {/* {data && data?.ID && data?.Code && (
+                      <Button
+                        onClick={() => checkWarehouse()}
+                        type="button"
+                        className="w-[48px] h-12 min-w-[48px] flex items-center justify-center text-warning cursor-pointer border rounded border-gray-300"
+                      >
+                        <ArrowPathIcon className="w-6" />
+                      </Button>
+                    )} */}
 
                     {id && xuat_nhap_diem?.hasRight && (
                       <Button

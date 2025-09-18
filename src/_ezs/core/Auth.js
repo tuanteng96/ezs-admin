@@ -36,7 +36,7 @@ const AuthProvider = ({ children }) => {
         : []
       let newStocksRights = auth.StockRights
         ? auth.StockRights.map(x => ({
-          ...x,
+            ...x,
             Title: x.Title,
             ID: x.ID,
             value: x.ID,

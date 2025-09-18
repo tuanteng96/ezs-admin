@@ -42,7 +42,8 @@ const WarehouseAPI = {
   changeDate: body =>
     http.post(`/api/v3/SysAdminTools@Importexport`, JSON.stringify(body)),
   selectProdsQuery: body =>
-    http.post(`/api/v3/whouse3@Select`, JSON.stringify(body))
+    http.post(`/api/v3/whouse3@Select`, JSON.stringify(body)),
+  recheckIE: body => http.post(`/api/v3/whouse24@ck`, JSON.stringify(body))
 }
 
 export default WarehouseAPI
