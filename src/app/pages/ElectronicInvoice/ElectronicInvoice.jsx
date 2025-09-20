@@ -250,6 +250,7 @@ function ElectronicInvoice(props) {
                 },
                 payment_type: '3', // Tiền mặt / chuyển khoản
                 discount: 0,
+                discount_amount: 0,
                 detail: newItems.map(x => ({
                   ...x,
                   price: formatString.formatVND(x.price, ','),
@@ -286,13 +287,18 @@ function ElectronicInvoice(props) {
                 NewInvoiceID: '' //x.TransactionID + ';' + x.InvNo + ';' + x.InvCode
               }
 
+              let urlPath = '/api/invoice/create-cash-register'
+              if (InvoiceConfig?.InvoiceActive?.init_invoice === 'HDBHMTT') {
+                urlPath = '/api/invoice/create-bill-of-sale-cash-register'
+              }
+
               let exportInvoice = await invoiceMutationPA.mutateAsync({
                 url:
                   formatString.getValueENV(
                     InvoiceConfig?.InvoiceActive?.TestUrl,
                     InvoiceConfig?.InvoiceActive?.BaseUrl,
                     InvoiceConfig?.InvoiceActive?.isDemo
-                  ) + '/api/invoice/create-cash-register',
+                  ) + urlPath,
                 headers: {
                   'Content-Type': 'application/json'
                 },
@@ -324,7 +330,7 @@ function ElectronicInvoice(props) {
                   body: {
                     id_attr: '',
                     id_partner: dataPost?.id_partner,
-                    type: 'HDGTGT'
+                    type: InvoiceConfig?.InvoiceActive?.init_invoice
                   },
                   resultType: 'json'
                 })
@@ -371,10 +377,10 @@ function ElectronicInvoice(props) {
                     method: 'POST',
                     include: 'ENV',
                     body: {
-                      init_invoice: 'HDGTGTMTT',
+                      init_invoice: InvoiceConfig?.InvoiceActive?.init_invoice,
                       id_attr: '',
                       id_partner: dataPost?.id_partner,
-                      type: 'HDGTGTMTT'
+                      type: InvoiceConfig?.InvoiceActive?.init_invoice
                     },
                     resultType: 'json'
                   })
@@ -638,6 +644,8 @@ function ElectronicInvoice(props) {
                 obj.RefID && dataPost.InvoiceData.push(obj)
               }
 
+              let urlPath = '/invoice'
+
               invoiceMutation.mutate(
                 {
                   url:
@@ -645,7 +653,7 @@ function ElectronicInvoice(props) {
                       InvoiceConfig?.InvoiceActive?.TestUrl,
                       InvoiceConfig?.InvoiceActive?.BaseUrl,
                       InvoiceConfig?.InvoiceActive?.isDemo
-                    ) + '/invoice',
+                    ) + urlPath,
                   headers: {
                     'Content-Type': 'application/json'
                   },

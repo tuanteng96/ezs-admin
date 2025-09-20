@@ -92,6 +92,7 @@ const LayoutProvider = ({ children }) => {
           InvSeries: '1C25MEZ',
           name: 'Hoá đơn giá trị gia tăng máy tính tiền',
           init_invoice: 'HDGTGTMTT',
+          //type_invoice: '1', // 1 hoá đơn công ty, 2 Hoá đơn hộ kinh doanh
           INVOICE_APPID_HDPAVN: '',
           INVOICE_SECRET_HDPAVN: '',
           isActive: false,
@@ -161,7 +162,7 @@ const LayoutProvider = ({ children }) => {
           ENV: newENV
         })
       }
-
+      
       return {
         ENV: newENV,
         InvoiceTypes: newInvoiceTypes,
