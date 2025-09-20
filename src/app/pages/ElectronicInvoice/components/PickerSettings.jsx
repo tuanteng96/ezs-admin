@@ -295,98 +295,70 @@ function PickerSettings({ children, initialValues, onChange }) {
                                     fieldState
                                   }) => (
                                     <>
-                                      {keyName === 'type_invoice' ? (
-                                        <>
-                                          <Select
-                                            isClearable={false}
-                                            value={
-                                              field.value
-                                                ? OptionTypeInvoice.find(
-                                                    x => x.value === field.value
-                                                  )
-                                                : null
-                                            }
-                                            onChange={val =>
-                                              field.onChange(val?.value || '')
-                                            }
-                                            className="select-control"
-                                            classNamePrefix="select"
-                                            options={OptionTypeInvoice}
-                                            placeholder="Chọn loại"
-                                            noOptionsMessage={() =>
-                                              'Không có dữ liệu'
-                                            }
-                                          />
-                                        </>
-                                      ) : (
-                                        <>
-                                          {typeof field.value == 'boolean' ? (
-                                            <div className="flex items-center">
-                                              <Switch
-                                                checked={field.value}
-                                                onChange={field.onChange}
-                                                as={Fragment}
-                                              >
-                                                {({ checked }) => (
-                                                  <button
-                                                    className={clsx(
-                                                      'relative inline-flex h-6 w-11 items-center rounded-full transition shadow-lg',
-                                                      checked
-                                                        ? 'bg-primary'
-                                                        : 'bg-gray-300'
-                                                    )}
-                                                  >
-                                                    <span className="sr-only">
-                                                      Enable notifications
-                                                    </span>
-                                                    <span
-                                                      className={clsx(
-                                                        'inline-block h-4 w-4 transform rounded-full bg-white transition',
-                                                        checked
-                                                          ? 'translate-x-6'
-                                                          : 'translate-x-1'
-                                                      )}
-                                                    />
-                                                  </button>
+                                      {typeof field.value == 'boolean' ? (
+                                        <div className="flex items-center">
+                                          <Switch
+                                            checked={field.value}
+                                            onChange={field.onChange}
+                                            as={Fragment}
+                                          >
+                                            {({ checked }) => (
+                                              <button
+                                                className={clsx(
+                                                  'relative inline-flex h-6 w-11 items-center rounded-full transition shadow-lg',
+                                                  checked
+                                                    ? 'bg-primary'
+                                                    : 'bg-gray-300'
                                                 )}
-                                              </Switch>
-                                              <div className="ml-3 text-[14px]">
-                                                {transferKey(keyName)}
-                                              </div>
-                                            </div>
-                                          ) : (
-                                            <div>
-                                              <Input
-                                                type={
-                                                  [
-                                                    'INVOICE_USERNAME_HDMISA',
-                                                    'INVOICE_PASSWORD_HDMISA',
-                                                    'INVOICE_SECRET_HDPAVN'
-                                                  ].includes(keyName)
-                                                    ? 'password'
-                                                    : 'text'
-                                                }
-                                                placeholder="Nhập giá trị"
-                                                value={field.value}
-                                                {...field}
-                                              />
-                                              {keyName === 'init_invoice' && (
-                                                <div className="mt-1.5 text-[13px] text-gray-500">
-                                                  HDGTGTMTT (Công ty), HDBHMTT
-                                                  (Hộ kinh doanh)
-                                                </div>
-                                              )}
-                                              {keyName === 'name' && (
-                                                <div className="mt-1.5 text-[13px] text-gray-500">
-                                                  Hoá đơn giá trị gia tăng máy
-                                                  tính tiền (Công ty), Hoá đơn
-                                                  bán hàng máy tính tiền (Hộ
-                                                  kinh doanh)
-                                                </div>
-                                              )}
+                                              >
+                                                <span className="sr-only">
+                                                  Enable notifications
+                                                </span>
+                                                <span
+                                                  className={clsx(
+                                                    'inline-block h-4 w-4 transform rounded-full bg-white transition',
+                                                    checked
+                                                      ? 'translate-x-6'
+                                                      : 'translate-x-1'
+                                                  )}
+                                                />
+                                              </button>
+                                            )}
+                                          </Switch>
+                                          <div className="ml-3 text-[14px]">
+                                            {transferKey(keyName)}
+                                          </div>
+                                        </div>
+                                      ) : (
+                                        <div>
+                                          <Input
+                                            type={
+                                              [
+                                                'INVOICE_USERNAME_HDMISA',
+                                                'INVOICE_PASSWORD_HDMISA',
+                                                'INVOICE_SECRET_HDPAVN'
+                                              ].includes(keyName)
+                                                ? 'password'
+                                                : 'text'
+                                            }
+                                            placeholder="Nhập giá trị"
+                                            value={field.value}
+                                            {...field}
+                                          />
+                                          {keyName === 'init_invoice' && (
+                                            <div className="mt-1.5 text-[13px] text-gray-500">
+                                              HDGTGTMTT (Công ty), HDBHMTT (Hộ
+                                              kinh doanh)
                                             </div>
                                           )}
-                                        </>
+                                          {keyName === 'name' && (
+                                            <div className="mt-1.5 text-[13px] text-gray-500">
+                                              Hoá đơn giá trị gia tăng máy tính
+                                              tiền (Công ty), Hoá đơn bán hàng
+                                              máy tính tiền (Hộ kinh doanh)
+                                            </div>
+                                          )}
+                                        </div>
                                       )}
                                     </>
                                   )}
