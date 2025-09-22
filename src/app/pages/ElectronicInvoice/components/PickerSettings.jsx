@@ -274,7 +274,8 @@ function PickerSettings({ children, initialValues, onChange }) {
                                 keyName !== 'Code' &&
                                 keyName !== 'BaseUrl' &&
                                 keyName !== 'TestUrl' &&
-                                keyName !== 'isActive'
+                                keyName !== 'isActive' &&
+                                keyName !== 'type_invoice'
                             ),
                             'isDemo'
                           ].map((keyName, i) => (
