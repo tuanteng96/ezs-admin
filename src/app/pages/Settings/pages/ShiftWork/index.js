@@ -103,7 +103,7 @@ function ShiftWork(props) {
     Mon: moment().toDate()
   })
 
-  const { pos_mng, cong_ca } = useRoles(['pos_mng', 'cong_ca'])
+  const { cong_ca } = useRoles(['cong_ca'])
 
   const { control, handleSubmit, reset, watch } = useForm({
     defaultValues: {
@@ -122,7 +122,8 @@ function ShiftWork(props) {
       Desc: '',
       Title: '',
       CreateDate: '', //2025-09-18
-      Mon: ''
+      Mon: '',
+      StockID: CrStocks?.ID
     }
   })
 
@@ -136,16 +137,17 @@ function ShiftWork(props) {
       top: 0,
       behavior: 'smooth' // mượt mà
     })
-  }, [containerRef, filters.Mon])
+  }, [containerRef, filters.Mon, CrStocks])
 
   const { isLoading, refetch, data } = useQuery({
-    queryKey: ['ShiftWork', filters.Mon],
+    queryKey: ['ShiftWork', { Mon: filters.Mon, CrStocks }],
     queryFn: async () => {
       const data = await SettingsAPI.getRoster({
         pi: 1,
         filter: {
           Status: '',
-          Mon: moment(filters.Mon).format('YYYY-MM')
+          Mon: moment(filters.Mon).format('YYYY-MM'),
+          StockID: CrStocks?.ID
         }
       })
       const { data: Users } = await UsersAPI.listFull({ StockID: CrStocks?.ID })
@@ -208,7 +210,8 @@ function ShiftWork(props) {
           Desc: '',
           Title: '',
           CreateDate: new Date(), //2025-09-18
-          Mon: moment(filters.Mon).format('YYYY-MM')
+          Mon: moment(filters.Mon).format('YYYY-MM'),
+          StockID: CrStocks?.ID
         })
       }
     },
@@ -238,6 +241,7 @@ function ShiftWork(props) {
         ? moment(values?.CreateDate).format('YYYY-MM-DD HH:mm')
         : moment().format('YYYY-MM-DD HH:mm')
     }
+
     addUpdateMutation.mutate(
       {
         edit: [newValues]
@@ -293,8 +297,6 @@ function ShiftWork(props) {
       })
     })
   }
-
-  let { Status, ID } = watch()
 
   return (
     <div className="relative h-full bg-white dark:bg-dark-app">
@@ -415,35 +417,52 @@ function ShiftWork(props) {
                 />
               )}
             />
+            {data?.data?.ID && (
+              <Button
+                disabled={isLoading}
+                loading={isLoading}
+                type="button"
+                className="relative flex items-center h-12 px-4 text-white transition rounded shadow-lg bg-primary hover:bg-primary focus:outline-none focus:shadow-none disabled:opacity-70"
+                onClick={() => {
+                  window?.top?.RosterPreviewModal?.(
+                    moment(filters.Mon).format('MM-YYYY')
+                  )
+                }}
+              >
+                Preview
+              </Button>
+            )}
           </div>
 
-          {(cong_ca?.hasRight
-            ? cong_ca?.hasRight
-            : Number(data?.data?.Status || 1) === 1) && (
-            <div className="flex gap-2.5">
-              <Button
-                disabled={addUpdateMutation.isLoading || isLoading}
-                loading={addUpdateMutation.isLoading || isLoading}
-                type="submit"
-                className="relative flex items-center h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
-              >
-                Lưu thay đổi
-              </Button>
-              {data?.data?.ID ? (
+          <div className="flex gap-2.5">
+            {(cong_ca?.hasRight
+              ? cong_ca?.hasRight
+              : Number(data?.data?.Status || 1) === 1) && (
+              <>
                 <Button
-                  onClick={onDelete}
-                  disabled={deleteMutation.isLoading || isLoading}
-                  loading={deleteMutation.isLoading || isLoading}
-                  type="button"
-                  className="relative flex items-center h-12 px-4 text-white transition rounded shadow-lg bg-danger hover:bg-dangerhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                  disabled={addUpdateMutation.isLoading || isLoading}
+                  loading={addUpdateMutation.isLoading || isLoading}
+                  type="submit"
+                  className="relative flex items-center h-12 px-4 text-white transition rounded shadow-lg bg-success hover:bg-successhv focus:outline-none focus:shadow-none disabled:opacity-70"
                 >
-                  Xoá cài đặt tháng {moment(filters.Mon).format('MM-YYYY')}
+                  Lưu thay đổi
                 </Button>
-              ) : (
-                <></>
-              )}
-            </div>
-          )}
+                {data?.data?.ID ? (
+                  <Button
+                    onClick={onDelete}
+                    disabled={deleteMutation.isLoading || isLoading}
+                    loading={deleteMutation.isLoading || isLoading}
+                    type="button"
+                    className="relative flex items-center h-12 px-4 text-white transition rounded shadow-lg bg-danger hover:bg-dangerhv focus:outline-none focus:shadow-none disabled:opacity-70"
+                  >
+                    Xoá cài đặt tháng {moment(filters.Mon).format('MM-YYYY')}
+                  </Button>
+                ) : (
+                  <></>
+                )}
+              </>
+            )}
+          </div>
         </div>
       </form>
     </div>

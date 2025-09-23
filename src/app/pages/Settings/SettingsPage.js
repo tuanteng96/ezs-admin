@@ -6,6 +6,7 @@ import SuspensedView from 'src/app/routing/SuspensedView'
 
 const Home = lazy(() => import('./pages/Home'))
 const ShiftWork = lazy(() => import('./pages/ShiftWork'))
+const ShiftWorkPreview = lazy(() => import('./pages/ShiftWorkPreview'))
 const SalesKPI = lazy(() => import('./pages/SalesKPI'))
 const SalesKPIClassify = lazy(() => import('./pages/SalesKPI/SalesKPIClassify'))
 const BusinessEstablishment = lazy(() =>
@@ -21,6 +22,14 @@ function SettingsPage(props) {
         element={
           <SuspensedView>
             <Home />
+          </SuspensedView>
+        }
+      />
+      <Route
+        path="shift-work/:month"
+        element={
+          <SuspensedView>
+            <ShiftWorkPreview />
           </SuspensedView>
         }
       />
