@@ -2,6 +2,35 @@ import React from 'react'
 import ConfigAPI from 'src/_ezs/api/config'
 import { AsyncPaginate } from 'react-select-async-paginate'
 
+const customStyles = {
+  multiValue: (provided, state) => {
+    let newObj = {
+      ...provided,
+      borderRadius: '6px'
+    }
+    if(state.data?.label === "DO" || state.data?.label === "AL") {
+      newObj['--color-option'] = "#f74e60"
+    }
+    else {
+      newObj['--bg-option'] = state?.data?.Color || '#f4f6fa'
+    }
+    return newObj
+  },
+  multiValueLabel: (provided, state) => ({
+    ...provided,
+    //color: '#fff', // màu chữ, có thể lấy theo state.data.color nếu muốn
+    fontWeight: 500
+  }),
+  multiValueRemove: (provided, state) => ({
+    ...provided
+    // color: '#fff',
+    // ':hover': {
+    //   backgroundColor: '#00000033',
+    //   color: '#fff'
+    // }
+  })
+}
+
 function SelectUserShifts2({
   errorMessage,
   errorMessageForce,
@@ -51,6 +80,7 @@ function SelectUserShifts2({
         placeholder="Chọn loại ca"
         noOptionsMessage={() => 'Không có dữ liệu'}
         loadingMessage={() => 'Đang tải...'}
+        styles={customStyles}
         {...props}
       />
       {errorMessage && errorMessageForce && (

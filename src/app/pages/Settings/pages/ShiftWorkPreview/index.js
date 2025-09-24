@@ -8,6 +8,7 @@ import SettingsAPI from 'src/_ezs/api/settings.api'
 import UsersAPI from 'src/_ezs/api/users.api'
 import { useAuth } from 'src/_ezs/core/Auth'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
+import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 
 function getDaysOfMonthFromDate(dateObj) {
   const date = moment(dateObj)
@@ -31,12 +32,12 @@ function getDaysOfMonthFromDate(dateObj) {
 }
 
 function ShiftWorkPreview(props) {
-  const { CrStocks } = useAuth()
-  const containerRef = useRef(null)
+  const { CrStocks, Stocks } = useAuth()
+  const { GlobalConfig } = useLayout()
   let { month } = useParams()
 
-  const { isLoading, refetch, data } = useQuery({
-    queryKey: ['ShiftWorkPreview', { month, CrStocks }],
+  const { isLoading, data } = useQuery({
+    queryKey: ['ShiftWorkPreview', { month, CrStocks, GlobalConfig }],
     queryFn: async () => {
       const { data: Rosters } = await SettingsAPI.getRoster({
         pi: 1,
@@ -46,9 +47,18 @@ function ShiftWorkPreview(props) {
           StockID: CrStocks?.ID
         }
       })
-      const { data: UsersRs } = await UsersAPI.listFull({
-        StockID: CrStocks?.ID
-      })
+      let UsersRs = null
+      if (!GlobalConfig?.Admin?.roster_nv_dv) {
+        const { data: Users } = await UsersAPI.listFull({
+          StockID: CrStocks?.ID
+        })
+        UsersRs = Users
+      } else {
+        const { data: Users } = await UsersAPI.listService({
+          StockID: CrStocks?.ID
+        })
+        UsersRs = Users
+      }
 
       let rs = null
 
@@ -98,6 +108,11 @@ function ShiftWorkPreview(props) {
       }))
   })
 
+  const getStockByName = StocksID => {
+    let index = Stocks && Stocks.findIndex(x => x.ID === StocksID)
+    return index > -1 ? Stocks[index].Title : 'Chưa xác định'
+  }
+
   return (
     <div className="relative h-full bg-white dark:bg-dark-app">
       <LoadingComponentFull
@@ -120,7 +135,7 @@ function ShiftWorkPreview(props) {
                       <th className="sticky left-0 px-4 py-3 text-sm font-semibold text-left z-[1000] max-w-[100px] min-w-[100px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0 bg-[#f8f8f8] h-[50px] uppercase">
                         ID
                       </th>
-                      <th className="sticky left-0 px-4 py-3 text-sm font-semibold text-left z-[1000] max-w-[230px] min-w-[230px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0 bg-[#f8f8f8] h-[50px] uppercase">
+                      <th className="sticky left-0 px-4 py-3 text-sm font-semibold text-left z-[1000] max-w-[250px] min-w-[250px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0 bg-[#f8f8f8] h-[50px] uppercase">
                         Họ tên nhân viên
                       </th>
                       {user.Dates.map((date, i) => (
@@ -158,9 +173,14 @@ function ShiftWorkPreview(props) {
                       <td className="h-[73px] sticky left-0 px-4 py-4 text-sm z-[999] font-medium bg-white max-w-[100px] min-w-[100px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0">
                         {user.UserID}
                       </td>
-                      <td className="h-[73px] sticky left-0 px-4 py-4 text-sm z-[999] font-medium bg-white max-w-[230px] min-w-[230px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0">
+                      <td className="h-[73px] sticky left-0 px-4 py-4 text-sm z-[999] font-medium bg-white max-w-[250px] min-w-[250px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0">
                         <div>{user.UserName}</div>
-
+                        {!user.isDelete &&
+                          user.StockID !== user.UserStockID && (
+                            <div className="mt-1 text-[13px] font-light text-danger flex gap-2">
+                              Khác điểm : {getStockByName(user.UserStockID)}
+                            </div>
+                          )}
                         {user.isDelete && (
                           <>
                             <div className="mt-1 text-[13px] font-light text-warning flex gap-2">

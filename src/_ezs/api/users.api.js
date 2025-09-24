@@ -7,7 +7,7 @@ const UsersAPI = {
       `/api/gl/select2?cmd=user&rightSegs=pos_mng|ReadApp|pos_mng&_type=query`
     ),
   listFull: ({ StockID = '' }) =>
-    http.get(`/api/gl/select2?cmd=user&crstockid=${StockID}`),
+    http.get(`/api/gl/select2?cmd=user&crstockid=${StockID}&includeSource=1`),
   listService: ({ Key = '', StockID = '' }) =>
     http.get(
       `/api/gl/select2?cmd=user&roles=DV&crstockid=${StockID || 0}&q=${

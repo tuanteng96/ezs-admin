@@ -147,9 +147,14 @@ html.dark {
 .select__menu-portal .select__multi-value__label,
 .select-control .select__multi-value,
 .select-control .select__multi-value__label {
-    color: var(--select-color-item-multi);
-    background-color: var(--select-bg-item-multi);
+    color: var(--color-option, var(--select-color-item-multi, #222));
+    background-color: var(--bg-option, var(--select-bg-item-multi, #ccc));
     font-weight: 600;
+}
+
+.select__multi-value__remove {
+    border-top-right-radius: 5px !important;
+    border-bottom-right-radius: 5px !important;
 }
 
 .select-control .select__multi-value {

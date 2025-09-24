@@ -7,7 +7,8 @@ import Select from 'react-select'
 import vi from 'date-fns/locale/vi'
 import {
   CalendarDaysIcon,
-  ExclamationTriangleIcon
+  ExclamationTriangleIcon,
+  PlusIcon
 } from '@heroicons/react/24/outline'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import SettingsAPI from 'src/_ezs/api/settings.api'
@@ -18,6 +19,8 @@ import { SelectUserShifts2 } from 'src/_ezs/partials/select'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
 import Swal from 'sweetalert2'
+import { PickerAddStaff } from './components'
+import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 registerLocale('vi', vi)
 
 let Options = [
@@ -48,10 +51,20 @@ function getDaysOfMonthFromDate(dateObj) {
 }
 
 const EmployeeRow = memo(({ field, control, index, remove }) => {
+  let { Stocks } = useAuth()
+  const getStockByName = StocksID => {
+    let index = Stocks && Stocks.findIndex(x => x.ID === StocksID)
+    return index > -1 ? Stocks[index].Title : 'Chưa xác định'
+  }
   return (
     <tr>
-      <td className="sticky left-0 px-4 py-4 text-sm z-[999] font-medium bg-white max-w-[230px] min-w-[230px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0">
+      <td className="sticky left-0 px-4 py-4 text-sm z-[999] font-medium bg-white max-w-[250px] min-w-[250px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0">
         <div>{field.UserName}</div>
+        {!field.isDelete && field.StockID !== field.UserStockID && (
+          <div className="mt-1 text-[13px] font-light text-danger flex gap-2">
+            Khác điểm : {getStockByName(field.UserStockID)}
+          </div>
+        )}
 
         {field.isDelete && (
           <>
@@ -97,6 +110,7 @@ const EmployeeRow = memo(({ field, control, index, remove }) => {
 
 function ShiftWork(props) {
   const { CrStocks } = useAuth()
+  const { GlobalConfig } = useLayout()
   const containerRef = useRef(null)
 
   let [filters, setFilters] = useState({
@@ -115,6 +129,7 @@ function ShiftWork(props) {
             Dates: getDaysOfMonthFromDate(filters.Mon),
             UserID: '',
             UserName: '',
+            UserStockID: '',
             StockID: ''
           }))
       },
@@ -127,7 +142,7 @@ function ShiftWork(props) {
     }
   })
 
-  const { fields, remove } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control,
     name: 'Data.Users'
   })
@@ -140,7 +155,7 @@ function ShiftWork(props) {
   }, [containerRef, filters.Mon, CrStocks])
 
   const { isLoading, refetch, data } = useQuery({
-    queryKey: ['ShiftWork', { Mon: filters.Mon, CrStocks }],
+    queryKey: ['ShiftWork', { Mon: filters.Mon, CrStocks, GlobalConfig }],
     queryFn: async () => {
       const data = await SettingsAPI.getRoster({
         pi: 1,
@@ -150,14 +165,64 @@ function ShiftWork(props) {
           StockID: CrStocks?.ID
         }
       })
-      const { data: Users } = await UsersAPI.listFull({ StockID: CrStocks?.ID })
+
+      let Users = null
+      if (!GlobalConfig?.Admin?.roster_nv_dv) {
+        const { data: UsersRs } = await UsersAPI.listFull({
+          StockID: CrStocks?.ID
+        })
+        Users = UsersRs
+      } else {
+        const { data: UsersRs } = await UsersAPI.listService({
+          StockID: CrStocks?.ID
+        })
+        Users = UsersRs
+      }
 
       return {
         data: data?.data?.items.length > 0 ? data?.data?.items[0] : null,
-        Users: Users?.data || []
+        Users: Users?.data
+          ? Users?.data
+              .map(x => ({
+                ...x,
+                source: {
+                  FullName: x.source.FullName,
+                  StockID: x.source.StockID,
+                  ID: x.source.ID,
+                  DeviceIDs: x.source.DeviceIDs
+                }
+              }))
+              .filter(x => x.groupid === x.source.StockID)
+          : [],
+        Lists: Users?.data
+          ? Users?.data.map(x => ({
+              ...x,
+              source: {
+                FullName: x.source.FullName,
+                StockID: x.source.StockID,
+                ID: x.source.ID,
+                DeviceIDs: x.source.DeviceIDs
+              }
+            }))
+          : [],
+        UsersStocks: Users?.data
+          ? Users?.data
+              .map(x => ({
+                ...x,
+                label: x.text,
+                value: x.id,
+                source: {
+                  FullName: x.source.FullName,
+                  StockID: x.source.StockID,
+                  ID: x.source.ID,
+                  DeviceIDs: x.source.DeviceIDs
+                }
+              }))
+              .filter(x => x.groupid !== x.source.StockID)
+          : []
       }
     },
-    onSuccess: ({ data, Users }) => {
+    onSuccess: ({ data, Users, Lists }) => {
       if (data) {
         let newUser = [...(data?.Data?.Users || [])]
         for (let user of Users) {
@@ -169,6 +234,7 @@ function ShiftWork(props) {
               Dates: getDaysOfMonthFromDate(filters.Mon),
               UserID: user.id,
               UserName: user.text,
+              UserStockID: user.source.StockID,
               StockID: user.groupid
             })
           }
@@ -176,7 +242,7 @@ function ShiftWork(props) {
 
         newUser = newUser.map(x => {
           let newObj = { ...x }
-          let index = Users.findIndex(o => o.id === x.UserID)
+          let index = Lists.findIndex(o => o.id === x.UserID)
 
           if (index === -1) newObj['isDelete'] = true
           else {
@@ -202,6 +268,7 @@ function ShiftWork(props) {
                     Dates: getDaysOfMonthFromDate(filters.Mon),
                     UserID: x.id,
                     UserName: x.text,
+                    UserStockID: x.source.StockID,
                     StockID: x.groupid
                   }))
                 : []
@@ -324,8 +391,35 @@ function ShiftWork(props) {
                 <>
                   {fields.slice(0, 1).map((user, index) => (
                     <tr key={index}>
-                      <th className="sticky left-0 px-4 py-3 text-sm font-semibold text-left z-[1000] max-w-[230px] min-w-[230px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0 bg-[#f8f8f8] h-[50px] uppercase">
-                        Họ tên nhân viên
+                      <th className="sticky left-0 px-4 py-3 text-sm font-semibold text-left z-[1000] max-w-[250px] min-w-[250px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0 bg-[#f8f8f8] h-[50px] uppercase">
+                        <div className="flex items-center justify-between">
+                          <div>Họ tên nhân viên</div>
+                          <PickerAddStaff
+                            options={data?.UsersStocks || []}
+                            onChange={val => {
+                              if (val && val.length > 0) {
+                                for (let user of val) {
+                                  append({
+                                    Dates: getDaysOfMonthFromDate(filters.Mon),
+                                    UserID: user.id,
+                                    UserName: user.text,
+                                    UserStockID: user.source.StockID,
+                                    StockID: user.groupid
+                                  })
+                                }
+                              }
+                            }}
+                          >
+                            {({ open }) => (
+                              <div
+                                className="cursor-pointer text-primary"
+                                onClick={open}
+                              >
+                                <PlusIcon className="w-5" />
+                              </div>
+                            )}
+                          </PickerAddStaff>
+                        </div>
                       </th>
                       {user.Dates.map((date, i) => (
                         <th
