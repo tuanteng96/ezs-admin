@@ -6,6 +6,8 @@ class HttpInvoice {
   constructor() {
     this.accessToken = window?.top?.token || getLocalStorage('access_token')
     this.accessTokenInvoice = getLocalStorage('v1tk_invoice') || ''
+    this.reloadCount = 1
+
     this.instance = axios.create({
       baseURL:
         !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
@@ -38,10 +40,13 @@ class HttpInvoice {
     this.instance.interceptors.response.use(
       async ({ data, config, ...response }) => {
         if (
-          data?.result?.errorCode === 'ValidationTokenCode' ||
-          data?.result?.errorCode === 'UnAuthorize' ||
-          data?.result?.errorCode === 'TokenExpiredCode'
+          (data?.result?.errorCode === 'ValidationTokenCode' ||
+            data?.result?.errorCode === 'UnAuthorize' ||
+            data?.result?.errorCode === 'TokenExpiredCode') &&
+          this.reloadCount < 3
         ) {
+          this.reloadCount = this.reloadCount + 1
+
           const originalRequest = config
           let newData = originalRequest.data
             ? JSON.parse(originalRequest.data)
@@ -85,6 +90,8 @@ class HttpInvoice {
           })
           return response
         } else {
+          this.reloadCount = 1
+
           return {
             data
           }

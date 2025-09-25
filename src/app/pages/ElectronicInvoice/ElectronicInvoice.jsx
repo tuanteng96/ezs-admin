@@ -189,96 +189,175 @@ function ElectronicInvoice(props) {
                 invoiceNumberID: true
               })
 
-              let newItems = bill.Items.map((x, i) => {
-                let PriceVAT =
-                  x.VAT > 0
-                    ? Math.round(x.Thanh_toanVAT / ((100 + x.VAT) / 100))
-                    : x.Thanh_toanVAT
+              let newItems = []
+              let dataPost = null
+              if (InvoiceConfig?.InvoiceActive?.init_invoice === 'HDBHMTT') {
+                newItems = bill.Items.map((x, i) => {
+                  let PriceVAT =
+                    x.VAT > 0
+                      ? Math.round(x.Thanh_toanVAT / ((100 + x.VAT) / 100))
+                      : x.Thanh_toanVAT
 
-                let PriceTotalVAT = x.Thanh_toanVAT - PriceVAT
+                  return {
+                    feature: 1,
+                    code: x.ProdCode,
+                    name: getProdTitle(x.ProdTitle),
+                    unit: x.StockUnit || '',
+                    quantity: x.Qty,
+                    price: PriceVAT / x.Qty,
+                    detailTotal: PriceVAT,
+                    detailDiscount: '',
+                    detailDiscountAmount: '',
+                    detailAmount: x.Thanh_toanVAT
+                  }
+                })
 
-                let detailVatRate = -3
-                if ([-1, -2, 0, 5, 8, 10].includes(x.VAT)) {
-                  detailVatRate = x.VAT
-                }
-                return {
-                  feature: 1,
-                  code: x.ProdCode,
-                  name: getProdTitle(x.ProdTitle),
-                  unit: x.StockUnit || '',
-                  quantity: x.Qty,
-                  price: PriceVAT / x.Qty,
-                  detailTotal: PriceVAT,
-                  detailVatRate: detailVatRate,
-                  detailVatRateOther: detailVatRate === -3 ? x.VAT : '',
-                  detailVatAmount: PriceTotalVAT,
-                  detailDiscount: '',
-                  detailDiscountAmount: '',
-                  detailAmount: x.Thanh_toanVAT
-                }
-              })
-
-              let dataPost = {
-                init_invoice:
-                  InvoiceConfig?.InvoiceActive?.init_invoice || 'Lỗi',
-                action: 'create',
-                id_attr: '',
-                reference_id: '',
-                id_partner: getRefID({
-                  ID: bill.ID,
-                  RefIds: RefIds?.data || [],
-                  CDate: moment(bill.CDate).format('DD-MM-YYYY')
-                }),
-                invoice_type: '',
-                name: InvoiceConfig?.InvoiceActive?.name || 'Lỗi',
-                serial: InvoiceConfig?.InvoiceActive?.InvSeries,
-                date_export: moment().format('YYYY-MM-DD'),
-                customer: {
-                  cus_name: '',
-                  cus_buyer:
-                    GlobalConfig?.Admin?.hddt?.SenderName || bill.SenderName,
-                  cus_tax_code: '',
-                  cus_address: bill?.SenderAddress || '',
-                  cus_phone: bill.SenderPhone,
-                  cus_email: '',
-                  cus_email_cc: '',
-                  cus_citizen_identity: '',
-                  cus_bank_no: '',
-                  cus_bank_name: '',
-                  cus_budget_code: '',
-                  cus_passport: ''
-                },
-                payment_type: '3', // Tiền mặt / chuyển khoản
-                discount: 0,
-                discount_amount: 0,
-                detail: newItems.map(x => ({
-                  ...x,
-                  price: formatString.formatVND(x.price, ','),
-                  detailTotal: formatString.formatVND(x.detailTotal, ','),
-                  detailVatAmount: formatString.formatVND(
-                    x.detailVatAmount,
+                dataPost = {
+                  init_invoice:
+                    InvoiceConfig?.InvoiceActive?.init_invoice || 'Lỗi',
+                  action: 'create',
+                  id_attr: '',
+                  reference_id: '',
+                  id_partner: getRefID({
+                    ID: bill.ID,
+                    RefIds: RefIds?.data || [],
+                    CDate: moment(bill.CDate).format('DD-MM-YYYY')
+                  }),
+                  invoice_type: '',
+                  name: InvoiceConfig?.InvoiceActive?.name || 'Lỗi',
+                  serial: InvoiceConfig?.InvoiceActive?.InvSeries,
+                  date_export: moment().format('YYYY-MM-DD'),
+                  customer: {
+                    cus_name: '',
+                    cus_buyer:
+                      GlobalConfig?.Admin?.hddt?.SenderName || bill.SenderName,
+                    cus_tax_code: '',
+                    cus_address: bill?.SenderAddress || '',
+                    cus_phone: bill.SenderPhone,
+                    cus_email: '',
+                    cus_email_cc: '',
+                    cus_citizen_identity: '',
+                    cus_bank_no: '',
+                    cus_bank_name: '',
+                    cus_budget_code: '',
+                    cus_passport: ''
+                  },
+                  payment_type: '3', // Tiền mặt / chuyển khoản
+                  discount: 0,
+                  discount_amount: 0,
+                  detail: newItems.map(x => ({
+                    ...x,
+                    price: formatString.formatVND(x.price, ','),
+                    detailTotal: formatString.formatVND(x.detailTotal, ','),
+                    detailAmount: formatString.formatVND(x.detailAmount, ',')
+                  })),
+                  total: formatString.formatVND(
+                    formatArray.sumTotalKey(newItems, 'detailTotal'),
                     ','
                   ),
-                  detailAmount: formatString.formatVND(x.detailAmount, ',')
-                })),
-                total: formatString.formatVND(
-                  formatArray.sumTotalKey(newItems, 'detailTotal'),
-                  ','
-                ),
-                vat_amount: formatString.formatVND(
-                  formatArray.sumTotalKey(newItems, 'detailVatAmount'),
-                  ','
-                ),
-                amount: formatString.formatVND(
-                  formatArray.sumTotalKey(newItems, 'detailAmount'),
-                  ','
-                ),
-                amount_in_words: window.to_vietnamese(
-                  formatArray.sumTotalKey(bill.Items, 'Thanh_toanVAT')
-                ),
-                returnXml: 1,
-                autoSign: InvoiceConfig?.InvoiceActive?.SignType,
-                currency: 'VND'
+                  amount: formatString.formatVND(
+                    formatArray.sumTotalKey(newItems, 'detailAmount'),
+                    ','
+                  ),
+                  amount_in_words: window.to_vietnamese(
+                    formatArray.sumTotalKey(bill.Items, 'Thanh_toanVAT')
+                  ),
+                  returnXml: 1,
+                  autoSign: InvoiceConfig?.InvoiceActive?.SignType,
+                  currency: 'VND'
+                }
+              } else {
+                newItems = bill.Items.map((x, i) => {
+                  let PriceVAT =
+                    x.VAT > 0
+                      ? Math.round(x.Thanh_toanVAT / ((100 + x.VAT) / 100))
+                      : x.Thanh_toanVAT
+
+                  let PriceTotalVAT = x.Thanh_toanVAT - PriceVAT
+
+                  let detailVatRate = -3
+                  if ([-1, -2, 0, 5, 8, 10].includes(x.VAT)) {
+                    detailVatRate = x.VAT
+                  }
+                  return {
+                    feature: 1,
+                    code: x.ProdCode,
+                    name: getProdTitle(x.ProdTitle),
+                    unit: x.StockUnit || '',
+                    quantity: x.Qty,
+                    price: PriceVAT / x.Qty,
+                    detailTotal: PriceVAT,
+                    detailVatRate: detailVatRate,
+                    detailVatRateOther: detailVatRate === -3 ? x.VAT : '',
+                    detailVatAmount: PriceTotalVAT,
+                    detailDiscount: '',
+                    detailDiscountAmount: '',
+                    detailAmount: x.Thanh_toanVAT
+                  }
+                })
+
+                dataPost = {
+                  init_invoice:
+                    InvoiceConfig?.InvoiceActive?.init_invoice || 'Lỗi',
+                  action: 'create',
+                  id_attr: '',
+                  reference_id: '',
+                  id_partner: getRefID({
+                    ID: bill.ID,
+                    RefIds: RefIds?.data || [],
+                    CDate: moment(bill.CDate).format('DD-MM-YYYY')
+                  }),
+                  invoice_type: '',
+                  name: InvoiceConfig?.InvoiceActive?.name || 'Lỗi',
+                  serial: InvoiceConfig?.InvoiceActive?.InvSeries,
+                  date_export: moment().format('YYYY-MM-DD'),
+                  customer: {
+                    cus_name: '',
+                    cus_buyer:
+                      GlobalConfig?.Admin?.hddt?.SenderName || bill.SenderName,
+                    cus_tax_code: '',
+                    cus_address: bill?.SenderAddress || '',
+                    cus_phone: bill.SenderPhone,
+                    cus_email: '',
+                    cus_email_cc: '',
+                    cus_citizen_identity: '',
+                    cus_bank_no: '',
+                    cus_bank_name: '',
+                    cus_budget_code: '',
+                    cus_passport: ''
+                  },
+                  payment_type: '3', // Tiền mặt / chuyển khoản
+                  discount: 0,
+                  discount_amount: 0,
+                  detail: newItems.map(x => ({
+                    ...x,
+                    price: formatString.formatVND(x.price, ','),
+                    detailTotal: formatString.formatVND(x.detailTotal, ','),
+                    detailVatAmount: formatString.formatVND(
+                      x.detailVatAmount,
+                      ','
+                    ),
+                    detailAmount: formatString.formatVND(x.detailAmount, ',')
+                  })),
+                  total: formatString.formatVND(
+                    formatArray.sumTotalKey(newItems, 'detailTotal'),
+                    ','
+                  ),
+                  vat_amount: formatString.formatVND(
+                    formatArray.sumTotalKey(newItems, 'detailVatAmount'),
+                    ','
+                  ),
+                  amount: formatString.formatVND(
+                    formatArray.sumTotalKey(newItems, 'detailAmount'),
+                    ','
+                  ),
+                  amount_in_words: window.to_vietnamese(
+                    formatArray.sumTotalKey(bill.Items, 'Thanh_toanVAT')
+                  ),
+                  returnXml: 1,
+                  autoSign: InvoiceConfig?.InvoiceActive?.SignType,
+                  currency: 'VND'
+                }
               }
 
               let rsValue = {

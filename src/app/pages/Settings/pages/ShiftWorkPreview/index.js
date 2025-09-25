@@ -2,7 +2,7 @@ import { ExclamationTriangleIcon } from '@heroicons/react/24/outline'
 import { useQuery } from '@tanstack/react-query'
 import clsx from 'clsx'
 import moment from 'moment'
-import React, { useRef } from 'react'
+import React from 'react'
 import { useParams } from 'react-router'
 import SettingsAPI from 'src/_ezs/api/settings.api'
 import UsersAPI from 'src/_ezs/api/users.api'
@@ -71,26 +71,29 @@ function ShiftWorkPreview(props) {
           let index = newUser.findIndex(x => user.id === x.UserID)
           if (index > -1) {
             newUser[index].UserName = user.text
-          } else {
-            newUser.unshift({
-              Dates: getDaysOfMonthFromDate(moment(month, 'MM-YYYY').toDate()),
-              UserID: user.id,
-              UserName: user.text,
-              StockID: user.groupid
-            })
           }
         }
 
-        newUser = newUser.map(x => {
-          let newObj = { ...x }
-          let index = Users.findIndex(o => o.id === x.UserID)
+        newUser = newUser
+          .map(x => {
+            let newObj = {
+              ...x,
+              PositionIndex: x?.UserStockID === x?.StockID ? 0 : 1
+            }
+            let index = Users.findIndex(o => o.id === x.UserID)
 
-          if (index === -1) newObj['isDelete'] = true
-          else {
-            newObj['isDelete'] = false
-          }
-          return newObj
-        })
+            if (index === -1) newObj['isDelete'] = true
+            else {
+              newObj['isDelete'] = false
+            }
+            return newObj
+          })
+          .sort((a, b) => a.PositionIndex - b.PositionIndex)
+          .filter(
+            x =>
+              x.Dates &&
+              x.Dates.some(o => o.WorkShiftType && o.WorkShiftType.length > 0)
+          )
 
         rs = newUser
       }
@@ -137,6 +140,9 @@ function ShiftWorkPreview(props) {
                       </th>
                       <th className="sticky left-0 px-4 py-3 text-sm font-semibold text-left z-[1000] max-w-[250px] min-w-[250px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0 bg-[#f8f8f8] h-[50px] uppercase">
                         Họ tên nhân viên
+                      </th>
+                      <th className="px-4 py-3 text-sm font-semibold text-left max-w-[250px] min-w-[250px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0 bg-[#f8f8f8] h-[50px] uppercase">
+                        Cơ sở
                       </th>
                       {user.Dates.map((date, i) => (
                         <th
@@ -189,6 +195,9 @@ function ShiftWorkPreview(props) {
                             </div>
                           </>
                         )}
+                      </td>
+                      <td className="h-[73px] px-4 py-4 text-sm font-medium bg-white max-w-[250px] min-w-[250px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0">
+                        <div>{getStockByName(user.UserStockID)}</div>
                       </td>
                       {user.Dates.map((date, i) => (
                         <td

@@ -240,16 +240,21 @@ function ShiftWork(props) {
           }
         }
 
-        newUser = newUser.map(x => {
-          let newObj = { ...x }
-          let index = Lists.findIndex(o => o.id === x.UserID)
+        newUser = newUser
+          .map(x => {
+            let newObj = {
+              ...x,
+              PositionIndex: x?.UserStockID === x?.StockID ? 0 : 1
+            }
+            let index = Lists.findIndex(o => o.id === x.UserID)
 
-          if (index === -1) newObj['isDelete'] = true
-          else {
-            newObj['isDelete'] = false
-          }
-          return newObj
-        })
+            if (index === -1) newObj['isDelete'] = true
+            else {
+              newObj['isDelete'] = false
+            }
+            return newObj
+          })
+          .sort((a, b) => a.PositionIndex - b.PositionIndex)
 
         reset({
           ...data,

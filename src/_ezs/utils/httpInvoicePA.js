@@ -6,6 +6,7 @@ class HttpInvoicePA {
   constructor() {
     this.accessToken = window?.top?.token || getLocalStorage('access_token')
     this.accessTokenInvoice = getLocalStorage('v1tk_invoicePA') || ''
+    this.reloadCount = 1
     this.instance = axios.create({
       baseURL:
         !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
@@ -37,12 +38,13 @@ class HttpInvoicePA {
     // Add response interceptor
     this.instance.interceptors.response.use(
       async ({ data, config, ...response }) => {
-        if (data?.error) {
+        if (data?.error && this.reloadCount < 3) {
+          this.reloadCount = this.reloadCount + 1
           const originalRequest = config
           let newData = originalRequest.data
             ? JSON.parse(originalRequest.data)
             : {}
-
+          
           let rs = await axios.post(
             (!process.env.NODE_ENV || process.env.NODE_ENV === 'development'
               ? process.env.REACT_APP_API_URL
@@ -83,6 +85,7 @@ class HttpInvoicePA {
           })
           return response
         } else {
+          this.reloadCount = 1
           return {
             data
           }
