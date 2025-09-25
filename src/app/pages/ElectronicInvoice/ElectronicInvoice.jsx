@@ -193,19 +193,14 @@ function ElectronicInvoice(props) {
               let dataPost = null
               if (InvoiceConfig?.InvoiceActive?.init_invoice === 'HDBHMTT') {
                 newItems = bill.Items.map((x, i) => {
-                  let PriceVAT =
-                    x.VAT > 0
-                      ? Math.round(x.Thanh_toanVAT / ((100 + x.VAT) / 100))
-                      : x.Thanh_toanVAT
-
                   return {
                     feature: 1,
                     code: x.ProdCode,
                     name: getProdTitle(x.ProdTitle),
                     unit: x.StockUnit || '',
                     quantity: x.Qty,
-                    price: PriceVAT / x.Qty,
-                    detailTotal: PriceVAT,
+                    price: x.Thanh_toanVAT / x.Qty,
+                    detailTotal: x.Thanh_toanVAT,
                     detailDiscount: '',
                     detailDiscountAmount: '',
                     detailAmount: x.Thanh_toanVAT
