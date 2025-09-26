@@ -186,8 +186,14 @@ function MaterialConversion(props) {
         sortable: false,
         cellRenderer: ({ rowData }) => (
           <div>
-            <div className="font-semibold">{rowData.fromTitle}</div>
-            <div className="inline-block text-muted2">({rowData.fromUnit})</div>
+            <div className="font-semibold">[{rowData.fromCode}] {rowData.fromTitle}</div>
+            {rowData.fromUnit ? (
+              <div className="inline-block text-muted2">
+                ({rowData.fromUnit})
+              </div>
+            ) : (
+              <></>
+            )}
           </div>
         )
       },

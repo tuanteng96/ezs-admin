@@ -25,7 +25,7 @@ function SelectProdCode({ Params, Key = '', ...props }) {
             ...item,
             label: `${
               item.source.OnStocks === '' ? '[Ngừng kinh doanh] ' : ''
-            }${item.text}`,
+            }[${item.source.DynamicID}] ${item.text}`,
             value: item.source.ID
           })
         }
