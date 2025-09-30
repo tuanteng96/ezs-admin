@@ -311,7 +311,22 @@ function ShiftWork(props) {
       ...values,
       CreateDate: values?.CreateDate
         ? moment(values?.CreateDate).format('YYYY-MM-DD HH:mm')
-        : moment().format('YYYY-MM-DD HH:mm')
+        : moment().format('YYYY-MM-DD HH:mm'),
+      Data: {
+        ...values.Data,
+
+        Users: values.Data?.Users?.map(x => ({
+          ...x,
+          Dates: x.Dates.map((o, k) => ({
+            ...o,
+            Date: moment(values.Mon, 'YYYY-MM')
+              .startOf('month')
+              .add(k, 'day')
+              .format('YYYY-MM-DD')
+            //Date: moment(o.Date).format('YYYY-MM-DD')
+          }))
+        }))
+      }
     }
 
     addUpdateMutation.mutate(
