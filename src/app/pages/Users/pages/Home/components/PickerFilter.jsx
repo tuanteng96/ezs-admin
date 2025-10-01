@@ -133,6 +133,10 @@ function PickerFilter({ children, initialValues, onChange }) {
                               usrmng?.IsStocks
                                 ? [
                                     {
+                                      label: 'Tất cả',
+                                      value: '-1'
+                                    },
+                                    {
                                       label: 'Hệ thống',
                                       value: '0'
                                     }

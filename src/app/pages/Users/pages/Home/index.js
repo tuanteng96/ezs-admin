@@ -64,7 +64,7 @@ function Home(props) {
               ? filters?.Status
               : [0, -1],
           Pi: pageParam,
-          StockIDs: [filters.StockIDs]
+          StockIDs: filters?.StockIDs === '-1' ? [] : [filters.StockIDs]
         })
         return rs?.data
       },
@@ -382,10 +382,14 @@ function Home(props) {
   let StocksTitle = filters.StockIDs || ''
 
   if (StocksTitle !== '') {
-    StocksTitle =
-      Number(StocksTitle) === 0
-        ? 'Cơ sở hệ thống'
-        : 'Cơ sở ' + Stocks.filter(x => x.ID === Number(StocksTitle))[0].Title
+    if (Number(StocksTitle) === 0) {
+      StocksTitle = 'Tất cả cơ sở'
+    } else if (Number(StocksTitle) === -1) {
+      StocksTitle = 'Cơ sở hệ thống'
+    } else {
+      StocksTitle =
+        'Cơ sở ' + Stocks.filter(x => x.ID === Number(StocksTitle))[0].Title
+    }
   }
 
   return (
