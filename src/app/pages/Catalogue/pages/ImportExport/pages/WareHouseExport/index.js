@@ -958,7 +958,7 @@ function WareHouseExport(props) {
       recheckMutation.mutate(
         {
           cmd: 'getie_id',
-          id: 'typeN',
+          id: 'typeX',
           date: moment(Date ? Date : ie.CreateDate).format('YYYY-MM-DD HH:mm'),
           stockid: StockID?.value || ie?.Source
         },
