@@ -109,13 +109,17 @@ const EmployeeRow = memo(({ field, control, index, remove }) => {
 })
 
 function ShiftWork(props) {
-  const { CrStocks } = useAuth()
+  const { CrStocks, auth } = useAuth()
   const { GlobalConfig } = useLayout()
   const containerRef = useRef(null)
 
   let [filters, setFilters] = useState({
     Mon: moment().toDate()
   })
+
+  const hasRoster =
+    auth?.Groups &&
+    auth?.Groups.some(x => x.Title.toUpperCase().includes('ROSTER'))
 
   const { cong_ca } = useRoles(['cong_ca'])
 
@@ -501,7 +505,9 @@ function ShiftWork(props) {
               render={({ field: { ref, ...field }, fieldState }) => (
                 <Select
                   isDisabled={
-                    !cong_ca?.hasRight && Number(data?.data?.Status || 1) !== 1
+                    !cong_ca?.hasRight &&
+                    !hasRoster &&
+                    Number(data?.data?.Status || 1) !== 1
                   }
                   isClearable={false}
                   className="select-control min-w-[300px]"
@@ -515,7 +521,7 @@ function ShiftWork(props) {
                   }
                   classNamePrefix="select"
                   options={
-                    cong_ca?.hasRight
+                    cong_ca?.hasRight || hasRoster
                       ? Options || []
                       : (Options || []).filter(x => Number(x.value) !== 3)
                   }
@@ -549,8 +555,8 @@ function ShiftWork(props) {
           </div>
 
           <div className="flex gap-2.5">
-            {(cong_ca?.hasRight
-              ? cong_ca?.hasRight
+            {(cong_ca?.hasRight || hasRoster
+              ? cong_ca?.hasRight || hasRoster
               : Number(data?.data?.Status || 1) === 1) && (
               <>
                 <Button
