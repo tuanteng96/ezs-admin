@@ -33,11 +33,13 @@ import Tooltip from 'rc-tooltip'
 import Swal from 'sweetalert2'
 import { useCatalogue } from 'src/app/pages/Catalogue/CatalogueLayout'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
+import { useAuth } from 'src/_ezs/core/Auth'
 
 function WareHouseImport(props) {
   const navigate = useNavigate()
   const { pathname, state, search } = useLocation()
 
+  const { CrStocks } = useAuth()
   const { GlobalConfig } = useLayout()
 
   const { id } = useParams()
@@ -47,7 +49,7 @@ function WareHouseImport(props) {
     'adminTools_byStock'
   ])
   const { hasWarehouse } = useCatalogue()
-
+  
   const queryClient = useQueryClient()
 
   const { control, handleSubmit, setValue, reset, watch } = useForm({

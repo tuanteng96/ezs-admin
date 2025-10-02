@@ -142,6 +142,26 @@ function ElectronicInvoice(props) {
     )
   }
 
+  const updateInvoiceWithRetry = async (updatePost, maxRetry = 3) => {
+    let attempt = 0
+    let rsSuccess
+
+    while (attempt < maxRetry) {
+      try {
+        rsSuccess = await InvoiceAPI.updateInvoiceIDs(updatePost)
+
+        if (rsSuccess?.data?.n) {
+          return rsSuccess
+        }
+      } catch (err) {
+        console.error(`Lỗi lần ${attempt + 1}:`, err)
+      }
+
+      attempt++
+    }
+    return rsSuccess
+  }
+
   const updateInvoiceMutation = useMutation({
     mutationFn: async body => {
       let selecteds = []
@@ -173,228 +193,315 @@ function ElectronicInvoice(props) {
       )
 
       let newRs = []
-      let totalUpdate = 0
+      let newErs = []
 
       if (InvoiceConfig?.InvoiceActive?.Code === 'HDPAVN') {
-        await Promise.all(
-          newLst.map(bill => {
-            return new Promise(async (resolve, reject) => {
-              let RefIds = await invoiceRefIDMutation.mutateAsync({
-                lst: [
-                  {
-                    OrderID: bill.ID,
-                    Date: moment(bill.CDate).format('YYYY-MM-DD')
-                  }
-                ],
-                invoiceNumberID: true
-              })
+        for (const bill of newLst) {
+          const toastId = toast.loading(`Đang xuất hoá đơn #${bill.ID} ...`, {
+            icon: (
+              <div className="absolute left-4 top-2/4 -translate-y-2/4">
+                <svg
+                  aria-hidden="true"
+                  className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                  viewBox="0 0 100 101"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                    fill="currentFill"
+                  />
+                </svg>
+              </div>
+            )
+          })
 
-              let newItems = []
-              let dataPost = null
-              if (InvoiceConfig?.InvoiceActive?.init_invoice === 'HDBHMTT') {
-                newItems = bill.Items.map((x, i) => {
-                  return {
-                    feature: 1,
-                    code: x.ProdCode,
-                    name: getProdTitle(x.ProdTitle),
-                    unit: x.StockUnit || '',
-                    quantity: x.Qty,
-                    price: x.Thanh_toanVAT / x.Qty,
-                    detailTotal: x.Thanh_toanVAT,
-                    detailDiscount: '',
-                    detailDiscountAmount: '',
-                    detailAmount: x.Thanh_toanVAT
-                  }
-                })
-
-                dataPost = {
-                  init_invoice:
-                    InvoiceConfig?.InvoiceActive?.init_invoice || 'Lỗi',
-                  action: 'create',
-                  id_attr: '',
-                  reference_id: '',
-                  id_partner: getRefID({
-                    ID: bill.ID,
-                    RefIds: RefIds?.data || [],
-                    CDate: moment(bill.CDate).format('DD-MM-YYYY')
-                  }),
-                  invoice_type: '',
-                  name: InvoiceConfig?.InvoiceActive?.name || 'Lỗi',
-                  serial: InvoiceConfig?.InvoiceActive?.InvSeries,
-                  date_export: moment().format('YYYY-MM-DD'),
-                  customer: {
-                    cus_name: '',
-                    cus_buyer:
-                      GlobalConfig?.Admin?.hddt?.SenderName || bill.SenderName,
-                    cus_tax_code: '',
-                    cus_address: bill?.SenderAddress || '',
-                    cus_phone: bill.SenderPhone,
-                    cus_email: '',
-                    cus_email_cc: '',
-                    cus_citizen_identity: '',
-                    cus_bank_no: '',
-                    cus_bank_name: '',
-                    cus_budget_code: '',
-                    cus_passport: ''
-                  },
-                  payment_type: '3', // Tiền mặt / chuyển khoản
-                  discount: 0,
-                  discount_amount: 0,
-                  detail: newItems.map(x => ({
-                    ...x,
-                    price: formatString.formatVND(x.price, ','),
-                    detailTotal: formatString.formatVND(x.detailTotal, ','),
-                    detailAmount: formatString.formatVND(x.detailAmount, ',')
-                  })),
-                  total: formatString.formatVND(
-                    formatArray.sumTotalKey(newItems, 'detailTotal'),
-                    ','
-                  ),
-                  amount: formatString.formatVND(
-                    formatArray.sumTotalKey(newItems, 'detailAmount'),
-                    ','
-                  ),
-                  amount_in_words: window.to_vietnamese(
-                    formatArray.sumTotalKey(bill.Items, 'Thanh_toanVAT')
-                  ),
-                  returnXml: 1,
-                  autoSign: InvoiceConfig?.InvoiceActive?.SignType,
-                  currency: 'VND'
-                }
-              } else {
-                newItems = bill.Items.map((x, i) => {
-                  let PriceVAT =
-                    x.VAT > 0
-                      ? Math.round(x.Thanh_toanVAT / ((100 + x.VAT) / 100))
-                      : x.Thanh_toanVAT
-
-                  let PriceTotalVAT = x.Thanh_toanVAT - PriceVAT
-
-                  let detailVatRate = -3
-                  if ([-1, -2, 0, 5, 8, 10].includes(x.VAT)) {
-                    detailVatRate = x.VAT
-                  }
-                  return {
-                    feature: 1,
-                    code: x.ProdCode,
-                    name: getProdTitle(x.ProdTitle),
-                    unit: x.StockUnit || '',
-                    quantity: x.Qty,
-                    price: PriceVAT / x.Qty,
-                    detailTotal: PriceVAT,
-                    detailVatRate: detailVatRate,
-                    detailVatRateOther: detailVatRate === -3 ? x.VAT : '',
-                    detailVatAmount: PriceTotalVAT,
-                    detailDiscount: '',
-                    detailDiscountAmount: '',
-                    detailAmount: x.Thanh_toanVAT
-                  }
-                })
-
-                dataPost = {
-                  init_invoice:
-                    InvoiceConfig?.InvoiceActive?.init_invoice || 'Lỗi',
-                  action: 'create',
-                  id_attr: '',
-                  reference_id: '',
-                  id_partner: getRefID({
-                    ID: bill.ID,
-                    RefIds: RefIds?.data || [],
-                    CDate: moment(bill.CDate).format('DD-MM-YYYY')
-                  }),
-                  invoice_type: '',
-                  name: InvoiceConfig?.InvoiceActive?.name || 'Lỗi',
-                  serial: InvoiceConfig?.InvoiceActive?.InvSeries,
-                  date_export: moment().format('YYYY-MM-DD'),
-                  customer: {
-                    cus_name: '',
-                    cus_buyer:
-                      GlobalConfig?.Admin?.hddt?.SenderName || bill.SenderName,
-                    cus_tax_code: '',
-                    cus_address: bill?.SenderAddress || '',
-                    cus_phone: bill.SenderPhone,
-                    cus_email: '',
-                    cus_email_cc: '',
-                    cus_citizen_identity: '',
-                    cus_bank_no: '',
-                    cus_bank_name: '',
-                    cus_budget_code: '',
-                    cus_passport: ''
-                  },
-                  payment_type: '3', // Tiền mặt / chuyển khoản
-                  discount: 0,
-                  discount_amount: 0,
-                  detail: newItems.map(x => ({
-                    ...x,
-                    price: formatString.formatVND(x.price, ','),
-                    detailTotal: formatString.formatVND(x.detailTotal, ','),
-                    detailVatAmount: formatString.formatVND(
-                      x.detailVatAmount,
-                      ','
-                    ),
-                    detailAmount: formatString.formatVND(x.detailAmount, ',')
-                  })),
-                  total: formatString.formatVND(
-                    formatArray.sumTotalKey(newItems, 'detailTotal'),
-                    ','
-                  ),
-                  vat_amount: formatString.formatVND(
-                    formatArray.sumTotalKey(newItems, 'detailVatAmount'),
-                    ','
-                  ),
-                  amount: formatString.formatVND(
-                    formatArray.sumTotalKey(newItems, 'detailAmount'),
-                    ','
-                  ),
-                  amount_in_words: window.to_vietnamese(
-                    formatArray.sumTotalKey(bill.Items, 'Thanh_toanVAT')
-                  ),
-                  returnXml: 1,
-                  autoSign: InvoiceConfig?.InvoiceActive?.SignType,
-                  currency: 'VND'
-                }
+          let RefIds = await invoiceRefIDMutation.mutateAsync({
+            lst: [
+              {
+                OrderID: bill.ID,
+                Date: moment(bill.CDate).format('YYYY-MM-DD')
               }
+            ],
+            invoiceNumberID: true
+          })
 
-              let rsValue = {
+          let newItems = []
+          let dataPost = null
+          if (InvoiceConfig?.InvoiceActive?.init_invoice === 'HDBHMTT') {
+            newItems = bill.Items.map((x, i) => {
+              return {
+                feature: 1,
+                code: x.ProdCode,
+                name: getProdTitle(x.ProdTitle),
+                unit: x.StockUnit || '',
+                quantity: x.Qty,
+                price: x.Thanh_toanVAT / x.Qty,
+                detailTotal: x.Thanh_toanVAT,
+                detailDiscount: '',
+                detailDiscountAmount: '',
+                detailAmount: x.Thanh_toanVAT
+              }
+            })
+
+            dataPost = {
+              init_invoice: InvoiceConfig?.InvoiceActive?.init_invoice || 'Lỗi',
+              action: 'create',
+              id_attr: '',
+              reference_id: '',
+              id_partner: getRefID({
                 ID: bill.ID,
-                InvoiceID: dataPost?.id_partner,
-                NewInvoiceID: '' //x.TransactionID + ';' + x.InvNo + ';' + x.InvCode
-              }
+                RefIds: RefIds?.data || [],
+                CDate: moment(bill.CDate).format('DD-MM-YYYY')
+              }),
+              invoice_type: '',
+              name: InvoiceConfig?.InvoiceActive?.name || 'Lỗi',
+              serial: InvoiceConfig?.InvoiceActive?.InvSeries,
+              date_export: moment().format('YYYY-MM-DD'),
+              customer: {
+                cus_name: '',
+                cus_buyer:
+                  GlobalConfig?.Admin?.hddt?.SenderName || bill.SenderName,
+                cus_tax_code: '',
+                cus_address: bill?.SenderAddress || '',
+                cus_phone: bill.SenderPhone,
+                cus_email: '',
+                cus_email_cc: '',
+                cus_citizen_identity: '',
+                cus_bank_no: '',
+                cus_bank_name: '',
+                cus_budget_code: '',
+                cus_passport: ''
+              },
+              payment_type: '3', // Tiền mặt / chuyển khoản
+              discount: 0,
+              discount_amount: 0,
+              detail: newItems.map(x => ({
+                ...x,
+                price: formatString.formatVND(x.price, ','),
+                detailTotal: formatString.formatVND(x.detailTotal, ','),
+                detailAmount: formatString.formatVND(x.detailAmount, ',')
+              })),
+              total: formatString.formatVND(
+                formatArray.sumTotalKey(newItems, 'detailTotal'),
+                ','
+              ),
+              amount: formatString.formatVND(
+                formatArray.sumTotalKey(newItems, 'detailAmount'),
+                ','
+              ),
+              amount_in_words: window.to_vietnamese(
+                formatArray.sumTotalKey(bill.Items, 'Thanh_toanVAT')
+              ),
+              returnXml: 1,
+              autoSign: InvoiceConfig?.InvoiceActive?.SignType,
+              currency: 'VND'
+            }
+          } else {
+            newItems = bill.Items.map((x, i) => {
+              let PriceVAT =
+                x.VAT > 0
+                  ? Math.round(x.Thanh_toanVAT / ((100 + x.VAT) / 100))
+                  : x.Thanh_toanVAT
 
-              let urlPath = '/api/invoice/create-cash-register'
-              if (InvoiceConfig?.InvoiceActive?.init_invoice === 'HDBHMTT') {
-                urlPath = '/api/invoice/create-bill-of-sale-cash-register'
-              }
+              let PriceTotalVAT = x.Thanh_toanVAT - PriceVAT
 
-              let exportInvoice = await invoiceMutationPA.mutateAsync({
+              let detailVatRate = -3
+              if ([-1, -2, 0, 5, 8, 10].includes(x.VAT)) {
+                detailVatRate = x.VAT
+              }
+              return {
+                feature: 1,
+                code: x.ProdCode,
+                name: getProdTitle(x.ProdTitle),
+                unit: x.StockUnit || '',
+                quantity: x.Qty,
+                price: PriceVAT / x.Qty,
+                detailTotal: PriceVAT,
+                detailVatRate: detailVatRate,
+                detailVatRateOther: detailVatRate === -3 ? x.VAT : '',
+                detailVatAmount: PriceTotalVAT,
+                detailDiscount: '',
+                detailDiscountAmount: '',
+                detailAmount: x.Thanh_toanVAT
+              }
+            })
+
+            dataPost = {
+              init_invoice: InvoiceConfig?.InvoiceActive?.init_invoice || 'Lỗi',
+              action: 'create',
+              id_attr: '',
+              reference_id: '',
+              id_partner: getRefID({
+                ID: bill.ID,
+                RefIds: RefIds?.data || [],
+                CDate: moment(bill.CDate).format('DD-MM-YYYY')
+              }),
+              invoice_type: '',
+              name: InvoiceConfig?.InvoiceActive?.name || 'Lỗi',
+              serial: InvoiceConfig?.InvoiceActive?.InvSeries,
+              date_export: moment().format('YYYY-MM-DD'),
+              customer: {
+                cus_name: '',
+                cus_buyer:
+                  GlobalConfig?.Admin?.hddt?.SenderName || bill.SenderName,
+                cus_tax_code: '',
+                cus_address: bill?.SenderAddress || '',
+                cus_phone: bill.SenderPhone,
+                cus_email: '',
+                cus_email_cc: '',
+                cus_citizen_identity: '',
+                cus_bank_no: '',
+                cus_bank_name: '',
+                cus_budget_code: '',
+                cus_passport: ''
+              },
+              payment_type: '3', // Tiền mặt / chuyển khoản
+              discount: 0,
+              discount_amount: 0,
+              detail: newItems.map(x => ({
+                ...x,
+                price: formatString.formatVND(x.price, ','),
+                detailTotal: formatString.formatVND(x.detailTotal, ','),
+                detailVatAmount: formatString.formatVND(x.detailVatAmount, ','),
+                detailAmount: formatString.formatVND(x.detailAmount, ',')
+              })),
+              total: formatString.formatVND(
+                formatArray.sumTotalKey(newItems, 'detailTotal'),
+                ','
+              ),
+              vat_amount: formatString.formatVND(
+                formatArray.sumTotalKey(newItems, 'detailVatAmount'),
+                ','
+              ),
+              amount: formatString.formatVND(
+                formatArray.sumTotalKey(newItems, 'detailAmount'),
+                ','
+              ),
+              amount_in_words: window.to_vietnamese(
+                formatArray.sumTotalKey(bill.Items, 'Thanh_toanVAT')
+              ),
+              returnXml: 1,
+              autoSign: InvoiceConfig?.InvoiceActive?.SignType,
+              currency: 'VND'
+            }
+          }
+
+          let rsValue = {
+            ID: bill.ID,
+            InvoiceID: dataPost?.id_partner,
+            NewInvoiceID: '' //x.TransactionID + ';' + x.InvNo + ';' + x.InvCode
+          }
+
+          let urlPath = '/api/invoice/create-cash-register'
+          if (InvoiceConfig?.InvoiceActive?.init_invoice === 'HDBHMTT') {
+            urlPath = '/api/invoice/create-bill-of-sale-cash-register'
+          }
+
+          let exportInvoice = await invoiceMutationPA.mutateAsync({
+            url:
+              formatString.getValueENV(
+                InvoiceConfig?.InvoiceActive?.TestUrl,
+                InvoiceConfig?.InvoiceActive?.BaseUrl,
+                InvoiceConfig?.InvoiceActive?.isDemo
+              ) + urlPath,
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            param: {},
+            method: 'POST',
+            include: 'ENV',
+            body: dataPost,
+            resultType: 'json'
+          })
+
+          if (exportInvoice?.data?.result?.status === 422) {
+          } else if (
+            exportInvoice?.data?.result?.status === 400 &&
+            exportInvoice?.data?.result?.message === 'Trùng hóa đơn'
+          ) {
+            let syncInvoice = await invoiceMutationPA.mutateAsync({
+              url:
+                formatString.getValueENV(
+                  InvoiceConfig?.InvoiceActive?.TestUrl,
+                  InvoiceConfig?.InvoiceActive?.BaseUrl,
+                  InvoiceConfig?.InvoiceActive?.isDemo
+                ) + '/api/invoice/sync-data-cash-register',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              param: {},
+              method: 'POST',
+              include: 'ENV',
+              body: {
+                id_attr: '',
+                id_partner: dataPost?.id_partner,
+                type: InvoiceConfig?.InvoiceActive?.init_invoice
+              },
+              resultType: 'json'
+            })
+            if (syncInvoice?.data?.result?.data?.lookup_code) {
+              let lookupInvoice = await invoiceMutationPA.mutateAsync({
                 url:
                   formatString.getValueENV(
                     InvoiceConfig?.InvoiceActive?.TestUrl,
                     InvoiceConfig?.InvoiceActive?.BaseUrl,
                     InvoiceConfig?.InvoiceActive?.isDemo
-                  ) + urlPath,
+                  ) + '/api/invoice/lookup',
                 headers: {
                   'Content-Type': 'application/json'
                 },
                 param: {},
                 method: 'POST',
                 include: 'ENV',
-                body: dataPost,
+                body: {
+                  matracuu: syncInvoice?.data?.result?.data?.lookup_code
+                },
                 resultType: 'json'
               })
-
-              if (exportInvoice?.data?.result?.status === 422) {
-              } else if (
-                exportInvoice?.data?.result?.status === 400 &&
-                exportInvoice?.data?.result?.message === 'Trùng hóa đơn'
-              ) {
-                let syncInvoice = await invoiceMutationPA.mutateAsync({
+              rsValue.NewInvoiceID =
+                syncInvoice?.data?.result?.data?.lookup_code +
+                ';' +
+                (lookupInvoice?.data?.result?.data?.sohoadon ||
+                  syncInvoice?.data?.result?.data?.no) +
+                ';' +
+                syncInvoice?.data?.result?.data?.code_cqt
+            }
+          } else {
+            if (exportInvoice?.data?.result?.lookup_code) {
+              let syncInvoice = await invoiceMutationPA.mutateAsync({
+                url:
+                  formatString.getValueENV(
+                    InvoiceConfig?.InvoiceActive?.TestUrl,
+                    InvoiceConfig?.InvoiceActive?.BaseUrl,
+                    InvoiceConfig?.InvoiceActive?.isDemo
+                  ) + '/api/invoice/sync-data-cash-register',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                param: {},
+                method: 'POST',
+                include: 'ENV',
+                body: {
+                  init_invoice: InvoiceConfig?.InvoiceActive?.init_invoice,
+                  id_attr: '',
+                  id_partner: dataPost?.id_partner,
+                  type: InvoiceConfig?.InvoiceActive?.init_invoice
+                },
+                resultType: 'json'
+              })
+              if (syncInvoice?.data?.result?.data?.lookup_code) {
+                let lookupInvoice = await invoiceMutationPA.mutateAsync({
                   url:
                     formatString.getValueENV(
                       InvoiceConfig?.InvoiceActive?.TestUrl,
                       InvoiceConfig?.InvoiceActive?.BaseUrl,
                       InvoiceConfig?.InvoiceActive?.isDemo
-                    ) + '/api/invoice/sync-data-cash-register',
+                    ) + '/api/invoice/lookup',
                   headers: {
                     'Content-Type': 'application/json'
                   },
@@ -402,380 +509,925 @@ function ElectronicInvoice(props) {
                   method: 'POST',
                   include: 'ENV',
                   body: {
-                    id_attr: '',
-                    id_partner: dataPost?.id_partner,
-                    type: InvoiceConfig?.InvoiceActive?.init_invoice
+                    matracuu: syncInvoice?.data?.result?.data?.lookup_code
                   },
                   resultType: 'json'
                 })
-                if (syncInvoice?.data?.result?.data?.lookup_code) {
-                  let lookupInvoice = await invoiceMutationPA.mutateAsync({
-                    url:
-                      formatString.getValueENV(
-                        InvoiceConfig?.InvoiceActive?.TestUrl,
-                        InvoiceConfig?.InvoiceActive?.BaseUrl,
-                        InvoiceConfig?.InvoiceActive?.isDemo
-                      ) + '/api/invoice/lookup',
-                    headers: {
-                      'Content-Type': 'application/json'
-                    },
-                    param: {},
-                    method: 'POST',
-                    include: 'ENV',
-                    body: {
-                      matracuu: syncInvoice?.data?.result?.data?.lookup_code
-                    },
-                    resultType: 'json'
-                  })
-                  rsValue.NewInvoiceID =
-                    syncInvoice?.data?.result?.data?.lookup_code +
-                    ';' +
-                    (lookupInvoice?.data?.result?.data?.sohoadon ||
-                      syncInvoice?.data?.result?.data?.no) +
-                    ';' +
-                    syncInvoice?.data?.result?.data?.code_cqt
-                }
-              } else {
-                if (exportInvoice?.data?.result?.lookup_code) {
-                  let syncInvoice = await invoiceMutationPA.mutateAsync({
-                    url:
-                      formatString.getValueENV(
-                        InvoiceConfig?.InvoiceActive?.TestUrl,
-                        InvoiceConfig?.InvoiceActive?.BaseUrl,
-                        InvoiceConfig?.InvoiceActive?.isDemo
-                      ) + '/api/invoice/sync-data-cash-register',
-                    headers: {
-                      'Content-Type': 'application/json'
-                    },
-                    param: {},
-                    method: 'POST',
-                    include: 'ENV',
-                    body: {
-                      init_invoice: InvoiceConfig?.InvoiceActive?.init_invoice,
-                      id_attr: '',
-                      id_partner: dataPost?.id_partner,
-                      type: InvoiceConfig?.InvoiceActive?.init_invoice
-                    },
-                    resultType: 'json'
-                  })
-                  if (syncInvoice?.data?.result?.data?.lookup_code) {
-                    let lookupInvoice = await invoiceMutationPA.mutateAsync({
-                      url:
-                        formatString.getValueENV(
-                          InvoiceConfig?.InvoiceActive?.TestUrl,
-                          InvoiceConfig?.InvoiceActive?.BaseUrl,
-                          InvoiceConfig?.InvoiceActive?.isDemo
-                        ) + '/api/invoice/lookup',
-                      headers: {
-                        'Content-Type': 'application/json'
-                      },
-                      param: {},
-                      method: 'POST',
-                      include: 'ENV',
-                      body: {
-                        matracuu: syncInvoice?.data?.result?.data?.lookup_code
-                      },
-                      resultType: 'json'
-                    })
-                    rsValue.NewInvoiceID =
-                      syncInvoice?.data?.result?.data?.lookup_code +
-                      ';' +
-                      (lookupInvoice?.data?.result?.data?.sohoadon ||
-                        syncInvoice?.data?.result?.data?.no) +
-                      ';' +
-                      syncInvoice?.data?.result?.data?.code_cqt
-                  }
-                }
+                rsValue.NewInvoiceID =
+                  syncInvoice?.data?.result?.data?.lookup_code +
+                  ';' +
+                  (lookupInvoice?.data?.result?.data?.sohoadon ||
+                    syncInvoice?.data?.result?.data?.no) +
+                  ';' +
+                  syncInvoice?.data?.result?.data?.code_cqt
               }
-              resolve(rsValue)
-            }).then(v => {
-              newRs = [...newRs, v]
+            }
+          }
+
+          if (rsValue?.NewInvoiceID && rsValue?.ID && rsValue?.InvoiceID) {
+            let updatePost = {
+              arr: [rsValue]
+            }
+
+            const rsSuccess = await updateInvoiceWithRetry(updatePost, 3)
+
+            if (rsSuccess?.data?.n) {
+              toast.update(toastId, {
+                render: `Hoá đơn #${bill.ID} xuất thành công 🎉`,
+                type: 'success',
+                isLoading: false,
+                autoClose: 2000,
+                icon: false
+              })
+            } else {
+              toast.update(toastId, {
+                render: `Hoá đơn #${bill.ID} xuất thành công nhưng chưa được cập nhật. Thực hiện cập nhật lại hoá đơn này`,
+                type: 'warning',
+                isLoading: false,
+                autoClose: 2000,
+                icon: false
+              })
+            }
+
+            newRs.push(rsValue)
+          } else {
+            toast.update(toastId, {
+              render: `Hoá đơn #${bill.ID} xuất không thành công. (Error: ${exportInvoice?.data?.result?.message})`,
+              type: 'error',
+              isLoading: false,
+              autoClose: 2000,
+              icon: false
             })
-          })
-        )
-        let updatePost = {
-          arr: newRs.filter(x => x.ID && x.InvoiceID && x.NewInvoiceID)
+
+            newErs.push(rsValue)
+          }
+
+          await new Promise(r => setTimeout(r, 2000))
         }
-        totalUpdate = updatePost.arr.length
-        if (updatePost.arr && updatePost.arr.length > 0) {
-          await InvoiceAPI.updateInvoiceIDs(updatePost)
-        }
+
+        // await Promise.all(
+        //   newLst.map(bill => {
+        //     return new Promise(async (resolve, reject) => {
+        //       let RefIds = await invoiceRefIDMutation.mutateAsync({
+        //         lst: [
+        //           {
+        //             OrderID: bill.ID,
+        //             Date: moment(bill.CDate).format('YYYY-MM-DD')
+        //           }
+        //         ],
+        //         invoiceNumberID: true
+        //       })
+
+        //       let newItems = []
+        //       let dataPost = null
+        //       if (InvoiceConfig?.InvoiceActive?.init_invoice === 'HDBHMTT') {
+        //         newItems = bill.Items.map((x, i) => {
+        //           return {
+        //             feature: 1,
+        //             code: x.ProdCode,
+        //             name: getProdTitle(x.ProdTitle),
+        //             unit: x.StockUnit || '',
+        //             quantity: x.Qty,
+        //             price: x.Thanh_toanVAT / x.Qty,
+        //             detailTotal: x.Thanh_toanVAT,
+        //             detailDiscount: '',
+        //             detailDiscountAmount: '',
+        //             detailAmount: x.Thanh_toanVAT
+        //           }
+        //         })
+
+        //         dataPost = {
+        //           init_invoice:
+        //             InvoiceConfig?.InvoiceActive?.init_invoice || 'Lỗi',
+        //           action: 'create',
+        //           id_attr: '',
+        //           reference_id: '',
+        //           id_partner: getRefID({
+        //             ID: bill.ID,
+        //             RefIds: RefIds?.data || [],
+        //             CDate: moment(bill.CDate).format('DD-MM-YYYY')
+        //           }),
+        //           invoice_type: '',
+        //           name: InvoiceConfig?.InvoiceActive?.name || 'Lỗi',
+        //           serial: InvoiceConfig?.InvoiceActive?.InvSeries,
+        //           date_export: moment().format('YYYY-MM-DD'),
+        //           customer: {
+        //             cus_name: '',
+        //             cus_buyer:
+        //               GlobalConfig?.Admin?.hddt?.SenderName || bill.SenderName,
+        //             cus_tax_code: '',
+        //             cus_address: bill?.SenderAddress || '',
+        //             cus_phone: bill.SenderPhone,
+        //             cus_email: '',
+        //             cus_email_cc: '',
+        //             cus_citizen_identity: '',
+        //             cus_bank_no: '',
+        //             cus_bank_name: '',
+        //             cus_budget_code: '',
+        //             cus_passport: ''
+        //           },
+        //           payment_type: '3', // Tiền mặt / chuyển khoản
+        //           discount: 0,
+        //           discount_amount: 0,
+        //           detail: newItems.map(x => ({
+        //             ...x,
+        //             price: formatString.formatVND(x.price, ','),
+        //             detailTotal: formatString.formatVND(x.detailTotal, ','),
+        //             detailAmount: formatString.formatVND(x.detailAmount, ',')
+        //           })),
+        //           total: formatString.formatVND(
+        //             formatArray.sumTotalKey(newItems, 'detailTotal'),
+        //             ','
+        //           ),
+        //           amount: formatString.formatVND(
+        //             formatArray.sumTotalKey(newItems, 'detailAmount'),
+        //             ','
+        //           ),
+        //           amount_in_words: window.to_vietnamese(
+        //             formatArray.sumTotalKey(bill.Items, 'Thanh_toanVAT')
+        //           ),
+        //           returnXml: 1,
+        //           autoSign: InvoiceConfig?.InvoiceActive?.SignType,
+        //           currency: 'VND'
+        //         }
+        //       } else {
+        //         newItems = bill.Items.map((x, i) => {
+        //           let PriceVAT =
+        //             x.VAT > 0
+        //               ? Math.round(x.Thanh_toanVAT / ((100 + x.VAT) / 100))
+        //               : x.Thanh_toanVAT
+
+        //           let PriceTotalVAT = x.Thanh_toanVAT - PriceVAT
+
+        //           let detailVatRate = -3
+        //           if ([-1, -2, 0, 5, 8, 10].includes(x.VAT)) {
+        //             detailVatRate = x.VAT
+        //           }
+        //           return {
+        //             feature: 1,
+        //             code: x.ProdCode,
+        //             name: getProdTitle(x.ProdTitle),
+        //             unit: x.StockUnit || '',
+        //             quantity: x.Qty,
+        //             price: PriceVAT / x.Qty,
+        //             detailTotal: PriceVAT,
+        //             detailVatRate: detailVatRate,
+        //             detailVatRateOther: detailVatRate === -3 ? x.VAT : '',
+        //             detailVatAmount: PriceTotalVAT,
+        //             detailDiscount: '',
+        //             detailDiscountAmount: '',
+        //             detailAmount: x.Thanh_toanVAT
+        //           }
+        //         })
+
+        //         dataPost = {
+        //           init_invoice:
+        //             InvoiceConfig?.InvoiceActive?.init_invoice || 'Lỗi',
+        //           action: 'create',
+        //           id_attr: '',
+        //           reference_id: '',
+        //           id_partner: getRefID({
+        //             ID: bill.ID,
+        //             RefIds: RefIds?.data || [],
+        //             CDate: moment(bill.CDate).format('DD-MM-YYYY')
+        //           }),
+        //           invoice_type: '',
+        //           name: InvoiceConfig?.InvoiceActive?.name || 'Lỗi',
+        //           serial: InvoiceConfig?.InvoiceActive?.InvSeries,
+        //           date_export: moment().format('YYYY-MM-DD'),
+        //           customer: {
+        //             cus_name: '',
+        //             cus_buyer:
+        //               GlobalConfig?.Admin?.hddt?.SenderName || bill.SenderName,
+        //             cus_tax_code: '',
+        //             cus_address: bill?.SenderAddress || '',
+        //             cus_phone: bill.SenderPhone,
+        //             cus_email: '',
+        //             cus_email_cc: '',
+        //             cus_citizen_identity: '',
+        //             cus_bank_no: '',
+        //             cus_bank_name: '',
+        //             cus_budget_code: '',
+        //             cus_passport: ''
+        //           },
+        //           payment_type: '3', // Tiền mặt / chuyển khoản
+        //           discount: 0,
+        //           discount_amount: 0,
+        //           detail: newItems.map(x => ({
+        //             ...x,
+        //             price: formatString.formatVND(x.price, ','),
+        //             detailTotal: formatString.formatVND(x.detailTotal, ','),
+        //             detailVatAmount: formatString.formatVND(
+        //               x.detailVatAmount,
+        //               ','
+        //             ),
+        //             detailAmount: formatString.formatVND(x.detailAmount, ',')
+        //           })),
+        //           total: formatString.formatVND(
+        //             formatArray.sumTotalKey(newItems, 'detailTotal'),
+        //             ','
+        //           ),
+        //           vat_amount: formatString.formatVND(
+        //             formatArray.sumTotalKey(newItems, 'detailVatAmount'),
+        //             ','
+        //           ),
+        //           amount: formatString.formatVND(
+        //             formatArray.sumTotalKey(newItems, 'detailAmount'),
+        //             ','
+        //           ),
+        //           amount_in_words: window.to_vietnamese(
+        //             formatArray.sumTotalKey(bill.Items, 'Thanh_toanVAT')
+        //           ),
+        //           returnXml: 1,
+        //           autoSign: InvoiceConfig?.InvoiceActive?.SignType,
+        //           currency: 'VND'
+        //         }
+        //       }
+
+        //       let rsValue = {
+        //         ID: bill.ID,
+        //         InvoiceID: dataPost?.id_partner,
+        //         NewInvoiceID: '' //x.TransactionID + ';' + x.InvNo + ';' + x.InvCode
+        //       }
+
+        //       let urlPath = '/api/invoice/create-cash-register'
+        //       if (InvoiceConfig?.InvoiceActive?.init_invoice === 'HDBHMTT') {
+        //         urlPath = '/api/invoice/create-bill-of-sale-cash-register'
+        //       }
+
+        //       let exportInvoice = await invoiceMutationPA.mutateAsync({
+        //         url:
+        //           formatString.getValueENV(
+        //             InvoiceConfig?.InvoiceActive?.TestUrl,
+        //             InvoiceConfig?.InvoiceActive?.BaseUrl,
+        //             InvoiceConfig?.InvoiceActive?.isDemo
+        //           ) + urlPath,
+        //         headers: {
+        //           'Content-Type': 'application/json'
+        //         },
+        //         param: {},
+        //         method: 'POST',
+        //         include: 'ENV',
+        //         body: dataPost,
+        //         resultType: 'json'
+        //       })
+
+        //       if (exportInvoice?.data?.result?.status === 422) {
+        //       } else if (
+        //         exportInvoice?.data?.result?.status === 400 &&
+        //         exportInvoice?.data?.result?.message === 'Trùng hóa đơn'
+        //       ) {
+        //         let syncInvoice = await invoiceMutationPA.mutateAsync({
+        //           url:
+        //             formatString.getValueENV(
+        //               InvoiceConfig?.InvoiceActive?.TestUrl,
+        //               InvoiceConfig?.InvoiceActive?.BaseUrl,
+        //               InvoiceConfig?.InvoiceActive?.isDemo
+        //             ) + '/api/invoice/sync-data-cash-register',
+        //           headers: {
+        //             'Content-Type': 'application/json'
+        //           },
+        //           param: {},
+        //           method: 'POST',
+        //           include: 'ENV',
+        //           body: {
+        //             id_attr: '',
+        //             id_partner: dataPost?.id_partner,
+        //             type: InvoiceConfig?.InvoiceActive?.init_invoice
+        //           },
+        //           resultType: 'json'
+        //         })
+        //         if (syncInvoice?.data?.result?.data?.lookup_code) {
+        //           let lookupInvoice = await invoiceMutationPA.mutateAsync({
+        //             url:
+        //               formatString.getValueENV(
+        //                 InvoiceConfig?.InvoiceActive?.TestUrl,
+        //                 InvoiceConfig?.InvoiceActive?.BaseUrl,
+        //                 InvoiceConfig?.InvoiceActive?.isDemo
+        //               ) + '/api/invoice/lookup',
+        //             headers: {
+        //               'Content-Type': 'application/json'
+        //             },
+        //             param: {},
+        //             method: 'POST',
+        //             include: 'ENV',
+        //             body: {
+        //               matracuu: syncInvoice?.data?.result?.data?.lookup_code
+        //             },
+        //             resultType: 'json'
+        //           })
+        //           rsValue.NewInvoiceID =
+        //             syncInvoice?.data?.result?.data?.lookup_code +
+        //             ';' +
+        //             (lookupInvoice?.data?.result?.data?.sohoadon ||
+        //               syncInvoice?.data?.result?.data?.no) +
+        //             ';' +
+        //             syncInvoice?.data?.result?.data?.code_cqt
+        //         }
+        //       } else {
+        //         if (exportInvoice?.data?.result?.lookup_code) {
+        //           let syncInvoice = await invoiceMutationPA.mutateAsync({
+        //             url:
+        //               formatString.getValueENV(
+        //                 InvoiceConfig?.InvoiceActive?.TestUrl,
+        //                 InvoiceConfig?.InvoiceActive?.BaseUrl,
+        //                 InvoiceConfig?.InvoiceActive?.isDemo
+        //               ) + '/api/invoice/sync-data-cash-register',
+        //             headers: {
+        //               'Content-Type': 'application/json'
+        //             },
+        //             param: {},
+        //             method: 'POST',
+        //             include: 'ENV',
+        //             body: {
+        //               init_invoice: InvoiceConfig?.InvoiceActive?.init_invoice,
+        //               id_attr: '',
+        //               id_partner: dataPost?.id_partner,
+        //               type: InvoiceConfig?.InvoiceActive?.init_invoice
+        //             },
+        //             resultType: 'json'
+        //           })
+        //           if (syncInvoice?.data?.result?.data?.lookup_code) {
+        //             let lookupInvoice = await invoiceMutationPA.mutateAsync({
+        //               url:
+        //                 formatString.getValueENV(
+        //                   InvoiceConfig?.InvoiceActive?.TestUrl,
+        //                   InvoiceConfig?.InvoiceActive?.BaseUrl,
+        //                   InvoiceConfig?.InvoiceActive?.isDemo
+        //                 ) + '/api/invoice/lookup',
+        //               headers: {
+        //                 'Content-Type': 'application/json'
+        //               },
+        //               param: {},
+        //               method: 'POST',
+        //               include: 'ENV',
+        //               body: {
+        //                 matracuu: syncInvoice?.data?.result?.data?.lookup_code
+        //               },
+        //               resultType: 'json'
+        //             })
+        //             rsValue.NewInvoiceID =
+        //               syncInvoice?.data?.result?.data?.lookup_code +
+        //               ';' +
+        //               (lookupInvoice?.data?.result?.data?.sohoadon ||
+        //                 syncInvoice?.data?.result?.data?.no) +
+        //               ';' +
+        //               syncInvoice?.data?.result?.data?.code_cqt
+        //           }
+        //         }
+        //       }
+        //       resolve(rsValue)
+        //     }).then(v => {
+        //       newRs = [...newRs, v]
+        //     })
+        //   })
+        // )
+        // totalUpdate = updatePost.arr.length
+        // if (updatePost.arr && updatePost.arr.length > 0) {
+        //   await InvoiceAPI.updateInvoiceIDs(updatePost)
+        // }
       } else if (InvoiceConfig?.InvoiceActive?.Code === 'HDMISA') {
         newLst = chunk(newLst, 30)
-        await Promise.all(
-          newLst.map(async list => {
-            return new Promise(async (resolve, reject) => {
-              let RefIdsPost = list.map(x => {
-                let obj = {
-                  OrderID: x.ID,
-                  Date: moment(x.CDate).format('YYYY-MM-DD')
-                }
-                return obj
-              })
 
-              let RefIds = await invoiceRefIDMutation.mutateAsync({
-                lst: RefIdsPost
-              })
+        for (const list of newLst) {
+          let RefIdsPost = list.map(x => {
+            let obj = {
+              OrderID: x.ID,
+              Date: moment(x.CDate).format('YYYY-MM-DD')
+            }
+            return obj
+          })
 
-              let dataPost = {
-                SignType: Number(InvoiceConfig?.InvoiceActive?.SignType) || 5,
-                PublishInvoiceData: null,
-                InvoiceData: []
-              }
+          let RefIds = await invoiceRefIDMutation.mutateAsync({
+            lst: RefIdsPost
+          })
 
-              for (let item of list) {
-                let TotalOrder = formatArray.sumTotalKey(
-                  item.Items,
-                  'Thanh_toanVAT'
-                )
-                let newItems = item.Items.map((x, i) => {
-                  let PriceVAT = Math.round(
-                    x.VAT > 0
-                      ? x.Thanh_toanVAT / ((100 + x.VAT) / 100)
-                      : x.Thanh_toanVAT
-                  )
-                  let PriceTotalVAT = x.Thanh_toanVAT - PriceVAT
-                  return {
-                    ItemType: 1,
-                    LineNumber: i + 1,
-                    SortOrder: i + 1,
-                    ItemCode: x.ProdCode,
-                    ItemName: getProdTitle(x.ProdTitle),
-                    UnitName: x.StockUnit || '',
-                    Quantity: x.Qty,
-                    UnitPrice: PriceVAT / x.Qty,
-                    DiscountRate: 0,
-                    DiscountAmountOC: 0,
-                    Amount: PriceVAT,
-                    AmountOC: PriceVAT,
-                    AmountWithoutVATOC: PriceVAT,
-                    AmountWithoutVAT: PriceVAT,
-                    VATRateName: getVATRateName(x.VAT),
-                    VATAmountOC: PriceTotalVAT,
-                    VATAmount: PriceTotalVAT
-                  }
-                })
+          let dataPost = {
+            SignType: Number(InvoiceConfig?.InvoiceActive?.SignType) || 5,
+            PublishInvoiceData: null,
+            InvoiceData: []
+          }
 
-                let TotalOrderVAT = formatArray.sumTotalKey(newItems, 'Amount')
-
-                let TaxRateInfo = [
-                  {
-                    VATRateName: '10%',
-                    AmountWithoutVATOC: formatArray.sumTotalKey(
-                      newItems.filter(x => x.VATRateName === '10%'),
-                      'Amount'
-                    ),
-                    VATAmountOC: formatArray.sumTotalKey(
-                      newItems.filter(x => x.VATRateName === '10%'),
-                      'VATAmount'
-                    )
-                  },
-                  {
-                    VATRateName: '8%',
-                    AmountWithoutVATOC: formatArray.sumTotalKey(
-                      newItems.filter(x => x.VATRateName === '8%'),
-                      'Amount'
-                    ),
-                    VATAmountOC: formatArray.sumTotalKey(
-                      newItems.filter(x => x.VATRateName === '8%'),
-                      'VATAmount'
-                    )
-                  },
-                  {
-                    VATRateName: '5%',
-                    AmountWithoutVATOC: formatArray.sumTotalKey(
-                      newItems.filter(x => x.VATRateName === '5%'),
-                      'Amount'
-                    ),
-                    VATAmountOC: formatArray.sumTotalKey(
-                      newItems.filter(x => x.VATRateName === '5%'),
-                      'VATAmount'
-                    )
-                  },
-                  {
-                    VATRateName: '5%',
-                    AmountWithoutVATOC: formatArray.sumTotalKey(
-                      newItems.filter(x => x.VATRateName === '5%'),
-                      'Amount'
-                    ),
-                    VATAmountOC: formatArray.sumTotalKey(
-                      newItems.filter(x => x.VATRateName === '5%'),
-                      'VATAmount'
-                    )
-                  },
-                  {
-                    VATRateName: '0%',
-                    AmountWithoutVATOC: formatArray.sumTotalKey(
-                      newItems.filter(x => x.VATRateName === '0%'),
-                      'Amount'
-                    ),
-                    VATAmountOC: formatArray.sumTotalKey(
-                      newItems.filter(x => x.VATRateName === '0%'),
-                      'VATAmount'
-                    )
-                  },
-                  {
-                    VATRateName: 'KCT',
-                    AmountWithoutVATOC: formatArray.sumTotalKey(
-                      newItems.filter(x => x.VATRateName === 'KCT'),
-                      'Amount'
-                    ),
-                    VATAmountOC: formatArray.sumTotalKey(
-                      newItems.filter(x => x.VATRateName === 'KCT'),
-                      'VATAmount'
-                    )
-                  },
-                  {
-                    VATRateName: 'KKKNT',
-                    AmountWithoutVATOC: formatArray.sumTotalKey(
-                      newItems.filter(x => x.VATRateName === 'KKKNT'),
-                      'Amount'
-                    ),
-                    VATAmountOC: formatArray.sumTotalKey(
-                      newItems.filter(x => x.VATRateName === 'KKKNT'),
-                      'VATAmount'
-                    )
-                  },
-                  ...(newItems
-                    .filter(x => x.VATRateName.indexOf('KHAC:') > -1)
-                    .map(k => ({
-                      VATRateName: k.VATRateName,
-                      AmountWithoutVATOC: formatArray.sumTotalKey(
-                        newItems.filter(x => x.VATRateName === k.VATRateName),
-                        'Amount'
-                      ),
-                      VATAmountOC: formatArray.sumTotalKey(
-                        newItems.filter(x => x.VATRateName === k.VATRateName),
-                        'VATAmount'
-                      )
-                    })) || [])
-                ].filter(x => x.AmountWithoutVATOC && x.VATAmountOC)
-
-                let obj = {
-                  RefID: getRefID({
-                    ID: item.ID,
-                    RefIds: RefIds?.data || [],
-                    CDate: moment(item.CDate).format('DD-MM-YYYY')
-                  }),
-                  InvSeries: InvoiceConfig?.InvoiceActive?.InvSeries,
-                  InvDate: moment().format('YYYY-MM-DD'),
-                  CurrencyCode: 'VND',
-                  ExchangeRate: 1.0,
-                  IsTaxReduction43: TaxRateInfo.some(
-                    x => x.VATRateName === '8%'
-                  ),
-                  // PaymentMethodName: [
-                  //   {
-                  //     Title: 'TM',
-                  //     Value: item.TM
-                  //   },
-                  //   {
-                  //     Title: 'CK',
-                  //     Value: item.CK
-                  //   },
-                  //   {
-                  //     Title: 'QT',
-                  //     Value: item.QT
-                  //   }
-                  // ]
-                  //   .filter(x => x.Value)
-                  //   .map(x => x.Title)
-                  //   .join('/'),
-                  PaymentMethodName: 'TM/CK',
-                  BuyerLegalName: '',
-                  BuyerTaxCode: '',
-                  BuyerAddress: item?.SenderAddress || '',
-                  BuyerCode: '',
-                  BuyerPhoneNumber: item.SenderPhone,
-                  BuyerEmail: '',
-                  BuyerFullName:
-                    GlobalConfig?.Admin?.hddt?.SenderName || item.SenderName,
-                  BuyerBankAccount: '',
-                  BuyerBankName: '',
-                  TotalSaleAmountOC: formatArray.sumTotalKey(
-                    newItems,
-                    'Amount'
-                  ),
-                  TotalSaleAmount: formatArray.sumTotalKey(newItems, 'Amount'),
-                  TotalAmountWithoutVATOC: TotalOrderVAT,
-                  TotalAmountWithoutVAT: TotalOrderVAT,
-                  TotalVATAmountOC: formatArray.sumTotalKey(
-                    newItems,
-                    'VATAmount'
-                  ),
-                  TotalVATAmount: formatArray.sumTotalKey(
-                    newItems,
-                    'VATAmount'
-                  ),
-                  TotalDiscountAmountOC: 0,
-                  TotalDiscountAmount: 0,
-                  TotalAmountOC: TotalOrder, // tổng tiền thanh toán
-                  TotalAmount: TotalOrder, // Tổng tiền thanh toán
-                  TotalAmountInWords: window.to_vietnamese(TotalOrder),
-                  OriginalInvoiceDetail: newItems,
-                  TaxRateInfo: TaxRateInfo
-                }
-                obj.RefID && dataPost.InvoiceData.push(obj)
-              }
-
-              let urlPath = '/invoice'
-
-              invoiceMutation.mutate(
-                {
-                  url:
-                    formatString.getValueENV(
-                      InvoiceConfig?.InvoiceActive?.TestUrl,
-                      InvoiceConfig?.InvoiceActive?.BaseUrl,
-                      InvoiceConfig?.InvoiceActive?.isDemo
-                    ) + urlPath,
-                  headers: {
-                    'Content-Type': 'application/json'
-                  },
-                  param: {},
-                  method: 'POST',
-                  include: 'ENV',
-                  body: dataPost,
-                  resultType: 'json'
-                },
-                {
-                  onSuccess: rs => {
-                    resolve(rs)
-                  }
-                }
+          for (let item of list) {
+            let TotalOrder = formatArray.sumTotalKey(
+              item.Items,
+              'Thanh_toanVAT'
+            )
+            let newItems = item.Items.map((x, i) => {
+              let PriceVAT = Math.round(
+                x.VAT > 0
+                  ? x.Thanh_toanVAT / ((100 + x.VAT) / 100)
+                  : x.Thanh_toanVAT
               )
-            }).then(rs => {
-              let result = rs?.data?.result?.publishInvoiceResult
-              if (result) {
-                result = JSON.parse(result)
-                newRs = [...newRs, ...result]
+              let PriceTotalVAT = x.Thanh_toanVAT - PriceVAT
+              return {
+                ItemType: 1,
+                LineNumber: i + 1,
+                SortOrder: i + 1,
+                ItemCode: x.ProdCode,
+                ItemName: getProdTitle(x.ProdTitle),
+                UnitName: x.StockUnit || '',
+                Quantity: x.Qty,
+                UnitPrice: PriceVAT / x.Qty,
+                DiscountRate: 0,
+                DiscountAmountOC: 0,
+                Amount: PriceVAT,
+                AmountOC: PriceVAT,
+                AmountWithoutVATOC: PriceVAT,
+                AmountWithoutVAT: PriceVAT,
+                VATRateName: getVATRateName(x.VAT),
+                VATAmountOC: PriceTotalVAT,
+                VATAmount: PriceTotalVAT
               }
             })
-          })
-        )
 
-        let updatePost = {
-          arr: newRs
-            .filter(
-              x =>
-                (x?.ErrorCode && x.ErrorCode === 'DuplicateInvoiceRefID') ||
-                !x.ErrorCode
+            let TotalOrderVAT = formatArray.sumTotalKey(newItems, 'Amount')
+
+            let TaxRateInfo = [
+              {
+                VATRateName: '10%',
+                AmountWithoutVATOC: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '10%'),
+                  'Amount'
+                ),
+                VATAmountOC: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '10%'),
+                  'VATAmount'
+                )
+              },
+              {
+                VATRateName: '8%',
+                AmountWithoutVATOC: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '8%'),
+                  'Amount'
+                ),
+                VATAmountOC: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '8%'),
+                  'VATAmount'
+                )
+              },
+              {
+                VATRateName: '5%',
+                AmountWithoutVATOC: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '5%'),
+                  'Amount'
+                ),
+                VATAmountOC: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '5%'),
+                  'VATAmount'
+                )
+              },
+              {
+                VATRateName: '5%',
+                AmountWithoutVATOC: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '5%'),
+                  'Amount'
+                ),
+                VATAmountOC: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '5%'),
+                  'VATAmount'
+                )
+              },
+              {
+                VATRateName: '0%',
+                AmountWithoutVATOC: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '0%'),
+                  'Amount'
+                ),
+                VATAmountOC: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '0%'),
+                  'VATAmount'
+                )
+              },
+              {
+                VATRateName: 'KCT',
+                AmountWithoutVATOC: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === 'KCT'),
+                  'Amount'
+                ),
+                VATAmountOC: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === 'KCT'),
+                  'VATAmount'
+                )
+              },
+              {
+                VATRateName: 'KKKNT',
+                AmountWithoutVATOC: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === 'KKKNT'),
+                  'Amount'
+                ),
+                VATAmountOC: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === 'KKKNT'),
+                  'VATAmount'
+                )
+              },
+              ...(newItems
+                .filter(x => x.VATRateName.indexOf('KHAC:') > -1)
+                .map(k => ({
+                  VATRateName: k.VATRateName,
+                  AmountWithoutVATOC: formatArray.sumTotalKey(
+                    newItems.filter(x => x.VATRateName === k.VATRateName),
+                    'Amount'
+                  ),
+                  VATAmountOC: formatArray.sumTotalKey(
+                    newItems.filter(x => x.VATRateName === k.VATRateName),
+                    'VATAmount'
+                  )
+                })) || [])
+            ].filter(x => x.AmountWithoutVATOC && x.VATAmountOC)
+
+            let obj = {
+              RefID: getRefID({
+                ID: item.ID,
+                RefIds: RefIds?.data || [],
+                CDate: moment(item.CDate).format('DD-MM-YYYY')
+              }),
+              InvSeries: InvoiceConfig?.InvoiceActive?.InvSeries,
+              InvDate: moment().format('YYYY-MM-DD'),
+              CurrencyCode: 'VND',
+              ExchangeRate: 1.0,
+              IsTaxReduction43: TaxRateInfo.some(x => x.VATRateName === '8%'),
+              // PaymentMethodName: [
+              //   {
+              //     Title: 'TM',
+              //     Value: item.TM
+              //   },
+              //   {
+              //     Title: 'CK',
+              //     Value: item.CK
+              //   },
+              //   {
+              //     Title: 'QT',
+              //     Value: item.QT
+              //   }
+              // ]
+              //   .filter(x => x.Value)
+              //   .map(x => x.Title)
+              //   .join('/'),
+              PaymentMethodName: 'TM/CK',
+              BuyerLegalName: '',
+              BuyerTaxCode: '',
+              BuyerAddress: item?.SenderAddress || '',
+              BuyerCode: '',
+              BuyerPhoneNumber: item.SenderPhone,
+              BuyerEmail: '',
+              BuyerFullName:
+                GlobalConfig?.Admin?.hddt?.SenderName || item.SenderName,
+              BuyerBankAccount: '',
+              BuyerBankName: '',
+              TotalSaleAmountOC: formatArray.sumTotalKey(newItems, 'Amount'),
+              TotalSaleAmount: formatArray.sumTotalKey(newItems, 'Amount'),
+              TotalAmountWithoutVATOC: TotalOrderVAT,
+              TotalAmountWithoutVAT: TotalOrderVAT,
+              TotalVATAmountOC: formatArray.sumTotalKey(newItems, 'VATAmount'),
+              TotalVATAmount: formatArray.sumTotalKey(newItems, 'VATAmount'),
+              TotalDiscountAmountOC: 0,
+              TotalDiscountAmount: 0,
+              TotalAmountOC: TotalOrder, // tổng tiền thanh toán
+              TotalAmount: TotalOrder, // Tổng tiền thanh toán
+              TotalAmountInWords: window.to_vietnamese(TotalOrder),
+              OriginalInvoiceDetail: newItems,
+              TaxRateInfo: TaxRateInfo
+            }
+            obj.RefID && dataPost.InvoiceData.push(obj)
+          }
+
+          let urlPath = '/invoice'
+
+          let exportInvoice = await invoiceMutation.mutateAsync({
+            url:
+              formatString.getValueENV(
+                InvoiceConfig?.InvoiceActive?.TestUrl,
+                InvoiceConfig?.InvoiceActive?.BaseUrl,
+                InvoiceConfig?.InvoiceActive?.isDemo
+              ) + urlPath,
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            param: {},
+            method: 'POST',
+            include: 'ENV',
+            body: dataPost,
+            resultType: 'json'
+          })
+          if (exportInvoice?.data?.result?.publishInvoiceResult) {
+            let newPublishInvoiceResult = JSON.parse(
+              exportInvoice?.data?.result?.publishInvoiceResult
             )
-            .map(x => ({
-              ID: Number(x.RefID.split('-')[0]),
-              InvoiceID: x.RefID,
-              NewInvoiceID: x.TransactionID + ';' + x.InvNo + ';' + x.InvCode
-            }))
+
+            let updatePost = {
+              arr: newPublishInvoiceResult
+                .filter(
+                  x =>
+                    (x?.ErrorCode && x.ErrorCode === 'DuplicateInvoiceRefID') ||
+                    !x.ErrorCode
+                )
+                .map(x => ({
+                  ID: Number(x.RefID.split('-')[0]),
+                  InvoiceID: x.RefID,
+                  NewInvoiceID:
+                    x.TransactionID + ';' + x.InvNo + ';' + x.InvCode
+                }))
+            }
+
+            const rsSuccess = await updateInvoiceWithRetry(updatePost, 3)
+
+            if (rsSuccess?.data?.n) {
+              newRs = [
+                ...newRs,
+                ...newPublishInvoiceResult.filter(
+                  x =>
+                    (x?.ErrorCode && x.ErrorCode === 'DuplicateInvoiceRefID') ||
+                    !x.ErrorCode
+                )
+              ]
+            } else {
+              newErs = [
+                ...newErs,
+                ...newPublishInvoiceResult.filter(
+                  x => x?.ErrorCode && x?.ErrorCode !== 'DuplicateInvoiceRefID'
+                )
+              ]
+            }
+          }
         }
-        totalUpdate = updatePost.arr.length
-        if (updatePost.arr && updatePost.arr.length > 0) {
-          await InvoiceAPI.updateInvoiceIDs(updatePost)
-        }
+
+        // await Promise.all(
+        //   newLst.map(async list => {
+        //     return new Promise(async (resolve, reject) => {
+        //       let RefIdsPost = list.map(x => {
+        //         let obj = {
+        //           OrderID: x.ID,
+        //           Date: moment(x.CDate).format('YYYY-MM-DD')
+        //         }
+        //         return obj
+        //       })
+
+        //       let RefIds = await invoiceRefIDMutation.mutateAsync({
+        //         lst: RefIdsPost
+        //       })
+
+        //       let dataPost = {
+        //         SignType: Number(InvoiceConfig?.InvoiceActive?.SignType) || 5,
+        //         PublishInvoiceData: null,
+        //         InvoiceData: []
+        //       }
+
+        //       for (let item of list) {
+        //         let TotalOrder = formatArray.sumTotalKey(
+        //           item.Items,
+        //           'Thanh_toanVAT'
+        //         )
+        //         let newItems = item.Items.map((x, i) => {
+        //           let PriceVAT = Math.round(
+        //             x.VAT > 0
+        //               ? x.Thanh_toanVAT / ((100 + x.VAT) / 100)
+        //               : x.Thanh_toanVAT
+        //           )
+        //           let PriceTotalVAT = x.Thanh_toanVAT - PriceVAT
+        //           return {
+        //             ItemType: 1,
+        //             LineNumber: i + 1,
+        //             SortOrder: i + 1,
+        //             ItemCode: x.ProdCode,
+        //             ItemName: getProdTitle(x.ProdTitle),
+        //             UnitName: x.StockUnit || '',
+        //             Quantity: x.Qty,
+        //             UnitPrice: PriceVAT / x.Qty,
+        //             DiscountRate: 0,
+        //             DiscountAmountOC: 0,
+        //             Amount: PriceVAT,
+        //             AmountOC: PriceVAT,
+        //             AmountWithoutVATOC: PriceVAT,
+        //             AmountWithoutVAT: PriceVAT,
+        //             VATRateName: getVATRateName(x.VAT),
+        //             VATAmountOC: PriceTotalVAT,
+        //             VATAmount: PriceTotalVAT
+        //           }
+        //         })
+
+        //         let TotalOrderVAT = formatArray.sumTotalKey(newItems, 'Amount')
+
+        //         let TaxRateInfo = [
+        //           {
+        //             VATRateName: '10%',
+        //             AmountWithoutVATOC: formatArray.sumTotalKey(
+        //               newItems.filter(x => x.VATRateName === '10%'),
+        //               'Amount'
+        //             ),
+        //             VATAmountOC: formatArray.sumTotalKey(
+        //               newItems.filter(x => x.VATRateName === '10%'),
+        //               'VATAmount'
+        //             )
+        //           },
+        //           {
+        //             VATRateName: '8%',
+        //             AmountWithoutVATOC: formatArray.sumTotalKey(
+        //               newItems.filter(x => x.VATRateName === '8%'),
+        //               'Amount'
+        //             ),
+        //             VATAmountOC: formatArray.sumTotalKey(
+        //               newItems.filter(x => x.VATRateName === '8%'),
+        //               'VATAmount'
+        //             )
+        //           },
+        //           {
+        //             VATRateName: '5%',
+        //             AmountWithoutVATOC: formatArray.sumTotalKey(
+        //               newItems.filter(x => x.VATRateName === '5%'),
+        //               'Amount'
+        //             ),
+        //             VATAmountOC: formatArray.sumTotalKey(
+        //               newItems.filter(x => x.VATRateName === '5%'),
+        //               'VATAmount'
+        //             )
+        //           },
+        //           {
+        //             VATRateName: '5%',
+        //             AmountWithoutVATOC: formatArray.sumTotalKey(
+        //               newItems.filter(x => x.VATRateName === '5%'),
+        //               'Amount'
+        //             ),
+        //             VATAmountOC: formatArray.sumTotalKey(
+        //               newItems.filter(x => x.VATRateName === '5%'),
+        //               'VATAmount'
+        //             )
+        //           },
+        //           {
+        //             VATRateName: '0%',
+        //             AmountWithoutVATOC: formatArray.sumTotalKey(
+        //               newItems.filter(x => x.VATRateName === '0%'),
+        //               'Amount'
+        //             ),
+        //             VATAmountOC: formatArray.sumTotalKey(
+        //               newItems.filter(x => x.VATRateName === '0%'),
+        //               'VATAmount'
+        //             )
+        //           },
+        //           {
+        //             VATRateName: 'KCT',
+        //             AmountWithoutVATOC: formatArray.sumTotalKey(
+        //               newItems.filter(x => x.VATRateName === 'KCT'),
+        //               'Amount'
+        //             ),
+        //             VATAmountOC: formatArray.sumTotalKey(
+        //               newItems.filter(x => x.VATRateName === 'KCT'),
+        //               'VATAmount'
+        //             )
+        //           },
+        //           {
+        //             VATRateName: 'KKKNT',
+        //             AmountWithoutVATOC: formatArray.sumTotalKey(
+        //               newItems.filter(x => x.VATRateName === 'KKKNT'),
+        //               'Amount'
+        //             ),
+        //             VATAmountOC: formatArray.sumTotalKey(
+        //               newItems.filter(x => x.VATRateName === 'KKKNT'),
+        //               'VATAmount'
+        //             )
+        //           },
+        //           ...(newItems
+        //             .filter(x => x.VATRateName.indexOf('KHAC:') > -1)
+        //             .map(k => ({
+        //               VATRateName: k.VATRateName,
+        //               AmountWithoutVATOC: formatArray.sumTotalKey(
+        //                 newItems.filter(x => x.VATRateName === k.VATRateName),
+        //                 'Amount'
+        //               ),
+        //               VATAmountOC: formatArray.sumTotalKey(
+        //                 newItems.filter(x => x.VATRateName === k.VATRateName),
+        //                 'VATAmount'
+        //               )
+        //             })) || [])
+        //         ].filter(x => x.AmountWithoutVATOC && x.VATAmountOC)
+
+        //         let obj = {
+        //           RefID: getRefID({
+        //             ID: item.ID,
+        //             RefIds: RefIds?.data || [],
+        //             CDate: moment(item.CDate).format('DD-MM-YYYY')
+        //           }),
+        //           InvSeries: InvoiceConfig?.InvoiceActive?.InvSeries,
+        //           InvDate: moment().format('YYYY-MM-DD'),
+        //           CurrencyCode: 'VND',
+        //           ExchangeRate: 1.0,
+        //           IsTaxReduction43: TaxRateInfo.some(
+        //             x => x.VATRateName === '8%'
+        //           ),
+        //           // PaymentMethodName: [
+        //           //   {
+        //           //     Title: 'TM',
+        //           //     Value: item.TM
+        //           //   },
+        //           //   {
+        //           //     Title: 'CK',
+        //           //     Value: item.CK
+        //           //   },
+        //           //   {
+        //           //     Title: 'QT',
+        //           //     Value: item.QT
+        //           //   }
+        //           // ]
+        //           //   .filter(x => x.Value)
+        //           //   .map(x => x.Title)
+        //           //   .join('/'),
+        //           PaymentMethodName: 'TM/CK',
+        //           BuyerLegalName: '',
+        //           BuyerTaxCode: '',
+        //           BuyerAddress: item?.SenderAddress || '',
+        //           BuyerCode: '',
+        //           BuyerPhoneNumber: item.SenderPhone,
+        //           BuyerEmail: '',
+        //           BuyerFullName:
+        //             GlobalConfig?.Admin?.hddt?.SenderName || item.SenderName,
+        //           BuyerBankAccount: '',
+        //           BuyerBankName: '',
+        //           TotalSaleAmountOC: formatArray.sumTotalKey(
+        //             newItems,
+        //             'Amount'
+        //           ),
+        //           TotalSaleAmount: formatArray.sumTotalKey(newItems, 'Amount'),
+        //           TotalAmountWithoutVATOC: TotalOrderVAT,
+        //           TotalAmountWithoutVAT: TotalOrderVAT,
+        //           TotalVATAmountOC: formatArray.sumTotalKey(
+        //             newItems,
+        //             'VATAmount'
+        //           ),
+        //           TotalVATAmount: formatArray.sumTotalKey(
+        //             newItems,
+        //             'VATAmount'
+        //           ),
+        //           TotalDiscountAmountOC: 0,
+        //           TotalDiscountAmount: 0,
+        //           TotalAmountOC: TotalOrder, // tổng tiền thanh toán
+        //           TotalAmount: TotalOrder, // Tổng tiền thanh toán
+        //           TotalAmountInWords: window.to_vietnamese(TotalOrder),
+        //           OriginalInvoiceDetail: newItems,
+        //           TaxRateInfo: TaxRateInfo
+        //         }
+        //         obj.RefID && dataPost.InvoiceData.push(obj)
+        //       }
+
+        //       let urlPath = '/invoice'
+
+        //       invoiceMutation.mutate(
+        //         {
+        //           url:
+        //             formatString.getValueENV(
+        //               InvoiceConfig?.InvoiceActive?.TestUrl,
+        //               InvoiceConfig?.InvoiceActive?.BaseUrl,
+        //               InvoiceConfig?.InvoiceActive?.isDemo
+        //             ) + urlPath,
+        //           headers: {
+        //             'Content-Type': 'application/json'
+        //           },
+        //           param: {},
+        //           method: 'POST',
+        //           include: 'ENV',
+        //           body: dataPost,
+        //           resultType: 'json'
+        //         },
+        //         {
+        //           onSuccess: rs => {
+        //             resolve(rs)
+        //           }
+        //         }
+        //       )
+        //     }).then(rs => {
+        //       let result = rs?.data?.result?.publishInvoiceResult
+        //       if (result) {
+        //         result = JSON.parse(result)
+        //         newRs = [...newRs, ...result]
+        //       }
+        //     })
+        //   })
+        // )
+
+        // let updatePost = {
+        //   arr: newRs
+        //     .filter(
+        //       x =>
+        //         (x?.ErrorCode && x.ErrorCode === 'DuplicateInvoiceRefID') ||
+        //         !x.ErrorCode
+        //     )
+        //     .map(x => ({
+        //       ID: Number(x.RefID.split('-')[0]),
+        //       InvoiceID: x.RefID,
+        //       NewInvoiceID: x.TransactionID + ';' + x.InvNo + ';' + x.InvCode
+        //     }))
+        // }
+        // totalUpdate = updatePost.arr.length
+        // if (updatePost.arr && updatePost.arr.length > 0) {
+        //   await InvoiceAPI.updateInvoiceIDs(updatePost)
+        // }
       }
 
       await refetch()
       return {
         data: newRs,
-        TotalUpdate: totalUpdate
+        Updated: newRs,
+        Errors: newErs,
+        TotalUpdate: newRs.length
       }
     }
   })
