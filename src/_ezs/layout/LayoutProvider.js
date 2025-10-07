@@ -43,12 +43,19 @@ const LayoutProvider = ({ children }) => {
             : window.location.origin
         }/brand/global/Global.json?` + new Date().getTime()
       )
+
       let { data: template } = await axios.get(
-        `${
-          !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
-            ? process.env.REACT_APP_API_URL
-            : window.location.origin
-        }/AdminCp/Controls/Noti2/NotiTemplate.json`
+        data?.APP?.Home?.Slidernail
+          ? `${
+              !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
+                ? process.env.REACT_APP_API_URL
+                : window.location.origin
+            }/AdminCp/Controls/Noti2/NotiTemplateNail.json`
+          : `${
+              !process.env.NODE_ENV || process.env.NODE_ENV === 'development'
+                ? process.env.REACT_APP_API_URL
+                : window.location.origin
+            }/AdminCp/Controls/Noti2/NotiTemplate.json`
       )
       return {
         ...data,
@@ -162,7 +169,7 @@ const LayoutProvider = ({ children }) => {
           ENV: newENV
         })
       }
-      
+
       return {
         ENV: newENV,
         InvoiceTypes: newInvoiceTypes,

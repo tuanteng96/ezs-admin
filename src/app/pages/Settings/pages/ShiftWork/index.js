@@ -182,7 +182,7 @@ function ShiftWork(props) {
         })
         Users = UsersRs
       }
-
+      console.log(Users?.data)
       return {
         data: data?.data?.items.length > 0 ? data?.data?.items[0] : null,
         Users: Users?.data
@@ -227,6 +227,7 @@ function ShiftWork(props) {
       }
     },
     onSuccess: ({ data, Users, Lists }) => {
+      
       if (data) {
         let newUser = [...(data?.Data?.Users || [])]
         for (let user of Users) {
