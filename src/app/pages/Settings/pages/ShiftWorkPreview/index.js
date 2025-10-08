@@ -6,6 +6,7 @@ import React from 'react'
 import { useParams } from 'react-router'
 import SettingsAPI from 'src/_ezs/api/settings.api'
 import UsersAPI from 'src/_ezs/api/users.api'
+import WorksheetAPI from 'src/_ezs/api/workshee.api'
 import { useAuth } from 'src/_ezs/core/Auth'
 import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/LoadingComponentFull'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
@@ -98,6 +99,44 @@ function ShiftWorkPreview(props) {
         rs = newUser
       }
 
+      if (rs && rs.length > 0) {
+        let { data: Worksheet } = await WorksheetAPI.getAllWorkSheet({
+          From: moment(month, 'MM-YYYY').startOf('month').format('DD/MM/YYYY'),
+          To: moment(month, 'MM-YYYY').endOf('month').format('DD/MM/YYYY'),
+          key: '',
+          UserIDs: rs.map(x => x.UserID).join(',')
+        })
+
+        if (Worksheet.list && Worksheet.list.length > 0) {
+          for (let m of Worksheet.list) {
+            let index = rs.findIndex(x => x.UserID === m.UserID)
+            if (index > -1 && m.Dates && m.Dates.length > 0) {
+              rs[index].Dates = rs[index].Dates.map(date => {
+                let newObj = { ...date }
+                let indexDate = m.Dates.findIndex(
+                  x =>
+                    moment(x.Date).format('DD-MM-YYYY') ===
+                    moment(date.Date).format('DD-MM-YYYY')
+                )
+                if (indexDate > -1 && m.Dates[indexDate].WorkTrack) {
+                  if (m.Dates[indexDate]?.WorkTrack?.StockID === CrStocks?.ID) {
+                    if (newObj.WorkTrack) {
+                      newObj.WorkTrack = [
+                        ...newObj.WorkTrack,
+                        m.Dates[indexDate].WorkTrack
+                      ]
+                    } else {
+                      newObj.WorkTrack = [m.Dates[indexDate].WorkTrack]
+                    }
+                  }
+                }
+                return newObj
+              })
+            }
+          }
+        }
+      }
+
       return rs || []
     },
     enabled: Boolean(CrStocks?.ID),
@@ -107,13 +146,30 @@ function ShiftWorkPreview(props) {
         Dates: getDaysOfMonthFromDate(moment(month, 'MM-YYYY').toDate()),
         UserID: '',
         UserName: '',
-        StockID: ''
+        StockID: '',
+        IsLoading: true
       }))
   })
 
   const getStockByName = StocksID => {
     let index = Stocks && Stocks.findIndex(x => x.ID === StocksID)
-    return index > -1 ? Stocks[index].Title : 'Chưa xác định'
+    return index > -1 ? Stocks[index].Title : 'Không xác định'
+  }
+
+  const SumTotalWorkTrackHours = WorkTrack => {
+    if (!WorkTrack || WorkTrack.length === 0) return 0
+    let totalMinutes = WorkTrack.reduce((acc, item) => {
+      const checkIn = moment(item.CheckIn)
+      const checkOut = moment(item.CheckOut)
+
+      const diffMinutes = checkOut.diff(checkIn, 'minutes')
+      return acc + diffMinutes
+    }, 0)
+
+    const hours = Math.floor(totalMinutes / 60)
+    const minutes = totalMinutes % 60
+
+    return hours
   }
 
   return (
@@ -157,7 +213,7 @@ function ShiftWorkPreview(props) {
                           <div className="flex flex-col w-full text-center">
                             <div>{moment(date.Date).format('ddd')}</div>
                             <div className="text-[13px] font-normal leading-3 mt-1">
-                              {moment(date.Date).format('MM/YYYY')}
+                              {moment(date.Date).format('DD/MM')}
                             </div>
                           </div>
                         </th>
@@ -181,18 +237,22 @@ function ShiftWorkPreview(props) {
                       </td>
                       <td className="h-[73px] sticky left-0 px-4 py-4 text-sm z-[999] font-medium bg-white max-w-[250px] min-w-[250px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0">
                         <div>{user.UserName}</div>
-                        {!user.isDelete &&
-                          user.StockID !== user.UserStockID && (
-                            <div className="mt-1 text-[13px] font-light text-danger flex gap-2">
-                              Khác điểm : {getStockByName(user.UserStockID)}
-                            </div>
-                          )}
-                        {user.isDelete && (
+                        {!user.IsLoading && (
                           <>
-                            <div className="mt-1 text-[13px] font-light text-warning flex gap-2">
-                              <ExclamationTriangleIcon className="w-5" />
-                              Đã xoá hoặc chuyển cơ sở
-                            </div>
+                            {!user.isDelete &&
+                              user.StockID !== user.UserStockID && (
+                                <div className="mt-1 text-[13px] font-light text-danger flex gap-2">
+                                  Khác điểm : {getStockByName(user.UserStockID)}
+                                </div>
+                              )}
+                            {user.isDelete && (
+                              <>
+                                <div className="mt-1 text-[13px] font-light text-warning flex gap-2">
+                                  <ExclamationTriangleIcon className="w-5" />
+                                  Đã xoá hoặc chuyển cơ sở
+                                </div>
+                              </>
+                            )}
                           </>
                         )}
                       </td>
@@ -240,6 +300,12 @@ function ShiftWorkPreview(props) {
                                 {date?.WorkShiftType?.map(x =>
                                   Number(x?.Hours || 0)
                                 ).reduce((acc, curr) => acc + curr, 0)}
+                              </div>
+                            )}
+
+                            {date?.WorkTrack && date?.WorkTrack.length > 0 && (
+                              <div className="px-2 mt-1 bg-white rounded">
+                                {SumTotalWorkTrackHours(date?.WorkTrack)}
                               </div>
                             )}
                           </div>
