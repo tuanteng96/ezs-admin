@@ -37,7 +37,7 @@ const perfectScrollbarOptions = {
 }
 
 function Home(props) {
-  const { CrStocks, Stocks } = useAuth()
+  const { CrStocks, Stocks, auth } = useAuth()
   const { width } = useWindowSize()
 
   let [filters, setFilters] = useState({
@@ -316,35 +316,44 @@ function Home(props) {
               placement="top"
               trigger={['click']}
               overlay={
-                <div className="border-[#e5e5e5] border bg-white shadow-lg rounded-lg py-2.5">
-                  <PickerUserAddEdit initialValues={rowData}>
-                    {({ open }) => (
-                      <div
-                        className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
-                        onClick={() => {
-                          open()
-                          document.body.click()
-                        }}
-                      >
-                        Chỉnh sửa thông tin
-                      </div>
-                    )}
-                  </PickerUserAddEdit>
-                  <div
-                    className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition text-danger cursor-pointer"
-                    onClick={() => onDisable(rowData)}
-                  >
-                    {!rowData?.Disabled
-                      ? 'Vô hiệu hoá tài khoản'
-                      : 'Mở lại tài khoản'}
+                auth?.User?.ID !== 1 && rowData?.ID === 1 ? null : (
+                  <div className="border-[#e5e5e5] border bg-white shadow-lg rounded-lg py-2.5">
+                    <PickerUserAddEdit initialValues={rowData}>
+                      {({ open }) => (
+                        <div
+                          className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
+                          onClick={() => {
+                            open()
+                            document.body.click()
+                          }}
+                        >
+                          Chỉnh sửa thông tin
+                        </div>
+                      )}
+                    </PickerUserAddEdit>
+                    <div
+                      className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition text-danger cursor-pointer"
+                      onClick={() => onDisable(rowData)}
+                    >
+                      {!rowData?.Disabled
+                        ? 'Vô hiệu hoá tài khoản'
+                        : 'Mở lại tài khoản'}
+                    </div>
                   </div>
-                </div>
+                )
               }
               align={{
                 offset: [9, 0]
               }}
             >
-              <div className="flex items-center justify-center transition rounded-3xl cursor-pointer border-[#d3d3d3] border px-3.5 py-1.5 text-[14px] font-medium hover:bg-[#f5f5f5]">
+              <div
+                className={clsx(
+                  'flex items-center justify-center transition rounded-3xl cursor-pointer border-[#d3d3d3] border px-3.5 py-1.5 text-[14px] font-medium hover:bg-[#f5f5f5]',
+                  auth?.User?.ID !== 1 &&
+                    rowData?.ID === 1 &&
+                    'bg-gray-200 opacity-40 pointer-events-none'
+                )}
+              >
                 Chỉnh sửa
                 <svg
                   className="w-5 ml-1"
@@ -369,7 +378,7 @@ function Home(props) {
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [auth?.User?.ID]
   )
 
   const [sentryRef, { rootRef }] = useInfiniteScroll({
