@@ -19,6 +19,7 @@ const UploadFile = ({
   height = 'h-[160px]',
   buttonText = 'Thêm ảnh',
   disabled,
+  enabled = true,
   ...props
 }) => {
   const [completed, setCompleted] = useState(0)
@@ -94,14 +95,16 @@ const UploadFile = ({
           >
             {buttonText}
           </div>
-          <input
-            value=""
-            className="absolute top-0 left-0 z-0 w-full h-full opacity-0 cursor-pointer"
-            type="file"
-            title=""
-            {...props}
-            onChange={handleFileChange}
-          />
+          {enabled && (
+            <input
+              value=""
+              className="absolute top-0 left-0 z-0 w-full h-full opacity-0 cursor-pointer"
+              type="file"
+              title=""
+              {...props}
+              onChange={handleFileChange}
+            />
+          )}
         </div>
         {/* No file */}
         {value && (
@@ -129,12 +132,14 @@ const UploadFile = ({
                 alt="Avatar"
               />
             </a>
-            <div
-              className="absolute z-10 flex items-center justify-center text-gray-700 transition bg-white rounded-full shadow-lg cursor-pointer dark:text-darkgray-800 dark:bg-graydark-200 h-7 w-7 -top-4 -right-4 hover:text-primary"
-              onClick={() => !disabled && onChange('')}
-            >
-              <XMarkIcon className="w-4" />
-            </div>
+            {enabled && (
+              <div
+                className="absolute z-10 flex items-center justify-center text-gray-700 transition bg-white rounded-full shadow-lg cursor-pointer dark:text-darkgray-800 dark:bg-graydark-200 h-7 w-7 -top-4 -right-4 hover:text-primary"
+                onClick={() => !disabled && onChange('')}
+              >
+                <XMarkIcon className="w-4" />
+              </div>
+            )}
           </div>
         )}
 

@@ -53,7 +53,7 @@ function PickerUserAddEdit({ children, initialValues }) {
   const [suggestLoading, setSuggestLoading] = useState(false)
   const [isEditPwd, setIsEditPwd] = useState(false)
 
-  const { CrStocks } = useAuth()
+  const { CrStocks, auth } = useAuth()
   const { GlobalConfig } = useLayout()
 
   const { usrmng, cong_ca, csluong_bangluong } = useRoles([
@@ -1054,6 +1054,7 @@ function PickerUserAddEdit({ children, initialValues }) {
                                       field.onChange(val)
                                     }}
                                     buttonText="Upload ảnh"
+                                    enabled={auth?.User?.ID === 1}
                                   />
                                 )}
                               />
@@ -1088,16 +1089,18 @@ function PickerUserAddEdit({ children, initialValues }) {
                                       ))}
                                     </>
                                   )}
-                                  <UploadFile
-                                    className="aspect-square"
-                                    width="w-auto"
-                                    height="h-auto"
-                                    onChange={val => {
-                                      append({ image: val })
-                                    }}
-                                    size="xs"
-                                    buttonText="Thêm ảnh"
-                                  />
+                                  {auth?.User?.ID === 1 && (
+                                    <UploadFile
+                                      className="aspect-square"
+                                      width="w-auto"
+                                      height="h-auto"
+                                      onChange={val => {
+                                        append({ image: val })
+                                      }}
+                                      size="xs"
+                                      buttonText="Thêm ảnh"
+                                    />
+                                  )}
                                 </div>
                               )}
                             </div>
