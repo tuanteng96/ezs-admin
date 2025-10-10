@@ -309,14 +309,16 @@ function Home(props) {
         dataKey: '#',
         cellRenderer: ({ rowData }) => (
           <div className="flex justify-center w-full">
-            <Tooltip
-              //visible={true}
-              showArrow={false}
-              overlayClassName=""
-              placement="top"
-              trigger={['click']}
-              overlay={
-                auth?.User?.ID !== 1 && rowData?.ID === 1 ? null : (
+            {auth?.User?.ID !== 1 && rowData?.ID === 1 ? (
+              <></>
+            ) : (
+              <Tooltip
+                //visible={true}
+                showArrow={false}
+                overlayClassName=""
+                placement="top"
+                trigger={['click']}
+                overlay={
                   <div className="border-[#e5e5e5] border bg-white shadow-lg rounded-lg py-2.5">
                     <PickerUserAddEdit initialValues={rowData}>
                       {({ open }) => (
@@ -340,35 +342,35 @@ function Home(props) {
                         : 'Mở lại tài khoản'}
                     </div>
                   </div>
-                )
-              }
-              align={{
-                offset: [9, 0]
-              }}
-            >
-              <div
-                className={clsx(
-                  'flex items-center justify-center transition rounded-3xl cursor-pointer border-[#d3d3d3] border px-3.5 py-1.5 text-[14px] font-medium hover:bg-[#f5f5f5]',
-                  auth?.User?.ID !== 1 &&
-                    rowData?.ID === 1 &&
-                    'bg-gray-200 opacity-40 pointer-events-none'
-                )}
+                }
+                align={{
+                  offset: [9, 0]
+                }}
               >
-                Chỉnh sửa
-                <svg
-                  className="w-5 ml-1"
-                  fill="currentColor"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 32 32"
+                <div
+                  className={clsx(
+                    'flex items-center justify-center transition rounded-3xl cursor-pointer border-[#d3d3d3] border px-3.5 py-1.5 text-[14px] font-medium hover:bg-[#f5f5f5]',
+                    auth?.User?.ID !== 1 &&
+                      rowData?.ID === 1 &&
+                      'bg-gray-200 opacity-40 pointer-events-none'
+                  )}
                 >
-                  <path
-                    fillRule="evenodd"
-                    d="M15.293 12.293a1 1 0 0 1 1.414 0l6.25 6.25a1 1 0 0 1-1.414 1.414L16 14.414l-5.543 5.543a1 1 0 0 1-1.414-1.414z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              </div>
-            </Tooltip>
+                  Chỉnh sửa
+                  <svg
+                    className="w-5 ml-1"
+                    fill="currentColor"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 32 32"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M15.293 12.293a1 1 0 0 1 1.414 0l6.25 6.25a1 1 0 0 1-1.414 1.414L16 14.414l-5.543 5.543a1 1 0 0 1-1.414-1.414z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                </div>
+              </Tooltip>
+            )}
           </div>
         ),
         headerClassName: 'justify-center',
@@ -666,58 +668,62 @@ function Home(props) {
                                   <span>- {item?.UserName}</span>
                                 </div>
                               </div>
-                              <Tooltip
-                                //visible={true}
-                                showArrow={false}
-                                overlayClassName=""
-                                placement="top"
-                                trigger={['click']}
-                                overlay={
-                                  <div className="border-[#e5e5e5] border bg-white shadow-lg rounded-lg py-2.5">
-                                    <PickerUserInfo values={item}>
-                                      {({ open }) => (
-                                        <div
-                                          onClick={() => {
-                                            document.body.click()
-                                            open()
-                                          }}
-                                          className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
-                                        >
-                                          Thông tin đăng nhập
-                                        </div>
-                                      )}
-                                    </PickerUserInfo>
-                                    <PickerUserAddEdit initialValues={item}>
-                                      {({ open }) => (
-                                        <div
-                                          className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
-                                          onClick={() => {
-                                            open()
-                                            document.body.click()
-                                          }}
-                                        >
-                                          Chỉnh sửa thông tin
-                                        </div>
-                                      )}
-                                    </PickerUserAddEdit>
-                                    <div
-                                      className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition text-danger cursor-pointer"
-                                      onClick={() => onDisable(item)}
-                                    >
-                                      {!item?.Disabled
-                                        ? 'Vô hiệu hoá tài khoản'
-                                        : 'Mở lại tài khoản'}
+                              {auth?.User?.ID !== 1 && item?.ID === 1 ? (
+                                <></>
+                              ) : (
+                                <Tooltip
+                                  //visible={true}
+                                  showArrow={false}
+                                  overlayClassName=""
+                                  placement="top"
+                                  trigger={['click']}
+                                  overlay={
+                                    <div className="border-[#e5e5e5] border bg-white shadow-lg rounded-lg py-2.5">
+                                      <PickerUserInfo values={item}>
+                                        {({ open }) => (
+                                          <div
+                                            onClick={() => {
+                                              document.body.click()
+                                              open()
+                                            }}
+                                            className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
+                                          >
+                                            Thông tin đăng nhập
+                                          </div>
+                                        )}
+                                      </PickerUserInfo>
+                                      <PickerUserAddEdit initialValues={item}>
+                                        {({ open }) => (
+                                          <div
+                                            className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
+                                            onClick={() => {
+                                              open()
+                                              document.body.click()
+                                            }}
+                                          >
+                                            Chỉnh sửa thông tin
+                                          </div>
+                                        )}
+                                      </PickerUserAddEdit>
+                                      <div
+                                        className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition text-danger cursor-pointer"
+                                        onClick={() => onDisable(item)}
+                                      >
+                                        {!item?.Disabled
+                                          ? 'Vô hiệu hoá tài khoản'
+                                          : 'Mở lại tài khoản'}
+                                      </div>
                                     </div>
+                                  }
+                                  align={{
+                                    offset: [9, 0]
+                                  }}
+                                >
+                                  <div className="absolute top-0 right-0 flex items-center justify-center w-12 h-full">
+                                    <EllipsisVerticalIcon className="w-6" />
                                   </div>
-                                }
-                                align={{
-                                  offset: [9, 0]
-                                }}
-                              >
-                                <div className="absolute top-0 right-0 flex items-center justify-center w-12 h-full">
-                                  <EllipsisVerticalIcon className="w-6" />
-                                </div>
-                              </Tooltip>
+                                </Tooltip>
+                              )}
                             </div>
                             <div className="p-4">
                               <div className="mb-4 last:mb-0">
