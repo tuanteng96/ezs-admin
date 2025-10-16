@@ -581,7 +581,7 @@ function PickerSettingsTourSalary({ children, Type, invalidateQueries }) {
             <div className="flex flex-col w-full px-6 pb-6 mx-auto max-w-[1440px] grow">
               <ReactBaseTable
                 loading={isLoading}
-                wrapClassName="grow bg-white dark:bg-dark-app rounded"
+                wrapClassName="grow bg-white dark:bg-dark-app rounded BaseTable-expand-hidden"
                 rowKey="id"
                 columns={columns}
                 data={fields || []}

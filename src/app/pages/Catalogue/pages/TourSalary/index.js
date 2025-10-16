@@ -519,7 +519,7 @@ function TourSalary() {
       <div className="flex flex-col grow">
         <ReactBaseTable
           loading={isLoading}
-          wrapClassName="grow bg-white dark:bg-dark-app rounded"
+          wrapClassName="grow bg-white dark:bg-dark-app rounded BaseTable-expand-hidden"
           rowKey="id"
           columns={columns}
           data={fields || []}

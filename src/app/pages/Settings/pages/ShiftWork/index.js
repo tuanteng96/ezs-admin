@@ -227,7 +227,6 @@ function ShiftWork(props) {
       }
     },
     onSuccess: ({ data, Users, Lists }) => {
-      
       if (data) {
         let newUser = [...(data?.Data?.Users || [])]
         for (let user of Users) {

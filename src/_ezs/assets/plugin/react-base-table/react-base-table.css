@@ -191,6 +191,10 @@ html.dark {
     box-shadow: 0 10px 30px 0 rgba(82, 63, 105, .08);
 }
 
+.BaseTable-expand-hidden .BaseTable__expand-icon {
+    display: none !important;
+}
+
 .BaseTable__expand-icon {
     width: 100% !important;
     height: 100% !important;
