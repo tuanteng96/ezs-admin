@@ -252,9 +252,9 @@ function PickerAddEdit({ children, initialValues }) {
   })
 
   const {
-    fields: fieldsCombos,
-    append: appendCombos,
-    remove: removeCombos
+    fields: fieldsCombos
+    // append: appendCombos,
+    // remove: removeCombos
   } = useFieldArray({
     control,
     name: 'Combo'

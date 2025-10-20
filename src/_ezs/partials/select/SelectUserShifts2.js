@@ -8,10 +8,9 @@ const customStyles = {
       ...provided,
       borderRadius: '6px'
     }
-    if(state.data?.label === "DO" || state.data?.label === "AL") {
-      newObj['--color-option'] = "#f74e60"
-    }
-    else {
+    if (state.data?.label === 'DO' || state.data?.label === 'AL') {
+      newObj['--color-option'] = '#f74e60'
+    } else {
       newObj['--bg-option'] = state?.data?.Color || '#f4f6fa'
     }
     return newObj

@@ -9,7 +9,12 @@ const SettingsAPI = {
   &Pi=1&Ps=100`),
   getRoster: body => http.post(`/api/v4/roster@get`, JSON.stringify(body)),
   addEditRoster: body => http.post(`/api/v4/roster@edit`, JSON.stringify(body)),
-  deleteRoster: body => http.post(`/api/v4/roster@delete`, JSON.stringify(body)),
+  deleteRoster: body =>
+    http.post(`/api/v4/roster@delete`, JSON.stringify(body)),
+  getUserAllow: body =>
+    http.post(`/api/v4/UserAllow@get`, JSON.stringify(body)),
+  addEditUserAllow: body =>
+    http.post(`/api/v4/UserAllow@edit`, JSON.stringify(body))
 }
 
 export default SettingsAPI

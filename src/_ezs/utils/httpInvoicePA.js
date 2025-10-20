@@ -44,7 +44,7 @@ class HttpInvoicePA {
           let newData = originalRequest.data
             ? JSON.parse(originalRequest.data)
             : {}
-          
+
           let rs = await axios.post(
             (!process.env.NODE_ENV || process.env.NODE_ENV === 'development'
               ? process.env.REACT_APP_API_URL

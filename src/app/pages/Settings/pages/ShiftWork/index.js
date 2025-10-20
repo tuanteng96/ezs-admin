@@ -163,6 +163,7 @@ function ShiftWork(props) {
     queryFn: async () => {
       const data = await SettingsAPI.getRoster({
         pi: 1,
+        ps: 500,
         filter: {
           Status: '',
           Mon: moment(filters.Mon).format('YYYY-MM'),
@@ -182,7 +183,7 @@ function ShiftWork(props) {
         })
         Users = UsersRs
       }
-      console.log(Users?.data)
+
       return {
         data: data?.data?.items.length > 0 ? data?.data?.items[0] : null,
         Users: Users?.data

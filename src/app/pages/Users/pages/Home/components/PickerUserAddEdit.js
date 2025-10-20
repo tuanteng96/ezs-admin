@@ -96,7 +96,8 @@ function PickerUserAddEdit({ children, initialValues }) {
       LOAI_TINH_LUONG: 'NGAY_CONG',
       SO_NGAY: '',
       GroupIDs: null,
-      PhotoJSON: []
+      PhotoJSON: [],
+      UnknownKeysConfigs: []
     },
     resolver: yupResolver(schemaAddEdit)
   })
@@ -152,31 +153,30 @@ function PickerUserAddEdit({ children, initialValues }) {
     },
     onSuccess: data => {
       if (data?.salaryConfig) {
-        for (let key of data?.salaryConfig) {
-          if (key.Name === 'LUONG') {
-            setValue('LUONG', key.Value)
-          }
-          if (key.Name === 'PHU_CAP') {
-            setValue('PHU_CAP', key.Value)
-          }
-          if (key.Name === 'GIU_LUONG') {
-            setValue('GIU_LUONG', key.Value)
-          }
-          if (key.Name === 'SO_THANG_GIU_LUONG') {
-            setValue('SO_THANG_GIU_LUONG', key.Value)
-          }
-          if (key.Name === 'TRO_CAP_NGAY') {
-            setValue('TRO_CAP_NGAY', key.Value)
-          }
-          if (key.Name === 'NGAY_NGHI') {
+        const knownKeys = [
+          'LUONG',
+          'PHU_CAP',
+          'GIU_LUONG',
+          'SO_THANG_GIU_LUONG',
+          'TRO_CAP_NGAY',
+          'NGAY_NGHI',
+          'NGAY_CONG',
+          'NGAY_PHEP'
+        ]
+
+        const unknownKeys = []
+
+        for (let key of data?.salaryConfig || []) {
+          if (['NGAY_NGHI', 'NGAY_CONG'].includes(key.Name)) {
             setValue('LOAI_TINH_LUONG', key.Name)
             setValue('SO_NGAY', key.Value)
-          }
-          if (key.Name === 'NGAY_CONG') {
-            setValue('LOAI_TINH_LUONG', key.Name)
-            setValue('SO_NGAY', key.Value)
+          } else if (knownKeys.includes(key.Name)) {
+            setValue(key.Name, key.Value)
+          } else {
+            unknownKeys.push(key)
           }
         }
+        setValue('UnknownKeysConfigs', unknownKeys)
       }
       if (data?.User) {
         setValue('chluongLevels', data?.User?.Level)
@@ -316,6 +316,16 @@ function PickerUserAddEdit({ children, initialValues }) {
       }
     }
 
+    if (values.UnknownKeysConfigs && values.UnknownKeysConfigs.length > 0) {
+      for (let key of values.UnknownKeysConfigs) {
+        newchluongData.push({
+          id: values?.id || 0,
+          StockID: 0,
+          [key.Name]: key.Value || 0
+        })
+      }
+    }
+    
     bodyFormData.append('chluongData', JSON.stringify(newchluongData))
     bodyFormData.append('chluongGr', JSON.stringify([]))
 

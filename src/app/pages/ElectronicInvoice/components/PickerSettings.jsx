@@ -12,18 +12,18 @@ import ConfigAPI from 'src/_ezs/api/config'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import { Switch } from '@headlessui/react'
 import { toast } from 'react-toastify'
-import Select from 'react-select'
+// import Select from 'react-select'
 
-let OptionTypeInvoice = [
-  {
-    label: 'Hoá đơn công ty',
-    value: '1'
-  },
-  {
-    label: 'Hoá đơn hộ kinh doanh',
-    value: '2'
-  }
-]
+// let OptionTypeInvoice = [
+//   {
+//     label: 'Hoá đơn công ty',
+//     value: '1'
+//   },
+//   {
+//     label: 'Hoá đơn hộ kinh doanh',
+//     value: '2'
+//   }
+// ]
 
 function PickerSettings({ children, initialValues, onChange }) {
   const queryClient = useQueryClient()

@@ -13,7 +13,7 @@ import { formatArray } from 'src/_ezs/utils/formatArray'
 function PickerInventoryAlmost({ queryConfig }) {
   const [visible, setVisible] = useState(false)
 
-  const [filters, setFilters] = useState({
+  const [filters] = useState({
     Pi: 1,
     Ps: 20,
     To: moment(queryConfig.to, 'HH:mm DD/MM/YYYY').format('HH:mm DD/MM/YYYY'),
