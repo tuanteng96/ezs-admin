@@ -2,7 +2,7 @@ import { CalendarDaysIcon } from '@heroicons/react/24/outline'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import moment from 'moment'
 import React, { memo, useEffect, useRef, useState } from 'react'
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { Controller, useFieldArray, useForm, useWatch } from 'react-hook-form'
 import SettingsAPI from 'src/_ezs/api/settings.api'
 import UsersAPI from 'src/_ezs/api/users.api'
 import { useAuth } from 'src/_ezs/core/Auth'
@@ -13,6 +13,7 @@ import { InputNumber } from 'src/_ezs/partials/forms'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import Select from 'react-select'
 import { useRoles } from 'src/_ezs/hooks/useRoles'
+import { formatString } from 'src/_ezs/utils/formatString'
 
 let Options = [
   { label: 'Đang xây dựng', value: '1' },
@@ -20,9 +21,20 @@ let Options = [
   { label: 'Đã duyệt', value: '3' }
 ]
 
-let Keys = ['Key1', 'Key2']
+let Keys = ['TRO_CAP_GUI_XE', 'TRO_CAP_KM']
 
 const EmployeeRow = memo(({ field, control, index }) => {
+  const details = useWatch({
+    control,
+    name: `Items[${index}].setting.Detail`
+  })
+
+  // Tính tổng tất cả giá trị trong Detail
+  const total = Object.values(details || {}).reduce(
+    (sum, val) => sum + Number(val || 0),
+    0
+  )
+
   return (
     <tr>
       <td className="sticky left-0 px-4 py-4 text-sm z-[999] font-medium bg-white max-w-[250px] min-w-[250px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0">
@@ -54,6 +66,9 @@ const EmployeeRow = memo(({ field, control, index }) => {
           />
         </td>
       ))}
+      <td className="px-4 py-4 text-sm font-medium min-w-[200px] max-w-[200px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0">
+        {formatString.formatVND(total)}
+      </td>
     </tr>
   )
 })
@@ -282,9 +297,13 @@ function ExtraSalary(props) {
                     className="capitalize px-4 py-3 font-semibold text-left min-w-[200px] max-w-[200px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0 h-[50px] font-number text-sm"
                     key={i}
                   >
-                    {key}
+                    {key === 'TRO_CAP_GUI_XE' && 'Trợ cấp gửi xe'}
+                    {key === 'TRO_CAP_KM' && 'Trợ cấp KM'}
                   </th>
                 ))}
+                <th className="capitalize px-4 py-3 font-semibold text-left min-w-[200px] max-w-[200px] border-b border-b-[#eee] border-r border-r-[#eee] last:border-r-0 h-[50px] font-number text-sm">
+                  Tổng
+                </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
