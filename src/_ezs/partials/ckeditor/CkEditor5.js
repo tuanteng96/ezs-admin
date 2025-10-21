@@ -134,7 +134,13 @@ function CkEditor5({
           }}
           data={value}
           onChange={(event, editor) => {
-            const data = editor.getData()
+            let data = editor.getData()
+
+            data = data ? data.replace(/aspect-ratio:[^;"]*;?\s*/gi, '') : ''
+
+            // Thay height="..." thành height="auto"
+            data = data ? data.replace(/height="\d+"/gi, 'height="auto"') : ''
+
             onChange(data)
           }}
           disabled={disabled}
