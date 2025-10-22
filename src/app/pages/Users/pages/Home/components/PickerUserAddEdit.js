@@ -325,7 +325,7 @@ function PickerUserAddEdit({ children, initialValues }) {
         })
       }
     }
-    
+
     bodyFormData.append('chluongData', JSON.stringify(newchluongData))
     bodyFormData.append('chluongGr', JSON.stringify([]))
 

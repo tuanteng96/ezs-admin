@@ -133,58 +133,16 @@ body .react-viewer-list>li>img {
 
 /* ckeditor */
 
-.ck-read-only {
-    background: #f4f4f4 !important;
+.tox-statusbar,
+.tox .tox-promotion,
+.tox .tox-menubar {
+  display: none !important;
 }
 
-.ck-editor__editable {
-    min-height: 130px !important;
-}
-
-.ck-content .ck-editor__editable {
-    min-height: 250px !important;
-}
-
-.ck.ck-editor__editable_inline {
-    padding: 0 0.875rem !important;
-}
-
-.ck.ck-editor__editable_inline ol,
-.ck.ck-editor__editable_inline ul,
-.ck.ck-editor__editable_inline menu {
-    margin: inherit;
-    padding: inherit;
-}
-
-.ck.ck-balloon-panel {
-    z-index: 1400 !important;
-}
-
-.ck.ck-balloon-panel.ck-powered-by-balloon {
-    display: none !important;
-}
-
-.ck.ck-dropdown .ck-dropdown__panel.ck-dropdown__panel_ne,
-.ck.ck-dropdown .ck-dropdown__panel.ck-dropdown__panel_se {
-    right: 0 !important;
-}
-
-.ck-wrap-full > .ck {
-    @apply !h-full
-}
-
-.ck-wrap-full .ck-editor__main {
-    height: calc(100% - 40px);
-}
-
-.ck-wrap-full .ck-editor__editable {
-    @apply h-full
-}
-
-.ck-wrap-full .ck-rounded-corners .ck.ck-toolbar {
-    @apply rounded-none
-}
-
+/* .tox-toolbar__primary .tox-toolbar__group:last-child {
+    flex: 1;
+    justify-content: end;
+} */
 
 /* */
 

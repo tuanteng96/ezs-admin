@@ -1,220 +1,124 @@
-import React, { useState } from 'react'
-import Editor from 'ckeditor5-custom-build/build/ckeditor'
-import { CKEditor } from '@ckeditor/ckeditor5-react'
-import { FloatingPortal } from '@floating-ui/react'
-import { m } from 'framer-motion'
-import useEscape from 'src/_ezs/hooks/useEscape'
-import {
-  ArrowsPointingInIcon,
-  ArrowsPointingOutIcon
-} from '@heroicons/react/24/outline'
+import React, { useRef, useState } from 'react'
+import { Editor } from '@tinymce/tinymce-react'
+import UploadsAPI from 'src/_ezs/api/uploads.api'
+import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
 
-import UploadAdapter from './UploadAdapter'
-import clsx from 'clsx'
-
-function CkEditor5({
-  value,
-  onChange,
-  placeholder,
-  className,
-  disabled,
-  toolbar = [
-    // 'undo',
-    // 'redo',
-    // '|',
-    'heading',
-    '|',
-    'alignment',
-    'fontfamily',
-    'fontsize',
-    'fontColor',
-    'fontBackgroundColor',
-    '|',
-    'bold',
-    'italic',
-    'strikethrough',
-    'subscript',
-    'superscript',
-    'code',
-    '|',
-    'mediaEmbed',
-    'link',
-    'uploadImage',
-    'blockQuote',
-    'codeBlock',
-    'insertTable',
-    '|',
-    'bulletedList',
-    'numberedList',
-    'todoList',
-    'outdent',
-    'indent'
-  ]
-}) {
-  const [visible, setVisible] = useState(false)
-
-  const onHide = () => {
-    setVisible(false)
-  }
-
-  useEscape(() => onHide())
+export default function CkEditor5({ value = '', onChange }) {
+  const editorRef = useRef(null)
+  const [loading, setLoading] = useState(true)
 
   return (
-    <>
-      <div className={clsx(className, 'relative')}>
+    <div className="relative">
+      {loading && (
         <div
-          className="absolute bottom-0 right-0 z-10 flex items-center justify-center w-10 h-10 text-gray-600 transition-colors cursor-pointer hover:text-black"
-          onClick={() => setVisible(true)}
+          className="absolute inset-0 flex flex-col items-center justify-center text-sm text-gray-500 rounded-lg bg-gray-50"
+          style={{ zIndex: 10 }}
         >
-          <ArrowsPointingOutIcon className="w-5" />
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 border-2 rounded-full border-primary border-t-transparent animate-spin"></div>
+            Đang tải trình soạn thảo...
+          </div>
         </div>
-        <CKEditor
-          editor={Editor}
-          config={{
-            placeholder: placeholder,
-            heading: {
-              options: [
-                {
-                  model: 'paragraph',
-                  title: 'Paragraph',
-                  class: 'ck-heading_paragraph'
-                },
-                {
-                  model: 'heading1',
-                  view: 'h1',
-                  title: 'Heading 1',
-                  class: 'ck-heading_heading1'
-                },
-                {
-                  model: 'heading2',
-                  view: 'h2',
-                  title: 'Heading 2',
-                  class: 'ck-heading_heading2'
-                },
-                {
-                  model: 'heading3',
-                  view: 'h3',
-                  title: 'Heading 3',
-                  class: 'ck-heading_heading3'
-                },
-                {
-                  model: 'heading4',
-                  view: 'h4',
-                  title: 'Heading 4',
-                  class: 'ck-heading_heading4'
-                },
-                {
-                  model: 'heading5',
-                  view: {
-                    name: 'h3',
-                    classes: 'quick-item quick-level'
-                  },
-                  title: 'Title Quick',
-                  class: 'ck-heading_heading2_fancy'
-                },
-                {
-                  model: 'heading6',
-                  view: {
-                    name: 'h5',
-                    classes: 'quick-item quick-level-sub'
-                  },
-                  title: 'Sub Quick',
-                  class: 'ck-heading_heading2_fancy_sub'
-                }
-              ]
-            }
-          }}
-          onReady={editor => {
-            if (editor && editor.plugins) {
-              editor.plugins.get('FileRepository').createUploadAdapter =
-                function (loader) {
-                  return new UploadAdapter(loader)
-                }
-            }
-          }}
-          data={value}
-          onChange={(event, editor) => {
-            let data = editor.getData()
-
-            data = data ? data.replace(/aspect-ratio:[^;"]*;?\s*/gi, '') : ''
-
-            // Thay height="..." thành height="auto"
-            data = data ? data.replace(/height="\d+"/gi, 'height="auto"') : ''
-
-            onChange(data)
-          }}
-          disabled={disabled}
-        />
-        {/* <CKEditor
-        editor={ClassicEditor}
-        config={{
-          placeholder: placeholder,
-          fontSize: {
-            options: [9, 11, 13, 'default', 17, 19, 21]
-          },
-          toolbar: toolbar,
-          plugins: [Paragraph, Bold, Italic, Essentials]
+      )}
+      <Editor
+        tinymceScriptSrc={`${process.env.PUBLIC_URL}/tinymce/tinymce.min.js`}
+        onInit={(_, editor) => {
+          editorRef.current = editor
+          setLoading(false)
         }}
-        onReady={editor => {
-          if (editor && editor.plugins) {
-            editor.plugins.get('FileRepository').createUploadAdapter =
-              function (loader) {
-                return new UploadAdapter(loader)
+        initialValue={value}
+        init={{
+          menubar: false,
+          branding: false,
+          license_key: 'gpl',
+          base_url: `${process.env.PUBLIC_URL}/tinymce`,
+          suffix: '.min',
+          height: 300,
+          max_height: 500,
+          autoresize_min_height: 500,
+          autoresize_max_height: 500,
+          plugins: [
+            'advlist',
+            'autolink',
+            'lists',
+            'link',
+            'image',
+            'charmap',
+            'preview',
+            'anchor',
+            'searchreplace',
+            'visualblocks',
+            'code',
+            'fullscreen',
+            'insertdatetime',
+            'media',
+            'table',
+            'help',
+            'wordcount',
+            'emoticons',
+            'autoresize',
+            'quickbars'
+          ],
+          toolbar:
+            'bold italic underline strikethrough forecolor backcolor | ' +
+            'link image media table ' + 
+            'undo redo | blocks fontfamily fontsize | ' +
+            'alignleft aligncenter alignright alignjustify | ' +
+            'bullist numlist outdent indent | removeformat | charmap emoticons | code fullscreen preview help',
+          toolbar_mode: 'sliding',
+          image_caption: true,
+          relative_urls: false,
+          remove_script_host: false,
+          convert_urls: false,
+
+          content_style:
+            'body { font-family:Helvetica,Arial,sans-serif; font-size:14px; line-height:1.6 }',
+
+          // ✅ Bước 1: Mở file picker
+          file_picker_types: 'image',
+          file_picker_callback: (cb, value, meta) => {
+            if (meta.filetype === 'image') {
+              const input = document.createElement('input')
+              input.type = 'file'
+              input.accept = 'image/*'
+              input.onchange = async function () {
+                const file = this.files[0]
+                const formData = new FormData()
+                formData.append('file', file)
+
+                try {
+                  const { data } = await UploadsAPI.sendFile(formData)
+                  // 👇 Chỉ gọi callback — KHÔNG chèn HTML thủ công
+                  const imageUrl = toAbsolutePath(data.data)
+                  cb(imageUrl, { title: file.name })
+                } catch (err) {
+                  console.error('Upload image failed:', err)
+                }
               }
+              input.click()
+            }
+          },
+
+          // ✅ Bước 2: Cho phép TinyMCE tự upload khi dán / kéo thả ảnh
+          automatic_uploads: true,
+
+          // ✅ Bước 3: Xử lý upload thực tế
+          images_upload_handler: async (blobInfo, progress) => {
+            const formData = new FormData()
+            formData.append('file', blobInfo.blob(), blobInfo.filename())
+
+            try {
+              const { data } = await UploadsAPI.sendFile(formData)
+              const imageUrl = toAbsolutePath(data.data)
+              return imageUrl // ✅ TinyMCE 8 yêu cầu return Promise<string>
+            } catch (err) {
+              console.error('Upload failed:', err)
+              throw new Error('Upload failed')
+            }
           }
         }}
-        data={value}
-        onChange={(event, editor) => {
-          const data = editor.getData()
-          onChange(data)
-        }}
-      /> */}
-      </div>
-      {visible && (
-        <FloatingPortal root={document.body}>
-          <m.div
-            className="fixed inset-0 bg-black/[.2] dark:bg-black/[.4] z-[1050]"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onHide}
-          ></m.div>
-          <m.div
-            className="fixed h-full w-full top-0 left-0 z-[1050] ck-wrap-full"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <CKEditor
-              editor={Editor}
-              config={{
-                placeholder: placeholder
-              }}
-              onReady={editor => {
-                if (editor && editor.plugins) {
-                  editor.plugins.get('FileRepository').createUploadAdapter =
-                    function (loader) {
-                      return new UploadAdapter(loader)
-                    }
-                }
-              }}
-              data={value}
-              onChange={(event, editor) => {
-                const data = editor.getData()
-                onChange(data)
-              }}
-            />
-            <div
-              className="absolute bottom-0 right-0 z-10 flex items-center justify-center w-10 h-10 transition-colors cursor-pointer lg:top-0"
-              onClick={() => setVisible(false)}
-            >
-              <ArrowsPointingInIcon className="w-6" />
-            </div>
-          </m.div>
-        </FloatingPortal>
-      )}
-    </>
+        onEditorChange={content => onChange && onChange(content)}
+      />
+    </div>
   )
 }
-
-export default CkEditor5
