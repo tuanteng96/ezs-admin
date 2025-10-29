@@ -127,7 +127,7 @@ function ImportExport(props) {
 
   const getTypeName = rowData => {
     if (rowData.Type === 'X' && rowData?.Target > 0) {
-      let UserName = 'Chưa xác định'
+      let UserName = ''
       if (auth?.AllGroups && auth?.AllGroups?.length > 0) {
         if (rowData?.ReceiverID) {
           let Users = auth?.AllGroups.flatMap(g =>
@@ -144,7 +144,11 @@ function ImportExport(props) {
       return (
         <div>
           Xuất chuyển cơ sở
-          <div className="text-sm text-gray-700">Người nhận đơn: {UserName}</div>
+          {UserName && (
+            <div className="text-sm text-gray-700">
+              Người nhận đơn: {UserName}
+            </div>
+          )}
         </div>
       )
     }
