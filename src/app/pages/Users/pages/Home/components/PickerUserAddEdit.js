@@ -97,7 +97,9 @@ function PickerUserAddEdit({ children, initialValues }) {
       SO_NGAY: '',
       GroupIDs: null,
       PhotoJSON: [],
-      UnknownKeysConfigs: []
+      UnknownKeysConfigs: [],
+      Gender: 1,
+      YahooID: ''
     },
     resolver: yupResolver(schemaAddEdit)
   })
@@ -111,6 +113,8 @@ function PickerUserAddEdit({ children, initialValues }) {
       setValue('fn', initialValues?.FullName)
       setValue('usn', initialValues?.UserName)
       setValue('order', initialValues?.Order)
+      setValue('Gender', initialValues?.Gender)
+      setValue('YahooID', initialValues?.YahooID)
       setValue('stockid', initialValues?.StockID)
       setValue('IsOPTLogin', initialValues?.IsOPTLogin)
       setValue('pwd', '')
@@ -180,7 +184,8 @@ function PickerUserAddEdit({ children, initialValues }) {
       }
       if (data?.User) {
         setValue('chluongLevels', data?.User?.Level)
-
+        setValue('Gender', data?.User?.Gender)
+        setValue('YahooID', data?.User?.YahooID)
         let WorkTimeSetting = data?.User?.WorkTimeSetting
           ? JSON.parse(data?.User?.WorkTimeSetting)
           : null
@@ -239,6 +244,8 @@ function PickerUserAddEdit({ children, initialValues }) {
     bodyFormData.append('stockid', values?.stockid || '')
     bodyFormData.append('IsOPTLogin', values?.IsOPTLogin ? '1' : '0')
     bodyFormData.append('disabled', values?.disabled ? '1' : '0')
+    bodyFormData.append('Gender', values?.Gender)
+    bodyFormData.append('YahooID', values?.YahooID || '')
     bodyFormData.append(
       'chamcong',
       JSON.stringify([
@@ -509,6 +516,69 @@ function PickerUserAddEdit({ children, initialValues }) {
                                 </div>
                               </div>
                             </div>
+                            {GlobalConfig?.Admin?.chinhsachluongchitiet && (
+                              <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2">
+                                <div>
+                                  <div className="font-semibold">
+                                    Mã nhân viên
+                                  </div>
+                                  <div className="mt-1">
+                                    <Controller
+                                      name="YahooID"
+                                      control={control}
+                                      render={({
+                                        field: { ref, ...field },
+                                        fieldState
+                                      }) => (
+                                        <Input
+                                          placeholder="Nhập mã nhân viên"
+                                          value={field.value}
+                                          errorMessageForce={
+                                            fieldState?.invalid
+                                          }
+                                          //errorMessage={fieldState?.error?.message}
+                                          {...field}
+                                          onChange={e => {
+                                            field.onChange(e.target.value)
+                                          }}
+                                        />
+                                      )}
+                                    />
+                                  </div>
+                                </div>
+                                <div>
+                                  <div className="font-semibold">
+                                    Hiện bảng lương
+                                  </div>
+                                  <div className="mt-1">
+                                    <div className="relative px-4 py-3 border border-gray-300 border-dashed rounded">
+                                      <Controller
+                                        name="Gender"
+                                        control={control}
+                                        render={({
+                                          field: { ref, ...field },
+                                          fieldState
+                                        }) => (
+                                          <Checkbox
+                                            labelText="Tích để hiển thị bảng lương"
+                                            labelClassName="pl-2 font-normal text-muted2"
+                                            htmlFor="Gender"
+                                            {...field}
+                                            checked={Number(field?.value) === 1}
+                                            onChange={e => {
+                                              field.onChange(
+                                                e.target.value ? 1 : 0
+                                              )
+                                            }}
+                                          />
+                                        )}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+
                             <div>
                               {initialValues?.ID ? (
                                 <div className="font-light text-muted2">
