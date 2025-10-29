@@ -30,6 +30,8 @@ function IeProcessedImport(props) {
   const { id } = useParams()
   const { hasWarehouse } = useCatalogue()
 
+  const { auth } = useAuth()
+
   const queryClient = useQueryClient()
   const { GlobalConfig } = useLayout()
 
@@ -112,7 +114,7 @@ function IeProcessedImport(props) {
             Discount: data?.Discount,
             Source: data?.Source,
             IsReceive: true,
-            ReceiverID: 0,
+            ReceiverID: auth?.User?.ID,
             UserID: data?.UserID || 0,
             Target: data?.Target,
             TargetCreated: 0,

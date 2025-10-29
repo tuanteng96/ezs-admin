@@ -125,6 +125,34 @@ function ImportExport(props) {
     })
   }
 
+  const getTypeName = rowData => {
+    if (rowData.Type === 'X' && rowData?.Target > 0) {
+      let UserName = 'Chưa xác định'
+      if (auth?.AllGroups && auth?.AllGroups?.length > 0) {
+        if (rowData?.ReceiverID) {
+          let Users = auth?.AllGroups.flatMap(g =>
+            Array.isArray(g.Users) ? g.Users : []
+          )
+          let index = Users.findIndex(u => rowData?.ReceiverID === u.ID)
+
+          if (index > -1) {
+            UserName = Users[index].FullName
+          }
+        }
+      }
+
+      return (
+        <div>
+          Xuất chuyển cơ sở
+          <div className="text-sm text-gray-700">Người nhận đơn: {UserName}</div>
+        </div>
+      )
+    }
+
+    if (rowData.Type === 'N' && rowData?.ReceiverID > 0) return 'Nhập từ cơ sở'
+    return rowData.Type === 'N' ? 'Đơn Nhập' : 'Đơn Xuất'
+  }
+
   const columns = useMemo(
     () => [
       {
@@ -198,9 +226,8 @@ function ImportExport(props) {
         key: 'Type',
         title: 'Loại',
         dataKey: 'Type',
-        width: 135,
-        cellRenderer: ({ rowData }) =>
-          rowData.Type === 'N' ? 'Đơn Nhập' : 'Đơn Xuất',
+        width: 270,
+        cellRenderer: ({ rowData }) => getTypeName(rowData),
         sortable: false
       },
       {
