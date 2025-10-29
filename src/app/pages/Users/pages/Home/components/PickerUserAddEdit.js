@@ -567,7 +567,7 @@ function PickerUserAddEdit({ children, initialValues }) {
                                             checked={Number(field?.value) === 1}
                                             onChange={e => {
                                               field.onChange(
-                                                e.target.value ? 1 : 0
+                                                e.target.checked ? 1 : 0
                                               )
                                             }}
                                           />
