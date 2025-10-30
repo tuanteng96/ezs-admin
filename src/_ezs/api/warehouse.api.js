@@ -4,6 +4,7 @@ import { formatObject } from '../utils/formatObject'
 const WarehouseAPI = {
   getListInventory: body =>
     http.post(`/api/v3/whouse2?${formatObject.toQueryString(body)}`),
+  getListInventoryStocks: body => http.post(`/api/v4/r27@invoke`, body),
   getListInventoryAlmost: ({
     Pi = 1,
     Ps = 20,

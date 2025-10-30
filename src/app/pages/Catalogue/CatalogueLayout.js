@@ -84,6 +84,7 @@ function CatalogueLayout({ paths, isReceive }) {
                   .filter(x =>
                     x.to === '/catalogue/supplier' ? !hasWarehouse : true
                   )
+                  .filter(x => !x?.hidden)
                   .map(({ to, name }, index) => (
                     <li key={index}>
                       <NavLink

@@ -15,6 +15,7 @@ const TourSalary = lazy(() => import('./pages/TourSalary'))
 const ToolsImages = lazy(() => import('./pages/ToolsImages'))
 
 const Inventory = lazy(() => import('./pages/Inventory'))
+const InventoryStocks = lazy(() => import('./pages/InventoryStocks'))
 const InventoryFilters = lazy(() => import('./pages/Inventory/pages/Filters'))
 const ImportExport = lazy(() => import('./pages/ImportExport'))
 
@@ -176,6 +177,11 @@ function CataloguePage(props) {
                   name: 'Kho và hàng tồn'
                 },
                 {
+                  to: '/catalogue/inventory-stocks',
+                  name: 'Tồn kho theo cơ sở',
+                  hidden: !xuat_nhap_diem?.IsStocks
+                },
+                {
                   to: '/catalogue/import-export',
                   name: 'Đơn nhập xuất'
                 },
@@ -199,6 +205,14 @@ function CataloguePage(props) {
           >
             <Route path="filters" element={<InventoryFilters />}></Route>
           </Route>
+          <Route
+            path="inventory-stocks"
+            element={
+              <SuspensedView>
+                <InventoryStocks />
+              </SuspensedView>
+            }
+          ></Route>
           <Route
             path="import-export"
             element={
