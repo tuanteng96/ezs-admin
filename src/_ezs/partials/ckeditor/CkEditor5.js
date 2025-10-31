@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState } from 'react'
 import { Editor } from '@tinymce/tinymce-react'
 import UploadsAPI from 'src/_ezs/api/uploads.api'
 import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
@@ -38,10 +38,26 @@ function CkEditor5({ value = '', onChange, placeholder }) {
           base_url: `${process.env.PUBLIC_URL}/tinymce`,
           suffix: '.min',
           plugins: [
-            'advlist', 'autolink', 'lists', 'link', 'image', 'charmap',
-            'preview', 'anchor', 'searchreplace', 'visualblocks', 'code',
-            'fullscreen', 'insertdatetime', 'media', 'table', 'help',
-            'wordcount', 'emoticons', 'autoresize', 'quickbars'
+            'advlist',
+            'autolink',
+            'lists',
+            'link',
+            'image',
+            'charmap',
+            'preview',
+            'anchor',
+            'searchreplace',
+            'visualblocks',
+            'code',
+            'fullscreen',
+            'insertdatetime',
+            'media',
+            'table',
+            'help',
+            'wordcount',
+            'emoticons',
+            'autoresize',
+            'quickbars'
           ],
           toolbar:
             'bold italic underline strikethrough forecolor backcolor | ' +
@@ -74,7 +90,7 @@ function CkEditor5({ value = '', onChange, placeholder }) {
             }
           },
           automatic_uploads: true,
-          images_upload_handler: async (blobInfo) => {
+          images_upload_handler: async blobInfo => {
             const formData = new FormData()
             formData.append('file', blobInfo.blob(), blobInfo.filename())
             try {

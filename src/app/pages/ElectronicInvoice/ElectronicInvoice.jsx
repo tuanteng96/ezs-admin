@@ -268,7 +268,10 @@ function ElectronicInvoice(props) {
                   GlobalConfig?.Admin?.hddt?.SenderName || bill.SenderName,
                 cus_tax_code: '',
                 cus_address: bill?.SenderAddress || '',
-                cus_phone: bill.SenderPhone && bill.SenderPhone.startsWith("00000") ? "" : bill.SenderPhone,
+                cus_phone:
+                  bill.SenderPhone && bill.SenderPhone.startsWith('00000')
+                    ? ''
+                    : bill.SenderPhone,
                 cus_email: '',
                 cus_email_cc: '',
                 cus_citizen_identity: '',
@@ -351,7 +354,10 @@ function ElectronicInvoice(props) {
                   GlobalConfig?.Admin?.hddt?.SenderName || bill.SenderName,
                 cus_tax_code: '',
                 cus_address: bill?.SenderAddress || '',
-                cus_phone: bill.SenderPhone && bill.SenderPhone.startsWith("00000") ? "" : bill.SenderPhone,
+                cus_phone:
+                  bill.SenderPhone && bill.SenderPhone.startsWith('00000')
+                    ? ''
+                    : bill.SenderPhone,
                 cus_email: '',
                 cus_email_cc: '',
                 cus_citizen_identity: '',
@@ -1069,7 +1075,10 @@ function ElectronicInvoice(props) {
               BuyerTaxCode: '',
               BuyerAddress: item?.SenderAddress || '',
               BuyerCode: '',
-              BuyerPhoneNumber: item.SenderPhone && item.SenderPhone.startsWith("00000") ? "" : item.SenderPhone,
+              BuyerPhoneNumber:
+                item.SenderPhone && item.SenderPhone.startsWith('00000')
+                  ? ''
+                  : item.SenderPhone,
               BuyerEmail: '',
               BuyerFullName:
                 GlobalConfig?.Admin?.hddt?.SenderName || item.SenderName,

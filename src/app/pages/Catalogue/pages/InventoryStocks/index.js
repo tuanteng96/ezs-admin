@@ -9,7 +9,6 @@ import { Outlet } from 'react-router-dom'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 import { useAuth } from 'src/_ezs/core/Auth'
 import WarehouseAPI from 'src/_ezs/api/warehouse.api'
-import { useRoles } from 'src/_ezs/hooks/useRoles'
 import { useCatalogue } from '../../CatalogueLayout'
 import moment from 'moment'
 import { PickerFilter } from './components'
@@ -17,8 +16,8 @@ import { Button } from 'src/_ezs/partials/button'
 import ExcelHepers from 'src/_ezs/utils/ExcelHepers'
 
 function InventoryStocks(props) {
-  const { CrStocks, auth } = useAuth()
-  const { openMenu, hasWarehouse } = useCatalogue()
+  const { auth } = useAuth()
+  const { openMenu } = useCatalogue()
 
   const [isExport, setIsExport] = useState(false)
   const [filters, setFilters] = useState({
@@ -129,7 +128,16 @@ function InventoryStocks(props) {
           workbook.suspendPaint()
           workbook.suspendEvent()
 
-          let Head = ['ID', 'MÃ', 'TÊN SẢN PHẨM', 'CƠ SỞ', 'SỐ LƯỢNG']
+          let Head = [
+            'ID',
+            'MÃ',
+            'TÊN SẢN PHẨM',
+            'CƠ SỞ',
+            'SỐ LƯỢNG',
+            'MÃ CƠ SỞ',
+            'ĐƠN VỊ TÍNH',
+            'VÙNG (THÀNH PHỐ)'
+          ]
 
           let Response = [Head]
 
@@ -139,16 +147,36 @@ function InventoryStocks(props) {
               item?.Prod?.DynamicID,
               item?.Prod?.Title,
               'TẤT CẢ CƠ SỞ',
-              item?.Stocks?.reduce((total, item) => total + item.Qty, 0)
+              item?.Stocks?.reduce((total, item) => total + item.Qty, 0),
+              '',
+              '',
+              ''
             ])
             if (item?.Stocks && item?.Stocks.length > 0) {
               for (let stock of item?.Stocks) {
+                let index = auth.Stocks?.findIndex(
+                  x => x.ID === stock?.Stock?.ID
+                )
+                let MA = ''
+                let TP = ''
+                if (index > -1) {
+                  MA = auth.Stocks[index].TitleSEO
+                  if (auth.Stocks[index].DescSEO) {
+                    let DescSEO = JSON.parse(auth.Stocks[index].DescSEO)
+                    if (DescSEO && DescSEO.place && DescSEO.place.length > 0) {
+                      TP = DescSEO.place[0].Title
+                    }
+                  }
+                }
                 Response.push([
                   item?.Prod?.ID,
                   item?.Prod?.DynamicID,
                   item?.Prod?.Title,
                   stock?.Stock?.Title,
-                  stock?.Qty
+                  stock?.Qty,
+                  MA,
+                  item?.Prod?.StockUnit,
+                  TP
                 ])
               }
             }
@@ -219,13 +247,13 @@ function InventoryStocks(props) {
           workbook.getActiveSheet().autoFitRow(TotalRow + 2)
           workbook.getActiveSheet().autoFitRow(0)
 
-        //   workbook
-        //     .getActiveSheet()
-        //     .setColumnWidth(
-        //       0,
-        //       400.0,
-        //       window.GC.Spread.Sheets.SheetArea.viewport
-        //     )
+          //   workbook
+          //     .getActiveSheet()
+          //     .setColumnWidth(
+          //       0,
+          //       400.0,
+          //       window.GC.Spread.Sheets.SheetArea.viewport
+          //     )
 
           for (let i = 1; i < TotalColumn; i++) {
             workbook.getActiveSheet().autoFitColumn(i)

@@ -4,10 +4,7 @@ import { XMarkIcon } from '@heroicons/react/24/outline'
 import { Controller, useForm } from 'react-hook-form'
 import { Button } from 'src/_ezs/partials/button'
 import { FloatingPortal } from '@floating-ui/react'
-import { SelectGroupRoles, SelectStocks } from 'src/_ezs/partials/select'
-import clsx from 'clsx'
 // import { Input } from 'src/_ezs/partials/forms'
-import Select from 'react-select'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
 import moment from 'moment'
 
@@ -18,7 +15,7 @@ function PickerFilter({ children, initialValues, onChange }) {
     setVisible(false)
   }
 
-  const { control, handleSubmit, reset, watch } = useForm({
+  const { control, handleSubmit, reset } = useForm({
     defaultValues: {
       DateStart: moment().startOf('month').toDate(),
       DateEnd: moment().endOf('month').toDate()
@@ -47,8 +44,6 @@ function PickerFilter({ children, initialValues, onChange }) {
     e.stopPropagation()
     handleSubmit(onSubmit)(e)
   }
-
-  let { StockIDs } = watch()
 
   return (
     <>
