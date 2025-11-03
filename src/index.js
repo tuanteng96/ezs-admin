@@ -14,6 +14,12 @@ import './index.css'
 import { EzsSplashScreenProvider } from './_ezs/core/EzsSplashScreen'
 import { HelmetProvider } from 'react-helmet-async'
 
+if (!Object.hasOwn) {
+  Object.hasOwn = function (obj, key) {
+    return Object.prototype.hasOwnProperty.call(obj, key)
+  }
+}
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {

@@ -214,25 +214,39 @@ function Home(props) {
         dataKey: 'Groups',
         cellRenderer: ({ rowData }) => (
           <div className="flex flex-wrap gap-1.5">
-            {rowData?.GroupList && rowData?.GroupList.length > 0 ? (
-              rowData?.GroupList.map(x => ({
-                ...x,
-                label: `${
-                  x.TitleStock === 'Kinh doanh'
-                    ? 'Sale'
-                    : x.TitleStock || x.GroupTitle
-                } - ${x.StockTitle || 'Hệ thống'}`
-              })).map((item, i) => (
-                <div
-                  className="rounded bg-primarylight text-primary font-number px-2.5 py-[2px] text-[13px] font-medium"
-                  key={i}
-                >
-                  {item?.label}
-                </div>
-              ))
-            ) : (
-              <></>
-            )}
+            {rowData?.GroupList && rowData?.GroupList.length > 0
+              ? (() => {
+                  const groups = rowData.GroupList.map(x => ({
+                    ...x,
+                    label: `${
+                      x.TitleStock === 'Kinh doanh'
+                        ? 'Sale'
+                        : x.TitleStock || x.GroupTitle
+                    } - ${x.StockTitle || 'Hệ thống'}`
+                  }))
+
+                  const shownGroups = groups.slice(0, 3)
+                  const remainingCount = groups.length - shownGroups.length
+
+                  return (
+                    <>
+                      {shownGroups.map((item, i) => (
+                        <div
+                          key={i}
+                          className="rounded bg-primarylight text-primary font-number px-2.5 py-[2px] text-[13px] font-medium"
+                        >
+                          {item.label}
+                        </div>
+                      ))}
+                      {remainingCount > 0 && (
+                        <div className="rounded bg-primarylight text-primary font-number px-2.5 py-[2px] text-[13px] font-medium">
+                          +{remainingCount}
+                        </div>
+                      )}
+                    </>
+                  )
+                })()
+              : null}
           </div>
         ),
         width: 300,
@@ -325,8 +339,8 @@ function Home(props) {
                         <div
                           className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
                           onClick={() => {
-                            open()
                             document.body.click()
+                            open()
                           }}
                         >
                           Chỉnh sửa thông tin
@@ -674,7 +688,6 @@ function Home(props) {
                                 <Tooltip
                                   //visible={true}
                                   showArrow={false}
-                                  overlayClassName=""
                                   placement="top"
                                   trigger={['click']}
                                   overlay={
@@ -697,8 +710,8 @@ function Home(props) {
                                           <div
                                             className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
                                             onClick={() => {
-                                              open()
                                               document.body.click()
+                                              open()
                                             }}
                                           >
                                             Chỉnh sửa thông tin
@@ -732,22 +745,42 @@ function Home(props) {
                                 </div>
                                 <div className="flex flex-wrap gap-1.5 font-medium">
                                   {item?.GroupList &&
-                                  item?.GroupList.length > 0 ? (
-                                    item?.GroupList.map(x => ({
-                                      ...x,
-                                      label: `${
-                                        x.TitleStock === 'Kinh doanh'
-                                          ? 'Sale'
-                                          : x.TitleStock || x.GroupTitle
-                                      } - ${x.StockTitle || 'Hệ thống'}`
-                                    })).map((item, i) => (
-                                      <div
-                                        className="rounded bg-primarylight text-primary font-number px-2.5 py-[2px] text-[13px] font-medium"
-                                        key={i}
-                                      >
-                                        {item?.label}
-                                      </div>
-                                    ))
+                                  item.GroupList.length > 0 ? (
+                                    (() => {
+                                      // Tạo label cho từng nhóm
+                                      const groups = item.GroupList.map(x => ({
+                                        ...x,
+                                        label: `${
+                                          x.TitleStock === 'Kinh doanh'
+                                            ? 'Sale'
+                                            : x.TitleStock || x.GroupTitle
+                                        } - ${x.StockTitle || 'Hệ thống'}`
+                                      }))
+
+                                      // Lấy 2 nhóm đầu tiên
+                                      const shownGroups = groups.slice(0, 3)
+                                      // Tính số nhóm còn lại
+                                      const remainingCount =
+                                        groups.length - shownGroups.length
+
+                                      return (
+                                        <>
+                                          {shownGroups.map((g, i) => (
+                                            <div
+                                              key={i}
+                                              className="rounded bg-primarylight text-primary font-number px-2.5 py-[2px] text-[13px] font-medium"
+                                            >
+                                              {g.label}
+                                            </div>
+                                          ))}
+                                          {remainingCount > 0 && (
+                                            <div className="rounded bg-primarylight text-primary font-number px-2.5 py-[2px] text-[13px] font-medium">
+                                              +{remainingCount}
+                                            </div>
+                                          )}
+                                        </>
+                                      )
+                                    })()
                                   ) : (
                                     <>Chưa xác định</>
                                   )}
