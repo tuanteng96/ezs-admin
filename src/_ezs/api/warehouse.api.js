@@ -10,10 +10,11 @@ const WarehouseAPI = {
     Ps = 20,
     To = '',
     StockID = '',
-    Key = ''
+    Key = '',
+    RootTypeID = '794'
   }) =>
     http.get(
-      `/api/v3/whouse2?cmd=prodinstock2&Pi=${Pi}&Ps=${Ps}&manus=&to=${To}&(filter)Only=false&(filter)RootTypeID=794&(filter)StockID=${StockID}&(filter)key=${Key}&(filter)NotDelv=false&(filter)IsPublic=1&Qty=0`
+      `/api/v3/whouse2?cmd=prodinstock2&Pi=${Pi}&Ps=${Ps}&manus=&to=${To}&(filter)Only=false&(filter)RootTypeID=${RootTypeID}&(filter)StockID=${StockID}&(filter)key=${Key}&(filter)NotDelv=false&(filter)IsPublic=1&Qty=0`
     ),
   getListInventoryByStock: body =>
     http.post(`/api/v3/whouse3@Prods`, JSON.stringify(body)),

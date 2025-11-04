@@ -18,8 +18,7 @@ function PickerInventoryAlmost({ queryConfig }) {
     Ps: 20,
     To: moment(queryConfig.to, 'HH:mm DD/MM/YYYY').format('HH:mm DD/MM/YYYY'),
     StockID: queryConfig.StockID,
-    Key: '',
-    RootTypeID: '794,3298'
+    Key: ''
   })
 
   const { data, isLoading, fetchNextPage } = useInfiniteQuery({
@@ -27,6 +26,7 @@ function PickerInventoryAlmost({ queryConfig }) {
     queryFn: async ({ pageParam = 1 }) => {
       let { data } = await WarehouseAPI.getListInventoryAlmost({
         ...filters,
+        RootTypeID: '794,3298',
         Pi: pageParam
       })
       return data?.data
