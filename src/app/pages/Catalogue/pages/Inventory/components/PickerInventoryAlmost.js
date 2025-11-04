@@ -18,7 +18,8 @@ function PickerInventoryAlmost({ queryConfig }) {
     Ps: 20,
     To: moment(queryConfig.to, 'HH:mm DD/MM/YYYY').format('HH:mm DD/MM/YYYY'),
     StockID: queryConfig.StockID,
-    Key: ''
+    Key: '',
+    RootTypeID: '794,3298'
   })
 
   const { data, isLoading, fetchNextPage } = useInfiniteQuery({
