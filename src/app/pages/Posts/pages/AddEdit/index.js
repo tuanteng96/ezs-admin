@@ -177,7 +177,7 @@ function AddEdit(props) {
     let newPhotoList = []
     newPhotoList.push(values.Thumbnail)
     if (values.PhotoList && values.PhotoList.length > 0) {
-      for (let img of values.PhotoList) {
+      for (let img of values.PhotoList.filter(x => x)) {
         newPhotoList.push(img.Src)
       }
     }

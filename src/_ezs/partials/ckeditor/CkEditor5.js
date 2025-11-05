@@ -6,7 +6,12 @@ import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
 function CkEditor5({ value = '', onChange, placeholder }) {
   const editorRef = useRef(null)
   const [loading, setLoading] = useState(true)
-  const [initValue] = useState(value) // ✅ chỉ set 1 lần duy nhất
+  const [initValue] = useState(
+    value.replace(
+      /(src|data-mce-src)\s*=\s*["'](?:\.\.\/)+([^"']+)["']/gis,
+      (match, attr, path) => `${attr}="/${path}"`
+    ) // ✅ chỉ set 1 lần duy nhất
+  )
 
   return (
     <div className="relative">
@@ -95,13 +100,23 @@ function CkEditor5({ value = '', onChange, placeholder }) {
             formData.append('file', blobInfo.blob(), blobInfo.filename())
             try {
               const { data } = await UploadsAPI.sendFile(formData)
+
               return toAbsolutePath(data.data)
             } catch (err) {
               throw new Error('Upload failed')
             }
           }
         }}
-        onEditorChange={content => onChange && onChange(content)} // ✅ chỉ gửi dữ liệu ra
+        onEditorChange={content => {
+          let newContent = content
+          if (newContent) {
+            newContent = newContent.replace(
+              /(src|data-mce-src)\s*=\s*["'](?:\.\.\/)+([^"']+)["']/gis,
+              (match, attr, path) => `${attr}="/${path}"`
+            )
+          }
+          onChange && onChange(newContent)
+        }} // ✅ chỉ gửi dữ liệu ra
       />
     </div>
   )
