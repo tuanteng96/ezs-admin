@@ -4,6 +4,7 @@ import clsx from 'clsx'
 import moment from 'moment'
 import React from 'react'
 import { toast } from 'react-toastify'
+import CalendarAPI from 'src/_ezs/api/calendar.api'
 import UsersAPI from 'src/_ezs/api/users.api'
 import WorksheetAPI from 'src/_ezs/api/workshee.api'
 import { useAuth } from 'src/_ezs/core/Auth'
@@ -16,6 +17,8 @@ import Swal from 'sweetalert2'
 function Home(props) {
   const { CrStocks, logout } = useAuth()
   const { GlobalConfig } = useLayout()
+
+  //const [checkinData, setCheckinData] = useState([])
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ['Massage-Checkin', CrStocks],
@@ -36,6 +39,13 @@ function Home(props) {
           CrDate = moment().subtract(1, 'days').format('DD/MM/YYYY')
         }
       }
+      const { data: books } = await CalendarAPI.memberBookings({
+        From: moment(CrDate, 'DD/MM/YYYY').format('YYYY/MM/DD'),
+        To: moment(CrDate, 'DD/MM/YYYY').format('YYYY/MM/DD'),
+        IsMassage: Boolean(GlobalConfig?.Admin?.checkout_time),
+        StockID: CrStocks?.ID || CookieHelpers.get('StockID')
+      })
+
       const { data } = await UsersAPI.listService({
         Key: '',
         StockID: CrStocks?.ID || CookieHelpers.get('StockID')
@@ -47,7 +57,7 @@ function Home(props) {
         key: ''
       })
 
-      let newRs = data?.data || []
+      let newRs = [...(data?.data || [])]
 
       for (let m of rs?.data?.list || []) {
         let index = newRs.findIndex(x => x.id === m.UserID)
@@ -61,17 +71,63 @@ function Home(props) {
         }
       }
 
+      for (let off of books?.dayOffs || []) {
+        let index = newRs.findIndex(x => x.UserID === off.UserID)
+        if (index > -1) {
+          if (newRs[index]?.dayOffs) {
+            newRs[index]['dayOffs'] = [...newRs[index]?.dayOffs, off]
+          } else {
+            newRs[index]['dayOffs'] = [off]
+          }
+        }
+      }
+
       newRs = newRs
-        .map(item => ({
-          ...item,
-          Photo: item.photo,
-          Order: item?.source?.Order
-        }))
+        .map(item => {
+          let obj = {
+            ...item,
+            Photo: item.photo,
+            Order: item?.source?.Order
+          }
+          if (item.dayOffs && item.dayOffs.length) {
+            const now = moment()
+
+            const isInDayOff = item.dayOffs.some(d =>
+              moment(now).isBetween(moment(d.From), moment(d.To), null, '[]')
+            )
+
+            obj.isInDayOff = isInDayOff
+          }
+          return obj
+        })
         .filter(x => x.Dates && x.Dates.length > 0)
         .sort((a, b) => a.Order - b.Order)
+
       return newRs || []
     }
   })
+
+  // useEffect(() => {
+  //   if (data) setCheckinData(data)
+  // }, [data])
+
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (Swal.isVisible()) return
+
+  //     setCheckinData(prev =>
+  //       prev.map(item => {
+  //         const now = moment()
+  //         const isInDayOff = item.dayOffs?.some(d =>
+  //           now.isBetween(moment(d.From), moment(d.To), null, '[]')
+  //         )
+  //         return { ...item, isInDayOff }
+  //       })
+  //     )
+  //   }, 1 * 60 * 1000) // 5 phút
+
+  //   return () => clearInterval(interval)
+  // }, [])
 
   const updateMutation = useMutation({
     mutationFn: body => WorksheetAPI.checkinWorkSheet(body)
@@ -227,9 +283,11 @@ function Home(props) {
                 <div
                   className={clsx(
                     'border border-[#eaeaea] relative rounded min-h-[160px] cursor-pointer',
-                    item?.Dates[0]?.WorkTrack?.CheckIn
-                      ? 'bg-primary text-white'
-                      : 'bg-warninglight'
+                    !item.isInDayOff
+                      ? item?.Dates[0]?.WorkTrack?.CheckIn
+                        ? 'bg-primary text-white'
+                        : 'bg-warninglight'
+                      : 'bg-danger text-white'
                   )}
                   onClick={() => {
                     onCheckIn(item)

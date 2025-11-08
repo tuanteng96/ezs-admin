@@ -10,7 +10,8 @@ const CalendarAPI = {
     typeUser,
     MemberIDs,
     typeMember,
-    StockID
+    StockID,
+    IsMassage
   }) =>
     http.get(
       `api/v3/mbookadmin?cmd=getbooks&memberid=${
@@ -19,7 +20,9 @@ const CalendarAPI = {
         status || ''
       }&UserServiceIDs=${UserIDs || ''}&StatusMember=${
         typeMember || ''
-      }&StatusBook=${typeUser || ''}&StatusAtHome=${atHome || ''}`
+      }&StatusBook=${typeUser || ''}&StatusAtHome=${atHome || ''}${
+        IsMassage ? '&ismassage=true' : ''
+      }`
     ),
   addBooking: body =>
     http.post(`/api/v3/mbookadmin?cmd=AdminBooking`, JSON.stringify(body)),

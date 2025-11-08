@@ -14,7 +14,11 @@ import { LoadingComponentFull } from 'src/_ezs/layout/components/loading/Loading
 import { Button } from 'src/_ezs/partials/button'
 import { InputNumber } from 'src/_ezs/partials/forms'
 import { InputDatePicker } from 'src/_ezs/partials/forms/input/InputDatePicker'
-import { SelectProdCode, SelectStocksWareHouse } from 'src/_ezs/partials/select'
+import {
+  SelectProdCode,
+  SelectProdCode2,
+  SelectStocksWareHouse
+} from 'src/_ezs/partials/select'
 import { ReactBaseTable } from 'src/_ezs/partials/table'
 
 const FormAddMaterial = ({ onSubmit: onSubmitAdd }) => {
@@ -67,7 +71,7 @@ const FormAddMaterial = ({ onSubmit: onSubmitAdd }) => {
                 isClearable
                 value={field.value}
                 onChange={(val, triggeredAction) => {
-                  if (triggeredAction.action === 'clear') {
+                  if (triggeredAction?.action === 'clear') {
                     setValue('toTitle', '')
                   }
                   field.onChange(val)
@@ -85,7 +89,9 @@ const FormAddMaterial = ({ onSubmit: onSubmitAdd }) => {
             control={control}
             rules={{ required: true }}
             render={({ field: { ref, ...field }, fieldState }) => (
-              <SelectProdCode
+              <SelectProdCode2
+                autoChange
+                textAll="Tất cả"
                 isDisabled={!watch().fromTitle}
                 Key={watch().fromTitle}
                 className="select-control"
@@ -162,6 +168,8 @@ function MaterialConversion(props) {
     }
   })
 
+  let { data } = watch()
+
   const { fields, append, remove } = useFieldArray({
     control,
     name: 'data'
@@ -176,7 +184,8 @@ function MaterialConversion(props) {
         width: 60,
         sortable: false,
         align: 'center',
-        cellRenderer: ({ rowIndex }) => rowIndex + 1
+        cellRenderer: ({ rowIndex }) => rowIndex + 1,
+        rowSpan: ({ rowData }) => rowData?.rowSpan || 1
       },
       {
         key: 'fromTitle',
@@ -197,7 +206,8 @@ function MaterialConversion(props) {
               <></>
             )}
           </div>
-        )
+        ),
+        rowSpan: ({ rowData }) => rowData?.rowSpan || 1
       },
       {
         key: 'fromQty',
@@ -218,15 +228,37 @@ function MaterialConversion(props) {
                 placeholder="Nhập số lượng"
                 value={field.value}
                 onValueChange={val => {
-                  field.onChange(val.floatValue || '')
-                  setValue(
-                    `data[${rowIndex}].toQty`,
-                    (val.floatValue || 0) * rowData.toQtyInit
-                  )
-                  setValue(
-                    `data[${rowIndex}].ratioText`,
-                    `${val.floatValue || 0}x${rowData.toQtyInit}`
-                  )
+                  if (rowData?.timeStamp) {
+                    const sameTimeStampIndexes = fields
+                      .map((item, index) =>
+                        item.timeStamp === rowData.timeStamp ? index : -1
+                      )
+                      .filter(index => index !== -1)
+                    if (sameTimeStampIndexes?.length > 0) {
+                      for (let i of sameTimeStampIndexes) {
+                        setValue(`data[${i}].fromQty`, val?.floatValue || '')
+                        setValue(
+                          `data[${i}].toQty`,
+                          (val.floatValue || 0) * data[i].toQtyInit
+                        )
+                        setValue(
+                          `data[${i}].ratioText`,
+                          `${val.floatValue || 0}x${data[i].toQtyInit}`
+                        )
+                      }
+                    }
+                  } else {
+                    field.onChange(val.floatValue || '')
+
+                    setValue(
+                      `data[${rowIndex}].toQty`,
+                      (val.floatValue || 0) * rowData.toQtyInit
+                    )
+                    setValue(
+                      `data[${rowIndex}].ratioText`,
+                      `${val.floatValue || 0}x${rowData.toQtyInit}`
+                    )
+                  }
                 }}
                 allowNegative={false}
                 isAllowed={inputObj => {
@@ -238,7 +270,8 @@ function MaterialConversion(props) {
             )}
           />
         ),
-        sortable: false
+        sortable: false,
+        rowSpan: ({ rowData }) => rowData?.rowSpan || 1
       },
       {
         key: 'toTitle',
@@ -295,10 +328,24 @@ function MaterialConversion(props) {
         key: '#',
         title: '#',
         dataKey: '#',
-        cellRenderer: ({ rowIndex }) => (
+        cellRenderer: ({ rowIndex, rowData }) => (
           <div
             className="px-2.5 h-8 flex items-center text-[13px] text-white rounded cursor-pointer bg-danger hover:bg-dangerhv"
-            onClick={() => remove(rowIndex)}
+            onClick={() => {
+              if (rowData?.timeStamp) {
+                const sameTimeStampIndexes = fields
+                  .map((item, index) =>
+                    item.timeStamp === rowData.timeStamp ? index : -1
+                  )
+                  .filter(index => index !== -1)
+
+                if (sameTimeStampIndexes.length > 0) {
+                  remove(sameTimeStampIndexes)
+                }
+              } else {
+                remove(rowIndex)
+              }
+            }}
           >
             Xóa
           </div>
@@ -306,12 +353,39 @@ function MaterialConversion(props) {
         width: 80,
         sortable: false,
         align: 'center',
-        frozen: 'right'
+        frozen: 'right',
+        rowSpan: ({ rowData }) => rowData?.rowSpan || 1
       }
     ],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [fields]
   )
+
+  const rowRenderer = ({ rowData, rowIndex, cells, columns, isScrolling }) => {
+    // if (isScrolling)
+    //   return (
+    //     <div className="pl-15px d-flex align-items">
+    //       <div className="spinner spinner-primary w-40px"></div> Đang tải ...
+    //     </div>
+    //   )
+    const indexList = [0, 1, 2]
+    for (let index of indexList) {
+      const rowSpan =
+        columns[index]?.rowSpan && columns[index].rowSpan({ rowData, rowIndex })
+      if (rowSpan > 1) {
+        const cell = cells[index]
+        const style = {
+          ...cell.props.style,
+          backgroundColor: '#fff',
+          height: rowSpan * 80 - 1,
+          alignSelf: 'flex-start',
+          zIndex: 1
+        }
+        cells[index] = React.cloneElement(cell, { style })
+      }
+    }
+    return cells
+  }
 
   const ConvertMutation = useMutation({
     mutationFn: async body => {
@@ -438,8 +512,6 @@ function MaterialConversion(props) {
     })
   }
 
-  let { data } = watch()
-
   return (
     <LayoutGroup key={pathname}>
       <div className="fixed w-full h-full z-[1002] top-0 left-0">
@@ -507,35 +579,68 @@ function MaterialConversion(props) {
               </div>
             </div>
             <FormAddMaterial
-              onSubmit={(values, reset) => {
+              onSubmit={(values, resetAdd) => {
                 let { fromTitle, toTitle } = values
-                let Meta = JSON.parse(toTitle.source?.Meta)
-                let index = Meta?.otherUnit.findIndex(
-                  x => Number(x.ProdID) === fromTitle?.source?.ID
-                )
-                if (index > -1) {
-                  append({
-                    fromCode: fromTitle.id,
-                    fromUnit: fromTitle.source?.StockUnit,
-                    fromTitle: fromTitle.text,
-                    fromQty: 1,
-                    fromBarcode: null,
-                    fromPrice: 0,
-                    toCode: toTitle.id,
-                    toUnit: toTitle.source?.StockUnit,
-                    toTitle: toTitle.text,
-                    toQty: Number(Meta?.otherUnit[index].Qty),
-                    toQtyInit: Number(Meta?.otherUnit[index].Qty),
-                    toBarcode: null,
-                    toPrice: 0,
-                    valid: true,
-                    ratioText: `1x${Meta?.otherUnit[index].Qty}`,
-                    validCount: 3
-                  })
-                  reset()
+                if (toTitle?.value === -1) {
+                  let timeStamp = new Date().getTime()
+                  for (const [i, item] of toTitle.Items.entries()) {
+                    let Meta = JSON.parse(item.source?.Meta)
+                    let index = Meta?.otherUnit.findIndex(
+                      x => Number(x.ProdID) === fromTitle?.source?.ID
+                    )
+                    if (index > -1) {
+                      let Qty = Meta?.otherUnit?.[index].Qty
+                      append({
+                        rowSpan: i === 0 ? toTitle.Items.length : 1,
+                        fromCode: fromTitle.id,
+                        fromUnit: fromTitle.source?.StockUnit,
+                        fromTitle: fromTitle.text,
+                        fromQty: 1,
+                        fromBarcode: null,
+                        fromPrice: 0,
+                        toCode: item.id,
+                        toUnit: item.source?.StockUnit,
+                        toTitle: item.text,
+                        toQty: Number(Qty), //
+                        toQtyInit: Number(Qty),
+                        toBarcode: null,
+                        toPrice: 0,
+                        valid: true,
+                        ratioText: `1x${Qty}`,
+                        validCount: 3,
+                        timeStamp
+                      })
+                    }
+                  }
                 } else {
-                  toast.error('Sản phẩm, nvl này không thể chuyển đổi.')
+                  let Meta = JSON.parse(toTitle.source?.Meta)
+                  let index = Meta?.otherUnit.findIndex(
+                    x => Number(x.ProdID) === fromTitle?.source?.ID
+                  )
+                  if (index > -1) {
+                    append({
+                      fromCode: fromTitle.id,
+                      fromUnit: fromTitle.source?.StockUnit,
+                      fromTitle: fromTitle.text,
+                      fromQty: 1,
+                      fromBarcode: null,
+                      fromPrice: 0,
+                      toCode: toTitle.id,
+                      toUnit: toTitle.source?.StockUnit,
+                      toTitle: toTitle.text,
+                      toQty: Number(Meta?.otherUnit[index].Qty),
+                      toQtyInit: Number(Meta?.otherUnit[index].Qty),
+                      toBarcode: null,
+                      toPrice: 0,
+                      valid: true,
+                      ratioText: `1x${Meta?.otherUnit[index].Qty}`,
+                      validCount: 3
+                    })
+                  } else {
+                    toast.error('Sản phẩm, nvl này không thể chuyển đổi.')
+                  }
                 }
+                resetAdd()
               }}
             />
             <form
@@ -550,8 +655,12 @@ function MaterialConversion(props) {
                 rowKey="id"
                 columns={columns}
                 data={fields}
-                estimatedRowHeight={50}
-                onEndReachedThreshold={1}
+                // estimatedRowHeight={50}
+                // onEndReachedThreshold={1}
+                rowRenderer={rowRenderer}
+                overscanRowCount={50}
+                useIsScrolling
+                rowHeight={80}
               />
               <div className="flex px-4 py-4 border-t border-separator dark:border-dark-separator lg:px-6">
                 <div className="mr-3.5 flex-1 md:flex-auto flex gap-4">

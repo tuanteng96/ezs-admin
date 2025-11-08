@@ -40,6 +40,7 @@ import { SelectProdsSurchargeCard } from './SelectProdsSurchargeCard'
 import { SelectProdSelect2 } from './SelectProdSelect2'
 import { SelectVAT } from './SelectVAT'
 import { SelectUserShifts2 } from './SelectUserShifts2'
+import { SelectProdCode2 } from './SelectProdCode2'
 
 export {
   SelectDistrictsOtp,
@@ -83,5 +84,6 @@ export {
   SelectProdsSurchargeCard,
   SelectProdSelect2,
   SelectVAT,
-  SelectUserShifts2
+  SelectUserShifts2,
+  SelectProdCode2
 }

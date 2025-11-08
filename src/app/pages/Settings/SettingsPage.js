@@ -9,6 +9,7 @@ const ShiftWork = lazy(() => import('./pages/ShiftWork'))
 const ShiftWorkPreview = lazy(() => import('./pages/ShiftWorkPreview'))
 const ExtraSalary = lazy(() => import('./pages/ExtraSalary'))
 const SalesKPI = lazy(() => import('./pages/SalesKPI'))
+const PointVoucher = lazy(() => import('./pages/PointVoucher'))
 const SalesKPIClassify = lazy(() => import('./pages/SalesKPI/SalesKPIClassify'))
 const BusinessEstablishment = lazy(() =>
   import('./pages/BusinessEstablishment')
@@ -50,6 +51,15 @@ function SettingsPage(props) {
           </SuspensedView>
         }
       />
+      <Route
+        path="point-voucher"
+        element={
+          <SuspensedView>
+            <PointVoucher />
+          </SuspensedView>
+        }
+      />
+
       <Route element={<RoleAccess roles={kpi_doanhso.hasRight} />}>
         <Route
           path="sales-kpi"

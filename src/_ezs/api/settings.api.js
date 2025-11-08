@@ -14,7 +14,12 @@ const SettingsAPI = {
   getUserAllow: body =>
     http.post(`/api/v4/UserAllow@get`, JSON.stringify(body)),
   addEditUserAllow: body =>
-    http.post(`/api/v4/UserAllow@edit`, JSON.stringify(body))
+    http.post(`/api/v4/UserAllow@edit`, JSON.stringify(body)),
+  getPointVoucher: body => http.post(`/api/v4/gift@get`, JSON.stringify(body)),
+  addEditPointVoucher: body =>
+    http.post(`/api/v4/gift@edit`, JSON.stringify(body)),
+  deletePointVoucher: body =>
+    http.post(`/api/v4/gift@delete`, JSON.stringify(body))
 }
 
 export default SettingsAPI

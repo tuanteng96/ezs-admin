@@ -2,17 +2,27 @@ import React from 'react'
 import { AsyncPaginate } from 'react-select-async-paginate'
 import ProdsAPI from 'src/_ezs/api/prods.api'
 
-function SelectProdSelect2({ Params, Key = '', removes = [], ...props }) {
+function SelectProdSelect2({
+  Params,
+  Key = '',
+  removes = [],
+  isSuffix = true,
+  ...props
+}) {
   async function loadOptions(search, loadedOptions, { page }) {
     let { data } = await ProdsAPI.getListSelect2({ ...Params, q: search })
 
     let newRs = data?.data
       ? data?.data
-          .map(x => ({
-            ...x,
-            label: `${x.text} (${x.suffix})`,
-            value: x.id
-          }))
+          .map(x => {
+            let obj = {
+              ...x,
+              label: isSuffix ? `${x.text} (${x.suffix})` : x.text,
+              value: x.id
+            }
+            if (obj.label === 'TAT_CA') obj.label = 'Tất cả'
+            return obj
+          })
           .filter(x => !removes.includes(x.id))
       : []
 

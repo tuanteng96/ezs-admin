@@ -72,7 +72,7 @@ function CkEditor5({ value = '', onChange, placeholder }) {
             'bullist numlist outdent indent | removeformat | charmap emoticons | code fullscreen preview help',
           toolbar_mode: 'sliding',
           content_style:
-            'body { font-family:Helvetica,Arial,sans-serif; font-size:14px; line-height:1.6 }',
+            'body { font-family:Be Vietnam Pro,sans-serif; font-size:15px; line-height:1.6 }',
           placeholder,
           file_picker_types: 'image',
           file_picker_callback: (cb, value, meta) => {
@@ -105,7 +105,10 @@ function CkEditor5({ value = '', onChange, placeholder }) {
             } catch (err) {
               throw new Error('Upload failed')
             }
-          }
+          },
+          quickbars_insert_toolbar: false,
+          quickbars_selection_toolbar: false,
+          quickbars_image_toolbar: false
         }}
         onEditorChange={content => {
           let newContent = content
