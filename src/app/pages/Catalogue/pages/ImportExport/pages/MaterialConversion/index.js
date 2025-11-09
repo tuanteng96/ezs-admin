@@ -418,17 +418,36 @@ function MaterialConversion(props) {
   })
 
   const onSubmit = values => {
+    let result = []
+    let timeStampMap = new Map()
+    let indexCounter = 0
+
+    for (let item of values.data || []) {
+      let newItem = { ...item }
+
+      if (item.timeStamp) {
+        if (!timeStampMap.has(item.timeStamp)) {
+          timeStampMap.set(item.timeStamp, indexCounter++)
+        }
+        newItem.rowIndex = timeStampMap.get(item.timeStamp)
+      } else {
+        newItem.rowIndex = indexCounter++
+      }
+
+      result.push(newItem)
+    }
+
     var bodyFormData = new FormData()
     bodyFormData.append('stockid', values.stockid)
     bodyFormData.append(
       'data',
       JSON.stringify(
         values?.CreateDate
-          ? values.data.map(x => ({
+          ? result.map(x => ({
               ...x,
               CreateDate: moment(values?.CreateDate).format('YYYY-MM-DD HH:mm')
             }))
-          : values.data
+          : result
       )
     )
 
