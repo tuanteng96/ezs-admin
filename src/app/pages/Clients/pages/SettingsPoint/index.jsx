@@ -44,64 +44,85 @@ function SettingsPoint(props) {
   })
 
   useEffect(() => {
+    let ConfigsPointDefault = [
+      {
+        ID: '-2',
+        Title: 'Quy đổi điểm thưởng',
+        Value: 0,
+        Point: 0
+      },
+      {
+        ID: '-1',
+        Title: 'Chung',
+        Value: 0,
+        Point: 0
+      }
+    ]
     if (!ConfigsPoint.isLoading && data) {
       if (ConfigsPoint.data) {
         let rs = JSON.parse(ConfigsPoint.data)
-        let newRs = []
-        let isUpdate =
-          rs
-            .filter(x => x.ID !== '-1' && x.ID !== '-2')
-            .sort((a, b) => a.ID - b.ID)
-            .map(x => x.ID + x.Title.toUpperCase())
-            .toString() ===
-          data
-            .sort((a, b) => a.ID - b.ID)
-            .map(x => x.ID + x.Title.toUpperCase())
-            .toString()
+        let newRs = rs ? [...rs] : []
 
-        for (let gr of rs) {
-          if (gr.ID === '-1' || gr.ID === '-2') {
-            newRs.push(gr)
-          } else {
-            let index = data.findIndex(x => x.ID === gr.ID)
-            if (index > -1) {
-              let title =
-                data[index].Title.toUpperCase() === gr.Title.toUpperCase()
-                  ? gr.Title
-                  : data[index].Title
-              newRs.push({
-                ...gr,
-                Title: title
-              })
-            }
-          }
-        }
         for (let gr of data) {
-          if (newRs.findIndex(x => x.ID === gr.ID) === -1) {
+          let index = newRs.findIndex(x => x.ID === gr.ID)
+          if (index > -1) {
+            newRs[index]['Title'] = gr.Title
+          } else {
             newRs.push({ ...gr, Value: 0, Point: 0 })
           }
         }
 
-        if (!isUpdate) {
+        for (let gr of newRs) {
+          if (gr.ID !== '-1' && gr.ID !== '-2') {
+            let index = data.findIndex(x => String(x.ID) === String(gr.ID))
+            if (index === -1) {
+              newRs = newRs.filter(x => String(x.ID) !== String(gr.ID))
+            }
+          }
+        }
+
+        ConfigsPointDefault.forEach(item => {
+          const exists = rs.some(x => String(x.ID) === String(item.ID))
+          if (!exists) {
+            newRs.push(item)
+          }
+        })
+
+        let isUpdate =
+          rs
+            .filter(x => x.ID !== '-1' && x.ID !== '-2' && x.Title)
+            .sort((a, b) => a.ID - b.ID)
+            .map(x => x.ID + ' ' + x.Title.toUpperCase())
+            .toString() !==
+          data
+            .filter(x => x.Title)
+            .sort((a, b) => a.ID - b.ID)
+            .map(x => x.ID + ' ' + x.Title.toUpperCase())
+            .toString()
+
+        if (isUpdate) {
           UpdateConfig(newRs)
         }
 
-        setValue('ConfigsPoint', newRs)
+        setValue(
+          'ConfigsPoint',
+          newRs
+            .map(x => {
+              let obj = { ...x }
+              if (x.ID === '-2') {
+                obj['Position'] = -2
+              }
+              if (x.ID === '-1') {
+                obj['Position'] = -1
+              }
+              return obj
+            })
+            .sort((a, b) => (a.Position || 0) - (b.Position || 0))
+        )
       } else {
-        let newConfigsPoint = [
-          {
-            ID: '-2',
-            Title: 'Quy đổi điểm thưởng',
-            Value: 0,
-            Point: 0
-          },
-          {
-            ID: '-1',
-            Title: 'Chung',
-            Value: 0,
-            Point: 0
-          }
-        ].concat(data ? data.map(x => ({ ...x, Value: 0, Point: 0 })) : [])
+        let newConfigsPoint = ConfigsPointDefault.concat(
+          data ? data.map(x => ({ ...x, Value: 0, Point: 0 })) : []
+        )
         setValue('ConfigsPoint', newConfigsPoint)
       }
     }
