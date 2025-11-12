@@ -127,8 +127,8 @@ function WareHouseExportStock(props) {
                   ProdId: x.ProdID,
                   Other: x?.Desc || '',
                   convert: null,
-                  Qty: x.Qty || 1,
-                  ImportTotalPrice: (x.Qty || 1) * x.ImportPrice
+                  Qty: x.Qty,
+                  ImportTotalPrice: x.Qty * x.ImportPrice
                 }))
               : [
                   {
