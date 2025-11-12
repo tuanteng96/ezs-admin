@@ -1051,20 +1051,22 @@ function WareHouseImport(props) {
         if (data.items && data.items.length > 0) {
           setValue(
             'items',
-            data.items.map(x => ({
-              ...x,
-              ProdTitle: x.ProdTitle
-                ? {
-                    label: x.ProdTitle,
-                    value: x.ProdID
-                  }
-                : '',
-              ProdId: x.ProdID,
-              Other: x?.Desc || '',
-              Unit: x.StockUnit || '',
-              ImportTotalPrice: x.Qty * x.ImportPrice,
-              convert: null
-            }))
+            data.items
+              .map(x => ({
+                ...x,
+                ProdTitle: x.ProdTitle
+                  ? {
+                      label: x.ProdTitle,
+                      value: x.ProdID
+                    }
+                  : '',
+                ProdId: x.ProdID,
+                Other: x?.Desc || '',
+                Unit: x.StockUnit || '',
+                ImportTotalPrice: x.Qty * x.ImportPrice,
+                convert: null
+              }))
+              .filter(x => x.Qty > 0)
           )
           const total = data.items.reduce(
             (n, { ImportPrice, Qty }) => n + ImportPrice * Qty,

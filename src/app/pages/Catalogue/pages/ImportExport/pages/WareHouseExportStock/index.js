@@ -776,7 +776,7 @@ function WareHouseExportStock(props) {
               Unit: x.StockUnit || '',
               ImportTotalPrice: x.Qty * x.ImportPrice,
               convert: null
-            }))
+            })).filter(x => x.Qty > 0)
           )
           const total = data.items.reduce(
             (n, { ImportPrice, Qty }) => n + ImportPrice * Qty,
