@@ -31,6 +31,21 @@ const schemaAddEdit = yup
   })
   .required()
 
+let initialValues = {
+  Discount: '',
+  ValueType: 2, //2:dong gia, 1: Tien, 0: phan tram
+  Apply: 'NG,KM',
+  ForCates: '',
+  ForProds: '',
+  InDays: 30,
+  IsVisibled: true,
+  NMax: 1,
+  IsPublic: 1,
+  MemberUseMax: -1,
+  OrderItemQtyMax: '',
+  OrderQtyMax: ''
+}
+
 function PickerAddEdit({ children, data }) {
   const [visible, setVisible] = useState(false)
 
@@ -49,20 +64,7 @@ function PickerAddEdit({ children, data }) {
       Photo: '',
       IsPublic: true,
       Point: '',
-      Data: {
-        Discount: '',
-        ValueType: 2, //2:dong gia, 1: Tien, 0: phan tram
-        Apply: 'NG,KM',
-        ForCates: '',
-        ForProds: '',
-        InDays: 30,
-        IsVisibled: true,
-        NMax: 1,
-        IsPublic: 1,
-        MemberUseMax: -1,
-        OrderItemQtyMax: '',
-        OrderQtyMax: ''
-      }
+      Data: initialValues
     },
     resolver: yupResolver(schemaAddEdit)
   })
@@ -72,6 +74,7 @@ function PickerAddEdit({ children, data }) {
       reset({
         ...data,
         Data: {
+          ...initialValues,
           ...data.Data,
           ForCates: data.Data?.ForCates
             ? data.Data?.ForCates.map(x => ({
@@ -108,16 +111,18 @@ function PickerAddEdit({ children, data }) {
                   ID: x.value,
                   Title: x.label
                 }))
-              : null,
+              : '',
             ForProds: values.Data.ForProds
               ? values.Data.ForProds.map(x => ({
                   ID: x.value,
                   Title: x.label
                 }))
-              : null
+              : ''
           }
         : null
     }
+
+    newValues?.DataJSON && delete newValues.DataJSON
     addEditMutation.mutate(
       {
         edit: [newValues]
