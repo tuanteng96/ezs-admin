@@ -59,7 +59,9 @@ function PickerAddEdit({ children, data }) {
         IsVisibled: true,
         NMax: 1,
         IsPublic: 1,
-        MemberUseMax: -1
+        MemberUseMax: -1,
+        OrderItemQtyMax: '',
+        OrderQtyMax: ''
       }
     },
     resolver: yupResolver(schemaAddEdit)
@@ -494,6 +496,72 @@ function PickerAddEdit({ children, data }) {
                               />
                             )}
                           />
+                        </div>
+                      </div>
+                      <div className="mb-5 last:mb-0">
+                        <div>Giới hạn số lượng trên mỗi sản phẩm / dịch vụ</div>
+                        <div className="mt-1">
+                          <Controller
+                            name="Data.OrderItemQtyMax"
+                            control={control}
+                            render={({
+                              field: { ref, ...field },
+                              fieldState
+                            }) => (
+                              <InputNumber
+                                thousandSeparator={false}
+                                value={field.value}
+                                placeholder={
+                                  field.value
+                                    ? 'Nhập số lượng'
+                                    : 'Không giới hạn'
+                                }
+                                onValueChange={val => {
+                                  field.onChange(
+                                    typeof val.floatValue == 'undefined'
+                                      ? val.value
+                                      : val.floatValue
+                                  )
+                                }}
+                              />
+                            )}
+                          />
+                        </div>
+                        <div className="mt-1.5 text-[13px] text-muted">
+                          Nhập giá trị nếu bạn muốn giới hạn số lượng
+                        </div>
+                      </div>
+                      <div className="mb-5 last:mb-0">
+                        <div>Giới hạn số lượng trên cả đơn hàng</div>
+                        <div className="mt-1">
+                          <Controller
+                            name="Data.OrderQtyMax"
+                            control={control}
+                            render={({
+                              field: { ref, ...field },
+                              fieldState
+                            }) => (
+                              <InputNumber
+                                thousandSeparator={false}
+                                value={field.value}
+                                placeholder={
+                                  field.value
+                                    ? 'Nhập số lượng'
+                                    : 'Không giới hạn'
+                                }
+                                onValueChange={val => {
+                                  field.onChange(
+                                    typeof val.floatValue == 'undefined'
+                                      ? val.value
+                                      : val.floatValue
+                                  )
+                                }}
+                              />
+                            )}
+                          />
+                        </div>
+                        <div className="mt-1.5 text-[13px] text-muted">
+                          Nhập giá trị nếu bạn muốn giới hạn số lượng
                         </div>
                       </div>
                     </div>
