@@ -37,6 +37,22 @@ import { UploadFile } from 'src/_ezs/partials/files'
 import StickyBox from 'react-sticky-box'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 import { toAbsolutePath } from 'src/_ezs/utils/assetPath'
+import Select from 'react-select'
+
+const OptionsContract = [
+  {
+    value: 'Thử việc',
+    label: 'Thử việc'
+  },
+  {
+    value: 'Part time',
+    label: 'Part time'
+  },
+  {
+    value: 'Chính thức',
+    label: 'Chính thức'
+  }
+]
 
 const schemaAddEdit = yup
   .object({
@@ -99,7 +115,8 @@ function PickerUserAddEdit({ children, initialValues }) {
       PhotoJSON: [],
       UnknownKeysConfigs: [],
       Gender: 1,
-      YahooID: ''
+      YahooID: '',
+      Address: ""
     },
     resolver: yupResolver(schemaAddEdit)
   })
@@ -185,6 +202,7 @@ function PickerUserAddEdit({ children, initialValues }) {
       if (data?.User) {
         setValue('chluongLevels', data?.User?.Level)
         setValue('Gender', data?.User?.Gender)
+        setValue('Address', data?.User?.Address)
         setValue('YahooID', data?.User?.YahooID)
         let WorkTimeSetting = data?.User?.WorkTimeSetting
           ? JSON.parse(data?.User?.WorkTimeSetting)
@@ -246,6 +264,7 @@ function PickerUserAddEdit({ children, initialValues }) {
     bodyFormData.append('disabled', values?.disabled ? '1' : '0')
     bodyFormData.append('Gender', values?.Gender)
     bodyFormData.append('YahooID', values?.YahooID || '')
+    bodyFormData.append('Address', values?.Address || '')
     bodyFormData.append(
       'chamcong',
       JSON.stringify([
@@ -517,66 +536,110 @@ function PickerUserAddEdit({ children, initialValues }) {
                               </div>
                             </div>
                             {GlobalConfig?.Admin?.chinhsachluongchitiet && (
-                              <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2">
-                                <div>
-                                  <div className="font-semibold">
-                                    Mã nhân viên
-                                  </div>
-                                  <div className="mt-1">
-                                    <Controller
-                                      name="YahooID"
-                                      control={control}
-                                      render={({
-                                        field: { ref, ...field },
-                                        fieldState
-                                      }) => (
-                                        <Input
-                                          placeholder="Nhập mã nhân viên"
-                                          value={field.value}
-                                          errorMessageForce={
-                                            fieldState?.invalid
-                                          }
-                                          //errorMessage={fieldState?.error?.message}
-                                          {...field}
-                                          onChange={e => {
-                                            field.onChange(e.target.value)
-                                          }}
-                                        />
-                                      )}
-                                    />
-                                  </div>
-                                </div>
-                                <div>
-                                  <div className="font-semibold">
-                                    Hiện bảng lương
-                                  </div>
-                                  <div className="mt-1">
-                                    <div className="relative px-4 py-3 border border-gray-300 border-dashed rounded">
+                              <>
+                                <div className="grid grid-cols-1 gap-4 mb-4 md:grid-cols-2">
+                                  <div>
+                                    <div className="font-semibold">
+                                      Mã nhân viên
+                                    </div>
+                                    <div className="mt-1">
                                       <Controller
-                                        name="Gender"
+                                        name="YahooID"
                                         control={control}
                                         render={({
                                           field: { ref, ...field },
                                           fieldState
                                         }) => (
-                                          <Checkbox
-                                            labelText="Tích để hiển thị bảng lương"
-                                            labelClassName="pl-2 font-normal text-muted2"
-                                            htmlFor="Gender"
+                                          <Input
+                                            placeholder="Nhập mã nhân viên"
+                                            value={field.value}
+                                            errorMessageForce={
+                                              fieldState?.invalid
+                                            }
+                                            //errorMessage={fieldState?.error?.message}
                                             {...field}
-                                            checked={Number(field?.value) === 1}
                                             onChange={e => {
-                                              field.onChange(
-                                                e.target.checked ? 1 : 0
-                                              )
+                                              field.onChange(e.target.value)
                                             }}
                                           />
                                         )}
                                       />
                                     </div>
                                   </div>
+                                  <div>
+                                    <div className="font-semibold">
+                                      Hiện bảng lương
+                                    </div>
+                                    <div className="mt-1">
+                                      <div className="relative px-4 py-3 border border-gray-300 border-dashed rounded">
+                                        <Controller
+                                          name="Gender"
+                                          control={control}
+                                          render={({
+                                            field: { ref, ...field },
+                                            fieldState
+                                          }) => (
+                                            <Checkbox
+                                              labelText="Tích để hiển thị bảng lương"
+                                              labelClassName="pl-2 font-normal text-muted2"
+                                              htmlFor="Gender"
+                                              {...field}
+                                              checked={
+                                                Number(field?.value) === 1
+                                              }
+                                              onChange={e => {
+                                                field.onChange(
+                                                  e.target.checked ? 1 : 0
+                                                )
+                                              }}
+                                            />
+                                          )}
+                                        />
+                                      </div>
+                                    </div>
+                                  </div>
                                 </div>
-                              </div>
+                                <div className="mb-4 last:mb-0">
+                                  <div className="font-semibold">
+                                    Loại hợp đồng
+                                  </div>
+                                  <div className="mt-1">
+                                    <Controller
+                                      name="Address"
+                                      control={control}
+                                      render={({
+                                        field: { ref, ...field },
+                                        fieldState
+                                      }) => (
+                                        <Select
+                                          isClearable
+                                          value={OptionsContract.filter(
+                                            x => field?.value === x?.value
+                                          )}
+                                          className="select-control"
+                                          onChange={val => {
+                                            field.onChange(val?.value || '')
+                                          }}
+                                          classNamePrefix="select"
+                                          options={OptionsContract}
+                                          placeholder="Chọn trạng thái"
+                                          noOptionsMessage={() =>
+                                            'Không có dữ liệu'
+                                          }
+                                          menuPosition="fixed"
+                                          styles={{
+                                            menuPortal: base => ({
+                                              ...base,
+                                              zIndex: 9999
+                                            })
+                                          }}
+                                          menuPortalTarget={document.body}
+                                        />
+                                      )}
+                                    />
+                                  </div>
+                                </div>
+                              </>
                             )}
 
                             <div>
