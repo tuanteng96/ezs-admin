@@ -28,6 +28,7 @@ import Swal from 'sweetalert2'
 import ExcelHepers from 'src/_ezs/utils/ExcelHepers'
 import { useCatalogue } from 'src/app/pages/Catalogue/CatalogueLayout'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
+import { PickerExportStocks } from './components'
 
 function WareHouseExportStock(props) {
   const navigate = useNavigate()
@@ -763,20 +764,22 @@ function WareHouseExportStock(props) {
         if (data.items && data.items.length > 0) {
           setValue(
             'items',
-            data.items.map(x => ({
-              ...x,
-              ProdTitle: x.ProdTitle
-                ? {
-                    label: x.ProdTitle,
-                    value: x.ProdID
-                  }
-                : '',
-              ProdId: x.ProdID,
-              Other: x?.Desc || '',
-              Unit: x.StockUnit || '',
-              ImportTotalPrice: x.Qty * x.ImportPrice,
-              convert: null
-            })).filter(x => x.Qty > 0)
+            data.items
+              .map(x => ({
+                ...x,
+                ProdTitle: x.ProdTitle
+                  ? {
+                      label: x.ProdTitle,
+                      value: x.ProdID
+                    }
+                  : '',
+                ProdId: x.ProdID,
+                Other: x?.Desc || '',
+                Unit: x.StockUnit || '',
+                ImportTotalPrice: x.Qty * x.ImportPrice,
+                convert: null
+              }))
+              .filter(x => x.Qty > 0)
           )
           const total = data.items.reduce(
             (n, { ImportPrice, Qty }) => n + ImportPrice * Qty,
@@ -1018,6 +1021,21 @@ function WareHouseExportStock(props) {
                       Import từ Excel
                     </span>
                     <span className="pl-1.5">để tải lên.</span>
+                    {xuat_nhap_diem?.IsStocks && (
+                      <>
+                        <span className="pl-1.5">Hoặc chọn</span>
+                        <PickerExportStocks>
+                          {({ open }) => (
+                            <span
+                              className="text-primary pl-1.5 cursor-pointer"
+                              onClick={open}
+                            >
+                              xuất chuyển kho từ nhiều cơ sở.
+                            </span>
+                          )}
+                        </PickerExportStocks>
+                      </>
+                    )}
                     <input
                       className="hidden"
                       type="file"

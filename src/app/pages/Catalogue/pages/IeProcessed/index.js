@@ -53,6 +53,7 @@ function IeProcessed(props) {
           (xuat_nhap_diem.IsStocks && xuat_nhap_ten_slg.IsStocks)
       }
       let { data } = await WarehouseAPI.getListInventory(newQueryConfig)
+      console.log(data)
       return {
         data: data?.data?.list || [],
         PCount: data?.data?.PCount || 1
