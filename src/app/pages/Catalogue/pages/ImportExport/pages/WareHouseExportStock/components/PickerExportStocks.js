@@ -177,10 +177,14 @@ function PickerExportStocks({ children }) {
             .map(item => {
               let obj = { ...item }
               obj['FromStocks'] = auth.Stocks.find(
-                x => x.TitleSEO === item.FromStock
+                x =>
+                  x.TitleSEO === item.FromStock ||
+                  x.Title?.toUpperCase() === item.FromStock?.toUpperCase()
               )
               obj['ToStocks'] = auth.Stocks.find(
-                x => x.TitleSEO === item.ToStock
+                x =>
+                  x.TitleSEO === item.ToStock ||
+                  x.Title?.toUpperCase() === item?.ToStock?.toUpperCase()
               )
 
               // if (!item.FromStock || !item.ToStock) {
@@ -201,8 +205,11 @@ function PickerExportStocks({ children }) {
       for (let item of Items) {
         let index = StocksItems.findIndex(
           x =>
-            x.FromStocks?.TitleSEO === item.FromStock &&
-            x.ToStocks?.TitleSEO === item.ToStock
+            (x.FromStocks?.TitleSEO === item.FromStock &&
+              x.ToStocks?.TitleSEO === item.ToStock) ||
+            (x?.FromStocks?.Title?.toUpperCase() ===
+              item?.FromStock?.toUpperCase() &&
+              x.ToStocks?.Title?.toUpperCase() === item?.ToStock?.toUpperCase())
         )
         if (index > -1) {
           StocksItems[index].items = [...StocksItems[index].items, item]
