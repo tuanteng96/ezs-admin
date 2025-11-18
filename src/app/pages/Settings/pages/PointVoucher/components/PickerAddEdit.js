@@ -357,11 +357,11 @@ function PickerAddEdit({ children, data }) {
                                   },
                                   {
                                     label: 'Số tiền',
-                                    value: '1'
+                                    value: '0'
                                   },
                                   {
                                     label: 'Phần trăm',
-                                    value: '0'
+                                    value: '1'
                                   }
                                 ].map(item => (
                                   <Checkbox
