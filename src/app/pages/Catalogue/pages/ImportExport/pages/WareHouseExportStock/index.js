@@ -211,10 +211,10 @@ function WareHouseExportStock(props) {
                                   ...v.source,
                                   PriceBase:
                                     v?.source?.PriceBase ||
-                                    v?.source?.PriceProduct,
-                                  PriceProduct:
-                                    v?.source?.PriceProduct ||
-                                    v?.source?.PriceBase
+                                    v?.source?.PriceProduct
+                                  // PriceProduct:
+                                  //   v?.source?.PriceProduct ||
+                                  //   v?.source?.PriceBase
                                 }
                               }
                             : null
@@ -304,9 +304,9 @@ function WareHouseExportStock(props) {
                             source: {
                               ...v.source,
                               PriceBase:
-                                v?.source?.PriceBase || v?.source?.PriceProduct,
-                              PriceProduct:
-                                v?.source?.PriceProduct || v?.source?.PriceBase
+                                v?.source?.PriceBase || v?.source?.PriceProduct
+                              // PriceProduct:
+                              //   v?.source?.PriceProduct || v?.source?.PriceBase
                             }
                           }
                         : null
@@ -539,18 +539,21 @@ function WareHouseExportStock(props) {
                   value={field.value}
                   placeholder="Nhập chiết khấu"
                   onValueChange={val => {
-                    const { ImportPriceOrigin, Qty } = watchForm.items[rowIndex]
+                    const { ImportPriceOrigin, Qty, ImportPrice } =
+                      watchForm.items[rowIndex]
                     field.onChange(val.floatValue || '')
 
-                    let ImportPrice =
-                      val?.floatValue > 100
-                        ? ImportPriceOrigin - val?.floatValue
-                        : ImportPriceOrigin -
-                          (ImportPriceOrigin * val?.floatValue) / 100
-                    setValue(`items[${rowIndex}].ImportPrice`, ImportPrice)
+                    let newImportPrice =
+                      val?.floatValue >= 0 && ImportPriceOrigin > 0
+                        ? val?.floatValue > 100
+                          ? ImportPriceOrigin - val?.floatValue
+                          : ImportPriceOrigin -
+                            (ImportPriceOrigin * val?.floatValue) / 100
+                        : ImportPrice
+                    setValue(`items[${rowIndex}].ImportPrice`, newImportPrice)
                     setValue(
                       `items[${rowIndex}].ImportTotalPrice`,
-                      ImportPrice * (Qty || 0)
+                      newImportPrice * (Qty || 0)
                     )
                     onUpdate()
                   }}
@@ -579,10 +582,10 @@ function WareHouseExportStock(props) {
                 placeholder="Nhập đơn giá"
                 onValueChange={val => {
                   const { ImportPriceOrigin, Qty } = watchForm.items[rowIndex]
-                  setValue(
-                    `items[${rowIndex}].ImportDiscount`,
-                    ImportPriceOrigin - (val.floatValue || 0)
-                  )
+                  // setValue(
+                  //   `items[${rowIndex}].ImportDiscount`,
+                  //   ImportPriceOrigin - (val.floatValue || 0)
+                  // )
                   setValue(
                     `items[${rowIndex}].ImportTotalPrice`,
                     Qty * (val.floatValue || 0)
