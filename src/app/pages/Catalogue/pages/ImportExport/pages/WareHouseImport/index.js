@@ -208,7 +208,21 @@ function WareHouseImport(props) {
                         menuPortalTarget={document.body}
                         isClearable
                         value={field.value}
-                        onChange={(val, triggeredAction) => {
+                        onChange={(v, triggeredAction) => {
+                          let val = v
+                            ? {
+                                ...v,
+                                source: {
+                                  ...v.source,
+                                  PriceBase:
+                                    v?.source?.PriceBase ||
+                                    v?.source?.PriceProduct,
+                                  PriceProduct:
+                                    v?.source?.PriceProduct ||
+                                    v?.source?.PriceBase
+                                }
+                              }
+                            : null
                           field.onChange(val)
 
                           WarehouseAPI.getConvert({
@@ -287,7 +301,20 @@ function WareHouseImport(props) {
                     menuPortalTarget={document.body}
                     isClearable
                     value={field.value}
-                    onChange={(val, triggeredAction) => {
+                    onChange={(v, triggeredAction) => {
+                      let val = v
+                        ? {
+                            ...v,
+                            source: {
+                              ...v.source,
+                              PriceBase:
+                                v?.source?.PriceBase || v?.source?.PriceProduct,
+                              PriceProduct:
+                                v?.source?.PriceProduct || v?.source?.PriceBase
+                            }
+                          }
+                        : null
+
                       field.onChange(val)
 
                       WarehouseAPI.getConvert({
@@ -1052,6 +1079,18 @@ function WareHouseImport(props) {
           setValue(
             'items',
             data.items
+              .map(x => {
+                let newObj = { ...x }
+                if (!x.ImportPrice && x.ImportPriceOrigin) {
+                  newObj.ImportPrice = x.ImportPriceOrigin
+                  newObj.ImportDiscount =
+                    newObj.ImportPrice > 0 &&
+                    x.ImportPriceOrigin >= newObj.ImportPrice
+                      ? x.ImportPriceOrigin - newObj.ImportPrice
+                      : 0
+                }
+                return newObj
+              })
               .map(x => ({
                 ...x,
                 ProdTitle: x.ProdTitle
