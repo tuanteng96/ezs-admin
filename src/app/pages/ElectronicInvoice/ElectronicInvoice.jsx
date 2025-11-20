@@ -1,4 +1,4 @@
-import { Cog6ToothIcon } from '@heroicons/react/24/outline'
+import { BuildingOffice2Icon, Cog6ToothIcon } from '@heroicons/react/24/outline'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { chunk, uniqueId } from 'lodash-es'
 import moment from 'moment'
@@ -17,6 +17,7 @@ import ExcelHepers from 'src/_ezs/utils/ExcelHepers'
 import { formatArray } from 'src/_ezs/utils/formatArray'
 import { formatString } from 'src/_ezs/utils/formatString'
 import { PickerSettings } from './components'
+import Tooltip from 'rc-tooltip'
 
 window.toastId = null
 
@@ -1029,6 +1030,52 @@ function ElectronicInvoice(props) {
         key: 'SenderName',
         title: 'Khách hàng',
         dataKey: 'SenderName',
+        cellRenderer: ({ rowData }) =>
+          !rowData?.InvoiceInfo ? (
+            <div>{rowData?.SenderName}</div>
+          ) : (
+            <Tooltip
+              //visible={true}
+              overlayClassName="text-white dark:text-dark-light"
+              placement="top"
+              trigger={['hover']}
+              overlay={
+                <div className="px-3 py-2.5 bg-white dark:bg-dark-light rounded-sm shadow-lg dark:text-graydark-800 max-w-[300px]">
+                  <div className="pb-2 mb-2 border-b border-gray-200 last:border-0 last:mb-0 last:pb-0">
+                    <div className="text-gray-700 text-[13px]">Tên công ty</div>
+                    <div className="text-sm font-medium text-black">
+                      {rowData?.InvoiceInfo?.CompanyName}
+                    </div>
+                  </div>
+                  <div className="pb-2 mb-2 border-b border-gray-200 last:border-0 last:mb-0 last:pb-0">
+                    <div className="text-gray-700 text-[13px]">Mã số thuế</div>
+                    <div className="text-sm font-medium text-black">
+                      {rowData?.InvoiceInfo?.CompanyTaxCode}
+                    </div>
+                  </div>
+                  <div className="pb-2 mb-2 border-b border-gray-200 last:border-0 last:mb-0 last:pb-0">
+                    <div className="text-gray-700 text-[13px]">Email</div>
+                    <div className="text-sm font-medium text-black">
+                      {rowData?.InvoiceInfo?.CompanyEmail}
+                    </div>
+                  </div>
+                  <div className="pb-2 mb-2 border-b border-gray-200 last:border-0 last:mb-0 last:pb-0">
+                    <div className="text-gray-700 text-[13px]">Địa chỉ</div>
+                    <div className="text-sm font-medium text-black">
+                      {rowData?.InvoiceInfo?.CompanyAddress}
+                    </div>
+                  </div>
+                </div>
+              }
+              align={{
+                offset: [9, 0]
+              }}
+            >
+              <div className="flex items-center justify-between w-full cursor-pointer">
+                {rowData?.SenderName} <BuildingOffice2Icon className="w-5" />
+              </div>
+            </Tooltip>
+          ),
         rowSpan: ({ rowData }) => (rowData.Items ? rowData.Items.length : 1),
         width: 250,
         sortable: false
@@ -1218,12 +1265,27 @@ function ElectronicInvoice(props) {
         let Response = [Head]
 
         for (let item of data.lst) {
+          let CTYs = []
+          if (item?.InvoiceInfo) {
+            if (item?.InvoiceInfo?.CompanyName) {
+              CTYs.push(item?.InvoiceInfo?.CompanyName)
+            }
+            if (item?.InvoiceInfo?.CompanyTaxCode) {
+              CTYs.push(item?.InvoiceInfo?.CompanyTaxCode)
+            }
+            if (item?.InvoiceInfo?.CompanyEmail) {
+              CTYs.push(item?.InvoiceInfo?.CompanyEmail)
+            }
+            if (item?.InvoiceInfo?.CompanyAddress) {
+              CTYs.push(item?.InvoiceInfo?.CompanyAddress)
+            }
+          }
           let newArray = [
             item.ID,
             item.TM,
             item.CK,
             item.QT,
-            item.SenderName,
+            item?.InvoiceInfo ? `${item.SenderName} (${CTYs.join(" - ")})` : item.SenderName,
             item.SenderPhone,
             item?.InvoiceIDStatus === 'done' && item.InvoiceID
               ? item.InvoiceID
