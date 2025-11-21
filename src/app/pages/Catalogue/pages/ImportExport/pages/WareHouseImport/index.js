@@ -253,12 +253,12 @@ function WareHouseImport(props) {
 
                           setValue(
                             `items[${rowIndex}].ImportPriceOrigin`,
-                            val ? val?.source?.PriceProduct : ''
+                            val ? val?.source?.PriceProduct : 0
                           )
 
                           setValue(
                             `items[${rowIndex}].ImportPrice`,
-                            val ? val?.source?.PriceBase : ''
+                            val ? val?.source?.PriceBase : 0
                           )
                           setValue(
                             `items[${rowIndex}].ImportDiscount`,
@@ -346,12 +346,12 @@ function WareHouseImport(props) {
                       })
                       setValue(
                         `items[${rowIndex}].ImportPriceOrigin`,
-                        val ? val?.source?.PriceProduct : ''
+                        val ? val?.source?.PriceProduct : 0
                       )
 
                       setValue(
                         `items[${rowIndex}].ImportPrice`,
-                        val ? val?.source?.PriceBase : ''
+                        val ? val?.source?.PriceBase : 0
                       )
                       setValue(
                         `items[${rowIndex}].ImportDiscount`,
@@ -449,7 +449,7 @@ function WareHouseImport(props) {
                         `items[${rowIndex}].ImportTotalPrice`,
                         ImportPrice * (val.floatValue || 0)
                       )
-                      field.onChange(val.floatValue || '')
+                      field.onChange(val.floatValue || "")
                       onUpdate()
                     }}
                     allowNegative={false}
@@ -512,19 +512,21 @@ function WareHouseImport(props) {
                 placeholder="Nhập nguyên giá"
                 onValueChange={val => {
                   const { ImportDiscount } = watchForm.items[rowIndex]
-                  field.onChange(val.floatValue || '')
+                  field.onChange(typeof val.floatValue === "undefined" ? "" : val.floatValue)
 
-                  if (ImportDiscount > 100) {
-                    setValue(
-                      `items[${rowIndex}].ImportPrice`,
-                      (val?.floatValue || 0) - ImportDiscount
-                    )
-                  } else {
-                    setValue(
-                      `items[${rowIndex}].ImportPrice`,
-                      (val?.floatValue || 0) -
-                        (ImportDiscount * (val?.floatValue || 0)) / 100
-                    )
+                  if (val?.floatValue > 0) {
+                    if (ImportDiscount > 100) {
+                      setValue(
+                        `items[${rowIndex}].ImportPrice`,
+                        (val?.floatValue || 0) - ImportDiscount
+                      )
+                    } else {
+                      setValue(
+                        `items[${rowIndex}].ImportPrice`,
+                        (val?.floatValue || 0) -
+                          (ImportDiscount * (val?.floatValue || 0)) / 100
+                      )
+                    }
                   }
 
                   onUpdate()
@@ -554,7 +556,7 @@ function WareHouseImport(props) {
                   onValueChange={val => {
                     const { ImportPriceOrigin, Qty, ImportPrice } =
                       watchForm.items[rowIndex]
-                    field.onChange(val.floatValue || '')
+                    field.onChange(typeof val.floatValue === "undefined" ? "" : val.floatValue)
 
                     let newImportPrice =
                       val?.floatValue >= 0 && ImportPriceOrigin > 0

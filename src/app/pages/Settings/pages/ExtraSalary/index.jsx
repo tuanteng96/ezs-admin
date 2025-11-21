@@ -237,6 +237,7 @@ function ExtraSalary(props) {
           0
         )
       }
+      if(newObj.DetailJSON) delete newObj.DetailJSON
       return newObj
     })
 

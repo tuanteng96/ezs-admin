@@ -499,20 +499,25 @@ function WareHouseExport(props) {
                 placeholder="Nhập nguyên giá"
                 onValueChange={val => {
                   const { ImportDiscount } = watchForm.items[rowIndex]
-                  field.onChange(val.floatValue || '')
+                  field.onChange(
+                    typeof val.floatValue === 'undefined' ? '' : val.floatValue
+                  )
 
-                  if (ImportDiscount > 100) {
-                    setValue(
-                      `items[${rowIndex}].ImportPrice`,
-                      (val?.floatValue || 0) - ImportDiscount
-                    )
-                  } else {
-                    setValue(
-                      `items[${rowIndex}].ImportPrice`,
-                      (val?.floatValue || 0) -
-                        (ImportDiscount * (val?.floatValue || 0)) / 100
-                    )
+                  if (val?.floatValue) {
+                    if (ImportDiscount > 100) {
+                      setValue(
+                        `items[${rowIndex}].ImportPrice`,
+                        (val?.floatValue || 0) - ImportDiscount
+                      )
+                    } else {
+                      setValue(
+                        `items[${rowIndex}].ImportPrice`,
+                        (val?.floatValue || 0) -
+                          (ImportDiscount * (val?.floatValue || 0)) / 100
+                      )
+                    }
                   }
+
                   onUpdate()
                 }}
               />
@@ -540,7 +545,11 @@ function WareHouseExport(props) {
                   onValueChange={val => {
                     const { ImportPriceOrigin, Qty, ImportPrice } =
                       watchForm.items[rowIndex]
-                    field.onChange(val.floatValue || '')
+                    field.onChange(
+                      typeof val.floatValue === 'undefined'
+                        ? ''
+                        : val.floatValue
+                    )
 
                     let newImportPrice =
                       val?.floatValue >= 0 && ImportPriceOrigin > 0
