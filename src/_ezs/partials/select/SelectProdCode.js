@@ -43,6 +43,7 @@ function SelectProdCode({ Params, Key = '', ...props }) {
   return (
     <div>
       <AsyncPaginate
+        debounceTimeout={400}
         key={Key}
         loadOptions={loadOptions}
         additional={{

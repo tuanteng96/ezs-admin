@@ -51,13 +51,19 @@ function SelectProdCode2({ Params, Key = '', textAll, autoChange, ...props }) {
         props.onChange(options[0])
       }
     } else {
-      if (allOptions.length === 1 && autoChange) props.onChange(allOptions[0])
+      if (allOptions.length === 1 && autoChange) {
+        props.onChange(allOptions[0])
+      }
+      else {
+        props.onChange(null)
+      }
     }
     return options
   }
 
   return (
     <AsyncSelect
+      debounceTimeout={400}
       key={`${Key}-${reloadToken}`}
       cacheOptions={false} // 🚫 tắt cache để luôn reload
       defaultOptions={!!Params}

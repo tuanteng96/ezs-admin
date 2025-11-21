@@ -103,7 +103,8 @@ const FormAddMaterial = ({ onSubmit: onSubmitAdd }) => {
                         cate_name: 'san_pham,nvl',
                         _type: 'query',
                         relUnit: watch().fromTitle?.source?.StockUnit,
-                        relUnitID: watch().fromTitle?.source?.ID
+                        relUnitID: watch().fromTitle?.source?.ID,
+                        from: 'xuat_kho_lam_nvl'
                       }
                     : null
                 }
