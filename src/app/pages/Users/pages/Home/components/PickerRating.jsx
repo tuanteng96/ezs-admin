@@ -31,10 +31,10 @@ function PickerRating({ children, initialValues }) {
   useEffect(() => {
     if (initialValues) {
       reset({
-        AverRate: initialValues?.AverRate || '',
+        AverRate: initialValues?.AverRate,
         ID: initialValues?.ID || '',
-        SoCaYeuCau: initialValues?.SoCaYeuCau || '',
-        Order: initialValues?.Order || ''
+        SoCaYeuCau: initialValues?.SoCaYeuCau,
+        Order: initialValues?.Order
       })
     } else {
       reset()
@@ -44,8 +44,9 @@ function PickerRating({ children, initialValues }) {
 
   const updateMutation = useMutation({
     mutationFn: async ({ Rating, Updates }) => {
-      let rs = await UsersAPI.updateRatingUser(Rating)
-      await UsersAPI.addEditUser2(Updates)
+      //let rs = await UsersAPI.updateRatingUser(Rating)
+      let rs = await UsersAPI.addEditUser2(Updates)
+      await UsersAPI.updateRatingUser(Rating)
       await queryClient.invalidateQueries({
         queryKey: ['ListUserRoles']
       })
