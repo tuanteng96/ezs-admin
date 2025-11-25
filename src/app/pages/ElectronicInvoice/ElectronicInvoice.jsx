@@ -675,17 +675,6 @@ function ElectronicInvoice(props) {
                 )
               },
               {
-                VATRateName: '5%',
-                AmountWithoutVATOC: formatArray.sumTotalKey(
-                  newItems.filter(x => x.VATRateName === '5%'),
-                  'Amount'
-                ),
-                VATAmountOC: formatArray.sumTotalKey(
-                  newItems.filter(x => x.VATRateName === '5%'),
-                  'VATAmount'
-                )
-              },
-              {
                 VATRateName: '0%',
                 AmountWithoutVATOC: formatArray.sumTotalKey(
                   newItems.filter(x => x.VATRateName === '0%'),
@@ -731,7 +720,7 @@ function ElectronicInvoice(props) {
                     'VATAmount'
                   )
                 })) || [])
-            ].filter(x => x.AmountWithoutVATOC && x.VATAmountOC)
+            ].filter(x => x.AmountWithoutVATOC)
 
             let obj = {
               RefID: getRefID({
