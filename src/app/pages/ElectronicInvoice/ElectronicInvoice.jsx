@@ -18,6 +18,7 @@ import { formatArray } from 'src/_ezs/utils/formatArray'
 import { formatString } from 'src/_ezs/utils/formatString'
 import { PickerSettings } from './components'
 import Tooltip from 'rc-tooltip'
+import SparkMD5 from 'spark-md5'
 
 window.toastId = null
 
@@ -65,7 +66,7 @@ const getVATRateName = VAT => {
 }
 
 function ElectronicInvoice(props) {
-  const { CrStocks } = useAuth()
+  const { CrStocks, auth } = useAuth()
   const { GlobalConfig, InvoiceConfig } = useLayout()
 
   const [filters, setFilters] = useState({
@@ -108,6 +109,10 @@ function ElectronicInvoice(props) {
         : null
     },
     keepPreviousData: true
+  })
+
+  const invoiceMutationBase = useMutation({
+    mutationFn: body => InvoiceAPI.urlActionBase(body)
   })
 
   const invoiceMutation = useMutation({
@@ -836,6 +841,279 @@ function ElectronicInvoice(props) {
             }
           }
         }
+      } else if (InvoiceConfig?.InvoiceActive?.Code === 'HDFAST') {
+        const inner = SparkMD5.hash(InvoiceConfig?.InvoiceActive?.Password) // MD5(password)
+        const combined = inner + InvoiceConfig?.InvoiceActive?.ClientCode
+        const checkSum = SparkMD5.hash(combined)
+
+        for (let i = 0; i < newLst.length; i++) {
+          let bill = newLst[i]
+
+          const toastId = toast.loading(`Đang xuất hoá đơn #${bill.ID} ...`, {
+            icon: (
+              <div className="absolute left-4 top-2/4 -translate-y-2/4">
+                <svg
+                  aria-hidden="true"
+                  className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                  viewBox="0 0 100 101"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                    fill="currentFill"
+                  />
+                </svg>
+              </div>
+            )
+          })
+
+          let RefIds = await invoiceRefIDMutation.mutateAsync({
+            lst: [
+              {
+                OrderID: bill.ID,
+                Date: moment(bill.CDate).format('YYYY-MM-DD')
+              }
+            ]
+          })
+
+          let KeyBill = getRefID({
+            ID: bill.ID,
+            RefIds: RefIds?.data || [],
+            CDate: moment(bill.CDate).format('DD-MM-YYYY')
+          })
+
+          let Amount = 0
+          let TaxAmount = 0
+          let TotalAmount = 0
+
+          let newItems = bill.Items.map(x => {
+            let PriceVAT =
+              x.VAT > 0
+                ? Math.round(x.Thanh_toanVAT / ((100 + x.VAT) / 100))
+                : x.Thanh_toanVAT
+
+            let PriceTotalVAT = x.Thanh_toanVAT - PriceVAT
+
+            let detailVatRate = -9
+            if ([-1, -2, 0, 5, 8, 10].includes(x.VAT)) {
+              detailVatRate = x.VAT
+            }
+
+            Amount += PriceVAT
+            TaxAmount += PriceTotalVAT
+            TotalAmount += x.Thanh_toanVAT
+
+            return [
+              '1',
+              x.ProdCode,
+              getProdTitle(x.ProdTitle),
+              x.StockUnit || '',
+              x.Qty,
+              PriceVAT / x.Qty,
+              PriceVAT,
+              detailVatRate, //  VAT
+              PriceTotalVAT // Tổng tiền VAT
+            ]
+          })
+
+          let masterKey = [
+            'Key',
+            'InvoiceDate',
+            'Buyer',
+            'Address',
+            'PhoneNumber',
+            'Currency',
+            'ExchangeRate',
+            'Amount',
+            'TaxAmount',
+            'TotalAmount',
+            'AmountInWords',
+            'PaymentMethod',
+            'HumanName',
+            'ReleaseType'
+          ]
+
+          let masterValue = [
+            KeyBill,
+            moment().format('DD/MM/YYYY'),
+            GlobalConfig?.Admin?.hddt?.SenderName || bill.SenderName, // Tên KH
+            bill?.SenderAddress || '', //Địa chỉ
+            bill.SenderPhone && bill.SenderPhone.startsWith('00000')
+              ? ''
+              : bill.SenderPhone, // Số điện thoại
+            'VND',
+            1.0,
+            formatString.formatNumeric(Amount), // Tổng tiền
+            formatString.formatNumeric(TaxAmount), // Tổng tiền thuế
+            formatString.formatNumeric(TotalAmount), // Tổng thanh toán
+            window.to_vietnamese(TotalAmount),
+            'TM/CK',
+            auth?.User?.FullName, //  Tên người xuất hoá đơn
+            '1' // 1 - Đã trừ chiết khấu, 2 là chưa trừ
+          ]
+
+          if (
+            bill?.InvoiceInfo &&
+            bill?.InvoiceInfo?.CompanyName &&
+            bill?.InvoiceInfo?.CompanyTaxCode
+          ) {
+            masterKey = [
+              'Key',
+              'InvoiceDate',
+              'Buyer',
+              'CustomerName',
+              'CustomerTaxCode',
+              'Address',
+              'PhoneNumber',
+              'Currency',
+              'ExchangeRate',
+              'Amount',
+              'TaxAmount',
+              'TotalAmount',
+              'AmountInWords',
+              'PaymentMethod',
+              'HumanName',
+              'ReleaseType'
+            ]
+            masterValue = [
+              KeyBill,
+              moment().format('DD/MM/YYYY'),
+              GlobalConfig?.Admin?.hddt?.SenderName || bill.SenderName, // Tên KH
+              bill?.InvoiceInfo?.CompanyName,
+              bill?.InvoiceInfo?.CompanyTaxCode,
+              bill?.InvoiceInfo?.CompanyAddress,
+              bill.SenderPhone && bill.SenderPhone.startsWith('00000')
+                ? ''
+                : bill.SenderPhone,
+              'VND',
+              1.0,
+              formatString.formatNumeric(Amount), // Tổng tiền
+              formatString.formatNumeric(TaxAmount), // Tổng tiền thuế
+              formatString.formatNumeric(TotalAmount), // Tổng thanh toán
+              window.to_vietnamese(TotalAmount),
+              'TM/CK',
+              auth?.User?.FullName, //  Tên người xuất hoá đơn
+              '1' // 1 - Đã trừ chiết khấu, 2 là chưa trừ
+            ]
+          }
+
+          let dataPost = {
+            voucherBook: InvoiceConfig?.InvoiceActive?.VoucherBook,
+            adjustmentType: 0,
+            data: {
+              structure: {
+                master: masterKey,
+                detail: [
+                  'ProcessType',
+                  'ItemCode',
+                  'ItemName',
+                  'UOM',
+                  'Quantity',
+                  'Price',
+                  'Amount',
+                  'TaxRate',
+                  'TaxAmount'
+                ]
+              },
+              invoices: [
+                {
+                  master: masterValue,
+                  detail: newItems
+                }
+              ]
+            }
+          }
+
+          let rsValue = {
+            ID: bill.ID,
+            InvoiceID: KeyBill,
+            NewInvoiceID: ''
+          }
+
+          let exportInvoice = await invoiceMutationBase.mutateAsync({
+            url: formatString.getValueENV(
+              InvoiceConfig?.InvoiceActive?.TestUrl,
+              InvoiceConfig?.InvoiceActive?.BaseUrl,
+              InvoiceConfig?.InvoiceActive?.isDemo
+            ),
+            headers: {
+              'Content-Type': 'text/plain',
+              user: '[INVOICE_USER_HDFAST]',
+              unitcode: InvoiceConfig?.InvoiceActive?.UnitCode,
+              checkSum
+            },
+            param: {
+              action: 0,
+              method: 7312,
+              clientCode: InvoiceConfig?.InvoiceActive?.ClientCode,
+              proxyCode: InvoiceConfig?.InvoiceActive?.GroupService
+            },
+            method: 'POST',
+            include: 'ENV',
+            body: dataPost,
+            resultType: 'json'
+          })
+
+          if (exportInvoice?.data?.result?.Success) {
+            let rsMessage = JSON.parse(exportInvoice?.data?.result?.Message)
+
+            rsValue.NewInvoiceID =
+              rsMessage[0].verificationCode +
+              ';' +
+              rsMessage[0].invoiceNo +
+              ';' +
+              rsMessage[0].key +
+              ';' +
+              rsMessage[0].keySearch +
+              ';' +
+              'HDFAST'
+
+            let updatePost = {
+              arr: [rsValue]
+            }
+
+            const rsSuccess = await updateInvoiceWithRetry(updatePost, 3)
+
+            if (rsSuccess?.data?.n) {
+              toast.update(toastId, {
+                render: `Hoá đơn #${bill.ID} xuất thành công 🎉`,
+                type: 'success',
+                isLoading: false,
+                autoClose: 2000,
+                icon: false
+              })
+            } else {
+              toast.update(toastId, {
+                render: `Hoá đơn #${bill.ID} xuất thành công nhưng chưa được cập nhật. Thực hiện cập nhật lại hoá đơn này`,
+                type: 'warning',
+                isLoading: false,
+                autoClose: 2000,
+                icon: false
+              })
+            }
+
+            newRs.push(rsValue)
+          } else {
+            toast.update(toastId, {
+              render: `Hoá đơn #${bill.ID} xuất không thành công. (Error: ${exportInvoice?.data?.result?.Message})`,
+              type: 'error',
+              isLoading: false,
+              autoClose: 2000,
+              icon: false
+            })
+
+            newErs.push(rsValue)
+          }
+
+          if (i < newLst.length - 1) {
+            await new Promise(resolve => setTimeout(resolve, 2000))
+          }
+        }
       }
 
       await refetch()
@@ -944,6 +1222,62 @@ function ElectronicInvoice(props) {
             window.toastId = null
             if (rs?.data?.result?.data) {
               window.open(rs?.data?.result?.data, '_blank').focus()
+            } else {
+              toast.error('Không thể view hóa đơn.')
+            }
+          }
+        }
+      )
+    } else if (InvoiceConfig?.InvoiceActive?.Code === 'HDFAST') {
+      const inner = SparkMD5.hash(InvoiceConfig?.InvoiceActive?.Password) // MD5(password)
+      const combined = inner + InvoiceConfig?.InvoiceActive?.ClientCode
+      const checkSum = SparkMD5.hash(combined)
+
+      invoiceMutationBase.mutateAsync(
+        {
+          url: formatString.getValueENV(
+            InvoiceConfig?.InvoiceActive?.TestUrl,
+            InvoiceConfig?.InvoiceActive?.BaseUrl,
+            InvoiceConfig?.InvoiceActive?.isDemo
+          ),
+          headers: {
+            'Content-Type': 'text/plain',
+            user: '[INVOICE_USER_HDFAST]',
+            unitcode: InvoiceConfig?.InvoiceActive?.UnitCode,
+            checkSum
+          },
+          param: {
+            action: 0,
+            method: 7380,
+            clientCode: InvoiceConfig?.InvoiceActive?.ClientCode,
+            proxyCode: InvoiceConfig?.InvoiceActive?.GroupService
+          },
+          method: 'POST',
+          include: 'ENV',
+          body: {
+            keySearch: InvoiceID
+          }
+          //resultType: 'json'
+        },
+        {
+          onSuccess: ({ data }) => {
+            toast.dismiss()
+            window.toastId = null
+            if (data?.result) {
+              let base64 = data?.result
+              const byteCharacters = atob(base64)
+              const byteNumbers = new Array(byteCharacters.length)
+
+              for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i)
+              }
+
+              const byteArray = new Uint8Array(byteNumbers)
+              const blob = new Blob([byteArray], { type: 'application/pdf' })
+
+              const url = URL.createObjectURL(blob)
+
+              window.open(url, '_blank').focus()
             } else {
               toast.error('Không thể view hóa đơn.')
             }
@@ -1091,9 +1425,16 @@ function ElectronicInvoice(props) {
                 {rowData?.InvoiceIDStatus === 'done' && rowData.InvoiceID ? (
                   <div
                     className="w-full font-medium text-center cursor-pointer text-primary"
-                    onClick={() =>
-                      onPreviewInvoice(rowData.InvoiceID.split(';')[0])
-                    }
+                    onClick={() => {
+                      const parts = rowData.InvoiceID.split(';')
+                      let InvoiceID = parts[0]
+
+                      if (parts[parts.length - 1] === 'HDFAST') {
+                        InvoiceID = parts[3]
+                      }
+
+                      onPreviewInvoice(InvoiceID)
+                    }}
                   >
                     {rowData.InvoiceID.split(';')[0]}
                   </div>
@@ -1274,7 +1615,9 @@ function ElectronicInvoice(props) {
             item.TM,
             item.CK,
             item.QT,
-            item?.InvoiceInfo ? `${item.SenderName} (${CTYs.join(" - ")})` : item.SenderName,
+            item?.InvoiceInfo
+              ? `${item.SenderName} (${CTYs.join(' - ')})`
+              : item.SenderName,
             item.SenderPhone,
             item?.InvoiceIDStatus === 'done' && item.InvoiceID
               ? item.InvoiceID

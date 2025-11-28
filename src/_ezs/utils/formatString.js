@@ -94,5 +94,26 @@ export const formatString = {
   getValueENV: (Dev, Production, isDemo) => {
     if (isDemo) return Dev
     return Production
+  },
+  formatNumeric: (value) => {
+    if (value == null || value === '') return ''
+
+    let num = Number(value)
+    if (isNaN(num)) return ''
+
+    let str = String(num)
+
+    // Nếu không có dấu thập phân → thêm .0
+    if (!str.includes('.')) {
+      return str + '.0'
+    }
+
+    // Nếu đã có dấu thập phân → cắt tối đa 6 số
+    const [intPart, decimalPart] = str.split('.')
+
+    const trimmedDecimal = decimalPart.substring(0, 6)
+
+    // Nếu decimal rỗng (trường hợp như "10.") → thêm 0
+    return intPart + '.' + (trimmedDecimal || '0')
   }
 }

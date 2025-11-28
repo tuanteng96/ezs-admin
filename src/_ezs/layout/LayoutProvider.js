@@ -104,6 +104,23 @@ const LayoutProvider = ({ children }) => {
           INVOICE_SECRET_HDPAVN: '',
           isActive: false,
           isDemo: false
+        },
+        {
+          ID: 3,
+          Code: 'HDFAST',
+          Title: 'Hóa đơn FAST',
+          BaseUrl: 'https://tcservice.fast.com.vn/api/Command/Executecommand',
+          TestUrl: 'https://tcservice.fast.com.vn/api/Command/Executecommand',
+          SignType: 1,
+          InvSeries: 'C25MGB',
+          VoucherBook: '1C25MGB',
+          ClientCode: '007565',
+          GroupService: '005724',
+          UnitCode: 'GLB',
+          INVOICE_USER_HDFAST: '',
+          Password: '22222223',
+          isActive: false,
+          isDemo: false
         }
       ]
       if (Config?.data?.data && Config?.data?.data.length > 0) {
@@ -113,6 +130,7 @@ const LayoutProvider = ({ children }) => {
           newInvoiceTypes = formatArray.mergeArrays(newInvoiceTypes, newValue)
         }
       }
+
       if (data?.ENV) {
         newInvoiceTypes = newInvoiceTypes.map(config => {
           let obj = { ...config }
@@ -169,7 +187,7 @@ const LayoutProvider = ({ children }) => {
           ENV: newENV
         })
       }
-
+      
       return {
         ENV: newENV,
         InvoiceTypes: newInvoiceTypes,

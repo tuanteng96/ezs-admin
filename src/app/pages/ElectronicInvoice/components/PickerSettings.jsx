@@ -72,6 +72,23 @@ function PickerSettings({ children, initialValues, onChange }) {
           //type_invoice: '1', // 1 hoá đơn công ty, 2 Hoá đơn hộ kinh doanh
           INVOICE_APPID_HDPAVN: '',
           INVOICE_SECRET_HDPAVN: ''
+        },
+        {
+          ID: 3,
+          Code: 'HDFAST',
+          Title: 'Hóa đơn FAST',
+          BaseUrl: 'https://tcservice.fast.com.vn/api/Command/Executecommand',
+          TestUrl: 'https://tcservice.fast.com.vn/api/Command/Executecommand',
+          SignType: 1,
+          InvSeries: 'C25MGB',
+          VoucherBook: '1C25MGB',
+          ClientCode: '007565',
+          GroupService: '005724',
+          UnitCode: 'GLB',
+          INVOICE_USER_HDFAST: '',
+          Password: '22222223',
+          isActive: false,
+          isDemo: false
         }
       ]
     }
@@ -171,6 +188,18 @@ function PickerSettings({ children, initialValues, onChange }) {
       return 'Tên hóa đơn (NAME)'
     } else if (text === 'type_invoice') {
       return 'Loại hoá đơn'
+    } else if (text === 'INVOICE_USER_HDFAST') {
+      return 'Tài khoản'
+    } else if (text === 'Password') {
+      return 'Mật khẩu'
+    } else if (text === 'UnitCode') {
+      return 'Unit code'
+    } else if (text === 'ClientCode') {
+      return 'Mã doanh nghiệp (Client Code)'
+    } else if (text === 'GroupService') {
+      return 'Nhóm dịch vụ'
+    } else if (text === 'VoucherBook') {
+      return 'Mã phân loại máy tính tiền (VoucherBook)'
     }
     return text
   }
@@ -337,7 +366,8 @@ function PickerSettings({ children, initialValues, onChange }) {
                                               [
                                                 'INVOICE_USERNAME_HDMISA',
                                                 'INVOICE_PASSWORD_HDMISA',
-                                                'INVOICE_SECRET_HDPAVN'
+                                                'INVOICE_SECRET_HDPAVN',
+                                                'Password'
                                               ].includes(keyName)
                                                 ? 'password'
                                                 : 'text'

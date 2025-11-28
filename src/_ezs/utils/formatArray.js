@@ -87,10 +87,26 @@ export const formatArray = {
     return data
   },
   mergeArrays: (arr1, arr2) => {
-    return arr2.map(item2 => {
-      const item1 = arr1.find(x => x.Code === item2.Code)
-      if (!item1) return item2
-      const merged = { ...item1, ...item2 }
+    const protectedKeys = ['Code', 'ID', 'Title', 'BaseUrl', 'TestUrl']
+
+    // Tạo map để tìm nhanh trong arr2
+    const map2 = new Map(arr2.map(item => [item.Code, item]))
+
+    return arr1.map(item1 => {
+      const item2 = map2.get(item1.Code)
+
+      if (!item2) return item1 // arr2 không có → giữ nguyên arr1
+
+      // Tạo object mới: start = bản sao arr1
+      const merged = { ...item1 }
+
+      // Merge các key không nằm trong protectedKeys
+      Object.keys(item2).forEach(key => {
+        if (!protectedKeys.includes(key)) {
+          merged[key] = item2[key]
+        }
+      })
+
       return merged
     })
   }

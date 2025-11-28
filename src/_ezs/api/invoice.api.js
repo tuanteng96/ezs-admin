@@ -3,6 +3,8 @@ import httpInvoice from '../utils/httpInvoice'
 import httpInvoicePA from '../utils/httpInvoicePA'
 
 const InvoiceAPI = {
+  urlActionBase: body =>
+    http.post(`/api/v3/UrlAction@invoke`, JSON.stringify(body)),
   urlAction: body =>
     httpInvoice.post(`/api/v3/UrlAction@invoke`, JSON.stringify(body)),
   urlActionPA: body =>
