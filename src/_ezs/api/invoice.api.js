@@ -1,6 +1,7 @@
 import http from 'src/_ezs/utils/http'
 import httpInvoice from '../utils/httpInvoice'
 import httpInvoicePA from '../utils/httpInvoicePA'
+import httpInvoiceSAAS from '../utils/httpInvoiceSAAS'
 
 const InvoiceAPI = {
   urlActionBase: body =>
@@ -9,6 +10,8 @@ const InvoiceAPI = {
     httpInvoice.post(`/api/v3/UrlAction@invoke`, JSON.stringify(body)),
   urlActionPA: body =>
     httpInvoicePA.post(`/api/v3/UrlAction@invoke`, JSON.stringify(body)),
+  urlActionSAAS: body =>
+    httpInvoiceSAAS.post(`/api/v3/UrlAction@invoke`, JSON.stringify(body)),
   getList: body =>
     http.post(`/api/v3/order23@GetInvoice`, JSON.stringify(body)),
   updateInvoiceIDs: body =>

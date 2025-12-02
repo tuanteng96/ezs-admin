@@ -89,6 +89,21 @@ function PickerSettings({ children, initialValues, onChange }) {
           Password: '22222223',
           isActive: false,
           isDemo: false
+        },
+        {
+          ID: 4,
+          Code: 'HDVNPTSAAS',
+          Title: 'Hóa đơn VNPT SAAS',
+          BaseUrl: 'http://api-hst.vnpt-invoice.com.vn',
+          TestUrl: 'http://api-hst-dev.vnpt-invoice.com.vn',
+          SignType: 1, // khmshdon
+          InvSeries: 'C25MTA', //khhdon
+          type_cert: 'HSM',
+          serial_number: '5401010168990b6daa14c8fdd7367ca7',
+          INVOICE_USER_HDVNPT_SAAS: 'tichhop',
+          INVOICE_PASSWORD_HDVNPT_SAAS: 'HST@Invoice2510',
+          isActive: false,
+          isDemo: false
         }
       ]
     }
@@ -200,7 +215,14 @@ function PickerSettings({ children, initialValues, onChange }) {
       return 'Nhóm dịch vụ'
     } else if (text === 'VoucherBook') {
       return 'Mã phân loại máy tính tiền (VoucherBook)'
+    } else if (text === 'INVOICE_USER_HDVNPT_SAAS') {
+      return 'Tài khoản'
+    } else if (text === 'type_cert') {
+      return 'Type Cert'
+    } else if (text === 'serial_number') {
+      return 'Serial Number'
     }
+
     return text
   }
 

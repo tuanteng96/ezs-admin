@@ -33,7 +33,8 @@ const formatRowRenderer = arr => {
           ...lst,
           rowIndex: o,
           Ids: uniqueId(),
-          Origin: true
+          Origin: true,
+          rowSpanIndex: k
         }
         if (k !== 0) {
           delete newObj.Items
@@ -121,6 +122,10 @@ function ElectronicInvoice(props) {
 
   const invoiceMutationPA = useMutation({
     mutationFn: body => InvoiceAPI.urlActionPA(body)
+  })
+
+  const invoiceMutationSAAS = useMutation({
+    mutationFn: body => InvoiceAPI.urlActionSAAS(body)
   })
 
   const invoiceRefIDMutation = useMutation({
@@ -1114,6 +1119,424 @@ function ElectronicInvoice(props) {
             await new Promise(resolve => setTimeout(resolve, 2000))
           }
         }
+      } else if (InvoiceConfig?.InvoiceActive?.Code === 'HDVNPTSAAS') {
+        newLst = chunk(newLst, 30)
+
+        for (const list of newLst) {
+          const toastId = toast.loading(
+            `Đang xuất hoá đơn ${list.map(x => x.ID).join(', ')} ...`,
+            {
+              icon: (
+                <div className="absolute left-4 top-2/4 -translate-y-2/4">
+                  <svg
+                    aria-hidden="true"
+                    className="w-8 h-8 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+                    viewBox="0 0 100 101"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                      fill="currentFill"
+                    />
+                  </svg>
+                </div>
+              )
+            }
+          )
+
+          let RefIdsPost = list.map(x => {
+            let obj = {
+              OrderID: x.ID,
+              Date: moment(x.CDate).format('YYYY-MM-DD')
+            }
+            return obj
+          })
+
+          let RefIds = await invoiceRefIDMutation.mutateAsync({
+            lst: RefIdsPost
+          })
+
+          let dataPost = {
+            type_cert: InvoiceConfig?.InvoiceActive?.type_cert,
+            serial_number: InvoiceConfig?.InvoiceActive?.serial_number,
+            KHMSHDon: Number(InvoiceConfig?.InvoiceActive?.SignType) || 5,
+            KHHDon: InvoiceConfig?.InvoiceActive?.InvSeries,
+            HDons: []
+          }
+
+          for (let item of list) {
+            let TotalOrder = formatArray.sumTotalKey(
+              item.Items,
+              'Thanh_toanVAT'
+            )
+            let newItems = item.Items.map((x, i) => {
+              let PriceVAT = Math.round(
+                x.VAT > 0
+                  ? x.Thanh_toanVAT / ((100 + x.VAT) / 100)
+                  : x.Thanh_toanVAT
+              )
+              let PriceTotalVAT = x.Thanh_toanVAT - PriceVAT
+
+              let VAT = x.VAT.toString()
+              if (Number(x.VAT) === -1) {
+                VAT = 'KCT'
+              }
+              if (x.VAT === -2) {
+                VAT = 'KKKNT'
+              }
+              if (![-1, -2, 0, 5, 8, 10].includes(Number(x.VAT))) {
+                VAT = 'KHAC'
+              }
+
+              return {
+                STT: i + 1,
+                THHDVu: getProdTitle(x.ProdTitle),
+                DVTinh: x.StockUnit || '',
+                SLuong: x.Qty,
+                DGia: PriceVAT / x.Qty,
+                TLCKhau: 0,
+                STCKhau: 0,
+                ThTien: PriceVAT,
+                TSuat: VAT,
+                TThue: PriceTotalVAT,
+                ExtThTienSThue: x.Thanh_toanVAT,
+                TChat: '1',
+                MHHDVu: x.ProdCode,
+                ExtTGTKCThue: 0,
+                GThue: false,
+                ExtTGThue: 0,
+                VATRateName: getVATRateName(x.VAT) // Fake key phân loại
+              }
+            })
+
+            let TotalOrderVAT = formatArray.sumTotalKey(newItems, 'ThTien')
+            let TotalVAT = formatArray.sumTotalKey(newItems, 'TThue')
+
+            let TaxRateInfo = [
+              {
+                TSuat: '10',
+                ThTien: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '10%'),
+                  'ThTien'
+                ),
+                TThue: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '10%'),
+                  'TThue'
+                )
+              },
+              {
+                TSuat: '8',
+                ThTien: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '8%'),
+                  'ThTien'
+                ),
+                TThue: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '8%'),
+                  'TThue'
+                )
+              },
+              {
+                TSuat: '5',
+                ThTien: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '5%'),
+                  'ThTien'
+                ),
+                TThue: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '5%'),
+                  'TThue'
+                )
+              },
+              {
+                TSuat: '0',
+                ThTien: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '0%'),
+                  'ThTien'
+                ),
+                TThue: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === '0%'),
+                  'TThue'
+                )
+              },
+              {
+                TSuat: 'KCT',
+                ThTien: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === 'KCT'),
+                  'ThTien'
+                ),
+                TThue: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === 'KCT'),
+                  'TThue'
+                )
+              },
+              {
+                TSuat: 'KKKNT',
+                ThTien: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === 'KKKNT'),
+                  'ThTien'
+                ),
+                TThue: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName === 'KKKNT'),
+                  'TThue'
+                )
+              },
+              {
+                TSuat: 'KHAC',
+                ThTien: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName.includes('KHAC')),
+                  'ThTien'
+                ),
+                TThue: formatArray.sumTotalKey(
+                  newItems.filter(x => x.VATRateName.includes('KHAC')),
+                  'TThue'
+                )
+              }
+            ].filter(x => x.ThTien)
+
+            let obj = {
+              Fkey: getRefID({
+                ID: item.ID,
+                RefIds: RefIds?.data || [],
+                CDate: moment(item.CDate).format('DD-MM-YYYY')
+              }),
+              NLap: moment().format('DD/MM/YYYY'),
+              NMua: {
+                HVTNMHang:
+                  GlobalConfig?.Admin?.hddt?.SenderName || item.SenderName,
+                Ten: '',
+                MST: '',
+                MDVQHNSach: null,
+                HHNKBTThu: false,
+                DDVCHDen: null,
+                TGVCHDTu: null,
+                TGVCHDDen: null,
+                DChi: item?.SenderAddress || '',
+                MKHang: '',
+                SDThoai:
+                  item.SenderPhone && item.SenderPhone.startsWith('00000')
+                    ? ''
+                    : item.SenderPhone,
+                DCTDTu: '',
+                STKNHang: '',
+                HTTToan: '',
+                TNHang: '',
+                DVTTe: 'VND',
+                TGia: 1,
+                HDDCKPTQuan: false,
+                HVTNNHang: null,
+                CMND: null
+              },
+              HHDVu: newItems.map(x => {
+                let obj = { ...x }
+                delete obj.VATRateName
+                return obj
+              }),
+              TToan: {
+                TSuat: '',
+                TTCKTMai: 0,
+                TgTCThue: TotalOrderVAT,
+                ExtTgTienPhi: 0,
+                TgTThue: TotalVAT,
+                TgTTTBSo: TotalOrder,
+                TgTTTBChu: window.to_vietnamese(TotalOrder),
+                TGTKCThue: 0,
+                TGTKhac: 0,
+                TgTGThue: 0,
+                TLGThue: 0,
+                NQSo: null,
+                QDoiTgTTTBSo: 0
+              },
+              THTTLTSuat: TaxRateInfo
+            }
+
+            // Thông tin công ty
+            if (
+              item?.InvoiceInfo &&
+              item?.InvoiceInfo?.CompanyName &&
+              item?.InvoiceInfo?.CompanyTaxCode
+            ) {
+              obj.NMua.Ten = item?.InvoiceInfo?.CompanyName
+              obj.NMua.MST = item?.InvoiceInfo?.CompanyTaxCode
+              obj.NMua.DCTDTu = item?.InvoiceInfo?.CompanyEmail
+              obj.NMua.DChi = item?.InvoiceInfo?.CompanyAddress
+            }
+
+            obj.Fkey && dataPost.HDons.push(obj)
+          }
+
+          let exportInvoice = await invoiceMutationSAAS.mutateAsync({
+            url:
+              formatString.getValueENV(
+                InvoiceConfig?.InvoiceActive?.TestUrl,
+                InvoiceConfig?.InvoiceActive?.BaseUrl,
+                InvoiceConfig?.InvoiceActive?.isDemo
+              ) + '/pos-api/api/v1/saas/posinvoice/create-and-publish',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            param: {},
+            method: 'POST',
+            include: 'ENV',
+            body: dataPost,
+            resultType: 'json'
+          })
+
+          if (exportInvoice?.data?.result?.err_code === '0') {
+            let newPublishInvoiceResult = exportInvoice?.data?.result?.data
+
+            let updatePost = {
+              arr: newPublishInvoiceResult
+                .filter(x => x?.step)
+                .map(x => ({
+                  ID: Number(x.fkey.split('-')[0]),
+                  InvoiceID: x.fkey,
+                  NewInvoiceID:
+                    x.mccqt +
+                    ';' +
+                    x.shdon +
+                    ';' +
+                    x.id +
+                    ';' +
+                    x.fkey +
+                    ';' +
+                    'HDVNPTSAAS'
+                }))
+            }
+
+            const rsSuccess = await updateInvoiceWithRetry(updatePost, 3)
+
+            if (rsSuccess?.data?.n) {
+              newRs = [
+                ...newRs,
+                ...newPublishInvoiceResult.filter(x => x?.step)
+              ]
+
+              toast.update(toastId, {
+                render: `Hoá đơn ${newPublishInvoiceResult
+                  .map(x => x.fkey.split('-')[0])
+                  .join(', ')} xuất thành công 🎉`,
+                type: 'success',
+                isLoading: false,
+                autoClose: 2000,
+                icon: false
+              })
+            } else {
+              newErs = [
+                ...newErs,
+                ...newPublishInvoiceResult.filter(x => !x?.step)
+              ]
+
+              toast.update(toastId, {
+                render: `Hoá đơn ${newPublishInvoiceResult
+                  .map(x => x.fkey.split('-')[0])
+                  .join(
+                    ', '
+                  )} xuất thành công nhưng chưa được cập nhật. Thực hiện cập nhật lại hoá đơn này`,
+                type: 'success',
+                isLoading: false,
+                autoClose: 2000,
+                icon: false
+              })
+            }
+          } else if (exportInvoice?.data?.result?.err_code === '5021') {
+            let updateLists = exportInvoice?.data?.result?.data.map(x => x.fkey)
+            let arr = []
+
+            for (let i = 0; i < updateLists.length; i++) {
+              let updateInvoice = await invoiceMutationSAAS.mutateAsync({
+                url:
+                  formatString.getValueENV(
+                    InvoiceConfig?.InvoiceActive?.TestUrl,
+                    InvoiceConfig?.InvoiceActive?.BaseUrl,
+                    InvoiceConfig?.InvoiceActive?.isDemo
+                  ) + '/pos-api/api/v1/saas/portal/get-pos-by-fkey',
+                headers: {
+                  'Content-Type': 'application/json'
+                },
+                param: {},
+                method: 'POST',
+                include: 'ENV',
+                body: {
+                  fkey: updateLists[i]
+                },
+                resultType: 'json'
+              })
+
+              if (updateInvoice?.data?.result?.err_code === '0') {
+                arr.push(updateInvoice?.data?.result?.data)
+              }
+            }
+
+            if (arr.length > 0) {
+              let updatePost = {
+                arr: arr.map(x => ({
+                  ID: Number(x.fKey.split('-')[0]),
+                  InvoiceID: x.fKey,
+                  NewInvoiceID:
+                    x.mCCQT +
+                    ';' +
+                    Number(x.sHDon) +
+                    ';' +
+                    x.id +
+                    ';' +
+                    x.fKey +
+                    ';' +
+                    'HDVNPTSAAS'
+                }))
+              }
+
+              const rsSuccess = await updateInvoiceWithRetry(updatePost, 3)
+              if (rsSuccess?.data?.n) {
+                newRs = [...newRs, ...arr]
+                toast.update(toastId, {
+                  render: `Hoá đơn ${arr
+                    .map(x => x.fKey.split('-')[0])
+                    .join(', ')} xuất thành công 🎉`,
+                  type: 'success',
+                  isLoading: false,
+                  autoClose: 2000,
+                  icon: false
+                })
+              } else {
+                toast.update(toastId, {
+                  render: `Hoá đơn ${arr
+                    .map(x => x.fKey.split('-')[0])
+                    .join(
+                      ', '
+                    )} xuất thành công nhưng chưa được cập nhật. Thực hiện cập nhật lại hoá đơn này`,
+                  type: 'success',
+                  isLoading: false,
+                  autoClose: 2000,
+                  icon: false
+                })
+              }
+            } else {
+              toast.update(toastId, {
+                render: `Lấy thông tin hoá đơn không thành công.`,
+                type: 'error',
+                isLoading: false,
+                autoClose: 2000,
+                icon: false
+              })
+            }
+          } else {
+            toast.update(toastId, {
+              render: `Hoá đơn ${list
+                .map(x => x.ID)
+                .join(', ')} xuất không thành công. (Error: ${
+                exportInvoice?.data?.result?.message
+              })`,
+              type: 'error',
+              isLoading: false,
+              autoClose: 2000,
+              icon: false
+            })
+          }
+        }
       }
 
       await refetch()
@@ -1284,17 +1707,76 @@ function ElectronicInvoice(props) {
           }
         }
       )
+    } else if (InvoiceConfig?.InvoiceActive?.Code === 'HDVNPTSAAS') {
+      invoiceMutationSAAS.mutateAsync(
+        {
+          url:
+            formatString.getValueENV(
+              InvoiceConfig?.InvoiceActive?.TestUrl,
+              InvoiceConfig?.InvoiceActive?.BaseUrl,
+              InvoiceConfig?.InvoiceActive?.isDemo
+            ) + '/pos-api/api/v1/saas/portal/download-by-fkeys',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          param: {},
+          method: 'POST',
+          include: 'ENV',
+          body: {
+            typeDownload: 3,
+            lstFkey: [InvoiceID]
+          },
+          resultType: 'json'
+        },
+        {
+          onSuccess: ({ data }) => {
+            toast.dismiss()
+            window.toastId = null
+            if (data?.result?.err_code === '0') {
+              let base64 = data?.result?.data
+              const byteCharacters = atob(base64)
+              const byteNumbers = new Array(byteCharacters.length)
+
+              for (let i = 0; i < byteCharacters.length; i++) {
+                byteNumbers[i] = byteCharacters.charCodeAt(i)
+              }
+
+              const byteArray = new Uint8Array(byteNumbers)
+              const blob = new Blob([byteArray], { type: 'application/pdf' })
+
+              const url = URL.createObjectURL(blob)
+
+              window.open(url, '_blank').focus()
+            } else {
+              toast.error('Không thể view hóa đơn.')
+            }
+          }
+        }
+      )
     }
   }
 
   const rowRenderer = ({ rowData, rowIndex, cells, columns, isScrolling }) => {
-    if (isScrolling)
-      return (
-        <div className="pl-15px d-flex align-items">
-          <div className="spinner spinner-primary w-40px"></div> Đang tải ...
-        </div>
-      )
+    // if (isScrolling)
+    //   return (
+    //     <div className="pl-15px d-flex align-items">
+    //       <div className="spinner spinner-primary w-40px"></div> Đang tải ...
+    //     </div>
+    //   )
     const indexList = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+
+    if (rowData.rowSpanIndex > 0) {
+      indexList.forEach(i => {
+        const cell = cells[i]
+
+        // replace nội dung cell bằng rỗng
+        cells[i] = React.cloneElement(cell, {
+          children: null,
+          border: 'none'
+        })
+      })
+    }
+
     for (let index of indexList) {
       const rowSpan = columns[index].rowSpan({ rowData, rowIndex })
       if (rowSpan > 1) {
@@ -1429,7 +1911,10 @@ function ElectronicInvoice(props) {
                       const parts = rowData.InvoiceID.split(';')
                       let InvoiceID = parts[0]
 
-                      if (parts[parts.length - 1] === 'HDFAST') {
+                      if (
+                        parts[parts.length - 1] === 'HDFAST' ||
+                        parts[parts.length - 1] === 'HDVNPTSAAS'
+                      ) {
                         InvoiceID = parts[3]
                       }
 
@@ -1707,7 +2192,6 @@ function ElectronicInvoice(props) {
         workbook.resumeEvent()
       }
     )
-    console.log(data)
   }
 
   return (

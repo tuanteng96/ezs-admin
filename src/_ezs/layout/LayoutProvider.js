@@ -121,6 +121,21 @@ const LayoutProvider = ({ children }) => {
           Password: '22222223',
           isActive: false,
           isDemo: false
+        },
+        {
+          ID: 4,
+          Code: 'HDVNPTSAAS',
+          Title: 'Hóa đơn VNPT SAAS',
+          BaseUrl: 'http://api-hst.vnpt-invoice.com.vn',
+          TestUrl: 'http://api-hst-dev.vnpt-invoice.com.vn',
+          SignType: 1, // khmshdon
+          InvSeries: 'C25MTA', //khhdon
+          type_cert: 'HSM',
+          serial_number: '5401010168990b6daa14c8fdd7367ca7',
+          INVOICE_USER_HDVNPT_SAAS: 'tichhop',
+          INVOICE_PASSWORD_HDVNPT_SAAS: 'HST@Invoice2510',
+          isActive: false,
+          isDemo: false
         }
       ]
       if (Config?.data?.data && Config?.data?.data.length > 0) {
@@ -187,7 +202,7 @@ const LayoutProvider = ({ children }) => {
           ENV: newENV
         })
       }
-      
+
       return {
         ENV: newENV,
         InvoiceTypes: newInvoiceTypes,
@@ -197,7 +212,6 @@ const LayoutProvider = ({ children }) => {
     },
     onSuccess: data => {
       setInvoiceConfig(data)
-
       if (data?.InvoiceActive) {
         window.ApiInvoice = data?.InvoiceActive?.isDemo
           ? data?.InvoiceActive?.TestUrl
