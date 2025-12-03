@@ -1189,9 +1189,9 @@ function ElectronicInvoice(props) {
               if (x.VAT === -2) {
                 VAT = 'KKKNT'
               }
-              if (![-1, -2, 0, 5, 8, 10].includes(Number(x.VAT))) {
-                VAT = 'KHAC'
-              }
+              // if (![-1, -2, 0, 5, 8, 10].includes(Number(x.VAT))) {
+              //   VAT = 'KHAC'
+              // }
 
               return {
                 STT: i + 1,
@@ -1217,85 +1217,99 @@ function ElectronicInvoice(props) {
             let TotalOrderVAT = formatArray.sumTotalKey(newItems, 'ThTien')
             let TotalVAT = formatArray.sumTotalKey(newItems, 'TThue')
 
-            let TaxRateInfo = [
-              {
-                TSuat: '10',
-                ThTien: formatArray.sumTotalKey(
-                  newItems.filter(x => x.VATRateName === '10%'),
-                  'ThTien'
-                ),
-                TThue: formatArray.sumTotalKey(
-                  newItems.filter(x => x.VATRateName === '10%'),
-                  'TThue'
-                )
-              },
-              {
-                TSuat: '8',
-                ThTien: formatArray.sumTotalKey(
-                  newItems.filter(x => x.VATRateName === '8%'),
-                  'ThTien'
-                ),
-                TThue: formatArray.sumTotalKey(
-                  newItems.filter(x => x.VATRateName === '8%'),
-                  'TThue'
-                )
-              },
-              {
-                TSuat: '5',
-                ThTien: formatArray.sumTotalKey(
-                  newItems.filter(x => x.VATRateName === '5%'),
-                  'ThTien'
-                ),
-                TThue: formatArray.sumTotalKey(
-                  newItems.filter(x => x.VATRateName === '5%'),
-                  'TThue'
-                )
-              },
-              {
-                TSuat: '0',
-                ThTien: formatArray.sumTotalKey(
-                  newItems.filter(x => x.VATRateName === '0%'),
-                  'ThTien'
-                ),
-                TThue: formatArray.sumTotalKey(
-                  newItems.filter(x => x.VATRateName === '0%'),
-                  'TThue'
-                )
-              },
-              {
-                TSuat: 'KCT',
-                ThTien: formatArray.sumTotalKey(
-                  newItems.filter(x => x.VATRateName === 'KCT'),
-                  'ThTien'
-                ),
-                TThue: formatArray.sumTotalKey(
-                  newItems.filter(x => x.VATRateName === 'KCT'),
-                  'TThue'
-                )
-              },
-              {
-                TSuat: 'KKKNT',
-                ThTien: formatArray.sumTotalKey(
-                  newItems.filter(x => x.VATRateName === 'KKKNT'),
-                  'ThTien'
-                ),
-                TThue: formatArray.sumTotalKey(
-                  newItems.filter(x => x.VATRateName === 'KKKNT'),
-                  'TThue'
-                )
-              },
-              {
-                TSuat: 'KHAC',
-                ThTien: formatArray.sumTotalKey(
-                  newItems.filter(x => x.VATRateName.includes('KHAC')),
-                  'ThTien'
-                ),
-                TThue: formatArray.sumTotalKey(
-                  newItems.filter(x => x.VATRateName.includes('KHAC')),
-                  'TThue'
-                )
+            let grouped = {}
+
+            newItems.forEach(item => {
+              const key = item.TSuat
+              if (!grouped[key]) {
+                grouped[key] = { TSuat: key, ThTien: 0, TThue: 0 }
               }
-            ].filter(x => x.ThTien)
+              grouped[key].ThTien += item.ThTien
+              grouped[key].TThue += item.TThue
+            })
+
+            // Chuyển thành mảng
+            let TaxRateInfo = Object.values(grouped)
+
+            // let TaxRateInfo = [
+            //   {
+            //     TSuat: '10',
+            //     ThTien: formatArray.sumTotalKey(
+            //       newItems.filter(x => x.VATRateName === '10%'),
+            //       'ThTien'
+            //     ),
+            //     TThue: formatArray.sumTotalKey(
+            //       newItems.filter(x => x.VATRateName === '10%'),
+            //       'TThue'
+            //     )
+            //   },
+            //   {
+            //     TSuat: '8',
+            //     ThTien: formatArray.sumTotalKey(
+            //       newItems.filter(x => x.VATRateName === '8%'),
+            //       'ThTien'
+            //     ),
+            //     TThue: formatArray.sumTotalKey(
+            //       newItems.filter(x => x.VATRateName === '8%'),
+            //       'TThue'
+            //     )
+            //   },
+            //   {
+            //     TSuat: '5',
+            //     ThTien: formatArray.sumTotalKey(
+            //       newItems.filter(x => x.VATRateName === '5%'),
+            //       'ThTien'
+            //     ),
+            //     TThue: formatArray.sumTotalKey(
+            //       newItems.filter(x => x.VATRateName === '5%'),
+            //       'TThue'
+            //     )
+            //   },
+            //   {
+            //     TSuat: '0',
+            //     ThTien: formatArray.sumTotalKey(
+            //       newItems.filter(x => x.VATRateName === '0%'),
+            //       'ThTien'
+            //     ),
+            //     TThue: formatArray.sumTotalKey(
+            //       newItems.filter(x => x.VATRateName === '0%'),
+            //       'TThue'
+            //     )
+            //   },
+            //   {
+            //     TSuat: 'KCT',
+            //     ThTien: formatArray.sumTotalKey(
+            //       newItems.filter(x => x.VATRateName === 'KCT'),
+            //       'ThTien'
+            //     ),
+            //     TThue: formatArray.sumTotalKey(
+            //       newItems.filter(x => x.VATRateName === 'KCT'),
+            //       'TThue'
+            //     )
+            //   },
+            //   {
+            //     TSuat: 'KKKNT',
+            //     ThTien: formatArray.sumTotalKey(
+            //       newItems.filter(x => x.VATRateName === 'KKKNT'),
+            //       'ThTien'
+            //     ),
+            //     TThue: formatArray.sumTotalKey(
+            //       newItems.filter(x => x.VATRateName === 'KKKNT'),
+            //       'TThue'
+            //     )
+            //   },
+            //   // {
+            //   //   TSuat: 'KHAC',
+            //   //   ThTien: formatArray.sumTotalKey(
+            //   //     newItems.filter(x => x.VATRateName.includes('KHAC')),
+            //   //     'ThTien'
+            //   //   ),
+            //   //   TThue: formatArray.sumTotalKey(
+            //   //     newItems.filter(x => x.VATRateName.includes('KHAC')),
+            //   //     'TThue'
+            //   //   )
+            //   // }
+            // ].filter(x => x.ThTien)
 
             let obj = {
               Fkey: getRefID({

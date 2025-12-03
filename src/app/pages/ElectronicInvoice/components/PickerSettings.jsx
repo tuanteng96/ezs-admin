@@ -389,7 +389,8 @@ function PickerSettings({ children, initialValues, onChange }) {
                                                 'INVOICE_USERNAME_HDMISA',
                                                 'INVOICE_PASSWORD_HDMISA',
                                                 'INVOICE_SECRET_HDPAVN',
-                                                'Password'
+                                                'Password',
+                                                'INVOICE_PASSWORD_HDVNPT_SAAS'
                                               ].includes(keyName)
                                                 ? 'password'
                                                 : 'text'
