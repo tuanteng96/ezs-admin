@@ -590,7 +590,7 @@ function WareHouseExportStock(props) {
                 value={field.value}
                 placeholder="Nhập đơn giá"
                 onValueChange={val => {
-                  const { ImportPriceOrigin, Qty } = watchForm.items[rowIndex]
+                  const { Qty } = watchForm.items[rowIndex]
                   // setValue(
                   //   `items[${rowIndex}].ImportDiscount`,
                   //   ImportPriceOrigin - (val.floatValue || 0)
@@ -1117,12 +1117,12 @@ function WareHouseExportStock(props) {
               }}
             >
               <ReactBaseTable
+                key={JSON.stringify(watchForm.items.length)}
                 wrapClassName="p-4 lg:p-6 grow bg-white dark:bg-dark-app rounded h-[70vh] md:h-auto"
                 rowKey="id"
                 columns={columns}
                 data={fields}
-                estimatedRowHeight={50}
-                onEndReachedThreshold={1}
+                rowHeight={100}
               />
               <div className="w-full md:w-[320px] lg:w-[380px] border-l border-separator flex flex-col">
                 <div className="p-4 overflow-auto lg:p-6 grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">

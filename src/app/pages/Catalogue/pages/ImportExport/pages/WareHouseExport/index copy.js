@@ -33,12 +33,9 @@ import Swal from 'sweetalert2'
 import { useCatalogue } from 'src/app/pages/Catalogue/CatalogueLayout'
 import { useLayout } from 'src/_ezs/layout/LayoutProvider'
 
-function WareHouseImport(props) {
+function WareHouseExport(props) {
   const navigate = useNavigate()
   const { pathname, state, search } = useLocation()
-
-  const { GlobalConfig } = useLayout()
-
   const { id } = useParams()
   const { xuat_nhap_diem, xuat_nhap_ten_slg, adminTools_byStock } = useRoles([
     'xuat_nhap_diem',
@@ -49,6 +46,8 @@ function WareHouseImport(props) {
 
   const queryClient = useQueryClient()
 
+  const { GlobalConfig } = useLayout()
+
   const { control, handleSubmit, setValue, reset, watch } = useForm({
     defaultValues: {
       ie: {
@@ -57,7 +56,7 @@ function WareHouseImport(props) {
         SupplierID: '', //Nhà cung cấp
         ToPay: '', // Giá trị sau chiết khấu
         Total: '', // Tổng giá trị
-        Type: 'N',
+        Type: 'X',
         Other: '', //Ghi chú
         Discount: '', //Giá trị chiết khấu
         Source: '' // Kho
@@ -77,18 +76,22 @@ function WareHouseImport(props) {
   })
 
   const watchForm = watch()
-
   const { fields, remove, append, update } = useFieldArray({
     control,
     name: 'items'
   })
+
+  useEffect(() => {
+    onUpdate()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fields])
 
   const { isLoading, data } = useQuery({
     queryKey: ['ImportExportId', id],
     queryFn: async () => {
       let { data } = await WarehouseAPI.getListInventory({
         cmd: 'getie_id',
-        id: id || 'typeN'
+        id: id || 'typeX'
       })
       return data?.data
     },
@@ -101,19 +104,16 @@ function WareHouseImport(props) {
             SupplierID: data?.SupplierID,
             ToPay: data?.ToPay,
             Total: data?.Total,
-            Type: 'N',
+            Type: 'X',
             Other: data?.Other || '',
-            Payed: data?.Payed || 0,
             Discount: data?.Discount,
             Source: data?.Source,
-            UserID: data?.UserID || 0,
-            Target: data?.Target || 0,
-            TargetCreated: data?.TargetCreated || 0,
+            UserID: data?.UserID || '',
+            Target: data?.Target || '',
+            TargetCreated: data?.TargetCreated || '',
             CreateDate: data?.CreateDate
               ? moment(data?.CreateDate, 'YYYY-MM-DD HH:mm').toDate()
-              : new Date(),
-            Summary: data?.Summary || '',
-            ReceiverID: data?.ReceiverID || 0
+              : new Date()
           },
           items:
             data.stockItems && data.stockItems.length > 0
@@ -128,7 +128,7 @@ function WareHouseImport(props) {
                   ProdId: x.ProdID,
                   Other: x?.Desc || '',
                   convert: null,
-                  Qty: x?.Qty,
+                  Qty: x.Qty,
                   ImportTotalPrice: x.Qty * x.ImportPrice
                 }))
               : [
@@ -150,11 +150,6 @@ function WareHouseImport(props) {
       }
     }
   })
-
-  useEffect(() => {
-    onUpdate()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fields])
 
   const columns = useMemo(
     () => [
@@ -250,15 +245,13 @@ function WareHouseImport(props) {
                           setValue(`items[${rowIndex}].Qty`, 1, {
                             shouldValidate: true
                           })
-
                           setValue(
                             `items[${rowIndex}].ImportPriceOrigin`,
-                            val ? val?.source?.PriceProduct : 0
+                            val ? val?.source?.PriceProduct : ''
                           )
-
                           setValue(
                             `items[${rowIndex}].ImportPrice`,
-                            val ? val?.source?.PriceBase : 0
+                            val ? val?.source?.PriceBase : ''
                           )
                           setValue(
                             `items[${rowIndex}].ImportDiscount`,
@@ -316,7 +309,6 @@ function WareHouseImport(props) {
                             }
                           }
                         : null
-
                       field.onChange(val)
 
                       WarehouseAPI.getConvert({
@@ -346,12 +338,11 @@ function WareHouseImport(props) {
                       })
                       setValue(
                         `items[${rowIndex}].ImportPriceOrigin`,
-                        val ? val?.source?.PriceProduct : 0
+                        val ? val?.source?.PriceProduct : ''
                       )
-
                       setValue(
                         `items[${rowIndex}].ImportPrice`,
-                        val ? val?.source?.PriceBase : 0
+                        val ? val?.source?.PriceBase : ''
                       )
                       setValue(
                         `items[${rowIndex}].ImportDiscount`,
@@ -436,31 +427,27 @@ function WareHouseImport(props) {
                 required: true
               }}
               render={({ field: { ref, ...field }, fieldState }) => (
-                <>
-                  <InputNumber
-                    //errorMessage={fieldState?.invalid}
-                    errorMessageForce={fieldState?.invalid}
-                    //className={clsx('px-3 py-2.5')}
-                    placeholder="Nhập SL"
-                    value={field.value}
-                    onValueChange={val => {
-                      const { ImportPrice } = watchForm.items[rowIndex]
-                      setValue(
-                        `items[${rowIndex}].ImportTotalPrice`,
-                        ImportPrice * (val.floatValue || 0)
-                      )
-                      field.onChange(val.floatValue || '')
-                      onUpdate()
-                    }}
-                    allowNegative={false}
-                    isAllowed={inputObj => {
-                      const { floatValue } = inputObj
-                      if (floatValue < 0) return
-                      return true
-                    }}
-                    onBlur={field.onBlur}
-                  />
-                </>
+                <InputNumber
+                  errorMessageForce={fieldState?.invalid}
+                  //className="px-3 py-2.5"
+                  placeholder="Nhập SL"
+                  value={field.value}
+                  onValueChange={val => {
+                    const { ImportPrice } = watchForm.items[rowIndex]
+                    setValue(
+                      `items[${rowIndex}].ImportTotalPrice`,
+                      ImportPrice * (val.floatValue || 0)
+                    )
+                    field.onChange(val.floatValue || '')
+                    onUpdate()
+                  }}
+                  allowNegative={false}
+                  isAllowed={inputObj => {
+                    const { floatValue } = inputObj
+                    if (floatValue < 0) return
+                    return true
+                  }}
+                />
               )}
             />
             <Controller
@@ -516,7 +503,7 @@ function WareHouseImport(props) {
                     typeof val.floatValue === 'undefined' ? '' : val.floatValue
                   )
 
-                  if (val?.floatValue > 0) {
+                  if (val?.floatValue) {
                     if (ImportDiscount > 100) {
                       setValue(
                         `items[${rowIndex}].ImportPrice`,
@@ -602,12 +589,10 @@ function WareHouseImport(props) {
                 value={field.value}
                 placeholder="Nhập đơn giá"
                 onValueChange={val => {
-                  const { Qty } = watchForm.items[rowIndex]
+                  const { ImportPriceOrigin, Qty } = watchForm.items[rowIndex]
                   // setValue(
                   //   `items[${rowIndex}].ImportDiscount`,
-                  //   ImportPriceOrigin > 0
-                  //     ? ImportPriceOrigin - (val.floatValue || 0)
-                  //     : 0
+                  //   ImportPriceOrigin - (val.floatValue || 0)
                   // )
                   setValue(
                     `items[${rowIndex}].ImportTotalPrice`,
@@ -764,7 +749,7 @@ function WareHouseImport(props) {
         },
         items: values.items.map(x => ({
           ...x,
-          ProdTitle: x.ProdTitle.text,
+          ProdTitle: x.ProdTitle?.text || x.ProdTitle?.label,
           Desc: x?.Other || ''
         }))
       },
@@ -775,7 +760,7 @@ function WareHouseImport(props) {
               icon: 'success',
               title: id ? 'Cập nhật thành công.' : 'Thêm mới thành công.',
               html: `${
-                !id ? 'Tạo đơn nhập kho mới' : 'Chỉnh sửa đơn nhập kho'
+                !id ? 'Tạo đơn xuất kho mới' : 'Chỉnh sửa đơn xuất kho'
               } thành công. ( Mã ${data?.data?.data?.Code} )`,
               confirmButtonText: 'Đóng'
             }).then(() => {
@@ -789,7 +774,7 @@ function WareHouseImport(props) {
               icon: 'error',
               title: 'Xảy ra lỗi ?',
               html: `<span class="text-danger">${
-                !id ? 'Tạo đơn nhập kho mới' : 'Chỉnh sửa đơn nhập kho'
+                !id ? 'Tạo đơn xuất kho mới' : 'Chỉnh sửa đơn xuất kho'
               } không thành công (${data?.data?.error || '202'}).</span>`
             })
           }
@@ -803,281 +788,6 @@ function WareHouseImport(props) {
   const handleClick = () => {
     fileInput.current.click()
   }
-
-  // const checkWarehouseMutation = useMutation({
-  //   mutationFn: async body => {
-  //     let ieID = data?.ID
-  //     let { data: rechecks } = await WarehouseAPI.recheckIE({ ID: ieID })
-
-  //     let ieInsert = null
-  //     let ieImport = null
-  //     let ieExport = null
-  //     let ieDate = null
-
-  //     if (rechecks?.rs && rechecks?.rs?.length > 0) {
-  //       ieInsert = rechecks?.rs.find(x => x.ie.ID === ieID)
-  //       ieImport = rechecks?.rs.find(x => x.ie.ID !== ieID && x.ie.Type === 'N')
-  //       ieExport = rechecks?.rs.find(x => x.ie.ID !== ieID && x.ie.Type === 'X')
-  //     }
-
-  //     if (ieImport) {
-  //       ieDate = ieImport.ie.CreateDate
-  //     }
-
-  //     if (ieExport) {
-  //       if (
-  //         !ieDate ||
-  //         (ieDate && moment(ieDate).isBefore(moment(ieExport.ie.CreateDate)))
-  //       ) {
-  //         ieDate = ieExport.ie.CreateDate
-  //       }
-  //     }
-
-  //     let newItems = [
-  //       ...(ieImport?.items || []).map(x => ({
-  //         ...x,
-  //         ieType: ieImport?.ie?.Type
-  //       })),
-  //       ...(ieExport?.items || []).map(x => ({
-  //         ...x,
-  //         ieType: ieExport?.ie?.Type
-  //       }))
-  //     ]
-
-  //     let newQueryConfig = {
-  //       cmd: 'prodinstock',
-  //       Pi: 1,
-  //       Ps: newItems.length,
-  //       manus: '',
-  //       to: moment(ieDate).format('HH:mm DD/MM/YYYY'), //10:38 15/09/2025
-  //       '(filter)Only': true,
-  //       '(filter)RootTypeID': 794,
-  //       '(filter)StockID': ieInsert.ie.Source,
-  //       '(filter)key': '',
-  //       '(filter)NotDelv': false,
-  //       '(filter)IsPublic': true,
-  //       '(filter)DIDs': newItems.map(x => x.ProdCode).toString(),
-  //       Qty: 0,
-  //       cankho: 1
-  //     }
-
-  //     let { data: SelectQty } = await WarehouseAPI.getListInventory(
-  //       newQueryConfig
-  //     )
-
-  //     if (SelectQty?.data?.list && SelectQty?.data?.list.length > 0) {
-  //       newItems = newItems.map(item => {
-  //         let newItem = { ...item }
-  //         if (ieInsert?.items && ieInsert?.items.length > 0) {
-  //           if (
-  //             ieInsert?.items.findIndex(x => x.ProdCode === item.ProdCode) > -1
-  //           ) {
-  //             let index = SelectQty?.data?.list.findIndex(
-  //               x => x.ProdCode === item.ProdCode
-  //             )
-  //             if (index > -1) {
-  //               let Qty = SelectQty?.data?.list[index].Qty
-
-  //               if (item.Desc) {
-  //                 const match = item.Desc.match(/Số lượng sau cân kho:\s*(\d+)/)
-  //                 const quantity = match ? parseInt(match[1], 10) : null
-
-  //                 if (quantity) {
-  //                   newItem.Qty = quantity - Qty
-  //                   if (newItem.Qty < 0) {
-  //                     newItem.ieType = 'X'
-  //                   }
-  //                 }
-  //                 // console.log('SL cân kho:', item.Qty)
-  //                 // console.log('Tại thời điểm đó:', Qty)
-  //                 // console.log('Sau cân kho:', quantity)
-  //                 // console.log('SL cân kho mới', newItem.Qty)
-  //                 // console.log('-----')
-  //               }
-  //             }
-  //           }
-  //         }
-  //         return newItem
-  //       })
-  //     }
-
-  //     if (ieInsert.items && ieInsert.items.length > 0) {
-  //       for (let item of ieInsert.items) {
-  //         let index = newItems.findIndex(x => x.ProdCode === item.ProdCode)
-  //         if (index === -1) {
-  //           newItems.push({
-  //             ...item,
-  //             ieType: ieInsert?.ie?.Type === 'N' ? 'X' : 'N'
-  //           })
-  //         }
-  //       }
-  //     }
-
-  //     let newImport = newItems.filter(x => x.ieType === 'N')
-  //     let newExport = newItems.filter(x => x.ieType === 'X')
-
-  //     if (newImport && newImport.length > 0) {
-  //       if (ieImport?.ie?.ID) {
-  //         // Sửa đơn
-  //         console.log('Sửa đơn nhập', {
-  //           ...ieImport,
-  //           ie: {
-  //             ...ieExport,
-  //             CreateDate: moment(ieImport.ie.CreateDate).format(
-  //               'YYYY-MM-DD HH:mm'
-  //             ),
-  //             stockItems: newImport.map(x => ({
-  //               ...x
-  //             }))
-  //           },
-  //           items: newImport
-  //         })
-  //         // await WarehouseAPI.updateImportExport({
-  //         //   ...ieImport,
-  //         //   ie: {
-  //         //     ...ieExport,
-  //         //     CreateDate: moment(ieImport.ie.CreateDate).format(
-  //         //       'YYYY-MM-DD HH:mm'
-  //         //     ),
-  //         //     stockItems: newImport.map(x => ({
-  //         //       ...x
-  //         //     }))
-  //         //   },
-  //         //   items: newImport
-  //         // })
-  //       } else if (ieExport) {
-  //         console.log('Tạo đơn nhập', newImport)
-  //         // Tạo đơn
-  //         // let { data: ieCreateN } = await WarehouseAPI.getListInventory({
-  //         //   cmd: 'getie_id',
-  //         //   id: 'typeN'
-  //         // })
-  //         // if (ieCreateN?.data) {
-  //         //   await WarehouseAPI.updateImportExport({
-  //         //     ...ieExport,
-  //         //     ie: {
-  //         //       ID: '',
-  //         //       Code: ieCreateN?.data?.Code || '',
-  //         //       SupplierID: '',
-  //         //       ToPay: '',
-  //         //       Total: '',
-  //         //       Type: 'N',
-  //         //       Other: '',
-  //         //       Payed: 0,
-  //         //       Discount: '',
-  //         //       Source: ieExport?.ie?.Source,
-  //         //       UserID: 0,
-  //         //       Target: 0,
-  //         //       TargetCreated: '',
-  //         //       CreateDate: ieExport?.ie?.CreateDate
-  //         //         ? moment(
-  //         //             ieExport?.ie?.CreateDate,
-  //         //             'YYYY-MM-DD HH:mm'
-  //         //           ).toDate()
-  //         //         : new Date(),
-  //         //       Summary: '',
-  //         //       ReceiverID: 0,
-  //         //       stockItems: newImport.map(x => ({
-  //         //         ...x
-  //         //       }))
-  //         //     },
-  //         //     items: newImport
-  //         //   })
-  //         // }
-  //       }
-  //     } else {
-  //       if (ieImport?.ie?.ID) {
-  //         console.log('Xoá đơn nhập', ieImport?.ie?.ID)
-  //         //Xoá đơn
-  //         // await WarehouseAPI.deleteImportExport({
-  //         //   cmd: 'delete_ie',
-  //         //   id: ieImport?.ie?.ID
-  //         // })
-  //       }
-  //     }
-
-  //     if (newExport && newExport.length > 0) {
-  //       if (ieExport?.ie?.ID) {
-  //         // Sửa đơn
-  //         console.log('Sửa đơn xuất', {
-  //           ...ieExport,
-  //           ie: {
-  //             ...ieExport,
-  //             CreateDate: moment(ieExport.ie.CreateDate).format(
-  //               'YYYY-MM-DD HH:mm'
-  //             ),
-  //             stockItems: newExport.map(x => ({
-  //               ...x
-  //             }))
-  //           },
-  //           items: newExport
-  //         })
-  //         // await WarehouseAPI.updateImportExport({
-  //         //   ...ieExport,
-  //         //   ie: {
-  //         //     ...ieExport,
-  //         //     CreateDate: moment(ieExport.ie.CreateDate).format(
-  //         //       'YYYY-MM-DD HH:mm'
-  //         //     ),
-  //         //     stockItems: newExport.map(x => ({
-  //         //       ...x
-  //         //     }))
-  //         //   },
-  //         //   items: newExport
-  //         // })
-  //       } else if (ieImport) {
-  //         console.log('Tạo đơn xuất', newExport)
-  //         // Tạo đơn
-  //         // let { data: ieCreateX } = await WarehouseAPI.getListInventory({
-  //         //   cmd: 'getie_id',
-  //         //   id: 'typeX'
-  //         // })
-  //         // if (ieCreateX?.data) {
-  //         //   await WarehouseAPI.updateImportExport({
-  //         //     ...ieExport,
-  //         //     ie: {
-  //         //       ID: '',
-  //         //       Code: ieCreateX?.data?.Code || '',
-  //         //       SupplierID: '',
-  //         //       ToPay: '',
-  //         //       Total: '',
-  //         //       Type: 'X',
-  //         //       Other: '',
-  //         //       Payed: 0,
-  //         //       Discount: '',
-  //         //       Source: ieImport?.ie?.Source,
-  //         //       UserID: 0,
-  //         //       Target: 0,
-  //         //       TargetCreated: '',
-  //         //       CreateDate: ieImport?.ie?.CreateDate
-  //         //         ? moment(
-  //         //             ieImport?.ie?.CreateDate,
-  //         //             'YYYY-MM-DD HH:mm'
-  //         //           ).toDate()
-  //         //         : new Date(),
-  //         //       Summary: '',
-  //         //       ReceiverID: 0,
-  //         //       stockItems: newExport.map(x => ({
-  //         //         ...x
-  //         //       }))
-  //         //     },
-  //         //     items: newExport
-  //         //   })
-  //         // }
-  //       }
-  //     } else {
-  //       if (ieExport?.ie?.ID) {
-  //         console.log('Xoá đơn xuất', ieExport?.ie?.ID)
-  //         //Xoá đơn
-  //         // await WarehouseAPI.deleteImportExport({
-  //         //   cmd: 'delete_ie',
-  //         //   id: ieExport?.ie?.ID
-  //         // })
-  //       }
-  //     }
-  //     return null
-  //   }
-  // })
 
   const uploadMutation = useMutation({
     mutationFn: async body => {
@@ -1288,17 +998,6 @@ function WareHouseImport(props) {
       })
   }
 
-  // const checkWarehouse = async () => {
-  //   checkWarehouseMutation.mutate(
-  //     {},
-  //     {
-  //       onSuccess: () => {
-  //         console.log('Done')
-  //       }
-  //     }
-  //   )
-  // }
-
   const recheckMutation = useMutation({
     mutationFn: async body => {
       let { data } = await WarehouseAPI.getListInventory(body)
@@ -1312,7 +1011,7 @@ function WareHouseImport(props) {
       recheckMutation.mutate(
         {
           cmd: 'getie_id',
-          id: 'typeN',
+          id: 'typeX',
           date: moment(Date ? Date : ie.CreateDate).format('YYYY-MM-DD HH:mm'),
           stockid: StockID?.value || ie?.Source
         },
@@ -1350,10 +1049,10 @@ function WareHouseImport(props) {
           animate={{ x: '0' }}
         >
           <div className="flex flex-col h-full">
-            <div className="flex items-center justify-between px-4 py-4 border-b lg:px-6 border-separator dark:border-dark-separator md:h-[90px] md:min-h-[90px]">
+            <div className="flex items-center justify-between px-4 py-4 border-b lg:px-6 border-separator dark:border-dark-separator">
               <div className="w-10/12">
                 <div className="text-xl font-bold truncate lg:text-2xl dark:text-graydark-800">
-                  {!id ? 'Đơn nhập kho mới' : 'Chỉnh sửa đơn nhập kho'}
+                  {!id ? 'Đơn xuất kho mới' : 'Chỉnh sửa đơn xuất kho'}
                 </div>
                 {!id && (
                   <div className="mt-1">
@@ -1382,7 +1081,6 @@ function WareHouseImport(props) {
                   </div>
                 )}
               </div>
-
               <div
                 className="flex items-center justify-center w-10 h-10 transition cursor-pointer lg:w-12 lg:h-12 dark:text-graydark-800 hover:text-primary"
                 onClick={() =>
@@ -1403,54 +1101,53 @@ function WareHouseImport(props) {
               }}
             >
               <ReactBaseTable
-                key={JSON.stringify(watchForm.items.length)}
                 wrapClassName="p-4 lg:p-6 grow bg-white dark:bg-dark-app rounded h-[70vh] md:h-auto"
                 rowKey="id"
                 columns={columns}
                 data={fields}
-                rowHeight={100}
+                estimatedRowHeight={50}
+                onEndReachedThreshold={1}
               />
               <div className="w-full md:w-[320px] lg:w-[380px] border-l border-separator flex flex-col">
                 <div className="p-4 overflow-auto lg:p-6 grow scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-graydark-400 scrollbar-track-transparent scrollbar-thumb-rounded">
-                  <div>
-                    {adminTools_byStock?.hasRight && (
-                      <div className="mb-3.5">
-                        <div className="font-medium">Ngày tạo</div>
-                        <div className="mt-1">
-                          <Controller
-                            rules={{ required: true }}
-                            name="ie.CreateDate"
-                            control={control}
-                            render={({
-                              field: { ref, ...field },
-                              fieldState
-                            }) => (
-                              <InputDatePicker
-                                placeholderText="Chọn thời gian"
-                                autoComplete="off"
-                                selected={
-                                  field.value ? new Date(field.value) : null
-                                }
-                                {...field}
-                                onChange={e => {
-                                  field.onChange(e)
-                                  getCodeIE({
-                                    Date: e
-                                  })
-                                }}
-                                dateFormat="HH:mm dd/MM/yyyy"
-                                showTimeSelect
-                                errorMessageForce={fieldState?.invalid}
-                                //timeFormat="HH:mm"
-                              />
-                            )}
-                          />
-                        </div>
-                      </div>
-                    )}
-
+                  {adminTools_byStock?.hasRight && (
                     <div className="mb-3.5">
-                      <div className="font-medium">Mã đơn nhập kho</div>
+                      <div className="font-medium">Ngày tạo</div>
+                      <div className="mt-1">
+                        <Controller
+                          name="ie.CreateDate"
+                          control={control}
+                          rules={{ required: true }}
+                          render={({
+                            field: { ref, ...field },
+                            fieldState
+                          }) => (
+                            <InputDatePicker
+                              placeholderText="Chọn thời gian"
+                              autoComplete="off"
+                              selected={
+                                field.value ? new Date(field.value) : null
+                              }
+                              {...field}
+                              onChange={e => {
+                                field.onChange(e)
+                                getCodeIE({
+                                  Date: e
+                                })
+                              }}
+                              dateFormat="HH:mm dd/MM/yyyy"
+                              showTimeSelect
+                              errorMessageForce={fieldState?.invalid}
+                              //timeFormat="HH:mm"
+                            />
+                          )}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  <div>
+                    <div className="mb-3.5">
+                      <div className="font-medium">Mã đơn xuất</div>
                       <div className="mt-1">
                         <Controller
                           name="ie.Code"
@@ -1495,7 +1192,7 @@ function WareHouseImport(props) {
                       </div>
                     </div>
                     <div className="mb-3.5">
-                      <div className="font-medium">Nhập vào kho</div>
+                      <div className="font-medium">Xuất từ kho</div>
                       <div className="mt-1">
                         <Controller
                           name="ie.Source"
@@ -1537,6 +1234,53 @@ function WareHouseImport(props) {
                         />
                       </div>
                     </div>
+                    {watchForm.ie.Target && (
+                      <div className="mb-3.5">
+                        <div className="font-medium">Kho chuyển đến</div>
+                        <div className="mt-1">
+                          <Controller
+                            name="ie.Target"
+                            control={control}
+                            render={({
+                              field: { ref, ...field },
+                              fieldState
+                            }) => (
+                              <>
+                                <SelectStocksWareHouse
+                                  isDisabled={watchForm.ie.TargetCreated === 1}
+                                  value={field.value}
+                                  onChange={val =>
+                                    field.onChange(val?.value || '')
+                                  }
+                                  className="select-control"
+                                  menuPosition="fixed"
+                                  styles={{
+                                    menuPortal: base => ({
+                                      ...base,
+                                      zIndex: 9999
+                                    })
+                                  }}
+                                  menuPortalTarget={document.body}
+                                  StockRoles={
+                                    xuat_nhap_diem.hasRight
+                                      ? xuat_nhap_diem.IsStocks
+                                        ? [
+                                            { value: 778, label: 'Kho tổng' }
+                                          ].concat(xuat_nhap_diem.StockRoles)
+                                        : xuat_nhap_diem.StockRoles
+                                      : xuat_nhap_ten_slg.IsStocks
+                                      ? [
+                                          { value: 778, label: 'Kho tổng' }
+                                        ].concat(xuat_nhap_ten_slg.StockRoles)
+                                      : xuat_nhap_ten_slg.StockRoles
+                                  }
+                                />
+                              </>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    )}
                     <div>
                       <div className="font-medium">Nhà cung cấp, đại lý</div>
                       <div className="mt-1">
@@ -1677,16 +1421,6 @@ function WareHouseImport(props) {
                 </div>
                 {!hasWarehouse && (
                   <div className="flex gap-2.5 px-4 py-4 border-t lg:px-6 border-separator">
-                    {/* {data && data?.ID && data?.Code && (
-                      <Button
-                        onClick={() => checkWarehouse()}
-                        type="button"
-                        className="w-[48px] h-12 min-w-[48px] flex items-center justify-center text-warning cursor-pointer border rounded border-gray-300"
-                      >
-                        <ArrowPathIcon className="w-6" />
-                      </Button>
-                    )} */}
-
                     {id && xuat_nhap_diem?.hasRight && (
                       <Button
                         type="button"
@@ -1735,4 +1469,4 @@ function WareHouseImport(props) {
   )
 }
 
-export default WareHouseImport
+export default WareHouseExport
