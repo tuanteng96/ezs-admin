@@ -74,14 +74,15 @@ const EmployeeRow = memo(({ field, control, index }) => {
 })
 
 function ExtraSalary(props) {
-  const { CrStocks } = useAuth()
+  const { CrStocks, auth } = useAuth()
   const { GlobalConfig } = useLayout()
   const containerRef = useRef(null)
 
-  const { tong_hop } = useRoles(['tong_hop'])
+  const { pos_mng } = useRoles(['pos_mng'])
 
   let [filters, setFilters] = useState({
-    Mon: moment().toDate()
+    Mon: moment().toDate(),
+    StockID: CrStocks
   })
 
   const { control, handleSubmit, reset } = useForm({
@@ -101,10 +102,13 @@ function ExtraSalary(props) {
       top: 0,
       behavior: 'smooth' // mượt mà
     })
-  }, [containerRef, filters.Mon, CrStocks])
+  }, [containerRef, filters.Mon, filters.StockID])
 
   const { isLoading, refetch, data } = useQuery({
-    queryKey: ['ExtraSalary', { Mon: filters.Mon, CrStocks, GlobalConfig }],
+    queryKey: [
+      'ExtraSalary',
+      { Mon: filters.Mon, StockID: filters.StockID, GlobalConfig }
+    ],
     queryFn: async () => {
       const data = await SettingsAPI.getUserAllow({
         pi: 1,
@@ -113,18 +117,18 @@ function ExtraSalary(props) {
           //"ID": ",2,3",
           Status: '',
           Mon: moment(filters.Mon).format('MM/YYYY'),
-          StockID: CrStocks?.ID
+          StockID: filters.StockID?.value
         }
       })
       let Users = null
       if (!GlobalConfig?.Admin?.roster_nv_dv) {
         const { data: UsersRs } = await UsersAPI.listFull({
-          StockID: CrStocks?.ID
+          StockID: filters.StockID?.value
         })
         Users = UsersRs
       } else {
         const { data: UsersRs } = await UsersAPI.listService({
-          StockID: CrStocks?.ID
+          StockID: filters.StockID?.value
         })
         Users = UsersRs
       }
@@ -213,7 +217,7 @@ function ExtraSalary(props) {
         Status: Status
       })
     },
-    enabled: Boolean(CrStocks?.ID)
+    enabled: Boolean(filters.StockID)
   })
 
   const addUpdateMutation = useMutation({
@@ -237,7 +241,7 @@ function ExtraSalary(props) {
           0
         )
       }
-      if(newObj.DetailJSON) delete newObj.DetailJSON
+      if (newObj.DetailJSON) delete newObj.DetailJSON
       return newObj
     })
 
@@ -264,6 +268,9 @@ function ExtraSalary(props) {
       }
     )
   }
+
+  let hasRight =
+    auth?.Groups?.some(x => x.Title.toUpperCase() === 'DUYỆT PHÍ') || false
 
   return (
     <div className="relative h-full bg-white dark:bg-dark-app">
@@ -326,7 +333,32 @@ function ExtraSalary(props) {
         </div>
         <div className="flex items-end justify-between">
           <div className="flex gap-4">
-            <div className="relative">
+            <div className="min-w-[280px] max-w-[400px]">
+              <Select
+                noOptionsMessage={() => 'Không có cơ sở'}
+                isClearable={false}
+                className="select-control w-full"
+                onChange={val =>
+                  setFilters(prevState => ({
+                    ...prevState,
+                    StockID: val
+                  }))
+                }
+                value={filters.StockID}
+                classNamePrefix="select"
+                options={pos_mng.StockRoles || []}
+                placeholder="Chọn cơ sở"
+                menuPortalTarget={document.body}
+                menuPosition="fixed"
+                styles={{
+                  menuPortal: base => ({
+                    ...base,
+                    zIndex: 9999
+                  })
+                }}
+              />
+            </div>
+            <div className="relative w-[180px]">
               <InputDatePicker
                 placeholderText="Chọn tháng"
                 autoComplete="off"
@@ -351,11 +383,9 @@ function ExtraSalary(props) {
               control={control}
               render={({ field: { ref, ...field }, fieldState }) => (
                 <Select
-                  isDisabled={
-                    !tong_hop?.hasRight && Number(data?.Status || 1) !== 1
-                  }
+                  isDisabled={!hasRight && Number(data?.Status || 1) !== 1}
                   isClearable={false}
-                  className="select-control min-w-[300px]"
+                  className="select-control min-w-[220px]"
                   onChange={val => field.onChange(val?.value)}
                   value={
                     field.value
@@ -366,7 +396,7 @@ function ExtraSalary(props) {
                   }
                   classNamePrefix="select"
                   options={
-                    tong_hop?.hasRight
+                    hasRight
                       ? Options || []
                       : (Options || []).filter(x => Number(x.value) !== 3)
                   }
@@ -385,9 +415,7 @@ function ExtraSalary(props) {
           </div>
 
           <div className="flex gap-2.5">
-            {(tong_hop?.hasRight
-              ? tong_hop?.hasRight
-              : Number(data?.Status || 1) === 1) && (
+            {(hasRight ? hasRight : Number(data?.Status || 1) === 1) && (
               <Button
                 disabled={addUpdateMutation.isLoading || isLoading}
                 loading={addUpdateMutation.isLoading || isLoading}
