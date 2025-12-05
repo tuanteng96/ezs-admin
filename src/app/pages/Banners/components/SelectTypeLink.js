@@ -44,6 +44,10 @@ const SelectTypeLink = ({ value, ...props }) => {
     //   value: 'CATE_SERVICE_ID'
     // },
     {
+      label: 'Tới đặt lịch',
+      value: 'BOOKKING'
+    },
+    {
       label: 'Tới đặt lịch dịch vụ',
       value: 'BOOK_SERVICE'
     },

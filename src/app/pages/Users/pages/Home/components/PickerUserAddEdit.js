@@ -64,7 +64,7 @@ const schemaAddEdit = yup
   })
   .required()
 
-function PickerUserAddEdit({ children, initialValues }) {
+function PickerUserAddEdit({ children, initialValues, onClose }) {
   const [visible, setVisible] = useState(false)
   const [suggestLoading, setSuggestLoading] = useState(false)
   const [isEditPwd, setIsEditPwd] = useState(false)
@@ -116,7 +116,7 @@ function PickerUserAddEdit({ children, initialValues }) {
       UnknownKeysConfigs: [],
       Gender: 1,
       YahooID: '',
-      Address: ""
+      Address: ''
     },
     resolver: yupResolver(schemaAddEdit)
   })

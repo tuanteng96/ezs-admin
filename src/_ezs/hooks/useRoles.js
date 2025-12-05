@@ -2,7 +2,7 @@ import { useId } from 'react'
 import { useAuth } from '../core/Auth'
 import { formatArray } from '../utils/formatArray'
 
-let KeyChanges = ['ReadApp']
+let KeyChanges = ['ReadApp', 'pos_mng']
 
 const hasRolesAuth = data => {
   let newHasRoles = []
@@ -27,7 +27,7 @@ const hasRolesAuth = data => {
         : []
     }))
   }
-
+  
   return { hasRoles: newHasRoles }
 }
 

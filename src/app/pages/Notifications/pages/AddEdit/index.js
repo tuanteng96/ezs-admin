@@ -515,7 +515,8 @@ function AddEdit(props) {
                                       [
                                         'SALE',
                                         'VOUCHER',
-                                        'FORM_SALES'
+                                        'FORM_SALES',
+                                        'BOOKKING'
                                       ].includes(val.value)
                                     ) {
                                       if (val.value === 'SALE') {
@@ -526,6 +527,9 @@ function AddEdit(props) {
                                       }
                                       if (val.value === 'FORM_SALES') {
                                         setValue('Link', '/pupup-contact/')
+                                      }
+                                      if (val.value === 'BOOKKING') {
+                                        setValue('Link', '/schedule/')
                                       }
                                     } else {
                                       setValue('Link', '')

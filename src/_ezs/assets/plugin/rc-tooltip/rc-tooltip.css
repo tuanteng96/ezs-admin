@@ -65,7 +65,7 @@
 
 .rc-tooltip {
     position: absolute;
-    z-index: 1070;
+    z-index: 1002; /*1070*/
     display: block;
     visibility: visible;
     /* font-size: 12px;

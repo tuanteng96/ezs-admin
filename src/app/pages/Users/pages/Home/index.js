@@ -339,7 +339,6 @@ function Home(props) {
                         <div
                           className="w-full px-4 py-2.5 text-sm text-left hover:bg-[#f2f2f7] transition cursor-pointer"
                           onClick={() => {
-                            document.body.click()
                             open()
                           }}
                         >

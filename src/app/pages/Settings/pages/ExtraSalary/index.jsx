@@ -78,7 +78,7 @@ function ExtraSalary(props) {
   const { GlobalConfig } = useLayout()
   const containerRef = useRef(null)
 
-  const { pos_mng } = useRoles(['pos_mng'])
+  const { pos_mng_pos_mng } = useRoles(['pos_mng_pos_mng'])
 
   let [filters, setFilters] = useState({
     Mon: moment().toDate(),
@@ -346,7 +346,7 @@ function ExtraSalary(props) {
                 }
                 value={filters.StockID}
                 classNamePrefix="select"
-                options={pos_mng.StockRoles || []}
+                options={pos_mng_pos_mng.StockRoles || []}
                 placeholder="Chọn cơ sở"
                 menuPortalTarget={document.body}
                 menuPosition="fixed"
