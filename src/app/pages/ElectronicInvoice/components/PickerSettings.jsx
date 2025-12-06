@@ -99,9 +99,10 @@ function PickerSettings({ children, initialValues, onChange }) {
           SignType: 1, // khmshdon
           InvSeries: 'C25MTA', //khhdon
           type_cert: 'HSM',
+          client_id: 'fb9d9f88-1760285200410.hst.vnpt-invoice.com.vn',
           serial_number: '5401010168990b6daa14c8fdd7367ca7',
-          INVOICE_USER_HDVNPT_SAAS: 'tichhop',
-          INVOICE_PASSWORD_HDVNPT_SAAS: 'HST@Invoice2510',
+          INVOICE_USER_HDVNPTSAAS: 'tichhop',
+          INVOICE_PASSWORD_HDVNPTSAAS: 'HST@Invoice2510',
           isActive: false,
           isDemo: false
         }
@@ -179,7 +180,10 @@ function PickerSettings({ children, initialValues, onChange }) {
   const transferKey = text => {
     if (text.includes('INVOICE_SECRET')) {
       return 'Client Secret'
-    } else if (text.includes('INVOICE_USERNAME')) {
+    } else if (
+      text.includes('INVOICE_USERNAME') ||
+      text.includes('INVOICE_USER')
+    ) {
       return 'Tài khoản'
     } else if (text.includes('INVOICE_PASSWORD')) {
       return 'Mật khẩu'
@@ -215,12 +219,12 @@ function PickerSettings({ children, initialValues, onChange }) {
       return 'Nhóm dịch vụ'
     } else if (text === 'VoucherBook') {
       return 'Mã phân loại máy tính tiền (VoucherBook)'
-    } else if (text === 'INVOICE_USER_HDVNPT_SAAS') {
-      return 'Tài khoản'
     } else if (text === 'type_cert') {
       return 'Type Cert'
     } else if (text === 'serial_number') {
       return 'Serial Number'
+    } else if (text === 'client_id') {
+      return 'Client ID'
     }
 
     return text
@@ -387,11 +391,12 @@ function PickerSettings({ children, initialValues, onChange }) {
                                             type={
                                               [
                                                 'INVOICE_USERNAME_HDMISA',
-                                                'INVOICE_PASSWORD_HDMISA',
                                                 'INVOICE_SECRET_HDPAVN',
-                                                'Password',
-                                                'INVOICE_PASSWORD_HDVNPT_SAAS'
-                                              ].includes(keyName)
+                                                'Password'
+                                              ].includes(keyName) ||
+                                              keyName.includes(
+                                                'INVOICE_PASSWORD'
+                                              )
                                                 ? 'password'
                                                 : 'text'
                                             }

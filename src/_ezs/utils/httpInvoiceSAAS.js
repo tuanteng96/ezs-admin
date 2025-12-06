@@ -6,7 +6,7 @@ class HttpInvoiceSAAS {
   constructor() {
     this.accessToken = window?.top?.token || getLocalStorage('access_token')
     this.accessTokenInvoice = getLocalStorage('v1tk_invoiceSAAS') || ''
-    this.clientIdInvoice = getLocalStorage('v1clientid_invoiceSAAS') || ''
+
     this.reloadCount = 1
     this.instance = axios.create({
       baseURL:
@@ -24,10 +24,9 @@ class HttpInvoiceSAAS {
         if (this.accessToken) {
           config.headers.Authorization = 'Bearer ' + this.accessToken
         }
-        if (this.accessTokenInvoice && this.clientIdInvoice) {
+        if (this.accessTokenInvoice) {
           let newData = config.data ? JSON.parse(config.data) : {}
           newData['headers']['Authorization'] = this.accessTokenInvoice
-          newData['headers']['Client-Id'] = this.clientIdInvoice
 
           config.data = newData
         }
@@ -69,24 +68,15 @@ class HttpInvoiceSAAS {
               }
             }
           )
-          if (
-            rs?.data?.result?.data?.access_token &&
-            rs?.data?.result?.data?.clientId
-          ) {
+          if (rs?.data?.result?.data?.access_token) {
             newData['headers']['Authorization'] =
               rs?.data?.result?.data?.access_token
-            newData['headers']['Client-Id'] = rs?.data?.result?.data?.clientId
 
             this.accessTokenInvoice = rs?.data?.result?.data?.access_token
-            this.clientIdInvoice = rs?.data?.result?.data?.clientId
 
             storeLocalStorage(
               rs?.data?.result?.data?.access_token,
               'v1tk_invoiceSAAS'
-            )
-            storeLocalStorage(
-              rs?.data?.result?.data?.access_token,
-              'v1clientid_invoiceSAAS'
             )
           }
 

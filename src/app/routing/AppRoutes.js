@@ -9,6 +9,7 @@ import { useAuth } from 'src/_ezs/core/Auth'
 import App from '../App'
 import AuthRoutes from './AuthRoutes'
 import PrivateRoutes from './PrivateRoutes'
+import PublicPage from '../pages/Public'
 
 const { PUBLIC_URL } = process.env
 
@@ -20,6 +21,8 @@ const AppBrowserRouter = () => {
   return (
     <Routes>
       <Route element={<App />}>
+        <Route path="/public/*" element={<PublicPage />} />
+
         {accessToken ? (
           <>
             <Route path="/*" element={<PrivateRoutes />} />

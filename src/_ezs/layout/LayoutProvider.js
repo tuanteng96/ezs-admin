@@ -131,9 +131,10 @@ const LayoutProvider = ({ children }) => {
           SignType: 1, // khmshdon
           InvSeries: 'C25MTA', //khhdon
           type_cert: 'HSM',
+          client_id: 'fb9d9f88-1760285200410.hst.vnpt-invoice.com.vn',
           serial_number: '5401010168990b6daa14c8fdd7367ca7',
-          INVOICE_USER_HDVNPT_SAAS: 'tichhop',
-          INVOICE_PASSWORD_HDVNPT_SAAS: 'HST@Invoice2510',
+          INVOICE_USER_HDVNPTSAAS: 'tichhop',
+          INVOICE_PASSWORD_HDVNPTSAAS: 'HST@Invoice2510',
           isActive: false,
           isDemo: false
         }

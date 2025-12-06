@@ -19,7 +19,8 @@ const InvoiceAPI = {
   createRefId: body =>
     http.post(`/api/v3/order23@CreateInvoice`, JSON.stringify(body)),
   getENV: () => http.get('/api/v3/BrandGlobal@ENVGET'),
-  saveENV: body => http.post('/api/v3/BrandGlobal@ENVSAVE', body) // {ENV: {value}}
+  saveENV: body => http.post('/api/v3/BrandGlobal@ENVSAVE', body), // {ENV: {value}}
+  orderCompany: body => http.post('/api/v3/Order23@InvoiceInfo', body)
 }
 
 export default InvoiceAPI

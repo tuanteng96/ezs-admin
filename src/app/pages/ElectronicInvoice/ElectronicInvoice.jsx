@@ -1390,7 +1390,8 @@ function ElectronicInvoice(props) {
                 InvoiceConfig?.InvoiceActive?.isDemo
               ) + '/pos-api/api/v1/saas/posinvoice/create-and-publish',
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Client-Id': InvoiceConfig?.InvoiceActive?.client_id
             },
             param: {},
             method: 'POST',
@@ -1469,7 +1470,8 @@ function ElectronicInvoice(props) {
                     InvoiceConfig?.InvoiceActive?.isDemo
                   ) + '/pos-api/api/v1/saas/portal/get-pos-by-fkey',
                 headers: {
-                  'Content-Type': 'application/json'
+                  'Content-Type': 'application/json',
+                  'Client-Id': InvoiceConfig?.InvoiceActive?.client_id
                 },
                 param: {},
                 method: 'POST',
@@ -1731,7 +1733,8 @@ function ElectronicInvoice(props) {
               InvoiceConfig?.InvoiceActive?.isDemo
             ) + '/pos-api/api/v1/saas/portal/download-by-fkeys',
           headers: {
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/json',
+            'Client-Id': InvoiceConfig?.InvoiceActive?.client_id
           },
           param: {},
           method: 'POST',
