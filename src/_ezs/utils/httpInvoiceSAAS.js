@@ -57,8 +57,8 @@ class HttpInvoiceSAAS {
               method: 'POST',
               include: 'ENV',
               body: {
-                username: '{INVOICE_USER_HDVNPT_SAAS}',
-                password: '{INVOICE_PASSWORD_HDVNPT_SAAS}'
+                username: '{INVOICE_USER_HDVNPTSAAS}',
+                password: '{INVOICE_PASSWORD_HDVNPTSAAS}'
               },
               resultType: 'json'
             },

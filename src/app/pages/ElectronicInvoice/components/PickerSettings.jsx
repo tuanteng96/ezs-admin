@@ -94,7 +94,7 @@ function PickerSettings({ children, initialValues, onChange }) {
           ID: 4,
           Code: 'HDVNPTSAAS',
           Title: 'Hóa đơn VNPT SAAS',
-          BaseUrl: 'http://api-hst.vnpt-invoice.com.vn',
+          BaseUrl: 'https://api-hst.vnpt-invoice.com.vn',
           TestUrl: 'http://api-hst-dev.vnpt-invoice.com.vn',
           SignType: 1, // khmshdon
           InvSeries: 'C25MTA', //khhdon
