@@ -1336,7 +1336,7 @@ function ElectronicInvoice(props) {
                     : item.SenderPhone,
                 DCTDTu: '',
                 STKNHang: '',
-                HTTToan: '',
+                HTTToan: 'TM,CK',
                 TNHang: '',
                 DVTTe: 'VND',
                 TGia: 1,
@@ -1544,7 +1544,9 @@ function ElectronicInvoice(props) {
               render: `Hoá đơn ${list
                 .map(x => x.ID)
                 .join(', ')} xuất không thành công. (Error: ${
-                exportInvoice?.data?.result?.message
+                exportInvoice?.data?.error ||
+                exportInvoice?.data?.result?.message ||
+                'Lỗi chưa xác định.'
               })`,
               type: 'error',
               isLoading: false,
